@@ -1,0 +1,61 @@
+# macOS specific files
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+# Icon?
+*.icon?
+# Tags Databases
+.tags
+# macOS finder attribute files
+.finder
+# Temporary files
+*.tmp
+
+# Python specific files
+# Compiled source
+__pycache__/
+*.pyc
+# Environments
+venv/
+env/
+.venv/
+# Distribution / packaging
+.Python
+build/
+dist/
+wheels/
+*.egg-info/
+*.whl
+# Editors/Tools
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.vscode/ # Uncomment if you want to ignore VS Code settings
+
+# R specific files
+# History files
+.Rhistory
+.Rapp.history
+# Session Data
+.RData
+# Project files
+*.Rproj
+# R packages
+.Rbuildignore
+# Invisible files created by R
+.htrc
+# Build outputs
+*.html
+*.pdf
+*.tex
+*.aux
+*.log
+*.rnw
+*.toc
+*.bbl
+*.blg
+# RStudio
+.Rproj.user/
+
+.DS_Store
