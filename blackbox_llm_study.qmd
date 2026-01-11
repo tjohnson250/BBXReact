@@ -1093,38 +1093,41 @@ cat("Configurations tested:", length(unique(predict_data$config_index)), "\n")
 #| label: predict-data-completeness
 
 # Check data completeness across experimental factors
-# Expected: 10 configs × 32 rays = 320 predictions per condition
+# Note: Fewer than 32 predictions per configuration is expected because
+# detour rays are symmetric - if a ray enters at position A and exits at B,
+# then a ray entering at B would exit at A. The experiment skips testing
+# the reverse direction to avoid redundancy.
 
-cat("=== Data Completeness Check ===\n\n")
+cat("=== Predictions per Configuration ===\n")
+cat("Note: N < 32 is expected due to ray symmetry optimization.\n")
+cat("Detour rays (exit != entry) are only tested once, not in both directions.\n\n")
 
-# Check predictions per configuration (should be 32)
 predictions_per_config <- predict_data |>
   group_by(model_name, prompt_style, enable_thinking, vot_ray_trace, config_index) |>
   summarise(n_predictions = n(), .groups = "drop")
 
-cat("Predictions per configuration (expected: 32):\n")
+cat("Distribution of predictions per configuration:\n")
 print(table(predictions_per_config$n_predictions))
 
-# Check completeness by experimental condition
-completeness <- predict_data |>
-  group_by(prompt_style, enable_thinking, vot_ray_trace) |>
+# Check for consistent N across models within each condition
+cat("\n=== Consistency Check ===\n")
+cat("Within each condition, all models should have the same N per config.\n\n")
+
+consistency <- predictions_per_config |>
+  group_by(prompt_style, enable_thinking, vot_ray_trace, config_index) |>
   summarise(
-    n_predictions = n(),
-    n_configs = n_distinct(config_index),
-    n_models = n_distinct(model_name),
-    models = paste(unique(model_name), collapse = ", "),
+    n_unique = n_distinct(n_predictions),
+    min_n = min(n_predictions),
+    max_n = max(n_predictions),
     .groups = "drop"
-  ) |>
-  mutate(
-    expected_n = n_configs * n_models * 32,
-    completeness_pct = round(100 * n_predictions / expected_n, 1)
   )
 
-cat("\n=== Completeness by Experimental Condition ===\n")
-cat("(Expected: 10 configs × 3 models × 32 rays = 960 per condition)\n\n")
-kable(completeness |> select(prompt_style, enable_thinking, vot_ray_trace,
-                              n_predictions, expected_n, completeness_pct),
-      col.names = c("Prompt", "Thinking", "VoT Ray", "N Actual", "N Expected", "% Complete"))
+if (all(consistency$n_unique == 1)) {
+  cat("All models have consistent N per configuration within each condition.\n")
+} else {
+  cat("Inconsistent N detected across models:\n")
+  consistency |> filter(n_unique > 1) |> print()
+}
 
 # Check for duplicate runs (same condition run multiple times)
 cat("\n=== Check for Duplicate Runs ===\n")
