@@ -1051,11 +1051,24 @@ export default function BlackBoxGame() {
         // Check for error responses
         if (response.startsWith('Error:')) {
           addExperimentLog(`  ⚠️ API Error: ${response}`);
+
+          // Still compute actual ray trace result even when API fails
+          const actual = traceRay(atomSet, side, pos);
+          let actualOutcome = 'unknown';
+          if (actual.absorbed) {
+            actualOutcome = 'absorbed';
+          } else if (actual.entry.side === actual.exit?.side && actual.entry.pos === actual.exit?.pos) {
+            actualOutcome = 'reflected';
+          } else if (actual.exit) {
+            actualOutcome = `${actual.exit.side}-${actual.exit.pos}`;
+          }
+
           result.predictions.push({
             rayEntry: { side, pos },
             userPrompt: prompt,
+            rayResult: actual,
             predicted: 'error',
-            actual: 'unknown',
+            actual: actualOutcome,
             correct: false,
             reasoning: response,
             thinking: '',
@@ -1063,6 +1076,23 @@ export default function BlackBoxGame() {
             inputTokens: usage.input_tokens || 0,
             outputTokens: usage.output_tokens || 0
           });
+
+          // Update visualization
+          actual.id = visualRays.length + 1;
+          visualRays.push(actual);
+          visualPredictions.push({
+            ray: `${side.toUpperCase()}-${pos}`,
+            correct: false
+          });
+          setExperimentRays([...visualRays]);
+          setExperimentPredictions([...visualPredictions]);
+
+          // Mark exit position as tested (for symmetry optimization)
+          if (actual.exit && !(actual.entry.side === actual.exit.side && actual.entry.pos === actual.exit.pos)) {
+            const exitKey = `${actual.exit.side}-${actual.exit.pos}`;
+            testedPositions.add(exitKey);
+          }
+
           await new Promise(resolve => setTimeout(resolve, 500));
           continue;
         }
