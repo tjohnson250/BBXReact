@@ -1086,6 +1086,8 @@ cat("Loaded", nrow(predict_data), "predictions from",
     length(predict_json_files), "JSON files\n")
 cat("Models:", paste(unique(predict_data$model_name), collapse = ", "), "\n")
 cat("Prompt styles:", paste(unique(predict_data$prompt_style), collapse = ", "), "\n")
+cat("Extended thinking:", paste(unique(predict_data$enable_thinking), collapse = ", "), "\n")
+cat("VoT ray trace:", paste(unique(predict_data$vot_ray_trace), collapse = ", "), "\n")
 cat("Configurations tested:", length(unique(predict_data$config_index)), "\n")
 ```
 
