@@ -858,6 +858,8 @@ export default function BlackBoxGame() {
   const [experimentResults, setExperimentResults] = useState([]);
   const [currentExperiment, setCurrentExperiment] = useState(null);
   const shouldStopExperiment = useRef(false);
+  const [experimentPausedForRateLimit, setExperimentPausedForRateLimit] = useState(false);
+  const resumeExperimentResolve = useRef(null);
   // Visualization state for experiment mode
   const [experimentAtoms, setExperimentAtoms] = useState(new Set());
   const [experimentRays, setExperimentRays] = useState([]);
@@ -929,7 +931,23 @@ export default function BlackBoxGame() {
       log: [...prev.log, `[${timestamp}] ${message}`]
     }));
   };
-  
+
+  // Pause experiment on rate limit and wait for user to resume
+  const waitForRateLimitResume = () => {
+    return new Promise(resolve => {
+      resumeExperimentResolve.current = resolve;
+      setExperimentPausedForRateLimit(true);
+    });
+  };
+
+  const handleResumeExperiment = () => {
+    setExperimentPausedForRateLimit(false);
+    if (resumeExperimentResolve.current) {
+      resumeExperimentResolve.current();
+      resumeExperimentResolve.current = null;
+    }
+  };
+
   const runPredictExperiment = async (configIndex, model, promptStyle, includeVisualization, enableThinking, thinkingBudget, votSettings) => {
     const config = EXPERIMENT_CONFIGS[configIndex];
     const atomSet = configToAtomSet(config);
@@ -1029,28 +1047,75 @@ export default function BlackBoxGame() {
       addExperimentLog(`→ ${side.toUpperCase()}-${pos}: Calling API...`);
       
       try {
-        const { thinking, text: response, usage } = await callClaude(
-          [{ role: "user", content: prompt }],
-          systemPromptWithVoT,
-          model,
-          enableThinking,
-          thinkingBudget
-        );
-        
+        // Retry logic for transient API errors
+        const maxRetries = 3;
+        let lastError = null;
+        let response = null;
+        let thinking = [];
+        let usage = { input_tokens: 0, output_tokens: 0 };
+        let totalResponseTimeMs = 0;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          const attemptStart = Date.now();
+          const apiResult = await callClaude(
+            [{ role: "user", content: prompt }],
+            systemPromptWithVoT,
+            model,
+            enableThinking,
+            thinkingBudget
+          );
+
+          const attemptTimeMs = Date.now() - attemptStart;
+          totalResponseTimeMs += attemptTimeMs;
+          result.totalApiCalls++;
+
+          thinking = apiResult.thinking;
+          response = apiResult.text;
+          usage = apiResult.usage;
+
+          // Check for rate limit errors - pause and wait for user to resume
+          if (response.startsWith('Error:') &&
+              (response.includes('429') || response.includes('rate_limit') ||
+               response.includes('rate limit') || response.includes('Too many requests'))) {
+            addExperimentLog(`  ⏸️ Rate limit hit. Pausing experiment - click Resume when ready.`);
+            await waitForRateLimitResume();
+            addExperimentLog(`  ▶️ Resuming experiment...`);
+            // Retry this attempt after resume
+            attempt--;
+            continue;
+          }
+
+          // Check if this is a retryable server error (500, 529, overloaded)
+          if (response.startsWith('Error:') &&
+              (response.includes('500') || response.includes('529') ||
+               response.includes('overloaded') || response.includes('Internal server error'))) {
+            lastError = response;
+            if (attempt < maxRetries) {
+              const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 8000); // 1s, 2s, 4s, max 8s
+              addExperimentLog(`  ⚠️ Attempt ${attempt}/${maxRetries} failed, retrying in ${backoffMs/1000}s...`);
+              await new Promise(resolve => setTimeout(resolve, backoffMs));
+              continue;
+            }
+          }
+
+          // Success or non-retryable error - exit retry loop
+          lastError = null;
+          break;
+        }
+
         const responseTimeMs = Date.now() - startTime;
         const elapsed = (responseTimeMs / 1000).toFixed(1);
-        result.totalApiCalls++;
         result.totalInputTokens += usage.input_tokens || 0;
         result.totalOutputTokens += usage.output_tokens || 0;
-        result.totalResponseTimeMs += responseTimeMs;
-        
+        result.totalResponseTimeMs += totalResponseTimeMs;
+
         // Log response (truncated)
         const respPreview = response.substring(0, 100).replace(/\n/g, ' ');
         addExperimentLog(`  [${elapsed}s] Response: "${respPreview}${response.length > 100 ? '...' : ''}" (${usage.input_tokens}+${usage.output_tokens} tokens)`);
-        
-        // Check for error responses
+
+        // Check for error responses (after all retries exhausted)
         if (response.startsWith('Error:')) {
-          addExperimentLog(`  ⚠️ API Error: ${response}`);
+          addExperimentLog(`  ⚠️ API Error after ${maxRetries} attempts: ${response}`);
 
           // Still compute actual ray trace result even when API fails
           const actual = traceRay(atomSet, side, pos);
@@ -4235,8 +4300,19 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
                     >
                       ⏹ Stop
                     </button>
+                    {experimentPausedForRateLimit && (
+                      <button
+                        onClick={handleResumeExperiment}
+                        className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 animate-pulse"
+                      >
+                        ▶️ Resume
+                      </button>
+                    )}
                   </div>
                 </div>
+                {experimentPausedForRateLimit && (
+                  <div className="text-amber-600 font-medium">⏸️ Paused - Rate limit reached. Click Resume when ready.</div>
+                )}
                 <div className="text-sm text-gray-700">{experimentProgress.status}</div>
                 <div className="w-full bg-gray-200 rounded h-2 mt-2">
                   <div 
