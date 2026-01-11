@@ -118,7 +118,7 @@ identifying *which* specific state from a known set is present.
 **Component processes of diagnostic reasoning:**
 
 | Process | Description |
-|----|----|
+|------------------------------------|------------------------------------|
 | **Hypothesis Generation** | Generate candidate hidden states that could explain observations |
 | **Forward Reasoning** | Predict what observations would occur under each hypothesis |
 | **Test Selection** | Choose which observation to gather next to best discriminate among hypotheses |
@@ -145,7 +145,7 @@ realization of diagnostic reasoning*—requiring all six component
 processes in an integrated task:
 
 | Diagnostic Process | Black Box Analog |
-|----|----|
+|------------------------------------|------------------------------------|
 | **Hypothesis Generation** | Consider which atom configurations could explain observations |
 | **Forward Reasoning** | Predict ray behavior under a hypothesized configuration |
 | **Test Selection** | Choose which ray to fire next to discriminate among hypotheses |
@@ -808,22 +808,22 @@ kable(predict_design, format = "pipe")
 ```
 
 | Model | Prompt | Extended Thinking | Vot (None, B Ray Trace) |
-|----|----|----|----|
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **None** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **None** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **VoT B Ray Trace Visualization** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **None** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **VoT B Ray Trace Visualization** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **None** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **VoT B Ray Trace Visualization** |
+|------------------|------------------|------------------|------------------|
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **None** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **None** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **VoT B Ray Trace Visualization** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **None** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **VoT B Ray Trace Visualization** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **None** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **VoT B Ray Trace Visualization** |
 
 ### Play Mode Factors
 
 Play Mode Experiment Log
 
 | Model | Prompt | Extended Thinking | VoT (None, A, B, or C) |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **None** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT A Grid State Tracking** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
@@ -1010,7 +1010,7 @@ thinking) interact with spatial complexity:
 We classify errors from extended thinking traces into categories:
 
 | Error Type | Spatial? | Description |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Ray path error | Yes | Path traced incorrectly through grid |
 | Deflection geometry error | Yes | Misunderstood deflection rules |
 | Constraint tracking error | No | Failed to update ruled-out positions |
@@ -1108,8 +1108,23 @@ predictions_per_config <- predict_data |>
   group_by(model_name, prompt_style, enable_thinking, vot_ray_trace, config_index) |>
   summarise(n_predictions = n(), .groups = "drop")
 
-cat("Distribution of predictions per configuration:\n")
-print(table(predictions_per_config$n_predictions))
+# Create matrix: rows = experimental conditions, columns = configurations
+# Since all models should have same N per config, take first model's values
+predictions_matrix <- predictions_per_config |>
+  filter(model_name == first(model_name)) |>
+  mutate(
+    condition = paste0(
+      substr(prompt_style, 1, 3), "_",
+      ifelse(enable_thinking, "think", "no"), "_",
+      ifelse(vot_ray_trace, "vot", "no")
+    )
+  ) |>
+  select(condition, config_index, n_predictions) |>
+  pivot_wider(names_from = config_index, values_from = n_predictions, names_prefix = "cfg_")
+
+kable(predictions_matrix,
+      caption = "Predictions per Configuration by Experimental Condition",
+      col.names = c("Condition", paste0("Config ", 0:9)))
 
 # Check for consistent N across models within each condition
 cat("\n=== Consistency Check ===\n")
