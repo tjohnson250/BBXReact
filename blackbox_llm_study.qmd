@@ -118,7 +118,7 @@ identifying *which* specific state from a known set is present.
 **Component processes of diagnostic reasoning:**
 
 | Process | Description |
-|------------------------------|------------------------------------------|
+|----|----|
 | **Hypothesis Generation** | Generate candidate hidden states that could explain observations |
 | **Forward Reasoning** | Predict what observations would occur under each hypothesis |
 | **Test Selection** | Choose which observation to gather next to best discriminate among hypotheses |
@@ -145,7 +145,7 @@ realization of diagnostic reasoning*—requiring all six component
 processes in an integrated task:
 
 | Diagnostic Process | Black Box Analog |
-|------------------------------------|------------------------------------|
+|----|----|
 | **Hypothesis Generation** | Consider which atom configurations could explain observations |
 | **Forward Reasoning** | Predict ray behavior under a hypothesized configuration |
 | **Test Selection** | Choose which ray to fire next to discriminate among hypotheses |
@@ -808,7 +808,7 @@ kable(predict_design, format = "pipe")
 ```
 
 | Model | Prompt | Extended Thinking | Vot (None, B Ray Trace) |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **None** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **None** |
@@ -823,7 +823,7 @@ kable(predict_design, format = "pipe")
 Play Mode Experiment Log
 
 | Model | Prompt | Extended Thinking | VoT (None, A, B, or C) |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **None** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT A Grid State Tracking** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
@@ -1010,7 +1010,7 @@ thinking) interact with spatial complexity:
 We classify errors from extended thinking traces into categories:
 
 | Error Type | Spatial? | Description |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Ray path error | Yes | Path traced incorrectly through grid |
 | Deflection geometry error | Yes | Misunderstood deflection rules |
 | Constraint tracking error | No | Failed to update ruled-out positions |
@@ -1090,11 +1090,65 @@ cat("Configurations tested:", length(unique(predict_data$config_index)), "\n")
 ```
 
 ```{r}
+#| label: predict-data-completeness
+
+# Check data completeness across experimental factors
+# Expected: 10 configs × 32 rays = 320 predictions per condition
+
+cat("=== Data Completeness Check ===\n\n")
+
+# Check predictions per configuration (should be 32)
+predictions_per_config <- predict_data |>
+  group_by(model_name, prompt_style, enable_thinking, vot_ray_trace, config_index) |>
+  summarise(n_predictions = n(), .groups = "drop")
+
+cat("Predictions per configuration (expected: 32):\n")
+print(table(predictions_per_config$n_predictions))
+
+# Check completeness by experimental condition
+completeness <- predict_data |>
+  group_by(prompt_style, enable_thinking, vot_ray_trace) |>
+  summarise(
+    n_predictions = n(),
+    n_configs = n_distinct(config_index),
+    n_models = n_distinct(model_name),
+    models = paste(unique(model_name), collapse = ", "),
+    .groups = "drop"
+  ) |>
+  mutate(
+    expected_n = n_configs * n_models * 32,
+    completeness_pct = round(100 * n_predictions / expected_n, 1)
+  )
+
+cat("\n=== Completeness by Experimental Condition ===\n")
+cat("(Expected: 10 configs × 3 models × 32 rays = 960 per condition)\n\n")
+kable(completeness |> select(prompt_style, enable_thinking, vot_ray_trace,
+                              n_predictions, expected_n, completeness_pct),
+      col.names = c("Prompt", "Thinking", "VoT Ray", "N Actual", "N Expected", "% Complete"))
+
+# Check for duplicate runs (same condition run multiple times)
+cat("\n=== Check for Duplicate Runs ===\n")
+runs_per_condition <- predict_data |>
+  group_by(prompt_style, enable_thinking, vot_ray_trace, model_name, config_index) |>
+  summarise(n_runs = n_distinct(source_file), .groups = "drop")
+
+if (any(runs_per_condition$n_runs > 1)) {
+  cat("Found duplicate runs in some conditions:\n")
+  runs_per_condition |>
+    filter(n_runs > 1) |>
+    count(prompt_style, enable_thinking, vot_ray_trace, n_runs) |>
+    print()
+} else {
+  cat("No duplicate runs detected.\n")
+}
+```
+
+```{r}
 #| label: predict-results-summary
 
-# Summary statistics by model, prompt style, and thinking
+# Summary statistics by all experimental factors
 predict_summary <- predict_data |>
-  group_by(model_name, prompt_style, enable_thinking) |>
+  group_by(model_name, prompt_style, enable_thinking, vot_ray_trace) |>
   summarise(
     n = n(),
     n_correct = sum(correct),
@@ -1106,7 +1160,7 @@ predict_summary <- predict_data |>
   mutate(across(where(is.numeric) & !c(n, n_correct), \(x) round(x, 3)))
 
 kable(predict_summary,
-      col.names = c("Model", "Prompt", "Thinking", "N", "Correct",
+      col.names = c("Model", "Prompt", "Thinking", "VoT Ray", "N", "Correct",
                     "Accuracy", "SE", "Response Time (ms)"),
       caption = "Predict Mode Performance by Experimental Condition")
 ```
