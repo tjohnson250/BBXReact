@@ -17,6 +17,9 @@ Unlike medical benchmarks that may reward pattern matching to training data, Bla
 
 ### React Application (`blackbox.jsx`)
 
+To run as a Claude Artifact with your Claude.ai account visit:
+https://claude.ai/public/artifacts/31d93658-cd9d-4ad4-ade0-060a2d96b87d
+
 A browser-based implementation of Black Box with multiple modes:
 
 | Mode | Description |
@@ -28,12 +31,12 @@ A browser-based implementation of Black Box with multiple modes:
 | **Experiment** | Run systematic experiments across configurations |
 
 **Requirements:**
-- Anthropic API key (entered via UI)
+- Claude.ai account
 - Modern browser with JavaScript enabled
 
 ### Research Paper (`blackbox_llm_study.qmd`)
 
-Quarto document containing the academic paper with methodology, results, and analysis.
+Draft (currently incomplete) Quarto document containing the academic paper with methodology, results, and analysis.
 
 **Rendering:**
 ```bash
