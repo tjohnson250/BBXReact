@@ -1026,29 +1026,235 @@ component capabilities drive overall performance.
 ## Predict Mode Results
 
 ```{r}
-#| label: predict-results-placeholder
-#| eval: false
+#| label: load-predict-data
 
-# Placeholder for predict mode analysis
-# Data will be loaded from experimental results
+# Load all Predict mode experiment JSON files from Experiment 1/Predict/
+predict_json_files <- list.files(
+  path = "Experiment 1/Predict",
+  pattern = "\\.json$",
+  full.names = TRUE
+)
 
-# predict_data <- jsonlite::fromJSON("predict_results.json")
-#
-# # Summary statistics
-# predict_summary <- predict_data |>
-#   group_by(model, prompt_condition) |>
-#   summarise(
-#     mean_correct = mean(correct),
-#     sd_correct = sd(correct),
-#     n = n(),
-#     .groups = "drop"
-#   ) |>
-#   mutate(across(where(is.numeric), \(x) round(x, 3)))
-#
-# kable(predict_summary)
+# Function to extract results from a single Predict JSON file
+extract_predict_results <- function(json_file) {
+  data <- jsonlite::fromJSON(json_file, simplifyDataFrame = FALSE)
+
+  # Extract results array
+  results <- data$results
+
+  # Convert each result to prediction-level rows
+  map_dfr(results, function(r) {
+    # Each result has a predictions array
+    predictions <- r$predictions
+
+    if (is.null(predictions) || length(predictions) == 0) {
+      return(tibble())
+    }
+
+    # Extract each prediction
+    map_dfr(predictions, function(p) {
+      tibble(
+        experiment_id = r$experimentId,
+        model = r$model,
+        model_name = r$modelName,
+        prompt_style = r$promptStyle,
+        prompt_condition = r$promptCondition,
+        config_index = r$configIndex,
+        include_visualization = r$includeVisualization,
+        enable_thinking = r$enableThinking,
+        thinking_budget = r$thinkingBudget,
+        vot_ray_trace = r$votRayTrace,
+        ray_entry = p$rayEntry,
+        predicted = p$predicted,
+        actual = p$actual,
+        correct = p$correct,
+        reasoning = p$reasoning,
+        response_time_ms = p$responseTimeMs,
+        input_tokens = p$inputTokens,
+        output_tokens = p$outputTokens,
+        source_file = basename(json_file)
+      )
+    })
+  })
+}
+
+# Load all results into a single long-format tibble
+predict_data <- map_dfr(predict_json_files, extract_predict_results)
+
+# Display summary of loaded data
+cat("Loaded", nrow(predict_data), "predictions from",
+    length(predict_json_files), "JSON files\n")
+cat("Models:", paste(unique(predict_data$model_name), collapse = ", "), "\n")
+cat("Prompt styles:", paste(unique(predict_data$prompt_style), collapse = ", "), "\n")
+cat("Configurations tested:", length(unique(predict_data$config_index)), "\n")
 ```
 
-\[Results to be added after data collection\]
+```{r}
+#| label: predict-results-summary
+
+# Summary statistics by model, prompt style, and thinking
+predict_summary <- predict_data |>
+  group_by(model_name, prompt_style, enable_thinking) |>
+  summarise(
+    n = n(),
+    n_correct = sum(correct),
+    accuracy = mean(correct),
+    accuracy_se = sqrt(accuracy * (1 - accuracy) / n),
+    mean_response_time = mean(response_time_ms, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(across(where(is.numeric) & !c(n, n_correct), \(x) round(x, 3)))
+
+kable(predict_summary,
+      col.names = c("Model", "Prompt", "Thinking", "N", "Correct",
+                    "Accuracy", "SE", "Response Time (ms)"),
+      caption = "Predict Mode Performance by Experimental Condition")
+```
+
+```{r}
+#| label: predict-by-config
+
+# Accuracy by configuration to assess difficulty variation
+predict_by_config <- predict_data |>
+  group_by(config_index, model_name) |>
+  summarise(
+    n = n(),
+    accuracy = mean(correct),
+    .groups = "drop"
+  ) |>
+  pivot_wider(names_from = model_name, values_from = accuracy) |>
+  mutate(across(where(is.numeric) & !config_index, \(x) round(x, 3)))
+
+kable(predict_by_config,
+      caption = "Prediction Accuracy by Configuration and Model")
+```
+
+```{r}
+#| label: predict-anova
+
+# Convert factors for ANOVA
+predict_data <- predict_data |>
+  mutate(
+    model_name = factor(model_name),
+    prompt_style = factor(prompt_style),
+    enable_thinking = factor(enable_thinking),
+    vot_ray_trace = factor(vot_ray_trace),
+    config_index = factor(config_index)
+  )
+
+# ANOVA: Prediction accuracy
+cat("=== ANOVA: Prediction Accuracy (Logistic Regression) ===\n")
+model_predict <- glm(correct ~ model_name * prompt_style * enable_thinking +
+                     vot_ray_trace + config_index,
+                     family = binomial(link = "logit"),
+                     data = predict_data)
+print(Anova(model_predict, type = 3))
+
+# Effect sizes (odds ratios)
+cat("\n=== Odds Ratios for Main Effects ===\n")
+print(exp(coef(model_predict)[2:4]))  # Model effects
+```
+
+```{r}
+#| label: predict-visualizations
+#| fig-width: 10
+#| fig-height: 6
+
+# Accuracy by model and condition
+p1_pred <- predict_data |>
+  group_by(model_name, prompt_style, enable_thinking) |>
+  summarise(accuracy = mean(correct),
+            se = sqrt(accuracy * (1-accuracy) / n()),
+            .groups = "drop") |>
+  ggplot(aes(x = model_name, y = accuracy, fill = enable_thinking)) +
+  geom_col(position = position_dodge(0.8), width = 0.7) +
+  geom_errorbar(aes(ymin = accuracy - se, ymax = accuracy + se),
+                position = position_dodge(0.8), width = 0.2) +
+  facet_wrap(~prompt_style) +
+  labs(title = "Predict Mode: Accuracy by Model, Thinking, and Prompt Style",
+       x = "Model", y = "Accuracy", fill = "Extended\nThinking") +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+print(p1_pred)
+
+# Accuracy by configuration (difficulty analysis)
+p2_pred <- predict_data |>
+  group_by(config_index, model_name) |>
+  summarise(accuracy = mean(correct), .groups = "drop") |>
+  ggplot(aes(x = config_index, y = accuracy, color = model_name, group = model_name)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  labs(title = "Prediction Accuracy Across Configurations",
+       subtitle = "Variation indicates configuration difficulty differences",
+       x = "Configuration Index", y = "Accuracy", color = "Model") +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+  theme_minimal()
+print(p2_pred)
+
+# VoT Ray Trace effect
+p3_pred <- predict_data |>
+  group_by(model_name, vot_ray_trace) |>
+  summarise(accuracy = mean(correct),
+            se = sqrt(accuracy * (1-accuracy) / n()),
+            .groups = "drop") |>
+  ggplot(aes(x = model_name, y = accuracy, fill = vot_ray_trace)) +
+  geom_col(position = position_dodge(0.8), width = 0.7) +
+  geom_errorbar(aes(ymin = accuracy - se, ymax = accuracy + se),
+                position = position_dodge(0.8), width = 0.2) +
+  labs(title = "Effect of VoT Ray Trace Visualization",
+       x = "Model", y = "Accuracy", fill = "VoT Ray\nTrace") +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+print(p3_pred)
+```
+
+```{r}
+#| label: predict-error-analysis
+
+# Analyze error patterns by comparing predicted vs actual
+# This helps identify systematic errors (e.g., absorption vs deflection confusion)
+
+# First, extract the type of result from predicted and actual
+predict_errors <- predict_data |>
+  filter(!correct) |>
+  mutate(
+    predicted_type = case_when(
+      grepl("absorbed|HIT", predicted, ignore.case = TRUE) ~ "absorbed",
+      grepl("reflected|REFLECTION", predicted, ignore.case = TRUE) ~ "reflected",
+      TRUE ~ "detour"
+    ),
+    actual_type = case_when(
+      grepl("absorbed|HIT", actual, ignore.case = TRUE) ~ "absorbed",
+      grepl("reflected|REFLECTION", actual, ignore.case = TRUE) ~ "reflected",
+      TRUE ~ "detour"
+    )
+  )
+
+# Error confusion matrix
+error_matrix <- predict_errors |>
+  count(actual_type, predicted_type) |>
+  pivot_wider(names_from = predicted_type, values_from = n, values_fill = 0)
+
+cat("=== Error Confusion Matrix ===\n")
+cat("Rows = Actual outcome, Columns = Predicted outcome\n\n")
+kable(error_matrix, caption = "Prediction Errors: Actual vs Predicted Outcome Type")
+
+# Error rates by model
+error_by_model <- predict_errors |>
+  count(model_name, actual_type, predicted_type) |>
+  group_by(model_name) |>
+  mutate(prop = n / sum(n)) |>
+  ungroup()
+
+cat("\n=== Most Common Error Types by Model ===\n")
+error_by_model |>
+  group_by(model_name) |>
+  slice_max(n, n = 3) |>
+  mutate(error_pattern = paste(actual_type, "->", predicted_type)) |>
+  select(model_name, error_pattern, n, prop) |>
+  mutate(prop = round(prop, 3)) |>
+  kable(col.names = c("Model", "Error Pattern (Actual -> Predicted)", "Count", "Proportion"))
+```
 
 ## Play Mode Results
 
