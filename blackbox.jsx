@@ -860,6 +860,9 @@ export default function BlackBoxGame() {
   const shouldStopExperiment = useRef(false);
   const [experimentPausedForRateLimit, setExperimentPausedForRateLimit] = useState(false);
   const resumeExperimentResolve = useRef(null);
+  // Rerun failures state
+  const [rerunSourceData, setRerunSourceData] = useState(null);
+  const [rerunFailures, setRerunFailures] = useState([]);
   // Visualization state for experiment mode
   const [experimentAtoms, setExperimentAtoms] = useState(new Set());
   const [experimentRays, setExperimentRays] = useState([]);
@@ -1981,7 +1984,296 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
     setExperimentProgress(prev => ({ ...prev, status: 'Complete!' }));
     setExperimentRunning(false);
   };
-  
+
+  // ============================================
+  // RERUN FAILURES FUNCTIONS
+  // ============================================
+
+  const handleLoadRerunFile = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        setRerunSourceData(data);
+
+        // Find all failed predictions
+        const failures = [];
+        for (const result of data.results || []) {
+          for (let i = 0; i < (result.predictions || []).length; i++) {
+            const pred = result.predictions[i];
+            if (pred.predicted === 'error' || pred.actual === 'unknown') {
+              failures.push({
+                resultIndex: data.results.indexOf(result),
+                predictionIndex: i,
+                configIndex: result.configIndex,
+                model: result.model,
+                modelName: result.modelName,
+                rayEntry: pred.rayEntry,
+                promptStyle: result.promptStyle,
+                includeVisualization: result.includeVisualization,
+                enableThinking: result.enableThinking,
+                thinkingBudget: result.thinkingBudget,
+                votGridState: result.votGridState,
+                votRayTrace: result.votRayTrace,
+                votHypothesis: result.votHypothesis,
+              });
+            }
+          }
+        }
+
+        setRerunFailures(failures);
+        addExperimentLog(`Loaded ${file.name}: found ${failures.length} failed predictions to rerun`);
+      } catch (err) {
+        addExperimentLog(`Error loading file: ${err.message}`);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const runRerunFailures = async () => {
+    if (!rerunSourceData || rerunFailures.length === 0) return;
+
+    setExperimentRunning(true);
+    shouldStopExperiment.current = false;
+
+    addExperimentLog(`=== RERUNNING ${rerunFailures.length} FAILED PREDICTIONS ===`);
+
+    // Make a deep copy of the source data to modify
+    const updatedData = JSON.parse(JSON.stringify(rerunSourceData));
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < rerunFailures.length; i++) {
+      if (shouldStopExperiment.current) {
+        addExperimentLog('Rerun stopped by user');
+        break;
+      }
+
+      const failure = rerunFailures[i];
+      const { configIndex, model, modelName, rayEntry, promptStyle,
+              includeVisualization, enableThinking, thinkingBudget,
+              votGridState, votRayTrace, votHypothesis,
+              resultIndex, predictionIndex } = failure;
+
+      const config = EXPERIMENT_CONFIGS[configIndex];
+      const atomSet = configToAtomSet(config);
+      const side = rayEntry.side;
+      const pos = rayEntry.pos;
+
+      setExperimentProgress(prev => ({
+        ...prev,
+        status: `Rerunning ${i + 1}/${rerunFailures.length}: ${modelName} Config ${configIndex} ${side.toUpperCase()}-${pos}`
+      }));
+
+      addExperimentLog(`→ Rerunning: ${modelName}, Config ${configIndex}, ${side.toUpperCase()}-${pos}`);
+
+      // Build the prompt (similar to runPredictExperiment)
+      const promptConfig = PROMPT_STYLES[promptStyle];
+      const atomList = config.map(([r, c]) => `(${r},${c})`).join(', ');
+
+      let prompt = `Atoms are located at: ${atomList}\n\n`;
+      if (includeVisualization) {
+        prompt += `Board (O = atom positions):\n\`\`\`\n${generateTextBoard(atoms, rays, guesses)}\n\`\`\`\n\n`;
+      }
+      prompt += `A ray is fired from ${side.toUpperCase()}-${pos}.\n\n`;
+      prompt += `Trace the ray step by step and predict where it will exit (or if it will be absorbed/reflected).`;
+
+      // Build system prompt with VoT
+      let systemPromptWithVoT = promptConfig.predictPrompt;
+      if (votRayTrace) {
+        systemPromptWithVoT += '\n\n' + VOT_PROMPTS.rayTrace;
+      }
+
+      const startTime = Date.now();
+
+      try {
+        // Use retry logic
+        const maxRetries = 3;
+        let response = null;
+        let thinking = [];
+        let usage = { input_tokens: 0, output_tokens: 0 };
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          const apiResult = await callClaude(
+            [{ role: "user", content: prompt }],
+            systemPromptWithVoT,
+            model,
+            enableThinking,
+            thinkingBudget
+          );
+
+          thinking = apiResult.thinking;
+          response = apiResult.text;
+          usage = apiResult.usage;
+
+          // Check for rate limit - pause
+          if (response.startsWith('Error:') &&
+              (response.includes('429') || response.includes('rate_limit') ||
+               response.includes('rate limit') || response.includes('Too many requests'))) {
+            addExperimentLog(`  ⏸️ Rate limit hit. Pausing - click Resume when ready.`);
+            await waitForRateLimitResume();
+            addExperimentLog(`  ▶️ Resuming...`);
+            attempt--;
+            continue;
+          }
+
+          // Check for retryable server error
+          if (response.startsWith('Error:') &&
+              (response.includes('500') || response.includes('529') ||
+               response.includes('overloaded') || response.includes('Internal server error'))) {
+            if (attempt < maxRetries) {
+              const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 8000);
+              addExperimentLog(`  ⚠️ Attempt ${attempt}/${maxRetries} failed, retrying in ${backoffMs/1000}s...`);
+              await new Promise(resolve => setTimeout(resolve, backoffMs));
+              continue;
+            }
+          }
+
+          break;
+        }
+
+        const responseTimeMs = Date.now() - startTime;
+
+        // Get actual result
+        const actual = traceRay(atomSet, side, pos);
+        let actualOutcome = 'unknown';
+        if (actual.absorbed) {
+          actualOutcome = 'absorbed';
+        } else if (actual.entry.side === actual.exit?.side && actual.entry.pos === actual.exit?.pos) {
+          actualOutcome = 'reflected';
+        } else if (actual.exit) {
+          actualOutcome = `${actual.exit.side}-${actual.exit.pos}`;
+        }
+
+        // Check for error response
+        if (response.startsWith('Error:')) {
+          addExperimentLog(`  ✗ Still failed: ${response.substring(0, 60)}...`);
+          failCount++;
+          // Update with actual outcome even if prediction failed
+          updatedData.results[resultIndex].predictions[predictionIndex].actual = actualOutcome;
+          updatedData.results[resultIndex].predictions[predictionIndex].rayResult = actual;
+          continue;
+        }
+
+        // Parse prediction
+        let prediction = null;
+        try {
+          const match = response.match(/\{[\s\S]*?\}/);
+          if (match) {
+            prediction = JSON.parse(match[0]);
+          }
+        } catch (e) {
+          // Parse failed
+        }
+
+        // Determine predicted outcome
+        let predictedOutcome = 'unknown';
+        if (prediction?.absorbed) predictedOutcome = 'absorbed';
+        else if (prediction?.reflected) predictedOutcome = 'reflected';
+        else if (prediction?.exit_side) predictedOutcome = `${prediction.exit_side}-${prediction.exit_position}`;
+
+        // Check correctness
+        let correct = false;
+        if (actual.absorbed) {
+          correct = prediction?.absorbed === true;
+        } else if (actual.entry.side === actual.exit?.side && actual.entry.pos === actual.exit?.pos) {
+          correct = prediction?.reflected === true;
+        } else {
+          correct = prediction?.exit_side === actual.exit?.side &&
+                   prediction?.exit_position === actual.exit?.pos;
+        }
+
+        // Update the prediction in the data
+        updatedData.results[resultIndex].predictions[predictionIndex] = {
+          ...updatedData.results[resultIndex].predictions[predictionIndex],
+          rayResult: actual,
+          predicted: predictedOutcome,
+          actual: actualOutcome,
+          correct,
+          reasoning: prediction?.reasoning || response,
+          thinking: thinking.join('\n---\n'),
+          responseTimeMs,
+          inputTokens: usage.input_tokens || 0,
+          outputTokens: usage.output_tokens || 0
+        };
+
+        const icon = correct ? '✓' : '✗';
+        addExperimentLog(`  ${icon} Predicted: ${predictedOutcome} | Actual: ${actualOutcome}`);
+        successCount++;
+
+      } catch (error) {
+        addExperimentLog(`  ✗ Error: ${error.message}`);
+        failCount++;
+      }
+
+      // Small delay between requests
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+    addExperimentLog(`=== RERUN COMPLETE: ${successCount} succeeded, ${failCount} failed ===`);
+
+    // Update the source data with fixed predictions
+    setRerunSourceData(updatedData);
+    setExperimentResults(updatedData.results);
+
+    // Recount failures
+    const remainingFailures = [];
+    for (const result of updatedData.results || []) {
+      for (let i = 0; i < (result.predictions || []).length; i++) {
+        const pred = result.predictions[i];
+        if (pred.predicted === 'error' || pred.actual === 'unknown') {
+          remainingFailures.push({
+            resultIndex: updatedData.results.indexOf(result),
+            predictionIndex: i,
+            configIndex: result.configIndex,
+            model: result.model,
+            modelName: result.modelName,
+            rayEntry: pred.rayEntry,
+            promptStyle: result.promptStyle,
+            includeVisualization: result.includeVisualization,
+            enableThinking: result.enableThinking,
+            thinkingBudget: result.thinkingBudget,
+            votGridState: result.votGridState,
+            votRayTrace: result.votRayTrace,
+            votHypothesis: result.votHypothesis,
+          });
+        }
+      }
+    }
+    setRerunFailures(remainingFailures);
+
+    if (remainingFailures.length > 0) {
+      addExperimentLog(`${remainingFailures.length} failures remain - you can rerun again or export`);
+    }
+
+    setExperimentProgress(prev => ({ ...prev, status: 'Rerun complete!' }));
+    setExperimentRunning(false);
+  };
+
+  const exportRerunResults = () => {
+    if (!rerunSourceData) return;
+
+    const exportData = {
+      ...rerunSourceData,
+      exportTime: new Date().toISOString(),
+      rerunNote: `Rerun of failed predictions from original export`
+    };
+
+    const filename = `rerun_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    addExperimentLog(`Exported updated results to ${filename}`);
+  };
+
   const exportExperimentResults = (format = 'json') => {
     const exportData = {
       exportTime: new Date().toISOString(),
@@ -4279,6 +4571,72 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
                   🚀 Run Experiment
                 </button>
               </div>
+
+              {/* Rerun Failures Section */}
+              <details className="border rounded p-3 bg-amber-50">
+                <summary className="cursor-pointer font-medium text-amber-800">
+                  🔄 Rerun Failed Predictions
+                </summary>
+                <div className="mt-3 space-y-3">
+                  <p className="text-sm text-gray-600">
+                    Load a previous experiment JSON file to rerun only the predictions that failed due to API errors.
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium">Load JSON file:</label>
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={handleLoadRerunFile}
+                      className="text-sm"
+                    />
+                  </div>
+
+                  {rerunSourceData && (
+                    <div className="bg-white p-2 rounded border text-sm">
+                      <div><strong>Loaded:</strong> {rerunSourceData.results?.length || 0} results</div>
+                      <div><strong>Failed predictions:</strong> {rerunFailures.length}</div>
+                      {rerunFailures.length > 0 && (
+                        <div className="mt-2 max-h-32 overflow-y-auto text-xs font-mono">
+                          {rerunFailures.map((f, i) => (
+                            <div key={i}>
+                              Config {f.configIndex}, {f.modelName}, {f.rayEntry.side.toUpperCase()}-{f.rayEntry.pos}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={runRerunFailures}
+                      disabled={!rerunSourceData || rerunFailures.length === 0}
+                      className="px-3 py-1 bg-amber-600 text-white rounded text-sm hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      🔄 Rerun {rerunFailures.length} Failures
+                    </button>
+                    <button
+                      onClick={exportRerunResults}
+                      disabled={!rerunSourceData}
+                      className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      💾 Export Updated JSON
+                    </button>
+                    {rerunSourceData && (
+                      <button
+                        onClick={() => {
+                          setRerunSourceData(null);
+                          setRerunFailures([]);
+                        }}
+                        className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
+                      >
+                        ✕ Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </details>
             </div>
           ) : (
             <div className="space-y-4">
