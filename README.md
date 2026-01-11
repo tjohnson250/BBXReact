@@ -30,6 +30,8 @@ A browser-based implementation of Black Box with multiple modes:
 | **Predict** | Forward reasoning test (given atoms, predict ray behavior) |
 | **Experiment** | Run systematic experiments across configurations |
 
+Instructions for using the application are included within the artifact.
+
 **Requirements:**
 - Claude.ai account
 - Modern browser with JavaScript enabled
