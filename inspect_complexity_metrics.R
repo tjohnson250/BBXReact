@@ -141,16 +141,27 @@ if (length(predict_files) > 0) {
           cat("\n")
         }
 
-        # Show first 2 predictions from this config
-        for (i in 1:min(2, length(result$predictions))) {
+        # Show first 2 valid predictions from this config
+        preds_shown <- 0
+        for (i in 1:length(result$predictions)) {
+          if (preds_shown >= 2) break
+
           pred <- result$predictions[[i]]
 
           if (!is.null(pred$rayResult) && !is.null(pred$rayResult$path)) {
+            path <- pred$rayResult$path
+
+            # Skip if path is empty
+            if (!is.matrix(path) || nrow(path) == 0) {
+              next
+            }
+
+            preds_shown <- preds_shown + 1
+
             cat(sprintf("--- Prediction %d ---\n", i))
             cat(sprintf("Ray Entry: %s-%s\n", pred$rayEntry$side, pred$rayEntry$position))
             cat(sprintf("Actual Outcome: %s\n", pred$actual))
 
-            path <- pred$rayResult$path
             cat(sprintf("\nRaw Path Data (row, col):\n"))
             for (j in 1:nrow(path)) {
               cat(sprintf("  Cell %d: (%d, %d)\n", j, path[j, 1], path[j, 2]))
