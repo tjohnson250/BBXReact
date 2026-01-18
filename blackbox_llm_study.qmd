@@ -38,6 +38,9 @@ library(jsonlite)
 library(car)
 library(knitr)
 library(kableExtra)
+library(effectsize)
+library(performance)
+library(broom)
 
 # Set plotting defaults
 theme_set(theme_minimal())
@@ -118,7 +121,7 @@ identifying *which* specific state from a known set is present.
 **Component processes of diagnostic reasoning:**
 
 | Process | Description |
-|------------------------------------|------------------------------------|
+|----|----|
 | **Hypothesis Generation** | Generate candidate hidden states that could explain observations |
 | **Forward Reasoning** | Predict what observations would occur under each hypothesis |
 | **Test Selection** | Choose which observation to gather next to best discriminate among hypotheses |
@@ -145,7 +148,7 @@ realization of diagnostic reasoning*—requiring all six component
 processes in an integrated task:
 
 | Diagnostic Process | Black Box Analog |
-|------------------------------------|------------------------------------|
+|----|----|
 | **Hypothesis Generation** | Consider which atom configurations could explain observations |
 | **Forward Reasoning** | Predict ray behavior under a hypothesized configuration |
 | **Test Selection** | Choose which ray to fire next to discriminate among hypotheses |
@@ -808,8 +811,8 @@ kable(predict_design, format = "pipe")
 ```
 
 | Model | Prompt | Extended Thinking | Vot (None, B Ray Trace) |
-|------------------|------------------|------------------|------------------|
-| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **None** |
+|----|----|----|----|
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **None** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **None** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **VoT B Ray Trace Visualization** |
@@ -823,7 +826,7 @@ kable(predict_design, format = "pipe")
 Play Mode Experiment Log
 
 | Model | Prompt | Extended Thinking | VoT (None, A, B, or C) |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **None** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT A Grid State Tracking** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
@@ -963,11 +966,56 @@ thinking × hypotheses × VoT options):
 
 ## Analysis Plan
 
+### Statistical Approach
+
+Unlike most LLM benchmarks that report only accuracy rankings, we employ
+factorial ANOVA with effect size estimation to quantify the unique
+contribution of each experimental factor. This approach allows us to
+determine not just *which* conditions produce better performance, but
+*how much* each factor contributes and whether effects depend on problem
+complexity (interaction effects). While less common in LLM evaluation,
+this statistical framework is standard in experimental psychology and
+provides stronger inferences about the mechanisms underlying diagnostic
+reasoning failures.
+
+We complement ANOVA with regression analysis to provide interpretable
+effect magnitudes:
+
+-   **ANOVA**: Tests omnibus hypotheses (does model matter? does prompt
+    style matter?) and interaction effects
+-   **Regression**: Quantifies effect magnitudes (how much does Opus
+    improve over Haiku?) and allows inclusion of continuous covariates
+    (spatial complexity)
+-   **Effect sizes**: Standardized metrics (η², Cohen's d, odds ratios)
+    allow comparison across studies and DVs
+
 ### Primary Analyses
 
-1.  **Predict Mode**: 3 (Model) × 3 (Prompt) ANOVA on accuracy
-2.  **Play Mode**: Same design on atoms correct
+1.  **Predict Mode**: Logistic regression with Type III ANOVA on
+    prediction accuracy (binary outcome)
+2.  **Play Mode**: Linear regression with Type III ANOVA on atoms
+    correct (continuous outcome)
 3.  **Scaling analysis**: Linear trend across model sizes
+4.  **Effect modification**: Test whether treatment effects vary with
+    spatial complexity (mean atoms per ray)
+
+### Effect Size Interpretation Guidelines
+
+Following Cohen (1988), we interpret effect sizes using conventional
+benchmarks:
+
+| Measure | Small | Medium | Large | Notes |
+|---------|-------|--------|-------|-------|
+| η² (Eta-squared) | 0.01 | 0.06 | 0.14 | Total variance explained |
+| η²p (Partial eta-squared) | 0.01 | 0.06 | 0.14 | Variance explained controlling for other factors |
+| ω² (Omega-squared) | 0.01 | 0.06 | 0.14 | Unbiased estimate (preferred over η²) |
+| Cohen's d | 0.20 | 0.50 | 0.80 | Standardized mean difference |
+| Cohen's f | 0.10 | 0.25 | 0.40 | Effect size for ANOVA (f = √[η²/(1-η²)]) |
+| Cramér's V | 0.10 | 0.30 | 0.50 | Association strength for categorical variables |
+| Odds Ratio | 1.5 | 3.0 | 9.0 | OR = 1 means no effect; > 1 increases odds |
+
+Note: These are heuristics, not absolute cutoffs. Practical significance
+depends on context and cost-benefit considerations.
 
 ### Qualitative Analysis
 
@@ -995,10 +1043,17 @@ Comparing Predict mode (forward reasoning, heavily spatial) to Play mode
 
 **2. Spatial Complexity Moderation**
 
-We use *mean atoms per ray*—the average number of atoms affecting each
-ray's path in a game—as a measure of spatial complexity. Moderation
-analysis tests whether treatment effects (model, prompt style, extended
-thinking) interact with spatial complexity:
+We use two complementary measures of spatial complexity:
+
+-   **Predict mode**: *Cells traveled*—the total number of cells a ray
+    traverses (entry cell + internal path + exit cell). This measures
+    path length complexity.
+-   **Play mode**: *Mean atoms per ray*—the average number of atoms
+    affecting each ray's path in a game. This measures interaction
+    complexity.
+
+Moderation analysis tests whether treatment effects (model, prompt
+style, extended thinking) interact with spatial complexity:
 
 -   *Constant effects across complexity*: Limitations lie in inferential
     machinery, not spatial processing
@@ -1010,7 +1065,7 @@ thinking) interact with spatial complexity:
 We classify errors from extended thinking traces into categories:
 
 | Error Type | Spatial? | Description |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Ray path error | Yes | Path traced incorrectly through grid |
 | Deflection geometry error | Yes | Misunderstood deflection rules |
 | Constraint tracking error | No | Failed to update ruled-out positions |
@@ -1035,6 +1090,29 @@ predict_json_files <- list.files(
   full.names = TRUE
 )
 
+# Helper function to count cells traveled by a ray
+# Entry cell (1) + internal path cells + exit cell (1)
+count_ray_cells <- function(rayResult) {
+  if (is.null(rayResult) || is.null(rayResult$path)) {
+    return(NA_real_)
+  }
+
+  path <- rayResult$path
+  if (!is.matrix(path) || nrow(path) == 0) {
+    return(NA_real_)
+  }
+
+  # Entry cell (1) + internal path cells + exit cell (1)
+  # Path includes all internal cells traveled
+  # For absorption/reflection at entry, path has 1 cell, so 1 + 1 + 1 = 3 is wrong
+  # Actually: entry (1) + path length (includes exit position) = 1 + nrow(path)
+  # But we want: entry (1) + internal cells + exit (1)
+  # If absorbed at edge: path has the entry cell only, so 1 entry + 1 for the position = 2
+  # If travels 2 internal and reflects: 1 entry + 2 internal + 1 exit = 4
+  # So: 1 (entry outside box) + nrow(path) (all cells from entry through exit)
+  return(1 + nrow(path))
+}
+
 # Function to extract results from a single Predict JSON file
 extract_predict_results <- function(json_file) {
   data <- jsonlite::fromJSON(json_file, simplifyDataFrame = FALSE)
@@ -1053,6 +1131,9 @@ extract_predict_results <- function(json_file) {
 
     # Extract each prediction
     map_dfr(predictions, function(p) {
+      # Calculate path complexity (cells traveled)
+      cells_traveled <- count_ray_cells(p$rayResult)
+
       tibble(
         experiment_id = r$experimentId,
         model = r$model,
@@ -1072,6 +1153,7 @@ extract_predict_results <- function(json_file) {
         response_time_ms = p$responseTimeMs,
         input_tokens = p$inputTokens,
         output_tokens = p$outputTokens,
+        cells_traveled = cells_traveled,
         source_file = basename(json_file)
       )
     })
@@ -1089,6 +1171,9 @@ cat("Prompt styles:", paste(unique(predict_data$prompt_style), collapse = ", "),
 cat("Extended thinking:", paste(unique(predict_data$enable_thinking), collapse = ", "), "\n")
 cat("VoT ray trace:", paste(unique(predict_data$vot_ray_trace), collapse = ", "), "\n")
 cat("Configurations tested:", length(unique(predict_data$config_index)), "\n")
+cat("Cells traveled range:",
+    round(min(predict_data$cells_traveled, na.rm = TRUE), 2), "-",
+    round(max(predict_data$cells_traveled, na.rm = TRUE), 2), "\n")
 ```
 
 ```{r}
@@ -1186,6 +1271,45 @@ kable(predict_summary,
 ```
 
 ```{r}
+#| label: predict-leaderboard
+
+# Leaderboard: Overall best performance (for comparability with other benchmarks)
+cat("=== Predict Mode Leaderboard ===\n")
+cat("Top 10 configurations by overall accuracy.\n")
+cat("Format matches typical LLM benchmark reporting for cross-study comparison.\n\n")
+
+leaderboard_predict <- predict_data |>
+  mutate(
+    condition = paste0(
+      model_name, " | ",
+      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT")
+    )
+  ) |>
+  group_by(condition, model_name, prompt_style, enable_thinking, vot_ray_trace) |>
+  summarise(
+    n = n(),
+    accuracy = mean(correct),
+    ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+    ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+    .groups = "drop"
+  ) |>
+  arrange(desc(accuracy)) |>
+  mutate(
+    rank = row_number(),
+    accuracy_pct = paste0(round(accuracy * 100, 1), "%"),
+    ci_95 = paste0("[", round(ci_lower * 100, 1), "%, ", round(ci_upper * 100, 1), "%]")
+  ) |>
+  select(rank, condition, accuracy_pct, ci_95, n) |>
+  head(10)
+
+kable(leaderboard_predict,
+      col.names = c("Rank", "Configuration", "Accuracy", "95% CI", "N"),
+      caption = "Predict Mode Leaderboard (Top 10 Configurations)")
+```
+
+```{r}
 #| label: predict-by-config
 
 # Accuracy by configuration to assess difficulty variation
@@ -1209,24 +1333,202 @@ kable(predict_by_config,
 # Convert factors for ANOVA
 predict_data <- predict_data |>
   mutate(
-    model_name = factor(model_name),
-    prompt_style = factor(prompt_style),
-    enable_thinking = factor(enable_thinking),
-    vot_ray_trace = factor(vot_ray_trace),
+    model_name = factor(model_name, levels = c("Claude Haiku 4.5", "Claude Sonnet 4.5", "Claude Opus 4.5")),
+    prompt_style = factor(prompt_style, levels = c("baseline", "augmented")),
+    enable_thinking = factor(enable_thinking, levels = c(FALSE, TRUE)),
+    vot_ray_trace = factor(vot_ray_trace, levels = c(FALSE, TRUE)),
     config_index = factor(config_index)
   )
 
-# ANOVA: Prediction accuracy
+# Check which factors have variation
+cat("=== Factor Levels in Data ===\n")
+cat("Model:", paste(levels(droplevels(predict_data$model_name)), collapse = ", "), "\n")
+cat("Prompt Style:", paste(levels(droplevels(predict_data$prompt_style)), collapse = ", "), "\n")
+cat("Extended Thinking:", paste(levels(droplevels(predict_data$enable_thinking)), collapse = ", "), "\n")
+cat("VoT Ray Trace:", paste(levels(droplevels(predict_data$vot_ray_trace)), collapse = ", "), "\n\n")
+
+# Build model formula dynamically based on available factor levels
+has_model_var <- length(unique(predict_data$model_name)) > 1
+has_prompt_var <- length(unique(predict_data$prompt_style)) > 1
+has_thinking_var <- length(unique(predict_data$enable_thinking)) > 1
+has_vot_var <- length(unique(predict_data$vot_ray_trace)) > 1
+
+# Build formula components
+formula_parts <- c()
+if (has_model_var) formula_parts <- c(formula_parts, "model_name")
+if (has_prompt_var) formula_parts <- c(formula_parts, "prompt_style")
+if (has_thinking_var) formula_parts <- c(formula_parts, "enable_thinking")
+
+# Add interactions only if all three main effects are present
+if (has_model_var && has_prompt_var && has_thinking_var) {
+  main_formula <- "model_name * prompt_style * enable_thinking"
+} else {
+  main_formula <- paste(formula_parts, collapse = " + ")
+}
+
+# Add VoT if it varies
+if (has_vot_var) {
+  full_formula <- paste0("correct ~ ", main_formula, " + vot_ray_trace + config_index")
+} else {
+  full_formula <- paste0("correct ~ ", main_formula, " + config_index")
+}
+
+# ANOVA: Prediction accuracy (Logistic Regression)
 cat("=== ANOVA: Prediction Accuracy (Logistic Regression) ===\n")
-model_predict <- glm(correct ~ model_name * prompt_style * enable_thinking +
-                     vot_ray_trace + config_index,
+cat("Note: This tests whether factors significantly affect prediction accuracy.\n")
+cat("Formula:", full_formula, "\n\n")
+
+model_predict <- glm(as.formula(full_formula),
                      family = binomial(link = "logit"),
                      data = predict_data)
 print(Anova(model_predict, type = 3))
 
-# Effect sizes (odds ratios)
-cat("\n=== Odds Ratios for Main Effects ===\n")
-print(exp(coef(model_predict)[2:4]))  # Model effects
+# Effect sizes: Odds ratios with 95% CI
+cat("\n=== Odds Ratios with 95% Confidence Intervals ===\n")
+cat("OR > 1: Factor increases odds of correct prediction\n")
+cat("OR < 1: Factor decreases odds of correct prediction\n\n")
+
+# Get odds ratios and confidence intervals
+or_results <- exp(cbind(OR = coef(model_predict), confint(model_predict)))
+or_df <- as.data.frame(or_results) |>
+  rownames_to_column("Term") |>
+  filter(!grepl("Intercept|config_index", Term)) |>  # Remove intercept and config effects
+  mutate(across(where(is.numeric), ~round(., 3)))
+
+kable(or_df,
+      col.names = c("Term", "Odds Ratio", "95% CI Lower", "95% CI Upper"),
+      caption = "Odds Ratios for Prediction Accuracy")
+
+# Pseudo R² (Nagelkerke)
+cat("\n=== Model Fit: Pseudo R² (Nagelkerke) ===\n")
+cat("Proportion of variance explained by all factors.\n\n")
+r2_result <- performance::r2_nagelkerke(model_predict)
+print(r2_result)
+
+# Cramér's V for categorical associations
+cat("\n=== Cramér's V (Effect Size for Categorical Associations) ===\n")
+cat("Interpretation: 0.10=small, 0.30=medium, 0.50=large\n\n")
+
+cramers_results <- tibble(Factor = character(), `Cramér's V` = numeric())
+
+if (has_model_var) {
+  cramers_v_model <- cramers_v(table(predict_data$model_name, predict_data$correct))
+  cramers_results <- cramers_results |> add_row(Factor = "Model", `Cramér's V` = cramers_v_model$Cramers_v)
+}
+if (has_prompt_var) {
+  cramers_v_prompt <- cramers_v(table(predict_data$prompt_style, predict_data$correct))
+  cramers_results <- cramers_results |> add_row(Factor = "Prompt Style", `Cramér's V` = cramers_v_prompt$Cramers_v)
+}
+if (has_thinking_var) {
+  cramers_v_thinking <- cramers_v(table(predict_data$enable_thinking, predict_data$correct))
+  cramers_results <- cramers_results |> add_row(Factor = "Extended Thinking", `Cramér's V` = cramers_v_thinking$Cramers_v)
+}
+if (has_vot_var) {
+  cramers_v_vot <- cramers_v(table(predict_data$vot_ray_trace, predict_data$correct))
+  cramers_results <- cramers_results |> add_row(Factor = "VoT Ray Trace", `Cramér's V` = cramers_v_vot$Cramers_v)
+}
+
+cramers_results <- cramers_results |> mutate(`Cramér's V` = round(`Cramér's V`, 3))
+
+if (nrow(cramers_results) > 0) {
+  kable(cramers_results, caption = "Association Strength with Prediction Accuracy")
+}
+
+# Regression coefficients interpretation
+cat("\n=== Regression Interpretation ===\n")
+cat("Key findings from logistic regression:\n\n")
+
+# Get tidy output for main effects
+tidy_results <- tidy(model_predict, conf.int = TRUE) |>
+  filter(!grepl("Intercept|config_index|:", term)) |>  # Main effects only
+  mutate(
+    OR = exp(estimate),
+    OR_lower = exp(conf.low),
+    OR_upper = exp(conf.high)
+  ) |>
+  select(term, estimate, OR, OR_lower, OR_upper, p.value) |>
+  mutate(across(c(estimate, OR, OR_lower, OR_upper), ~round(., 3)),
+         p.value = format.pval(p.value, digits = 3, eps = 0.001))
+
+kable(tidy_results,
+      col.names = c("Term", "β (log-odds)", "OR", "OR 95% CI Lower", "OR 95% CI Upper", "p-value"),
+      caption = "Regression Coefficients for Main Effects")
+```
+
+```{r}
+#| label: predict-effect-modification
+
+# Test for effect modification by cells_traveled (path complexity)
+cat("=== Effect Modification: Does path complexity moderate treatment effects? ===\n")
+cat("Path complexity measured as total cells traveled (entry + internal + exit).\n\n")
+
+# Only run if we have variation in factors and valid cells_traveled data
+if (has_model_var || has_prompt_var || has_thinking_var) {
+  # Build interaction formula
+  interaction_parts <- c()
+  if (has_model_var) interaction_parts <- c(interaction_parts, "model_name * cells_traveled")
+  if (has_prompt_var) interaction_parts <- c(interaction_parts, "prompt_style * cells_traveled")
+  if (has_thinking_var) interaction_parts <- c(interaction_parts, "enable_thinking * cells_traveled")
+
+  # Add config as control
+  pred_mod_formula <- paste0("correct ~ ", paste(interaction_parts, collapse = " + "), " + config_index")
+
+  cat("--- Prediction Accuracy with Path Complexity Interaction ---\n")
+  cat("Formula:", pred_mod_formula, "\n")
+  cat("Note: Logistic regression tests whether treatment effects vary with ray path length.\n\n")
+
+  model_predict_mod <- glm(as.formula(pred_mod_formula),
+                           family = binomial(link = "logit"),
+                           data = predict_data)
+
+  # ANOVA table
+  print(Anova(model_predict_mod, type = 3))
+
+  # Interpretation of interactions
+  cat("\n=== Interpretation of Interactions ===\n")
+  cat("Significant interactions indicate that treatment effects depend on path complexity.\n")
+  cat("- No interaction: Treatment effect is constant across simple and complex paths\n")
+  cat("- Positive interaction: Treatment effect increases with path complexity\n")
+  cat("- Negative interaction: Treatment effect decreases with path complexity\n\n")
+
+  # Extract interaction coefficients
+  interaction_coefs <- tidy(model_predict_mod, conf.int = TRUE) |>
+    filter(grepl(":", term)) |>  # Interaction terms only
+    filter(grepl("cells_traveled", term)) |>
+    mutate(
+      OR = exp(estimate),
+      OR_lower = exp(conf.low),
+      OR_upper = exp(conf.high)
+    ) |>
+    select(term, estimate, OR, OR_lower, OR_upper, p.value) |>
+    mutate(across(c(estimate, OR, OR_lower, OR_upper), ~round(., 3)),
+           p.value = format.pval(p.value, digits = 3, eps = 0.001))
+
+  if (nrow(interaction_coefs) > 0) {
+    kable(interaction_coefs,
+          col.names = c("Interaction Term", "β (log-odds)", "OR", "OR 95% CI Lower", "OR 95% CI Upper", "p-value"),
+          caption = "Path Complexity Interaction Effects")
+  }
+
+  # Simple slopes analysis for significant interactions
+  cat("\n=== Path Complexity Distribution ===\n")
+  cells_summary <- predict_data |>
+    summarise(
+      min_cells = min(cells_traveled, na.rm = TRUE),
+      q25_cells = quantile(cells_traveled, 0.25, na.rm = TRUE),
+      median_cells = median(cells_traveled, na.rm = TRUE),
+      q75_cells = quantile(cells_traveled, 0.75, na.rm = TRUE),
+      max_cells = max(cells_traveled, na.rm = TRUE),
+      mean_cells = mean(cells_traveled, na.rm = TRUE),
+      sd_cells = sd(cells_traveled, na.rm = TRUE)
+    ) |>
+    mutate(across(everything(), ~round(., 2)))
+
+  print(cells_summary)
+
+} else {
+  cat("Insufficient factor variation for effect modification analysis.\n")
+}
 ```
 
 ```{r}
@@ -1280,6 +1582,26 @@ p3_pred <- predict_data |>
   scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 print(p3_pred)
+
+# Path complexity vs accuracy
+p4_pred <- predict_data |>
+  filter(!is.na(cells_traveled)) |>
+  group_by(cells_traveled, model_name) |>
+  summarise(accuracy = mean(correct),
+            n = n(),
+            .groups = "drop") |>
+  ggplot(aes(x = cells_traveled, y = accuracy, color = model_name)) +
+  geom_point(aes(size = n), alpha = 0.6) +
+  geom_smooth(method = "loess", se = TRUE, linewidth = 1) +
+  labs(title = "Performance vs Path Complexity",
+       subtitle = "Does accuracy decline as rays travel through more cells?",
+       x = "Cells Traveled (Entry + Internal + Exit)",
+       y = "Accuracy",
+       color = "Model",
+       size = "N") +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+  theme_minimal()
+print(p4_pred)
 ```
 
 ```{r}
@@ -1485,6 +1807,45 @@ kable(play_summary_vot,
 ```
 
 ```{r}
+#| label: play-leaderboard
+
+# Leaderboard: Overall best performance (for comparability with other benchmarks)
+cat("=== Play Mode Leaderboard ===\n")
+cat("Top 10 configurations by atoms correct.\n")
+cat("Format matches typical LLM benchmark reporting for cross-study comparison.\n\n")
+
+leaderboard_play <- play_data |>
+  mutate(
+    condition = paste0(
+      model_name, " | ",
+      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+      ifelse(enable_thinking, "Think", "No-Think")
+    )
+  ) |>
+  group_by(condition, model_name, prompt_style, enable_thinking) |>
+  summarise(
+    n = n(),
+    atoms_correct_mean = mean(atoms_correct),
+    atoms_correct_se = sd(atoms_correct) / sqrt(n),
+    score_mean = mean(score),
+    perfect_games = sum(atoms_correct == 4),
+    .groups = "drop"
+  ) |>
+  arrange(desc(atoms_correct_mean), score_mean) |>
+  mutate(
+    rank = row_number(),
+    atoms_ci = paste0(round(atoms_correct_mean, 2), " ± ", round(atoms_correct_se, 2)),
+    perfect_pct = paste0(round(perfect_games / n * 100, 1), "%")
+  ) |>
+  select(rank, condition, atoms_ci, score_mean, perfect_pct, n) |>
+  head(10)
+
+kable(leaderboard_play,
+      col.names = c("Rank", "Configuration", "Atoms Correct (M ± SE)", "Score (M)", "Perfect Games", "N"),
+      caption = "Play Mode Leaderboard (Top 10 Configurations)")
+```
+
+```{r}
 #| label: play-anova-analysis
 
 # Full factorial ANOVA with all experimental factors
@@ -1493,27 +1854,107 @@ kable(play_summary_vot,
 # Convert factors
 play_data <- play_data |>
   mutate(
-    model_name = factor(model_name),
-    prompt_style = factor(prompt_style),
-    enable_thinking = factor(enable_thinking),
-    vot_grid_state = factor(vot_grid_state),
-    vot_ray_trace = factor(vot_ray_trace),
-    vot_hypothesis = factor(vot_hypothesis)
+    model_name = factor(model_name, levels = c("Claude Haiku 4.5", "Claude Sonnet 4.5", "Claude Opus 4.5")),
+    prompt_style = factor(prompt_style, levels = c("baseline", "augmented")),
+    enable_thinking = factor(enable_thinking, levels = c(FALSE, TRUE)),
+    vot_grid_state = factor(vot_grid_state, levels = c(FALSE, TRUE)),
+    vot_ray_trace = factor(vot_ray_trace, levels = c(FALSE, TRUE)),
+    vot_hypothesis = factor(vot_hypothesis, levels = c(FALSE, TRUE))
   )
+
+# Check which factors have variation
+cat("=== Factor Levels in Play Data ===\n")
+cat("Model:", paste(levels(droplevels(play_data$model_name)), collapse = ", "), "\n")
+cat("Prompt Style:", paste(levels(droplevels(play_data$prompt_style)), collapse = ", "), "\n")
+cat("Extended Thinking:", paste(levels(droplevels(play_data$enable_thinking)), collapse = ", "), "\n")
+cat("VoT Grid State:", paste(levels(droplevels(play_data$vot_grid_state)), collapse = ", "), "\n")
+cat("VoT Ray Trace:", paste(levels(droplevels(play_data$vot_ray_trace)), collapse = ", "), "\n")
+cat("VoT Hypothesis:", paste(levels(droplevels(play_data$vot_hypothesis)), collapse = ", "), "\n\n")
+
+# Build model formula dynamically
+has_model_var <- length(unique(play_data$model_name)) > 1
+has_prompt_var <- length(unique(play_data$prompt_style)) > 1
+has_thinking_var <- length(unique(play_data$enable_thinking)) > 1
+has_vot_grid <- length(unique(play_data$vot_grid_state)) > 1
+has_vot_ray <- length(unique(play_data$vot_ray_trace)) > 1
+has_vot_hyp <- length(unique(play_data$vot_hypothesis)) > 1
+
+# Build main formula
+formula_parts <- c()
+if (has_model_var) formula_parts <- c(formula_parts, "model_name")
+if (has_prompt_var) formula_parts <- c(formula_parts, "prompt_style")
+if (has_thinking_var) formula_parts <- c(formula_parts, "enable_thinking")
+
+if (has_model_var && has_prompt_var && has_thinking_var) {
+  main_formula <- "model_name * prompt_style * enable_thinking"
+} else {
+  main_formula <- paste(formula_parts, collapse = " + ")
+}
+
+# Add VoT factors
+vot_parts <- c()
+if (has_vot_grid) vot_parts <- c(vot_parts, "vot_grid_state")
+if (has_vot_ray) vot_parts <- c(vot_parts, "vot_ray_trace")
+if (has_vot_hyp) vot_parts <- c(vot_parts, "vot_hypothesis")
+
+if (length(vot_parts) > 0) {
+  atoms_formula <- paste0("atoms_correct ~ ", main_formula, " + ", paste(vot_parts, collapse = " + "))
+} else {
+  atoms_formula <- paste0("atoms_correct ~ ", main_formula)
+}
 
 # Model 1: Atoms Correct (main effects)
 cat("=== ANOVA: Atoms Correct ===\n")
-model_atoms <- aov(atoms_correct ~ model_name * prompt_style * enable_thinking +
-                   vot_grid_state + vot_ray_trace + vot_hypothesis,
-                   data = play_data)
+cat("Testing which factors affect the number of atoms correctly identified (0-4).\n")
+cat("Formula:", atoms_formula, "\n\n")
+
+model_atoms <- aov(as.formula(atoms_formula), data = play_data)
 print(Anova(model_atoms, type = 3))
 
+# Effect sizes for Atoms Correct
+cat("\n=== Effect Sizes: Atoms Correct ===\n")
+cat("Eta-squared (η²): Proportion of variance explained by each factor.\n")
+cat("Partial eta-squared (η²p): Variance explained controlling for other factors.\n")
+cat("Interpretation: 0.01=small, 0.06=medium, 0.14=large\n\n")
+
+effect_sizes_atoms <- eta_squared(model_atoms, partial = TRUE, ci = 0.95)
+print(effect_sizes_atoms)
+
+# Omega-squared (less biased alternative)
+cat("\n=== Omega-Squared (Alternative Effect Size) ===\n")
+cat("Less biased than eta-squared, especially for small samples.\n\n")
+omega_sq_atoms <- omega_squared(model_atoms, partial = TRUE)
+print(omega_sq_atoms)
+
+# Cohen's f
+cat("\n=== Cohen's f (Standardized Effect Size) ===\n")
+cat("Interpretation: 0.10=small, 0.25=medium, 0.40=large\n")
+cat("Useful for power analysis and cross-study comparison.\n\n")
+cohens_f_atoms <- cohens_f(model_atoms, partial = TRUE)
+print(cohens_f_atoms)
+
 # Model 2: Score (main effects)
-cat("\n=== ANOVA: Score ===\n")
-model_score <- aov(score ~ model_name * prompt_style * enable_thinking +
-                   vot_grid_state + vot_ray_trace + vot_hypothesis,
-                   data = play_data)
+if (length(vot_parts) > 0) {
+  score_formula <- paste0("score ~ ", main_formula, " + ", paste(vot_parts, collapse = " + "))
+} else {
+  score_formula <- paste0("score ~ ", main_formula)
+}
+
+cat("\n=== ANOVA: Score (Lower is Better) ===\n")
+cat("Testing which factors affect game score.\n")
+cat("Formula:", score_formula, "\n\n")
+
+model_score <- aov(as.formula(score_formula), data = play_data)
 print(Anova(model_score, type = 3))
+
+# Effect sizes for Score
+cat("\n=== Effect Sizes: Score ===\n")
+effect_sizes_score <- eta_squared(model_score, partial = TRUE, ci = 0.95)
+print(effect_sizes_score)
+
+cat("\n=== Cohen's f: Score ===\n")
+cohens_f_score <- cohens_f(model_score, partial = TRUE)
+print(cohens_f_score)
 ```
 
 ```{r}
@@ -1522,21 +1963,104 @@ print(Anova(model_score, type = 3))
 # Test for effect modification by mean_atoms_per_ray (ray complexity)
 cat("=== Effect Modification: Does ray complexity moderate treatment effects? ===\n\n")
 
-# Atoms Correct: test interaction with mean_atoms_per_ray
-cat("--- Atoms Correct with Ray Complexity Interaction ---\n")
-model_atoms_mod <- lm(atoms_correct ~ model_name * mean_atoms_per_ray +
-                      prompt_style * mean_atoms_per_ray +
-                      enable_thinking * mean_atoms_per_ray,
-                      data = play_data)
-print(Anova(model_atoms_mod, type = 3))
+# Only run if we have variation in the factors and valid mean_atoms_per_ray data
+if (has_model_var || has_prompt_var || has_thinking_var) {
+  # Build interaction formula
+  interaction_parts <- c()
+  if (has_model_var) interaction_parts <- c(interaction_parts, "model_name * mean_atoms_per_ray")
+  if (has_prompt_var) interaction_parts <- c(interaction_parts, "prompt_style * mean_atoms_per_ray")
+  if (has_thinking_var) interaction_parts <- c(interaction_parts, "enable_thinking * mean_atoms_per_ray")
 
-# Score: test interaction with mean_atoms_per_ray
-cat("\n--- Score with Ray Complexity Interaction ---\n")
-model_score_mod <- lm(score ~ model_name * mean_atoms_per_ray +
-                      prompt_style * mean_atoms_per_ray +
-                      enable_thinking * mean_atoms_per_ray,
-                      data = play_data)
-print(Anova(model_score_mod, type = 3))
+  atoms_mod_formula <- paste0("atoms_correct ~ ", paste(interaction_parts, collapse = " + "))
+  score_mod_formula <- paste0("score ~ ", paste(interaction_parts, collapse = " + "))
+
+  # Atoms Correct: test interaction with mean_atoms_per_ray
+  cat("--- Atoms Correct with Ray Complexity Interaction ---\n")
+  cat("Formula:", atoms_mod_formula, "\n\n")
+  model_atoms_mod <- lm(as.formula(atoms_mod_formula), data = play_data)
+  print(Anova(model_atoms_mod, type = 3))
+
+  # Score: test interaction with mean_atoms_per_ray
+  cat("\n--- Score with Ray Complexity Interaction ---\n")
+  cat("Formula:", score_mod_formula, "\n\n")
+  model_score_mod <- lm(as.formula(score_mod_formula), data = play_data)
+  print(Anova(model_score_mod, type = 3))
+} else {
+  cat("Insufficient factor variation for effect modification analysis.\n")
+}
+```
+
+```{r}
+#| label: play-regression-analysis
+
+# Regression analysis: Interpret effect magnitudes
+cat("=== Regression Analysis: Play Mode ===\n")
+cat("Regression complements ANOVA by providing interpretable effect magnitudes.\n")
+cat("Coefficients show the expected change in outcome per unit change in predictor.\n\n")
+
+# Model for Atoms Correct with all main effects
+# Build formula with factors that have variation
+regression_parts <- formula_parts  # From earlier: model_name, prompt_style, enable_thinking
+if (has_vot_grid) regression_parts <- c(regression_parts, "vot_grid_state")
+if (has_vot_ray) regression_parts <- c(regression_parts, "vot_ray_trace")
+if (has_vot_hyp) regression_parts <- c(regression_parts, "vot_hypothesis")
+regression_parts <- c(regression_parts, "mean_atoms_per_ray")
+
+atoms_reg_formula <- paste0("atoms_correct ~ ", paste(regression_parts, collapse = " + "))
+
+cat("--- Linear Regression: Atoms Correct ---\n")
+cat("Formula:", atoms_reg_formula, "\n\n")
+lm_atoms <- lm(as.formula(atoms_reg_formula), data = play_data)
+
+# Tidy summary
+atoms_reg_summary <- tidy(lm_atoms, conf.int = TRUE) |>
+  mutate(across(c(estimate, conf.low, conf.high, statistic), ~round(., 3)),
+         p.value = format.pval(p.value, digits = 3, eps = 0.001))
+
+kable(atoms_reg_summary,
+      col.names = c("Term", "β (Coefficient)", "SE", "t-statistic", "p-value", "95% CI Lower", "95% CI Upper"),
+      caption = "Regression Coefficients: Atoms Correct")
+
+# R-squared
+cat("\nModel R²:", round(summary(lm_atoms)$r.squared, 3), "\n")
+cat("Adjusted R²:", round(summary(lm_atoms)$adj.r.squared, 3), "\n\n")
+
+# Model for Score
+score_reg_formula <- paste0("score ~ ", paste(regression_parts, collapse = " + "))
+
+cat("--- Linear Regression: Score (Lower is Better) ---\n")
+cat("Formula:", score_reg_formula, "\n\n")
+lm_score <- lm(as.formula(score_reg_formula), data = play_data)
+
+score_reg_summary <- tidy(lm_score, conf.int = TRUE) |>
+  mutate(across(c(estimate, conf.low, conf.high, statistic), ~round(., 3)),
+         p.value = format.pval(p.value, digits = 3, eps = 0.001))
+
+kable(score_reg_summary,
+      col.names = c("Term", "β (Coefficient)", "SE", "t-statistic", "p-value", "95% CI Lower", "95% CI Upper"),
+      caption = "Regression Coefficients: Score")
+
+cat("\nModel R²:", round(summary(lm_score)$r.squared, 3), "\n")
+cat("Adjusted R²:", round(summary(lm_score)$adj.r.squared, 3), "\n\n")
+
+# Standardized coefficients for comparison
+cat("--- Standardized Coefficients (Beta Weights) ---\n")
+cat("Allows comparison of relative importance across factors.\n\n")
+
+std_coef_atoms <- standardize_parameters(lm_atoms)
+std_coef_score <- standardize_parameters(lm_score)
+
+cat("Atoms Correct:\n")
+print(std_coef_atoms |>
+      filter(!grepl("Intercept", Parameter)) |>
+      arrange(desc(abs(Std_Coefficient))) |>
+      head(10))
+
+cat("\n\nScore:\n")
+print(std_coef_score |>
+      filter(!grepl("Intercept", Parameter)) |>
+      arrange(desc(abs(Std_Coefficient))) |>
+      head(10))
 ```
 
 ```{r}
