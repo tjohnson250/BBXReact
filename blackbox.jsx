@@ -863,6 +863,8 @@ export default function BlackBoxGame() {
   // Rerun failures state
   const [rerunSourceData, setRerunSourceData] = useState(null);
   const [rerunFailures, setRerunFailures] = useState([]);
+  const [rerunDetailsOpen, setRerunDetailsOpen] = useState(false);
+  const [rerunSourceFilename, setRerunSourceFilename] = useState('');
   // Visualization state for experiment mode
   const [experimentAtoms, setExperimentAtoms] = useState(new Set());
   const [experimentRays, setExperimentRays] = useState([]);
@@ -1023,7 +1025,19 @@ export default function BlackBoxGame() {
       // Skip if we already know the result for this position
       if (testedPositions.has(posKey)) {
         raysSkipped++;
+        // Debug: log when we skip a position
+        addExperimentLog(`  ⊘ Skipping ${side.toUpperCase()}-${pos} (already tested/exit)`);
         continue;
+      }
+      
+      // Debug: Log if this position SHOULD have been skipped but wasn't
+      // Check if any previous ray exited here
+      const shouldHaveBeenSkipped = visualRays.some(r => 
+        r.exit && r.exit.side === side && r.exit.pos === pos && 
+        !(r.entry.side === r.exit.side && r.entry.pos === r.exit.pos)
+      );
+      if (shouldHaveBeenSkipped) {
+        addExperimentLog(`  ⚠️ BUG DETECTED: ${side.toUpperCase()}-${pos} should have been skipped! testedPositions: ${JSON.stringify([...testedPositions])}`);
       }
       
       testedPositions.add(posKey);
@@ -1159,6 +1173,11 @@ export default function BlackBoxGame() {
           if (actual.exit && !(actual.entry.side === actual.exit.side && actual.entry.pos === actual.exit.pos)) {
             const exitKey = `${actual.exit.side}-${actual.exit.pos}`;
             testedPositions.add(exitKey);
+            addExperimentLog(`    📍 Marked exit ${exitKey} as tested (testedPositions now has ${testedPositions.size} entries)`);
+          } else if (actual.exit) {
+            addExperimentLog(`    ↺ Reflected at ${actual.exit.side}-${actual.exit.pos} (no exit to mark)`);
+          } else {
+            addExperimentLog(`    ⊗ Absorbed (no exit to mark)`);
           }
 
           await new Promise(resolve => setTimeout(resolve, 500));
@@ -1277,6 +1296,11 @@ export default function BlackBoxGame() {
         if (actual.exit && !(actual.entry.side === actual.exit.side && actual.entry.pos === actual.exit.pos)) {
           const exitKey = `${actual.exit.side}-${actual.exit.pos}`;
           testedPositions.add(exitKey);
+          addExperimentLog(`    📍 Marked exit ${exitKey} as tested (testedPositions now has ${testedPositions.size} entries)`);
+        } else if (actual.exit) {
+          addExperimentLog(`    ↺ Reflected at ${actual.exit.side}-${actual.exit.pos} (no exit to mark)`);
+        } else {
+          addExperimentLog(`    ⊗ Absorbed (no exit to mark)`);
         }
         
       } catch (error) {
@@ -1324,6 +1348,11 @@ export default function BlackBoxGame() {
         if (actual.exit && !(actual.entry.side === actual.exit.side && actual.entry.pos === actual.exit.pos)) {
           const exitKey = `${actual.exit.side}-${actual.exit.pos}`;
           testedPositions.add(exitKey);
+          addExperimentLog(`    📍 Marked exit ${exitKey} as tested (testedPositions now has ${testedPositions.size} entries)`);
+        } else if (actual.exit) {
+          addExperimentLog(`    ↺ Reflected at ${actual.exit.side}-${actual.exit.pos} (no exit to mark)`);
+        } else {
+          addExperimentLog(`    ⊗ Absorbed (no exit to mark)`);
         }
       }
       
@@ -2025,6 +2054,8 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
         }
 
         setRerunFailures(failures);
+        setRerunDetailsOpen(true);  // Keep details open
+        setRerunSourceFilename(file.name);  // Store original filename
         addExperimentLog(`Loaded ${file.name}: found ${failures.length} failed predictions to rerun`);
       } catch (err) {
         addExperimentLog(`Error loading file: ${err.message}`);
@@ -2063,6 +2094,11 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
       const side = rayEntry.side;
       const pos = rayEntry.pos;
 
+      // Update visualization to show current config and ray being tested
+      setExperimentAtoms(atomSet);
+      setExperimentRays([]);
+      setExperimentPredictions([]);
+
       setExperimentProgress(prev => ({
         ...prev,
         status: `Rerunning ${i + 1}/${rerunFailures.length}: ${modelName} Config ${configIndex} ${side.toUpperCase()}-${pos}`
@@ -2076,10 +2112,11 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
 
       let prompt = `Atoms are located at: ${atomList}\n\n`;
       if (includeVisualization) {
-        prompt += `Board (O = atom positions):\n\`\`\`\n${generateTextBoard(atoms, rays, guesses)}\n\`\`\`\n\n`;
+        prompt += `Board (O = atom positions):\n\`\`\`\n`;
+        prompt += generateTextBoard([], 8, atomSet);  // Empty rays, show atoms
+        prompt += `\`\`\`\n\n`;
       }
-      prompt += `A ray is fired from ${side.toUpperCase()}-${pos}.\n\n`;
-      prompt += `Trace the ray step by step and predict where it will exit (or if it will be absorbed/reflected).`;
+      prompt += `A ray is fired from ${side.toUpperCase()}-${pos}.\n\nTrace the ray step by step and predict where it will exit (or if it will be absorbed/reflected).`;
 
       // Build system prompt with VoT
       let systemPromptWithVoT = promptConfig.predictPrompt;
@@ -2152,6 +2189,16 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
         if (response.startsWith('Error:')) {
           addExperimentLog(`  ✗ Still failed: ${response.substring(0, 60)}...`);
           failCount++;
+          // Update visualization to show the ray even on error
+          actual.id = 1;
+          actual.correct = false;
+          setExperimentRays([actual]);
+          setExperimentPredictions([{
+            rayEntry: { side, pos },
+            predicted: 'error',
+            actual: actualOutcome,
+            correct: false
+          }]);
           // Update with actual outcome even if prediction failed
           updatedData.results[resultIndex].predictions[predictionIndex].actual = actualOutcome;
           updatedData.results[resultIndex].predictions[predictionIndex].rayResult = actual;
@@ -2186,6 +2233,17 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
                    prediction?.exit_position === actual.exit?.pos;
         }
 
+        // Update visualization with the ray result
+        actual.id = 1;
+        actual.correct = correct;
+        setExperimentRays([actual]);
+        setExperimentPredictions([{
+          rayEntry: { side, pos },
+          predicted: predictedOutcome,
+          actual: actualOutcome,
+          correct
+        }]);
+
         // Update the prediction in the data
         updatedData.results[resultIndex].predictions[predictionIndex] = {
           ...updatedData.results[resultIndex].predictions[predictionIndex],
@@ -2215,9 +2273,9 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
 
     addExperimentLog(`=== RERUN COMPLETE: ${successCount} succeeded, ${failCount} failed ===`);
 
-    // Update the source data with fixed predictions
+    // Update the source data with fixed predictions (for export only)
     setRerunSourceData(updatedData);
-    setExperimentResults(updatedData.results);
+    // Note: Don't set experimentResults here - the rerun data may not match the current taskMode
 
     // Recount failures
     const remainingFailures = [];
@@ -2250,28 +2308,79 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
     }
 
     setExperimentProgress(prev => ({ ...prev, status: 'Rerun complete!' }));
+    setRerunDetailsOpen(true);  // Ensure details stays open for export
     setExperimentRunning(false);
   };
 
   const exportRerunResults = () => {
     if (!rerunSourceData) return;
 
-    const exportData = {
-      ...rerunSourceData,
-      exportTime: new Date().toISOString(),
-      rerunNote: `Rerun of failed predictions from original export`
-    };
+    try {
+      const exportData = {
+        ...rerunSourceData,
+        exportTime: new Date().toISOString(),
+        rerunNote: `Rerun of failed predictions from original export`
+      };
 
-    const filename = `rerun_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
+      const jsonString = JSON.stringify(exportData, null, 2);
+      // Use original filename with rerun_ prefix
+      const filename = rerunSourceFilename 
+        ? `rerun_${rerunSourceFilename}` 
+        : `rerun_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);  // Required for Firefox
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-    addExperimentLog(`Exported updated results to ${filename}`);
+      addExperimentLog(`Exported updated results to ${filename}`);
+    } catch (error) {
+      console.error('Export error:', error);
+      addExperimentLog(`Export error: ${error.message}`);
+    }
+  };
+
+  const exportRerunHtml = () => {
+    if (!rerunSourceData) return;
+
+    try {
+      const exportData = {
+        ...rerunSourceData,
+        exportTime: new Date().toISOString(),
+        rerunNote: `Rerun of failed predictions from original export`
+      };
+
+      const html = generateExperimentHtml(exportData);
+      
+      // Use original filename with rerun_ prefix, change extension to .html
+      let filename;
+      if (rerunSourceFilename) {
+        // Replace .json extension with .html if present
+        const baseName = rerunSourceFilename.replace(/\.json$/i, '');
+        filename = `rerun_${baseName}.html`;
+      } else {
+        filename = `rerun_${new Date().toISOString().replace(/[:.]/g, '-')}.html`;
+      }
+      
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      addExperimentLog(`Exported updated HTML report to ${filename}`);
+    } catch (error) {
+      console.error('Export HTML error:', error);
+      addExperimentLog(`Export HTML error: ${error.message}`);
+    }
   };
 
   const exportExperimentResults = (format = 'json') => {
@@ -4573,9 +4682,13 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
               </div>
 
               {/* Rerun Failures Section */}
-              <details className="border rounded p-3 bg-amber-50">
+              <details 
+                className="border rounded p-3 bg-amber-50"
+                open={rerunDetailsOpen}
+                onToggle={(e) => setRerunDetailsOpen(e.target.open)}
+              >
                 <summary className="cursor-pointer font-medium text-amber-800">
-                  🔄 Rerun Failed Predictions
+                  🔄 Rerun Failed Predictions {rerunSourceData ? `(${rerunFailures.length} pending)` : ''}
                 </summary>
                 <div className="mt-3 space-y-3">
                   <p className="text-sm text-gray-600">
@@ -4594,6 +4707,7 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
 
                   {rerunSourceData && (
                     <div className="bg-white p-2 rounded border text-sm">
+                      <div><strong>File:</strong> {rerunSourceFilename}</div>
                       <div><strong>Loaded:</strong> {rerunSourceData.results?.length || 0} results</div>
                       <div><strong>Failed predictions:</strong> {rerunFailures.length}</div>
                       {rerunFailures.length > 0 && (
@@ -4608,7 +4722,7 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
                     </div>
                   )}
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       onClick={runRerunFailures}
                       disabled={!rerunSourceData || rerunFailures.length === 0}
@@ -4621,13 +4735,22 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
                       disabled={!rerunSourceData}
                       className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      💾 Export Updated JSON
+                      💾 Export JSON
+                    </button>
+                    <button
+                      onClick={exportRerunHtml}
+                      disabled={!rerunSourceData}
+                      className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      📄 Export HTML
                     </button>
                     {rerunSourceData && (
                       <button
                         onClick={() => {
                           setRerunSourceData(null);
                           setRerunFailures([]);
+                          setRerunDetailsOpen(false);
+                          setRerunSourceFilename('');
                         }}
                         className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
                       >
