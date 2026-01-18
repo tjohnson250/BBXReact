@@ -112,13 +112,15 @@ cat("========================================\n\n")
 
 cat("YOUR REQUIREMENT:\n")
 cat("- Entry cell (outside box) = 1 cell\n")
-cat("- Internal path cells = N cells\n")
-cat("- Exit cell = 1 cell (already counted in path)\n")
-cat("- Total = 1 + path.length\n\n")
+cat("- Internal path cells (inside box) = N cells\n")
+cat("- Exit cell (outside box) = 1 cell for deflected/reflected rays, 0 for absorbed\n")
+cat("- Total = 1 + path.length + (0 if absorbed, 1 if exits)\n\n")
 
 cat("EXAMPLES TO VERIFY:\n")
-cat("1. Ray absorbed at edge: entry(1) + hit position in path(1) = 2 cells\n")
-cat("2. Ray travels 2 internal then exits: entry(1) + path of 3 cells = 4 cells\n\n")
+cat("1. Ray absorbed at edge: entry(1) + path(1) + no exit(0) = 2 cells\n")
+cat("2. Ray absorbed 2 cells in: entry(1) + path(2) + no exit(0) = 3 cells\n")
+cat("3. Ray deflected with 2 internal: entry(1) + path(2) + exit(1) = 4 cells\n")
+cat("4. Ray deflected with 5 internal: entry(1) + path(5) + exit(1) = 7 cells\n\n")
 
 predict_files <- list.files("Experiment 1/Predict", pattern = "\\.json$", full.names = TRUE)
 
@@ -183,16 +185,30 @@ if (length(predict_files) > 0) {
 
             cells_calc <- count_ray_cells(pred$rayResult)
             cat(sprintf("Cells traveled (calculated): %d cells\n", cells_calc))
-            cat(sprintf("Formula: 1 (entry) + %d (path) = %d\n", nrow(path), cells_calc))
+
+            # Show correct formula based on absorbed status
+            is_absorbed <- !is.null(pred$rayResult$absorbed) && pred$rayResult$absorbed
+            if (is_absorbed) {
+              cat(sprintf("Formula: 1 (entry) + %d (path) + 0 (absorbed, no exit) = %d\n",
+                         nrow(path), cells_calc))
+            } else {
+              cat(sprintf("Formula: 1 (entry) + %d (path) + 1 (exit) = %d\n",
+                         nrow(path), cells_calc))
+            }
 
             cat("\n** YOUR VERIFICATION **\n")
             cat("Look at the visual grid above:\n")
             cat("- A = atom position\n")
             cat("- X = ray hit an atom\n")
-            cat("- 0-9 = path order (entry is outside grid, not shown)\n")
-            cat(sprintf("Count the numbered cells (path): %d cells\n", nrow(path)))
-            cat(sprintf("Add 1 for entry (outside box): total = %d cells\n", cells_calc))
-            cat(sprintf("Does this match the calculated value? (Y/N)\n"))
+            cat("- 0-9 = path order (entry and exit are outside grid, not shown)\n")
+            cat(sprintf("Count the numbered cells (internal path): %d cells\n", nrow(path)))
+            if (is_absorbed) {
+              cat(sprintf("Add 1 for entry (outside box): total = %d cells\n", cells_calc))
+              cat("No exit cell (ray was absorbed)\n")
+            } else {
+              cat(sprintf("Add 1 for entry + 1 for exit (both outside box): total = %d cells\n", cells_calc))
+            }
+            cat(sprintf("Does this match the calculated value of %d? (Y/N)\n", cells_calc))
             cat("─────────────────────────────\n\n")
           }
         }
