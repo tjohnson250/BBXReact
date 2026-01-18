@@ -130,11 +130,130 @@ if (length(predict_files) > 0) {
   data <- fromJSON(predict_files[1], simplifyDataFrame = FALSE)
 
   if (!is.null(data$results) && length(data$results) > 0) {
-    # Show first 5 predictions from potentially different configs
+    # Show examples from multiple configs
     configs_shown <- 0
-    max_configs <- 3  # Show examples from up to 3 different configurations
+    max_configs <- 5  # Show examples from up to 5 different configurations
+    total_examples <- 0
+    max_total_examples <- 15  # Show up to 15 total predictions
 
-    for (res_idx in 1:min(length(data$results), 10)) {
+    # Collect examples by type
+    absorbed_examples <- list()
+    deflected_examples <- list()
+
+    for (res_idx in 1:length(data$results)) {
+      result <- data$results[[res_idx]]
+
+      if (!is.null(result$predictions) && !is.null(result$atomConfig)) {
+
+        for (i in 1:length(result$predictions)) {
+          pred <- result$predictions[[i]]
+
+          if (!is.null(pred$rayResult) && !is.null(pred$rayResult$path)) {
+            path <- pred$rayResult$path
+
+            # Skip if path is empty
+            if (!is.matrix(path) || nrow(path) == 0) {
+              next
+            }
+
+            # Categorize by type
+            is_absorbed <- !is.null(pred$rayResult$absorbed) && pred$rayResult$absorbed
+
+            example <- list(
+              pred = pred,
+              config = result$atomConfig,
+              config_idx = result$configIndex
+            )
+
+            if (is_absorbed && length(absorbed_examples) < 5) {
+              absorbed_examples[[length(absorbed_examples) + 1]] <- example
+            } else if (!is_absorbed && length(deflected_examples) < 10) {
+              deflected_examples[[length(deflected_examples) + 1]] <- example
+            }
+
+            if (length(absorbed_examples) >= 5 && length(deflected_examples) >= 10) {
+              break
+            }
+          }
+        }
+
+        if (length(absorbed_examples) >= 5 && length(deflected_examples) >= 10) {
+          break
+        }
+      }
+    }
+
+    # Display absorbed ray examples
+    cat("\n═══════════════════════════════════════\n")
+    cat("ABSORBED RAYS (up to 5 examples)\n")
+    cat("═══════════════════════════════════════\n")
+
+    for (idx in seq_along(absorbed_examples)) {
+      example <- absorbed_examples[[idx]]
+      pred <- example$pred
+      path <- pred$rayResult$path
+
+      cat(sprintf("\n--- Absorbed Ray %d (Config %s) ---\n", idx, example$config_idx))
+      cat(sprintf("Ray Entry: %s-%s\n", pred$rayEntry$side, pred$rayEntry$position))
+      cat(sprintf("Actual Outcome: %s\n", pred$actual))
+
+      cat(sprintf("\nRaw Path Data (row, col):\n"))
+      for (j in 1:nrow(path)) {
+        cat(sprintf("  Cell %d: (%d, %d)\n", j, path[j, 1], path[j, 2]))
+      }
+
+      cat("\nVisual Grid:\n")
+      visualize_ray(path, example$config)
+
+      cat(sprintf("Path length from JSON: %d cells\n", nrow(path)))
+
+      cells_calc <- count_ray_cells(pred$rayResult)
+      cat(sprintf("Cells traveled (calculated): %d cells\n", cells_calc))
+      cat(sprintf("Formula: 1 (entry) + %d (path) + 0 (absorbed, no exit) = %d\n",
+                 nrow(path), cells_calc))
+      cat("─────────────────────────────\n")
+    }
+
+    # Display deflected ray examples
+    cat("\n\n═══════════════════════════════════════\n")
+    cat("DEFLECTED/REFLECTED RAYS (up to 10 examples)\n")
+    cat("═══════════════════════════════════════\n")
+
+    for (idx in seq_along(deflected_examples)) {
+      example <- deflected_examples[[idx]]
+      pred <- example$pred
+      path <- pred$rayResult$path
+
+      cat(sprintf("\n--- Deflected Ray %d (Config %s) ---\n", idx, example$config_idx))
+      cat(sprintf("Ray Entry: %s-%s\n", pred$rayEntry$side, pred$rayEntry$position))
+      cat(sprintf("Actual Outcome: %s\n", pred$actual))
+
+      cat(sprintf("\nRaw Path Data (row, col):\n"))
+      for (j in 1:nrow(path)) {
+        cat(sprintf("  Cell %d: (%d, %d)\n", j, path[j, 1], path[j, 2]))
+      }
+
+      cat("\nVisual Grid:\n")
+      visualize_ray(path, example$config)
+
+      cat(sprintf("Path length from JSON: %d cells\n", nrow(path)))
+
+      cells_calc <- count_ray_cells(pred$rayResult)
+      cat(sprintf("Cells traveled (calculated): %d cells\n", cells_calc))
+      cat(sprintf("Formula: 1 (entry) + %d (path) + 1 (exit) = %d\n",
+                 nrow(path), cells_calc))
+      cat("─────────────────────────────\n")
+    }
+
+    cat(sprintf("\n\nShown %d absorbed and %d deflected examples for validation.\n",
+               length(absorbed_examples), length(deflected_examples)))
+
+    # Skip the old per-config display
+    configs_shown <- max_configs
+  } else {
+    # Old code block, but make it unreachable
+    configs_shown <- 0
+    for (res_idx in 1:0) {  # Never executes
       result <- data$results[[res_idx]]
 
       if (!is.null(result$predictions) && !is.null(result$atomConfig)) {
@@ -267,8 +386,8 @@ if (length(play_files) > 0) {
       }
       cat("\n")
 
-      # Show first 3 rays
-      for (i in 1:min(3, length(result$raySequence))) {
+      # Show first 8 rays
+      for (i in 1:min(8, length(result$raySequence))) {
         ray <- result$raySequence[[i]]
 
         if (!is.null(ray$action) && ray$action == "fire" &&
