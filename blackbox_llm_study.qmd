@@ -1115,6 +1115,31 @@ count_ray_cells <- function(rayResult) {
   return(cells)
 }
 
+# Helper function: count atoms adjacent (within 1 cell) to any cell in ray path
+# Note: jsonlite parses arrays as matrices, so atom_config is 4x2 and path is Nx2
+count_atoms_affecting <- function(path, atom_config) {
+  if (is.null(path) || length(path) == 0) return(0)
+  if (!is.matrix(path)) return(0)
+
+  affected <- 0
+  n_atoms <- nrow(atom_config)
+  n_cells <- nrow(path)
+
+  for (i in seq_len(n_atoms)) {
+    atom_row <- atom_config[i, 1]
+    atom_col <- atom_config[i, 2]
+    for (j in seq_len(n_cells)) {
+      cell_row <- path[j, 1]
+      cell_col <- path[j, 2]
+      if (abs(atom_row - cell_row) <= 1 && abs(atom_col - cell_col) <= 1) {
+        affected <- affected + 1
+        break  # Count each atom only once per ray
+      }
+    }
+  }
+  affected
+}
+
 # Function to extract results from a single Predict JSON file
 extract_predict_results <- function(json_file) {
   data <- jsonlite::fromJSON(json_file, simplifyDataFrame = FALSE)
@@ -1133,8 +1158,9 @@ extract_predict_results <- function(json_file) {
 
     # Extract each prediction
     map_dfr(predictions, function(p) {
-      # Calculate path complexity (cells traveled)
+      # Calculate path complexity metrics
       cells_traveled <- count_ray_cells(p$rayResult)
+      atoms_affecting <- count_atoms_affecting(p$rayResult$path, r$atomConfig)
 
       tibble(
         experiment_id = r$experimentId,
@@ -1156,6 +1182,7 @@ extract_predict_results <- function(json_file) {
         input_tokens = p$inputTokens,
         output_tokens = p$outputTokens,
         cells_traveled = cells_traveled,
+        atoms_affecting = atoms_affecting,
         source_file = basename(json_file)
       )
     })
@@ -1176,6 +1203,9 @@ cat("Configurations tested:", length(unique(predict_data$config_index)), "\n")
 cat("Cells traveled range:",
     round(min(predict_data$cells_traveled, na.rm = TRUE), 2), "-",
     round(max(predict_data$cells_traveled, na.rm = TRUE), 2), "\n")
+cat("Atoms affecting range:",
+    min(predict_data$atoms_affecting, na.rm = TRUE), "-",
+    max(predict_data$atoms_affecting, na.rm = TRUE), "\n")
 ```
 
 ```{r}
@@ -1335,7 +1365,7 @@ kable(predict_by_config,
 # Convert factors for ANOVA
 predict_data <- predict_data |>
   mutate(
-    model_name = factor(model_name, levels = c("Claude Haiku 4.5", "Claude Sonnet 4.5", "Claude Opus 4.5")),
+    model_name = factor(model_name, levels = c("Haiku 4.5", "Sonnet 4.5", "Opus 4.5")),
     prompt_style = factor(prompt_style, levels = c("baseline", "augmented")),
     enable_thinking = factor(enable_thinking, levels = c(FALSE, TRUE)),
     vot_ray_trace = factor(vot_ray_trace, levels = c(FALSE, TRUE)),
@@ -1370,14 +1400,15 @@ if (has_model_var && has_prompt_var && has_thinking_var) {
 
 # Add VoT if it varies
 if (has_vot_var) {
-  full_formula <- paste0("correct ~ ", main_formula, " + vot_ray_trace + config_index")
+  full_formula <- paste0("correct ~ ", main_formula, " + vot_ray_trace + cells_traveled + atoms_affecting + config_index")
 } else {
-  full_formula <- paste0("correct ~ ", main_formula, " + config_index")
+  full_formula <- paste0("correct ~ ", main_formula, " + cells_traveled + atoms_affecting + config_index")
 }
 
 # ANOVA: Prediction accuracy (Logistic Regression)
 cat("=== ANOVA: Prediction Accuracy (Logistic Regression) ===\n")
 cat("Note: This tests whether factors significantly affect prediction accuracy.\n")
+cat("Covariates: cells_traveled (path length), atoms_affecting (atom density)\n")
 cat("Formula:", full_formula, "\n\n")
 
 model_predict <- glm(as.formula(full_formula),
@@ -1534,6 +1565,82 @@ if (has_model_var || has_prompt_var || has_thinking_var) {
 ```
 
 ```{r}
+#| label: predict-effect-modification-atoms
+
+# Test for effect modification by atoms_affecting (atom density)
+cat("\n=== Effect Modification: Does atom density moderate treatment effects? ===\n")
+cat("Atom density measured as number of atoms adjacent to ray path.\n\n")
+
+# Only run if we have variation in factors
+if (has_model_var || has_prompt_var || has_thinking_var) {
+  # Build interaction formula
+  interaction_parts <- c()
+  if (has_model_var) interaction_parts <- c(interaction_parts, "model_name * atoms_affecting")
+  if (has_prompt_var) interaction_parts <- c(interaction_parts, "prompt_style * atoms_affecting")
+  if (has_thinking_var) interaction_parts <- c(interaction_parts, "enable_thinking * atoms_affecting")
+
+  # Add config as control
+  pred_mod_formula_atoms <- paste0("correct ~ ", paste(interaction_parts, collapse = " + "), " + config_index")
+
+  cat("--- Prediction Accuracy with Atom Density Interaction ---\n")
+  cat("Formula:", pred_mod_formula_atoms, "\n")
+  cat("Note: Logistic regression tests whether treatment effects vary with atom density.\n\n")
+
+  model_predict_mod_atoms <- glm(as.formula(pred_mod_formula_atoms),
+                                  family = binomial(link = "logit"),
+                                  data = predict_data)
+
+  # ANOVA table
+  print(Anova(model_predict_mod_atoms, type = 3))
+
+  # Interpretation of interactions
+  cat("\n=== Interpretation of Interactions ===\n")
+  cat("Significant interactions indicate that treatment effects depend on atom density.\n")
+  cat("- No interaction: Treatment effect is constant across low and high atom density\n")
+  cat("- Positive interaction: Treatment effect increases with more atoms affecting path\n")
+  cat("- Negative interaction: Treatment effect decreases with more atoms affecting path\n\n")
+
+  # Extract interaction coefficients
+  interaction_coefs_atoms <- tidy(model_predict_mod_atoms, conf.int = TRUE) |>
+    filter(grepl(":", term)) |>  # Interaction terms only
+    filter(grepl("atoms_affecting", term)) |>
+    mutate(
+      OR = exp(estimate),
+      OR_lower = exp(conf.low),
+      OR_upper = exp(conf.high)
+    ) |>
+    select(term, estimate, OR, OR_lower, OR_upper, p.value) |>
+    mutate(across(c(estimate, OR, OR_lower, OR_upper), ~round(., 3)),
+           p.value = format.pval(p.value, digits = 3, eps = 0.001))
+
+  if (nrow(interaction_coefs_atoms) > 0) {
+    kable(interaction_coefs_atoms,
+          col.names = c("Interaction Term", "β (log-odds)", "OR", "OR 95% CI Lower", "OR 95% CI Upper", "p-value"),
+          caption = "Atom Density Interaction Effects")
+  }
+
+  # Summary statistics for atoms_affecting
+  cat("\n=== Atom Density Distribution ===\n")
+  atoms_summary <- predict_data |>
+    summarise(
+      min_atoms = min(atoms_affecting, na.rm = TRUE),
+      q25_atoms = quantile(atoms_affecting, 0.25, na.rm = TRUE),
+      median_atoms = median(atoms_affecting, na.rm = TRUE),
+      q75_atoms = quantile(atoms_affecting, 0.75, na.rm = TRUE),
+      max_atoms = max(atoms_affecting, na.rm = TRUE),
+      mean_atoms = mean(atoms_affecting, na.rm = TRUE),
+      sd_atoms = sd(atoms_affecting, na.rm = TRUE)
+    ) |>
+    mutate(across(everything(), ~round(., 2)))
+
+  print(atoms_summary)
+
+} else {
+  cat("Insufficient factor variation for effect modification analysis.\n")
+}
+```
+
+```{r}
 #| label: predict-visualizations
 #| fig-width: 10
 #| fig-height: 6
@@ -1607,6 +1714,95 @@ print(p4_pred)
 ```
 
 ```{r}
+#| label: predict-complexity-analysis
+#| fig-width: 10
+#| fig-height: 8
+
+cat("=== Ray Path Complexity Analysis ===\n\n")
+
+# 1. Correlation between complexity measures
+complexity_cor <- cor(predict_data$cells_traveled, predict_data$atoms_affecting,
+                      use = "complete.obs")
+cat("Correlation between cells_traveled and atoms_affecting:", round(complexity_cor, 3), "\n\n")
+
+# 2. Scatterplot: cells_traveled vs atoms_affecting
+p_complexity_scatter <- predict_data |>
+  filter(!is.na(cells_traveled) & !is.na(atoms_affecting)) |>
+  ggplot(aes(x = cells_traveled, y = atoms_affecting)) +
+  geom_jitter(aes(color = correct), alpha = 0.4, width = 0.2, height = 0.2) +
+  geom_smooth(method = "lm", se = TRUE, color = "black", linewidth = 1) +
+  labs(title = "Path Length vs Atom Density",
+       subtitle = paste0("Correlation: r = ", round(complexity_cor, 3)),
+       x = "Cells Traveled (Entry + Internal + Exit)",
+       y = "Atoms Affecting Path",
+       color = "Correct") +
+  scale_color_manual(values = c("TRUE" = "#00BA38", "FALSE" = "#F8766D")) +
+  theme_minimal()
+print(p_complexity_scatter)
+
+# 3. Accuracy by atom density categories
+p_atoms_accuracy <- predict_data |>
+  filter(!is.na(atoms_affecting)) |>
+  mutate(atom_category = factor(atoms_affecting,
+                                 levels = 0:4,
+                                 labels = c("0 atoms", "1 atom", "2 atoms", "3 atoms", "4 atoms"))) |>
+  group_by(atom_category, model_name) |>
+  summarise(
+    accuracy = mean(correct),
+    se = sqrt(accuracy * (1-accuracy) / n()),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = atom_category, y = accuracy, fill = model_name)) +
+  geom_col(position = position_dodge(0.8), width = 0.7) +
+  geom_errorbar(aes(ymin = accuracy - se, ymax = accuracy + se),
+                position = position_dodge(0.8), width = 0.2) +
+  geom_text(aes(label = paste0("n=", n)),
+            position = position_dodge(0.8), vjust = -0.5, size = 3) +
+  labs(title = "Accuracy by Atom Density",
+       subtitle = "How many atoms are adjacent to the ray path?",
+       x = "Number of Atoms Affecting Ray Path",
+       y = "Accuracy",
+       fill = "Model") +
+  scale_y_continuous(limits = c(0, 1.1), labels = scales::percent) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 0))
+print(p_atoms_accuracy)
+
+# 4. Accuracy by path length quartiles
+p_cells_quartiles <- predict_data |>
+  filter(!is.na(cells_traveled)) |>
+  mutate(
+    path_quartile = cut(cells_traveled,
+                        breaks = quantile(cells_traveled, probs = c(0, 0.25, 0.5, 0.75, 1), na.rm = TRUE),
+                        labels = c("Q1 (Shortest)", "Q2", "Q3", "Q4 (Longest)"),
+                        include.lowest = TRUE)
+  ) |>
+  group_by(path_quartile, model_name) |>
+  summarise(
+    accuracy = mean(correct),
+    se = sqrt(accuracy * (1-accuracy) / n()),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = path_quartile, y = accuracy, fill = model_name)) +
+  geom_col(position = position_dodge(0.8), width = 0.7) +
+  geom_errorbar(aes(ymin = accuracy - se, ymax = accuracy + se),
+                position = position_dodge(0.8), width = 0.2) +
+  geom_text(aes(label = paste0("n=", n)),
+            position = position_dodge(0.8), vjust = -0.5, size = 3) +
+  labs(title = "Accuracy by Path Length Quartiles",
+       subtitle = "Does accuracy decline for longer ray paths?",
+       x = "Path Length Quartile",
+       y = "Accuracy",
+       fill = "Model") +
+  scale_y_continuous(limits = c(0, 1.1), labels = scales::percent) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 0))
+print(p_cells_quartiles)
+```
+
+```{r}
 #| label: predict-error-analysis
 
 # Analyze error patterns by comparing predicted vs actual
@@ -1666,31 +1862,6 @@ play_json_files <- list.files(
   full.names = TRUE
 )
 
-# Helper function: count atoms adjacent (within 1 cell) to any cell in ray path
-# Note: jsonlite parses arrays as matrices, so atom_config is 4x2 and path is Nx2
-count_atoms_affecting <- function(path, atom_config) {
-  if (is.null(path) || length(path) == 0) return(0)
-  if (!is.matrix(path)) return(0)
-
-  affected <- 0
-  n_atoms <- nrow(atom_config)
-  n_cells <- nrow(path)
-
-  for (i in seq_len(n_atoms)) {
-    atom_row <- atom_config[i, 1]
-    atom_col <- atom_config[i, 2]
-    for (j in seq_len(n_cells)) {
-      cell_row <- path[j, 1]
-      cell_col <- path[j, 2]
-      if (abs(atom_row - cell_row) <= 1 && abs(atom_col - cell_col) <= 1) {
-        affected <- affected + 1
-        break  # Count each atom only once per ray
-      }
-    }
-  }
-  affected
-}
-
 # Function to extract results from a single JSON file
 extract_play_results <- function(json_file) {
   data <- jsonlite::fromJSON(json_file, simplifyDataFrame = FALSE)
@@ -1700,17 +1871,23 @@ extract_play_results <- function(json_file) {
 
   # Convert each result to a tibble row
   map_dfr(results, function(r) {
-    # Calculate mean atoms affecting each ray
-    ray_atoms <- sapply(r$raySequence, function(ray) {
+    # Calculate mean complexity measures for each ray fired
+    ray_complexity <- lapply(r$raySequence, function(ray) {
       if (!is.null(ray$action) && ray$action == "fire" &&
           !is.null(ray$rayResult) && !is.null(ray$rayResult$path)) {
-        count_atoms_affecting(ray$rayResult$path, r$atomConfig)
+        list(
+          atoms = count_atoms_affecting(ray$rayResult$path, r$atomConfig),
+          cells = count_ray_cells(ray$rayResult)
+        )
       } else {
-        NA_real_
+        list(atoms = NA_real_, cells = NA_real_)
       }
     })
-    mean_atoms <- mean(ray_atoms, na.rm = TRUE)
+
+    mean_atoms <- mean(sapply(ray_complexity, function(x) x$atoms), na.rm = TRUE)
+    mean_cells <- mean(sapply(ray_complexity, function(x) x$cells), na.rm = TRUE)
     if (is.nan(mean_atoms)) mean_atoms <- NA_real_
+    if (is.nan(mean_cells)) mean_cells <- NA_real_
 
     tibble(
       experiment_id = r$experimentId,
@@ -1741,6 +1918,7 @@ extract_play_results <- function(json_file) {
       total_output_tokens = r$totalOutputTokens,
       total_response_time_ms = r$totalResponseTimeMs,
       mean_atoms_per_ray = mean_atoms,
+      mean_cells_per_ray = mean_cells,
       source_file = basename(json_file)
     )
   })
@@ -1758,6 +1936,9 @@ cat("Configurations tested:", length(unique(play_data$config_index)), "\n")
 cat("Mean atoms per ray range:",
     round(min(play_data$mean_atoms_per_ray, na.rm = TRUE), 2), "-",
     round(max(play_data$mean_atoms_per_ray, na.rm = TRUE), 2), "\n")
+cat("Mean cells per ray range:",
+    round(min(play_data$mean_cells_per_ray, na.rm = TRUE), 2), "-",
+    round(max(play_data$mean_cells_per_ray, na.rm = TRUE), 2), "\n")
 ```
 
 ```{r}
@@ -1856,7 +2037,7 @@ kable(leaderboard_play,
 # Convert factors
 play_data <- play_data |>
   mutate(
-    model_name = factor(model_name, levels = c("Claude Haiku 4.5", "Claude Sonnet 4.5", "Claude Opus 4.5")),
+    model_name = factor(model_name, levels = c("Haiku 4.5", "Sonnet 4.5", "Opus 4.5")),
     prompt_style = factor(prompt_style, levels = c("baseline", "augmented")),
     enable_thinking = factor(enable_thinking, levels = c(FALSE, TRUE)),
     vot_grid_state = factor(vot_grid_state, levels = c(FALSE, TRUE)),
@@ -2006,7 +2187,7 @@ regression_parts <- formula_parts  # From earlier: model_name, prompt_style, ena
 if (has_vot_grid) regression_parts <- c(regression_parts, "vot_grid_state")
 if (has_vot_ray) regression_parts <- c(regression_parts, "vot_ray_trace")
 if (has_vot_hyp) regression_parts <- c(regression_parts, "vot_hypothesis")
-regression_parts <- c(regression_parts, "mean_atoms_per_ray")
+regression_parts <- c(regression_parts, "mean_atoms_per_ray", "mean_cells_per_ray")
 
 atoms_reg_formula <- paste0("atoms_correct ~ ", paste(regression_parts, collapse = " + "))
 
