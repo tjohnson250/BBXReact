@@ -1091,7 +1091,7 @@ predict_json_files <- list.files(
 )
 
 # Helper function to count cells traveled by a ray
-# Entry cell (1) + internal path cells + exit cell (1)
+# Entry cell (outside box) + internal path cells + exit cell (outside box)
 count_ray_cells <- function(rayResult) {
   if (is.null(rayResult) || is.null(rayResult$path)) {
     return(NA_real_)
@@ -1102,15 +1102,17 @@ count_ray_cells <- function(rayResult) {
     return(NA_real_)
   }
 
-  # Entry cell (1) + internal path cells + exit cell (1)
-  # Path includes all internal cells traveled
-  # For absorption/reflection at entry, path has 1 cell, so 1 + 1 + 1 = 3 is wrong
-  # Actually: entry (1) + path length (includes exit position) = 1 + nrow(path)
-  # But we want: entry (1) + internal cells + exit (1)
-  # If absorbed at edge: path has the entry cell only, so 1 entry + 1 for the position = 2
-  # If travels 2 internal and reflects: 1 entry + 2 internal + 1 exit = 4
-  # So: 1 (entry outside box) + nrow(path) (all cells from entry through exit)
-  return(1 + nrow(path))
+  # Start with entry cell (outside box) + all internal path cells
+  cells <- 1 + nrow(path)
+
+  # Add exit cell (outside box) for rays that exit (not absorbed)
+  # Absorbed rays have absorbed=TRUE and no exit field
+  # Deflected/reflected rays have absorbed=FALSE and an exit field
+  if (!is.null(rayResult$absorbed) && !rayResult$absorbed) {
+    cells <- cells + 1
+  }
+
+  return(cells)
 }
 
 # Function to extract results from a single Predict JSON file

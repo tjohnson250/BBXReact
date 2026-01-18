@@ -48,8 +48,15 @@ count_ray_cells <- function(rayResult) {
     return(NA_real_)
   }
 
-  # Entry cell (1) + path length (includes all internal cells from entry through exit)
-  return(1 + nrow(path))
+  # Entry cell (outside box) + internal path cells
+  cells <- 1 + nrow(path)
+
+  # Add exit cell (outside box) for rays that exit (not absorbed)
+  if (!is.null(rayResult$absorbed) && !rayResult$absorbed) {
+    cells <- cells + 1
+  }
+
+  return(cells)
 }
 
 # ==============================================================================
@@ -155,61 +162,73 @@ cat("=== Test 2: count_ray_cells ===\n\n")
 # Test Case 2.1: Absorbed at edge (entry + hit position)
 test_2_1 <- list(
   name = "Absorbed at edge",
-  rayResult = list(path = matrix(c(1, 1), ncol = 2, byrow = TRUE)),
+  rayResult = list(
+    path = matrix(c(1, 1), ncol = 2, byrow = TRUE),
+    absorbed = TRUE
+  ),
   expected = 2,
-  explanation = "Entry cell (1) + path has 1 cell = 2 total"
+  explanation = "Entry cell (1) + path (1) + no exit (absorbed) = 2 total"
 )
 
-# Test Case 2.2: Reflected at entry (entry + same position)
+# Test Case 2.2: Absorbed one cell in
 test_2_2 <- list(
-  name = "Reflected at entry",
-  rayResult = list(path = matrix(c(1, 1), ncol = 2, byrow = TRUE)),
-  expected = 2,
-  explanation = "Entry cell (1) + path has 1 cell = 2 total"
+  name = "Absorbed one cell in",
+  rayResult = list(
+    path = matrix(c(1, 1, 2, 1), ncol = 2, byrow = TRUE),
+    absorbed = TRUE
+  ),
+  expected = 3,
+  explanation = "Entry cell (1) + path (2) + no exit (absorbed) = 3 total"
 )
 
-# Test Case 2.3: Travels 2 internal cells then exits
+# Test Case 2.3: Deflected - short path
 test_2_3 <- list(
-  name = "Short path with detour",
-  rayResult = list(path = matrix(c(
-    1, 1,  # Entry position
-    2, 2,  # Internal cell 1
-    3, 3   # Exit position
-  ), ncol = 2, byrow = TRUE)),
-  expected = 4,
-  explanation = "Entry cell (1) + path has 3 cells = 4 total"
+  name = "Short deflected path",
+  rayResult = list(
+    path = matrix(c(
+      1, 1,  # Entry position inside
+      2, 2,  # Internal cell
+      3, 3   # Exit position inside
+    ), ncol = 2, byrow = TRUE),
+    absorbed = FALSE
+  ),
+  expected = 5,
+  explanation = "Entry outside (1) + path (3) + exit outside (1) = 5 total"
 )
 
-# Test Case 2.4: Long straight path
+# Test Case 2.4: Long deflected path
 test_2_4 <- list(
-  name = "Long straight path",
-  rayResult = list(path = matrix(c(
-    1, 1,
-    2, 1,
-    3, 1,
-    4, 1,
-    5, 1,
-    6, 1,
-    7, 1,
-    8, 1
-  ), ncol = 2, byrow = TRUE)),
-  expected = 9,
-  explanation = "Entry cell (1) + path has 8 cells = 9 total"
+  name = "Long deflected path",
+  rayResult = list(
+    path = matrix(c(
+      1, 1,
+      2, 1,
+      3, 1,
+      4, 1,
+      5, 1
+    ), ncol = 2, byrow = TRUE),
+    absorbed = FALSE
+  ),
+  expected = 7,
+  explanation = "Entry outside (1) + path (5) + exit outside (1) = 7 total"
 )
 
 # Test Case 2.5: Complex deflection path
 test_2_5 <- list(
   name = "Complex deflection",
-  rayResult = list(path = matrix(c(
-    1, 4,  # Entry
-    2, 4,  # Internal
-    2, 5,  # Deflected
-    3, 5,  # Internal
-    3, 6,  # Deflected again
-    4, 6   # Exit
-  ), ncol = 2, byrow = TRUE)),
-  expected = 7,
-  explanation = "Entry cell (1) + path has 6 cells = 7 total"
+  rayResult = list(
+    path = matrix(c(
+      1, 4,  # Entry inside
+      2, 4,  # Internal
+      2, 5,  # Deflected
+      3, 5,  # Internal
+      3, 6,  # Deflected again
+      4, 6   # Exit inside
+    ), ncol = 2, byrow = TRUE),
+    absorbed = FALSE
+  ),
+  expected = 8,
+  explanation = "Entry outside (1) + path (6) + exit outside (1) = 8 total"
 )
 
 # Test Case 2.6: NULL or empty path

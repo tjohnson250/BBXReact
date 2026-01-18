@@ -44,7 +44,16 @@ count_ray_cells <- function(rayResult) {
   if (!is.matrix(path) || nrow(path) == 0) {
     return(NA_real_)
   }
-  return(1 + nrow(path))
+
+  # Entry cell (outside box) + internal path cells
+  cells <- 1 + nrow(path)
+
+  # Add exit cell (outside box) for rays that exit (not absorbed)
+  if (!is.null(rayResult$absorbed) && !rayResult$absorbed) {
+    cells <- cells + 1
+  }
+
+  return(cells)
 }
 
 # ==============================================================================
