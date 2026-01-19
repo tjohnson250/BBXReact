@@ -41,6 +41,9 @@ library(kableExtra)
 library(effectsize)
 library(performance)
 library(broom)
+library(lme4)        # Mixed-effects models
+library(lmerTest)    # p-values for mixed models
+library(broom.mixed) # Tidy methods for mixed models
 
 # Set plotting defaults
 theme_set(theme_minimal())
@@ -1557,42 +1560,58 @@ if (has_model_var && has_prompt_var && has_thinking_var) {
 
 # Add VoT if it varies
 if (has_vot_var) {
-  full_formula <- paste0("correct ~ ", main_formula, " + vot_ray_trace + cells_traveled + atoms_affecting + config_index")
+  full_formula <- paste0("correct ~ ", main_formula, " + vot_ray_trace + cells_traveled + atoms_affecting + (1 | config_index)")
 } else {
-  full_formula <- paste0("correct ~ ", main_formula, " + cells_traveled + atoms_affecting + config_index")
+  full_formula <- paste0("correct ~ ", main_formula, " + cells_traveled + atoms_affecting + (1 | config_index)")
 }
 
-# ANOVA: Prediction accuracy (Logistic Regression)
-cat("=== ANOVA: Prediction Accuracy (Logistic Regression) ===\n")
+# ANOVA: Prediction accuracy (Mixed-Effects Logistic Regression)
+cat("=== ANOVA: Prediction Accuracy (Mixed-Effects Logistic Regression) ===\n")
 cat("Note: This tests whether factors significantly affect prediction accuracy.\n")
 cat("Covariates: cells_traveled (path length), atoms_affecting (atom density)\n")
+cat("Random effects: config_index (configuration difficulty)\n")
 cat("Formula:", full_formula, "\n\n")
 
-model_predict <- glm(as.formula(full_formula),
-                     family = binomial(link = "logit"),
-                     data = predict_data)
+model_predict <- glmer(as.formula(full_formula),
+                       family = binomial(link = "logit"),
+                       data = predict_data,
+                       control = glmerControl(optimizer = "bobyqa"))
 print(Anova(model_predict, type = 3))
 
 # Effect sizes: Odds ratios with 95% CI
 cat("\n=== Odds Ratios with 95% Confidence Intervals ===\n")
 cat("OR > 1: Factor increases odds of correct prediction\n")
-cat("OR < 1: Factor decreases odds of correct prediction\n\n")
+cat("OR < 1: Factor decreases odds of correct prediction\n")
+cat("Note: These are conditional ORs (given random effects)\n\n")
 
-# Get odds ratios and confidence intervals
-or_results <- exp(cbind(OR = coef(model_predict), confint(model_predict)))
+# Get odds ratios and confidence intervals (fixed effects only)
+fixed_coefs <- fixef(model_predict)
+# Use Wald method for speed with mixed models
+conf_int <- confint(model_predict, parm = "beta_", method = "Wald", quiet = TRUE)
+or_results <- exp(cbind(OR = fixed_coefs, conf_int))
 or_df <- as.data.frame(or_results) |>
   rownames_to_column("Term") |>
-  filter(!grepl("Intercept|config_index", Term)) |>  # Remove intercept and config effects
+  filter(!grepl("Intercept", Term)) |>  # Remove intercept only
   mutate(across(where(is.numeric), ~round(., 3)))
 
 kable(or_df,
       col.names = c("Term", "Odds Ratio", "95% CI Lower", "95% CI Upper"),
-      caption = "Odds Ratios for Prediction Accuracy")
+      caption = "Odds Ratios for Prediction Accuracy (Fixed Effects)")
 
-# Pseudo R² (Nagelkerke)
-cat("\n=== Model Fit: Pseudo R² (Nagelkerke) ===\n")
-cat("Proportion of variance explained by all factors.\n\n")
-r2_result <- performance::r2_nagelkerke(model_predict)
+# Random effects variance
+cat("\n=== Random Effects ===\n")
+cat("Configuration (config_index) variance:\n")
+print(VarCorr(model_predict))
+cat("\nIntraclass Correlation Coefficient (ICC):\n")
+cat("Proportion of variance due to configuration clustering\n\n")
+icc_value <- performance::icc(model_predict)
+print(icc_value)
+
+# Pseudo R² (Nakagawa for mixed models)
+cat("\n=== Model Fit: Pseudo R² (Nakagawa & Schielzeth) ===\n")
+cat("Marginal R²: Variance explained by fixed effects only\n")
+cat("Conditional R²: Variance explained by fixed + random effects\n\n")
+r2_result <- performance::r2_nakagawa(model_predict)
 print(r2_result)
 
 # Cramér's V for categorical associations
@@ -1626,11 +1645,12 @@ if (nrow(cramers_results) > 0) {
 
 # Regression coefficients interpretation
 cat("\n=== Regression Interpretation ===\n")
-cat("Key findings from logistic regression:\n\n")
+cat("Key findings from mixed-effects logistic regression:\n")
+cat("Note: Coefficients are for fixed effects only\n\n")
 
-# Get tidy output for main effects
-tidy_results <- tidy(model_predict, conf.int = TRUE) |>
-  filter(!grepl("Intercept|config_index|:", term)) |>  # Main effects only
+# Get tidy output for main effects (fixed effects only)
+tidy_results <- tidy(model_predict, effects = "fixed", conf.int = TRUE) |>
+  filter(!grepl("Intercept|:", term)) |>  # Main effects only (no interactions)
   mutate(
     OR = exp(estimate),
     OR_lower = exp(conf.low),
@@ -1642,7 +1662,22 @@ tidy_results <- tidy(model_predict, conf.int = TRUE) |>
 
 kable(tidy_results,
       col.names = c("Term", "β (log-odds)", "OR", "OR 95% CI Lower", "OR 95% CI Upper", "p-value"),
-      caption = "Regression Coefficients for Main Effects")
+      caption = "Regression Coefficients for Main Effects (Fixed Effects)")
+
+# Interpretation section
+cat("\n=== Interpretation: Why Mixed-Effects Models? ===\n")
+cat("Configurations are treated as random effects because:\n")
+cat("1. We want to generalize beyond these specific 10 atom placements\n")
+cat("2. Rays within the same configuration share difficulty characteristics\n")
+cat("3. Ignoring clustering underestimates standard errors (inflates Type I error)\n\n")
+cat("Covariates (cells_traveled, atoms_affecting):\n")
+cat("- NOT confounders: Same rays tested across all experimental conditions\n")
+cat("- ARE precision variables: Explain variance, improve power\n")
+cat("- Do NOT reduce bias: Only improve efficiency of estimates\n\n")
+cat("Random intercept for config_index:\n")
+cat("- Accounts for correlation among rays within same configuration\n")
+cat("- Allows configuration difficulty to vary\n")
+cat("- Produces valid inference for population of possible configurations\n\n")
 ```
 
 ```{r}
@@ -1660,16 +1695,17 @@ if (has_model_var || has_prompt_var || has_thinking_var) {
   if (has_prompt_var) interaction_parts <- c(interaction_parts, "prompt_style * cells_traveled")
   if (has_thinking_var) interaction_parts <- c(interaction_parts, "enable_thinking * cells_traveled")
 
-  # Add config as control
-  pred_mod_formula <- paste0("correct ~ ", paste(interaction_parts, collapse = " + "), " + config_index")
+  # Add config as random effect
+  pred_mod_formula <- paste0("correct ~ ", paste(interaction_parts, collapse = " + "), " + (1 | config_index)")
 
   cat("--- Prediction Accuracy with Path Complexity Interaction ---\n")
   cat("Formula:", pred_mod_formula, "\n")
-  cat("Note: Logistic regression tests whether treatment effects vary with ray path length.\n\n")
+  cat("Note: Mixed-effects logistic regression tests whether treatment effects vary with ray path length.\n\n")
 
-  model_predict_mod <- glm(as.formula(pred_mod_formula),
-                           family = binomial(link = "logit"),
-                           data = predict_data)
+  model_predict_mod <- glmer(as.formula(pred_mod_formula),
+                             family = binomial(link = "logit"),
+                             data = predict_data,
+                             control = glmerControl(optimizer = "bobyqa"))
 
   # ANOVA table
   print(Anova(model_predict_mod, type = 3))
@@ -1736,16 +1772,17 @@ if (has_model_var || has_prompt_var || has_thinking_var) {
   if (has_prompt_var) interaction_parts <- c(interaction_parts, "prompt_style * atoms_affecting")
   if (has_thinking_var) interaction_parts <- c(interaction_parts, "enable_thinking * atoms_affecting")
 
-  # Add config as control
-  pred_mod_formula_atoms <- paste0("correct ~ ", paste(interaction_parts, collapse = " + "), " + config_index")
+  # Add config as random effect
+  pred_mod_formula_atoms <- paste0("correct ~ ", paste(interaction_parts, collapse = " + "), " + (1 | config_index)")
 
   cat("--- Prediction Accuracy with Atom Density Interaction ---\n")
   cat("Formula:", pred_mod_formula_atoms, "\n")
-  cat("Note: Logistic regression tests whether treatment effects vary with atom density.\n\n")
+  cat("Note: Mixed-effects logistic regression tests whether treatment effects vary with atom density.\n\n")
 
-  model_predict_mod_atoms <- glm(as.formula(pred_mod_formula_atoms),
-                                  family = binomial(link = "logit"),
-                                  data = predict_data)
+  model_predict_mod_atoms <- glmer(as.formula(pred_mod_formula_atoms),
+                                   family = binomial(link = "logit"),
+                                   data = predict_data,
+                                   control = glmerControl(optimizer = "bobyqa"))
 
   # ANOVA table
   print(Anova(model_predict_mod_atoms, type = 3))
