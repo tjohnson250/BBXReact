@@ -1194,35 +1194,26 @@ extract_predict_results <- function(json_file) {
 
 # Load all results into a single long-format tibble
 predict_data <- map_dfr(predict_json_files, extract_predict_results)
-
-# Display summary of loaded data
-cat("Loaded", nrow(predict_data), "predictions from",
-    length(predict_json_files), "JSON files\n")
-cat("Models:", paste(unique(predict_data$model_name), collapse = ", "), "\n")
-cat("Prompt styles:", paste(unique(predict_data$prompt_style), collapse = ", "), "\n")
-cat("Extended thinking:", paste(unique(predict_data$enable_thinking), collapse = ", "), "\n")
-cat("VoT ray trace:", paste(unique(predict_data$vot_ray_trace), collapse = ", "), "\n")
-cat("Configurations tested:", length(unique(predict_data$config_index)), "\n")
-cat("Cells traveled range:",
-    round(min(predict_data$cells_traveled, na.rm = TRUE), 2), "-",
-    round(max(predict_data$cells_traveled, na.rm = TRUE), 2), "\n")
-cat("Atoms affecting range:",
-    min(predict_data$atoms_affecting, na.rm = TRUE), "-",
-    max(predict_data$atoms_affecting, na.rm = TRUE), "\n")
 ```
+
+Data loaded: `r nrow(predict_data)` predictions from `r length(predict_json_files)` JSON files.
+
+- **Models**: `r paste(unique(predict_data$model_name), collapse = ", ")`
+- **Prompt styles**: `r paste(unique(predict_data$prompt_style), collapse = ", ")`
+- **Extended thinking**: `r paste(unique(predict_data$enable_thinking), collapse = ", ")`
+- **VoT ray trace**: `r paste(unique(predict_data$vot_ray_trace), collapse = ", ")`
+- **Configurations tested**: `r length(unique(predict_data$config_index))`
+- **Cells traveled range**: `r round(min(predict_data$cells_traveled, na.rm = TRUE), 2)`–`r round(max(predict_data$cells_traveled, na.rm = TRUE), 2)`
+- **Atoms affecting range**: `r min(predict_data$atoms_affecting, na.rm = TRUE)`–`r max(predict_data$atoms_affecting, na.rm = TRUE)`
+
+```
+
+### Data Completeness Check
+
+**Note on sample size**: Fewer than 32 predictions per configuration is expected due to ray symmetry optimization. When a ray enters at position A and exits at B (detour), the experiment skips testing the reverse direction to avoid redundancy.
 
 ```{r}
 #| label: predict-data-completeness
-
-# Check data completeness across experimental factors
-# Note: Fewer than 32 predictions per configuration is expected because
-# detour rays are symmetric - if a ray enters at position A and exits at B,
-# then a ray entering at B would exit at A. The experiment skips testing
-# the reverse direction to avoid redundancy.
-
-cat("=== Predictions per Configuration ===\n")
-cat("Note: N < 32 is expected due to ray symmetry optimization.\n")
-cat("Detour rays (exit != entry) are only tested once, not in both directions.\n\n")
 
 predictions_per_config <- predict_data |>
   group_by(model_name, prompt_style, enable_thinking, vot_ray_trace, config_index) |>
@@ -1247,9 +1238,6 @@ kable(predictions_matrix,
       col.names = c("Condition", paste0("Config ", 0:9)))
 
 # Check for consistent N across models within each condition
-cat("\n=== Consistency Check ===\n")
-cat("Within each condition, all models should have the same N per config.\n\n")
-
 consistency <- predictions_per_config |>
   group_by(prompt_style, enable_thinking, vot_ray_trace, config_index) |>
   summarise(
@@ -1259,29 +1247,15 @@ consistency <- predictions_per_config |>
     .groups = "drop"
   )
 
-if (all(consistency$n_unique == 1)) {
-  cat("All models have consistent N per configuration within each condition.\n")
-} else {
-  cat("Inconsistent N detected across models:\n")
-  consistency |> filter(n_unique > 1) |> print()
-}
-
 # Check for duplicate runs (same condition run multiple times)
-cat("\n=== Check for Duplicate Runs ===\n")
 runs_per_condition <- predict_data |>
   group_by(prompt_style, enable_thinking, vot_ray_trace, model_name, config_index) |>
   summarise(n_runs = n_distinct(source_file), .groups = "drop")
-
-if (any(runs_per_condition$n_runs > 1)) {
-  cat("Found duplicate runs in some conditions:\n")
-  runs_per_condition |>
-    filter(n_runs > 1) |>
-    count(prompt_style, enable_thinking, vot_ray_trace, n_runs) |>
-    print()
-} else {
-  cat("No duplicate runs detected.\n")
-}
 ```
+
+**Consistency**: `r if(all(consistency$n_unique == 1)) "All models have consistent N per configuration within each condition." else "Inconsistent N detected across models."`
+
+**Duplicate runs**: `r if(any(runs_per_condition$n_runs > 1)) "Found duplicate runs in some conditions." else "No duplicate runs detected."`
 
 ```{r}
 #| label: predict-results-summary
@@ -1305,13 +1279,12 @@ kable(predict_summary,
       caption = "Predict Mode Performance by Experimental Condition")
 ```
 
+### Predict Mode Leaderboard
+
+Top 10 configurations by overall accuracy. Format matches typical LLM benchmark reporting for cross-study comparison.
+
 ```{r}
 #| label: predict-leaderboard
-
-# Leaderboard: Overall best performance (for comparability with other benchmarks)
-cat("=== Predict Mode Leaderboard ===\n")
-cat("Top 10 configurations by overall accuracy.\n")
-cat("Format matches typical LLM benchmark reporting for cross-study comparison.\n\n")
 
 leaderboard_predict <- predict_data |>
   mutate(
@@ -1344,14 +1317,14 @@ kable(leaderboard_predict,
       caption = "Predict Mode Leaderboard (Top 10 Configurations)")
 ```
 
+### Forest Plot: All Configurations
+
+Visual comparison of all experimental factor combinations. Non-overlapping confidence intervals suggest statistically significant differences.
+
 ```{r}
 #| label: predict-forest-plot
 #| fig-width: 10
 #| fig-height: 12
-
-cat("\n=== Forest Plot: All Configurations with 95% CI ===\n")
-cat("Visual comparison of all experimental factor combinations.\n")
-cat("Non-overlapping CIs suggest statistically significant differences.\n\n")
 
 # Calculate accuracy and 95% CI for all configurations
 forest_data <- predict_data |>
@@ -1409,23 +1382,20 @@ p_forest <- ggplot(forest_data, aes(x = accuracy, y = config_label)) +
   )
 
 print(p_forest)
-
-# Print summary statistics
-cat("\n=== Configuration Summary ===\n")
-cat("Total configurations:", nrow(forest_data), "\n")
-cat("Best performing:", as.character(forest_data$config_label[1]), "\n")
-cat("  Accuracy:", round(forest_data$accuracy[1] * 100, 1), "%\n")
-cat("  95% CI: [", round(forest_data$ci_lower[1] * 100, 1), "%, ",
-    round(forest_data$ci_upper[1] * 100, 1), "%]\n", sep = "")
 ```
+
+**Total configurations**: `r nrow(forest_data)`
+**Best performing**: `r as.character(forest_data$config_label[1])`
+**Accuracy**: `r round(forest_data$accuracy[1] * 100, 1)`% (95% CI: [`r round(forest_data$ci_lower[1] * 100, 1)`%, `r round(forest_data$ci_upper[1] * 100, 1)`%])
+
+### Factor-Level Comparisons
+
+Shows accuracy by individual factors, collapsing across other dimensions (marginal effects).
 
 ```{r}
 #| label: predict-factor-comparisons
 #| fig-width: 10
 #| fig-height: 8
-
-cat("\n=== Factor-Level Comparisons ===\n")
-cat("Shows accuracy by individual factors, collapsing across other dimensions.\n\n")
 
 # Calculate marginal effects for each factor
 factor_data <- list(
@@ -1519,6 +1489,24 @@ kable(predict_by_config,
       caption = "Prediction Accuracy by Configuration and Model")
 ```
 
+### ANOVA: Prediction Accuracy
+
+This analysis uses mixed-effects logistic regression to test whether experimental factors significantly affect prediction accuracy, while accounting for clustering within configurations and individual rays.
+
+**Model specification**:
+- **Outcome**: Correct prediction (binary: 0/1)
+- **Fixed effects**: Model, prompt style, extended thinking, VoT ray trace, and their interactions
+- **Covariates**: cells_traveled (path length), atoms_affecting (atom density)
+- **Random effects**: Nested structure with config_index (configuration-level) and ray_id nested within config (ray-level)
+
+**Why nested random effects?**
+
+- **Configuration-level (config_index)**: Accounts for overall difficulty due to specific atom placements; allows generalization beyond these 10 configurations
+- **Ray-level (ray_id:config_index)**: Accounts for individual ray difficulty; handles correlation when the same ray is tested across multiple experimental conditions
+- **Why nested?**: ray_id "NORTH_3" represents different physical rays across configurations (different atom placements), so must be nested, not crossed
+
+**Covariates** (cells_traveled, atoms_affecting) are **NOT confounders** (same rays tested across all conditions) but **ARE precision variables** that explain variance and improve statistical power.
+
 ```{r}
 #| label: predict-anova
 
@@ -1533,13 +1521,6 @@ predict_data <- predict_data |>
     # Create unique ray identifier (nested within config)
     ray_id = paste(toupper(ray_entry$side), ray_entry$pos, sep = "_")
   )
-
-# Check which factors have variation
-cat("=== Factor Levels in Data ===\n")
-cat("Model:", paste(levels(droplevels(predict_data$model_name)), collapse = ", "), "\n")
-cat("Prompt Style:", paste(levels(droplevels(predict_data$prompt_style)), collapse = ", "), "\n")
-cat("Extended Thinking:", paste(levels(droplevels(predict_data$enable_thinking)), collapse = ", "), "\n")
-cat("VoT Ray Trace:", paste(levels(droplevels(predict_data$vot_ray_trace)), collapse = ", "), "\n\n")
 
 # Build model formula dynamically based on available factor levels
 has_model_var <- length(unique(predict_data$model_name)) > 1
@@ -1567,24 +1548,28 @@ if (has_vot_var) {
   full_formula <- paste0("correct ~ ", main_formula, " + cells_traveled + atoms_affecting + (1 | config_index/ray_id)")
 }
 
-# ANOVA: Prediction accuracy (Mixed-Effects Logistic Regression)
-cat("=== ANOVA: Prediction Accuracy (Mixed-Effects Logistic Regression) ===\n")
-cat("Note: This tests whether factors significantly affect prediction accuracy.\n")
-cat("Covariates: cells_traveled (path length), atoms_affecting (atom density)\n")
-cat("Random effects: config_index (configuration), ray_id nested within config (individual rays)\n")
-cat("Formula:", full_formula, "\n\n")
-
 model_predict <- glmer(as.formula(full_formula),
                        family = binomial(link = "logit"),
                        data = predict_data,
                        control = glmerControl(optimizer = "bobyqa"))
-print(Anova(model_predict, type = 3))
+```
 
-# Effect sizes: Odds ratios with 95% CI
-cat("\n=== Odds Ratios with 95% Confidence Intervals ===\n")
-cat("OR > 1: Factor increases odds of correct prediction\n")
-cat("OR < 1: Factor decreases odds of correct prediction\n")
-cat("Note: These are conditional ORs (given random effects)\n\n")
+**Model formula**: `r full_formula`
+
+```{r}
+#| label: predict-anova-results
+#| echo: false
+
+print(Anova(model_predict, type = 3))
+```
+
+#### Odds Ratios with 95% Confidence Intervals
+
+**Interpretation**: OR > 1 means the factor increases odds of correct prediction; OR < 1 means it decreases odds. These are conditional odds ratios (controlling for random effects).
+
+```{r}
+#| label: predict-odds-ratios
+#| echo: false
 
 # Get odds ratios with confidence intervals and p-values
 fixed_coefs <- fixef(model_predict)
@@ -1608,59 +1593,64 @@ or_df <- as.data.frame(or_results) |>
     significant = p.value < 0.05
   )
 
-# Format for display
+# Format for display - add significance indicator
 or_df_display <- or_df |>
   mutate(
     `Odds Ratio` = OR,
     `95% CI Lower` = `2.5 %`,
     `95% CI Upper` = `97.5 %`,
-    `p-value` = format.pval(p.value, digits = 3, eps = 0.001)
+    `p-value` = format.pval(p.value, digits = 3, eps = 0.001),
+    Sig = ifelse(significant, "*", "")
   ) |>
-  select(Term, `Odds Ratio`, `95% CI Lower`, `95% CI Upper`, `p-value`, significant)
+  select(Term, `Odds Ratio`, `95% CI Lower`, `95% CI Upper`, `p-value`, Sig)
 
-# Create base table
-table_out <- kable(or_df_display |> select(-significant),
-                   caption = "Odds Ratios for Prediction Accuracy (Fixed Effects)",
-                   format = "html") |>
-  kable_styling(bootstrap_options = c("striped", "hover"))
+# Create table
+kable(or_df_display,
+      caption = "Odds Ratios for Prediction Accuracy (Fixed Effects). * indicates p < 0.05.")
+```
 
-# Apply bold formatting to significant rows
-sig_rows <- which(or_df_display$significant)
-if (length(sig_rows) > 0) {
-  for (row_idx in sig_rows) {
-    table_out <- table_out |>
-      row_spec(row_idx, bold = TRUE)
-  }
-}
+#### Random Effects Variance Components
 
-# Add footnote
-table_out <- table_out |>
-  footnote(general = "Significant results (p < 0.05) are shown in bold.")
+**Configuration-level random effects** (config_index):
+- Accounts for overall difficulty due to specific atom placements
+- Generalizes inference beyond these 10 configurations
+- Captures configuration-specific effects (e.g., dense vs sparse atom patterns)
 
-table_out
+**Ray-level random effects** (ray_id:config_index):
+- Accounts for individual ray difficulty within each configuration
+- Handles correlation: Same ray tested across multiple conditions
+- Allows each ray to have its own baseline difficulty
+- Essential when same rays appear in multiple experimental conditions
 
-# Random effects variance
-cat("\n=== Random Effects ===\n")
-cat("Variance components for nested random effects:\n")
-cat("- config_index: Configuration-level variance (atom placement difficulty)\n")
-cat("- ray_id:config_index: Ray-within-config variance (individual ray difficulty)\n\n")
+```{r}
+#| label: predict-random-effects
+#| echo: false
+
 print(VarCorr(model_predict))
-cat("\nIntraclass Correlation Coefficient (ICC):\n")
-cat("Proportion of variance due to clustering at both levels\n")
-cat("- ICC accounts for both configuration and ray-within-config clustering\n\n")
+
 icc_value <- performance::icc(model_predict)
-print(icc_value)
+```
 
-# Pseudo R² (Nakagawa for mixed models)
-cat("\n=== Model Fit: Pseudo R² (Nakagawa & Schielzeth) ===\n")
-cat("Marginal R²: Variance explained by fixed effects only\n")
-cat("Conditional R²: Variance explained by fixed + random effects\n\n")
+**Intraclass Correlation Coefficient (ICC)**: `r round(icc_value$ICC_adjusted, 3)` — Proportion of variance due to clustering at both configuration and ray-within-config levels.
+
+```{r}
+#| label: predict-model-fit
+#| echo: false
+
 r2_result <- performance::r2_nakagawa(model_predict)
-print(r2_result)
+```
 
-# Cramér's V for categorical associations
-cat("\n=== Cramér's V (Effect Size for Categorical Associations) ===\n")
-cat("Interpretation: 0.10=small, 0.30=medium, 0.50=large\n\n")
+**Model Fit** (Pseudo R², Nakagawa & Schielzeth):
+- **Marginal R²** (fixed effects only): `r round(r2_result$R2_marginal, 3)`
+- **Conditional R²** (fixed + random effects): `r round(r2_result$R2_conditional, 3)`
+
+#### Cramér's V (Effect Size for Categorical Associations)
+
+Interpretation guidelines: 0.10=small, 0.30=medium, 0.50=large
+
+```{r}
+#| label: predict-cramers-v
+#| echo: false
 
 cramers_results <- tibble(Factor = character(), `Cramér's V` = numeric())
 
@@ -1686,11 +1676,15 @@ cramers_results <- cramers_results |> mutate(`Cramér's V` = round(`Cramér's V`
 if (nrow(cramers_results) > 0) {
   kable(cramers_results, caption = "Association Strength with Prediction Accuracy")
 }
+```
 
-# Regression coefficients interpretation
-cat("\n=== Regression Interpretation ===\n")
-cat("Key findings from mixed-effects logistic regression:\n")
-cat("Note: Coefficients are for fixed effects only\n\n")
+#### Regression Coefficients for Main Effects
+
+Key findings from mixed-effects logistic regression (fixed effects only).
+
+```{r}
+#| label: predict-regression-coefs
+#| echo: false
 
 # Get tidy output for main effects (fixed effects only)
 tidy_results <- tidy(model_predict, effects = "fixed", conf.int = TRUE) |>
@@ -1707,40 +1701,19 @@ tidy_results <- tidy(model_predict, effects = "fixed", conf.int = TRUE) |>
 kable(tidy_results,
       col.names = c("Term", "β (log-odds)", "OR", "OR 95% CI Lower", "OR 95% CI Upper", "p-value"),
       caption = "Regression Coefficients for Main Effects (Fixed Effects)")
-
-# Interpretation section
-cat("\n=== Interpretation: Why Nested Random Effects? ===\n")
-cat("Two-level random effects structure (rays nested within configurations):\n\n")
-cat("Configuration-level random effects (config_index):\n")
-cat("1. Accounts for overall difficulty due to specific atom placements\n")
-cat("2. Generalizes inference beyond these 10 configurations\n")
-cat("3. Captures configuration-specific effects (e.g., dense vs sparse atom patterns)\n\n")
-cat("Ray-level random effects (ray_id:config_index):\n")
-cat("1. Accounts for individual ray difficulty within each configuration\n")
-cat("2. Handles correlation: Same ray tested across multiple conditions\n")
-cat("3. Allows each ray to have its own baseline difficulty\n")
-cat("4. Essential when same rays appear in multiple experimental conditions\n\n")
-cat("Why nested? ray_id 'NORTH_3' represents different physical rays across configs\n")
-cat("(different atom placements). Must be nested, not crossed.\n\n")
-cat("Covariates (cells_traveled, atoms_affecting):\n")
-cat("- NOT confounders: Same rays tested across all experimental conditions\n")
-cat("- ARE precision variables: Explain variance, improve power\n")
-cat("- Do NOT reduce bias: Only improve efficiency of estimates\n\n")
-cat("Impact of ignoring ray-level clustering:\n")
-cat("- Underestimates standard errors (treats correlated obs as independent)\n")
-cat("- Inflates Type I error (false positives)\n")
-cat("- Violates independence assumption of logistic regression\n\n")
 ```
+
+### Effect Modification by Path Complexity
+
+Does path complexity (measured as total cells traveled: entry + internal + exit) moderate treatment effects? If treatment effects are constant across spatial complexity levels, limitations lie in inferential machinery rather than spatial processing. If effects are moderated by complexity, spatial reasoning contributes to observed failures.
 
 ```{r}
 #| label: predict-effect-modification
 
-# Test for effect modification by cells_traveled (path complexity)
-cat("=== Effect Modification: Does path complexity moderate treatment effects? ===\n")
-cat("Path complexity measured as total cells traveled (entry + internal + exit).\n\n")
-
 # Only run if we have variation in factors and valid cells_traveled data
-if (has_model_var || has_prompt_var || has_thinking_var) {
+run_effect_mod <- has_model_var || has_prompt_var || has_thinking_var
+
+if (run_effect_mod) {
   # Build interaction formula
   interaction_parts <- c()
   if (has_model_var) interaction_parts <- c(interaction_parts, "model_name * cells_traveled")
@@ -1750,74 +1723,96 @@ if (has_model_var || has_prompt_var || has_thinking_var) {
   # Add nested random effects
   pred_mod_formula <- paste0("correct ~ ", paste(interaction_parts, collapse = " + "), " + (1 | config_index/ray_id)")
 
-  cat("--- Prediction Accuracy with Path Complexity Interaction ---\n")
-  cat("Formula:", pred_mod_formula, "\n")
-  cat("Note: Mixed-effects logistic regression tests whether treatment effects vary with ray path length.\n\n")
-
   model_predict_mod <- glmer(as.formula(pred_mod_formula),
                              family = binomial(link = "logit"),
                              data = predict_data,
                              control = glmerControl(optimizer = "bobyqa"))
+}
+```
 
-  # ANOVA table
-  print(Anova(model_predict_mod, type = 3))
+**Model formula**: `r if(exists("pred_mod_formula")) pred_mod_formula`
 
-  # Interpretation of interactions
-  cat("\n=== Interpretation of Interactions ===\n")
-  cat("Significant interactions indicate that treatment effects depend on path complexity.\n")
-  cat("- No interaction: Treatment effect is constant across simple and complex paths\n")
-  cat("- Positive interaction: Treatment effect increases with path complexity\n")
-  cat("- Negative interaction: Treatment effect decreases with path complexity\n\n")
+```{r}
+#| label: predict-effect-modification-anova
+#| echo: false
+#| eval: !expr run_effect_mod
 
-  # Extract interaction coefficients
-  interaction_coefs <- tidy(model_predict_mod, conf.int = TRUE) |>
-    filter(grepl(":", term)) |>  # Interaction terms only
-    filter(grepl("cells_traveled", term)) |>
-    mutate(
-      OR = exp(estimate),
-      OR_lower = exp(conf.low),
-      OR_upper = exp(conf.high)
-    ) |>
-    select(term, estimate, OR, OR_lower, OR_upper, p.value) |>
-    mutate(across(c(estimate, OR, OR_lower, OR_upper), ~round(., 3)),
-           p.value = format.pval(p.value, digits = 3, eps = 0.001))
+# ANOVA table
+print(Anova(model_predict_mod, type = 3))
+```
 
-  if (nrow(interaction_coefs) > 0) {
-    kable(interaction_coefs,
-          col.names = c("Interaction Term", "β (log-odds)", "OR", "OR 95% CI Lower", "OR 95% CI Upper", "p-value"),
-          caption = "Path Complexity Interaction Effects")
-  }
+**Interpretation of interactions**:
+- **No interaction**: Treatment effect is constant across simple and complex paths
+- **Positive interaction**: Treatment effect increases with path complexity
+- **Negative interaction**: Treatment effect decreases with path complexity
 
-  # Simple slopes analysis for significant interactions
-  cat("\n=== Path Complexity Distribution ===\n")
-  cells_summary <- predict_data |>
-    summarise(
-      min_cells = min(cells_traveled, na.rm = TRUE),
-      q25_cells = quantile(cells_traveled, 0.25, na.rm = TRUE),
-      median_cells = median(cells_traveled, na.rm = TRUE),
-      q75_cells = quantile(cells_traveled, 0.75, na.rm = TRUE),
-      max_cells = max(cells_traveled, na.rm = TRUE),
-      mean_cells = mean(cells_traveled, na.rm = TRUE),
-      sd_cells = sd(cells_traveled, na.rm = TRUE)
-    ) |>
-    mutate(across(everything(), ~round(., 2)))
+```{r}
+#| label: predict-effect-modification-coefs
+#| echo: false
+#| eval: !expr run_effect_mod
 
-  print(cells_summary)
+# Extract interaction coefficients
+interaction_coefs <- tidy(model_predict_mod, conf.int = TRUE) |>
+  filter(grepl(":", term)) |>  # Interaction terms only
+  filter(grepl("cells_traveled", term)) |>
+  mutate(
+    OR = exp(estimate),
+    OR_lower = exp(conf.low),
+    OR_upper = exp(conf.high)
+  ) |>
+  select(term, estimate, OR, OR_lower, OR_upper, p.value) |>
+  mutate(across(c(estimate, OR, OR_lower, OR_upper), ~round(., 3)),
+         p.value = format.pval(p.value, digits = 3, eps = 0.001))
 
-} else {
+if (nrow(interaction_coefs) > 0) {
+  kable(interaction_coefs,
+        col.names = c("Interaction Term", "β (log-odds)", "OR", "OR 95% CI Lower", "OR 95% CI Upper", "p-value"),
+        caption = "Path Complexity Interaction Effects")
+}
+
+cells_summary <- predict_data |>
+  summarise(
+    min_cells = min(cells_traveled, na.rm = TRUE),
+    q25_cells = quantile(cells_traveled, 0.25, na.rm = TRUE),
+    median_cells = median(cells_traveled, na.rm = TRUE),
+    q75_cells = quantile(cells_traveled, 0.75, na.rm = TRUE),
+    max_cells = max(cells_traveled, na.rm = TRUE),
+    mean_cells = mean(cells_traveled, na.rm = TRUE),
+    sd_cells = sd(cells_traveled, na.rm = TRUE)
+  ) |>
+  mutate(across(everything(), ~round(., 2)))
+```
+
+**Path Complexity Distribution** (cells traveled):
+
+| Statistic | Value |
+|-----------|-------|
+| Min | `r if(exists("cells_summary")) cells_summary$min_cells` |
+| Q1 | `r if(exists("cells_summary")) cells_summary$q25_cells` |
+| Median | `r if(exists("cells_summary")) cells_summary$median_cells` |
+| Q3 | `r if(exists("cells_summary")) cells_summary$q75_cells` |
+| Max | `r if(exists("cells_summary")) cells_summary$max_cells` |
+| Mean | `r if(exists("cells_summary")) cells_summary$mean_cells` |
+| SD | `r if(exists("cells_summary")) cells_summary$sd_cells` |
+
+```{r}
+#| echo: false
+
+if (!run_effect_mod) {
   cat("Insufficient factor variation for effect modification analysis.\n")
 }
 ```
 
+### Effect Modification by Atom Density
+
+Does atom density (number of atoms adjacent to ray path) moderate treatment effects?
+
 ```{r}
 #| label: predict-effect-modification-atoms
 
-# Test for effect modification by atoms_affecting (atom density)
-cat("\n=== Effect Modification: Does atom density moderate treatment effects? ===\n")
-cat("Atom density measured as number of atoms adjacent to ray path.\n\n")
+run_effect_mod_atoms <- has_model_var || has_prompt_var || has_thinking_var
 
-# Only run if we have variation in factors
-if (has_model_var || has_prompt_var || has_thinking_var) {
+if (run_effect_mod_atoms) {
   # Build interaction formula
   interaction_parts <- c()
   if (has_model_var) interaction_parts <- c(interaction_parts, "model_name * atoms_affecting")
@@ -1827,61 +1822,84 @@ if (has_model_var || has_prompt_var || has_thinking_var) {
   # Add nested random effects
   pred_mod_formula_atoms <- paste0("correct ~ ", paste(interaction_parts, collapse = " + "), " + (1 | config_index/ray_id)")
 
-  cat("--- Prediction Accuracy with Atom Density Interaction ---\n")
-  cat("Formula:", pred_mod_formula_atoms, "\n")
-  cat("Note: Mixed-effects logistic regression tests whether treatment effects vary with atom density.\n\n")
-
   model_predict_mod_atoms <- glmer(as.formula(pred_mod_formula_atoms),
                                    family = binomial(link = "logit"),
                                    data = predict_data,
                                    control = glmerControl(optimizer = "bobyqa"))
+}
+```
 
-  # ANOVA table
-  print(Anova(model_predict_mod_atoms, type = 3))
+**Model formula**: `r if(exists("pred_mod_formula_atoms")) pred_mod_formula_atoms`
 
-  # Interpretation of interactions
-  cat("\n=== Interpretation of Interactions ===\n")
-  cat("Significant interactions indicate that treatment effects depend on atom density.\n")
-  cat("- No interaction: Treatment effect is constant across low and high atom density\n")
-  cat("- Positive interaction: Treatment effect increases with more atoms affecting path\n")
-  cat("- Negative interaction: Treatment effect decreases with more atoms affecting path\n\n")
+Mixed-effects logistic regression tests whether treatment effects vary with atom density.
 
-  # Extract interaction coefficients
-  interaction_coefs_atoms <- tidy(model_predict_mod_atoms, conf.int = TRUE) |>
-    filter(grepl(":", term)) |>  # Interaction terms only
-    filter(grepl("atoms_affecting", term)) |>
-    mutate(
-      OR = exp(estimate),
-      OR_lower = exp(conf.low),
-      OR_upper = exp(conf.high)
-    ) |>
-    select(term, estimate, OR, OR_lower, OR_upper, p.value) |>
-    mutate(across(c(estimate, OR, OR_lower, OR_upper), ~round(., 3)),
-           p.value = format.pval(p.value, digits = 3, eps = 0.001))
+```{r}
+#| label: predict-atom-density-anova
+#| echo: false
+#| eval: !expr run_effect_mod_atoms
 
-  if (nrow(interaction_coefs_atoms) > 0) {
-    kable(interaction_coefs_atoms,
-          col.names = c("Interaction Term", "β (log-odds)", "OR", "OR 95% CI Lower", "OR 95% CI Upper", "p-value"),
-          caption = "Atom Density Interaction Effects")
-  }
+# ANOVA table
+print(Anova(model_predict_mod_atoms, type = 3))
+```
 
-  # Summary statistics for atoms_affecting
-  cat("\n=== Atom Density Distribution ===\n")
-  atoms_summary <- predict_data |>
-    summarise(
-      min_atoms = min(atoms_affecting, na.rm = TRUE),
-      q25_atoms = quantile(atoms_affecting, 0.25, na.rm = TRUE),
-      median_atoms = median(atoms_affecting, na.rm = TRUE),
-      q75_atoms = quantile(atoms_affecting, 0.75, na.rm = TRUE),
-      max_atoms = max(atoms_affecting, na.rm = TRUE),
-      mean_atoms = mean(atoms_affecting, na.rm = TRUE),
-      sd_atoms = sd(atoms_affecting, na.rm = TRUE)
-    ) |>
-    mutate(across(everything(), ~round(., 2)))
+**Interpretation of interactions**:
+- **No interaction**: Treatment effect is constant across low and high atom density
+- **Positive interaction**: Treatment effect increases with more atoms affecting path
+- **Negative interaction**: Treatment effect decreases with more atoms affecting path
 
-  print(atoms_summary)
+```{r}
+#| label: predict-atom-density-coefs
+#| echo: false
+#| eval: !expr run_effect_mod_atoms
 
-} else {
+# Extract interaction coefficients
+interaction_coefs_atoms <- tidy(model_predict_mod_atoms, conf.int = TRUE) |>
+  filter(grepl(":", term)) |>  # Interaction terms only
+  filter(grepl("atoms_affecting", term)) |>
+  mutate(
+    OR = exp(estimate),
+    OR_lower = exp(conf.low),
+    OR_upper = exp(conf.high)
+  ) |>
+  select(term, estimate, OR, OR_lower, OR_upper, p.value) |>
+  mutate(across(c(estimate, OR, OR_lower, OR_upper), ~round(., 3)),
+         p.value = format.pval(p.value, digits = 3, eps = 0.001))
+
+if (nrow(interaction_coefs_atoms) > 0) {
+  kable(interaction_coefs_atoms,
+        col.names = c("Interaction Term", "β (log-odds)", "OR", "OR 95% CI Lower", "OR 95% CI Upper", "p-value"),
+        caption = "Atom Density Interaction Effects")
+}
+
+atoms_summary <- predict_data |>
+  summarise(
+    min_atoms = min(atoms_affecting, na.rm = TRUE),
+    q25_atoms = quantile(atoms_affecting, 0.25, na.rm = TRUE),
+    median_atoms = median(atoms_affecting, na.rm = TRUE),
+    q75_atoms = quantile(atoms_affecting, 0.75, na.rm = TRUE),
+    max_atoms = max(atoms_affecting, na.rm = TRUE),
+    mean_atoms = mean(atoms_affecting, na.rm = TRUE),
+    sd_atoms = sd(atoms_affecting, na.rm = TRUE)
+  ) |>
+  mutate(across(everything(), ~round(., 2)))
+```
+
+**Atom Density Distribution**:
+
+| Statistic | Value |
+|-----------|-------|
+| Min | `r if(exists("atoms_summary")) atoms_summary$min_atoms` |
+| Q1 | `r if(exists("atoms_summary")) atoms_summary$q25_atoms` |
+| Median | `r if(exists("atoms_summary")) atoms_summary$median_atoms` |
+| Q3 | `r if(exists("atoms_summary")) atoms_summary$q75_atoms` |
+| Max | `r if(exists("atoms_summary")) atoms_summary$max_atoms` |
+| Mean | `r if(exists("atoms_summary")) atoms_summary$mean_atoms` |
+| SD | `r if(exists("atoms_summary")) atoms_summary$sd_atoms` |
+
+```{r}
+#| echo: false
+
+if (!run_effect_mod_atoms) {
   cat("Insufficient factor variation for effect modification analysis.\n")
 }
 ```
@@ -1959,17 +1977,23 @@ p4_pred <- predict_data |>
 print(p4_pred)
 ```
 
+### Ray Path Complexity Analysis
+
 ```{r}
 #| label: predict-complexity-analysis
 #| fig-width: 10
 #| fig-height: 8
 
-cat("=== Ray Path Complexity Analysis ===\n\n")
-
 # 1. Correlation between complexity measures
 complexity_cor <- cor(predict_data$cells_traveled, predict_data$atoms_affecting,
                       use = "complete.obs")
-cat("Correlation between cells_traveled and atoms_affecting:", round(complexity_cor, 3), "\n\n")
+```
+
+**Correlation** between cells_traveled and atoms_affecting: **`r round(complexity_cor, 3)`**
+
+```{r}
+#| label: predict-complexity-plots
+#| echo: false
 
 # 2. Scatterplot: cells_traveled vs atoms_affecting
 p_complexity_scatter <- predict_data |>
@@ -2075,9 +2099,7 @@ error_matrix <- predict_errors |>
   count(actual_type, predicted_type) |>
   pivot_wider(names_from = predicted_type, values_from = n, values_fill = 0)
 
-cat("=== Error Confusion Matrix ===\n")
-cat("Rows = Actual outcome, Columns = Predicted outcome\n\n")
-kable(error_matrix, caption = "Prediction Errors: Actual vs Predicted Outcome Type")
+kable(error_matrix, caption = "Prediction Errors: Actual vs Predicted Outcome Type (Rows = Actual, Columns = Predicted)")
 
 # Error rates by model
 error_by_model <- predict_errors |>
@@ -2086,14 +2108,14 @@ error_by_model <- predict_errors |>
   mutate(prop = n / sum(n)) |>
   ungroup()
 
-cat("\n=== Most Common Error Types by Model ===\n")
 error_by_model |>
   group_by(model_name) |>
   slice_max(n, n = 3) |>
   mutate(error_pattern = paste(actual_type, "->", predicted_type)) |>
   select(model_name, error_pattern, n, prop) |>
   mutate(prop = round(prop, 3)) |>
-  kable(col.names = c("Model", "Error Pattern (Actual -> Predicted)", "Count", "Proportion"))
+  kable(col.names = c("Model", "Error Pattern (Actual → Predicted)", "Count", "Proportion"),
+        caption = "Most Common Error Types by Model (Top 3 per Model)")
 ```
 
 ## Play Mode Results
@@ -2172,19 +2194,16 @@ extract_play_results <- function(json_file) {
 
 # Load all results into a single long-format tibble
 play_data <- map_dfr(play_json_files, extract_play_results)
+```
 
-# Display summary of loaded data
-cat("Loaded", nrow(play_data), "experiment results from",
-    length(play_json_files), "JSON files\n")
-cat("Models:", paste(unique(play_data$model_name), collapse = ", "), "\n")
-cat("Prompt styles:", paste(unique(play_data$prompt_style), collapse = ", "), "\n")
-cat("Configurations tested:", length(unique(play_data$config_index)), "\n")
-cat("Mean atoms per ray range:",
-    round(min(play_data$mean_atoms_per_ray, na.rm = TRUE), 2), "-",
-    round(max(play_data$mean_atoms_per_ray, na.rm = TRUE), 2), "\n")
-cat("Mean cells per ray range:",
-    round(min(play_data$mean_cells_per_ray, na.rm = TRUE), 2), "-",
-    round(max(play_data$mean_cells_per_ray, na.rm = TRUE), 2), "\n")
+Data loaded: `r nrow(play_data)` experiment results from `r length(play_json_files)` JSON files.
+
+- **Models**: `r paste(unique(play_data$model_name), collapse = ", ")`
+- **Prompt styles**: `r paste(unique(play_data$prompt_style), collapse = ", ")`
+- **Configurations tested**: `r length(unique(play_data$config_index))`
+- **Mean atoms per ray range**: `r round(min(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`
+- **Mean cells per ray range**: `r round(min(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`
+
 ```
 
 ```{r}
@@ -2235,13 +2254,12 @@ kable(play_summary_vot,
                     "Score (M)", "Score (SD)", "Atoms/Ray"))
 ```
 
+### Play Mode Leaderboard
+
+Top 10 configurations by atoms correct. Format matches typical LLM benchmark reporting for cross-study comparison.
+
 ```{r}
 #| label: play-leaderboard
-
-# Leaderboard: Overall best performance (for comparability with other benchmarks)
-cat("=== Play Mode Leaderboard ===\n")
-cat("Top 10 configurations by atoms correct.\n")
-cat("Format matches typical LLM benchmark reporting for cross-study comparison.\n\n")
 
 leaderboard_play <- play_data |>
   mutate(
@@ -2274,11 +2292,12 @@ kable(leaderboard_play,
       caption = "Play Mode Leaderboard (Top 10 Configurations)")
 ```
 
+### ANOVA: Play Mode Performance
+
+Full factorial ANOVA using mixed-effects models with configuration-level random effects. Covariates (mean_atoms_per_ray, mean_cells_per_ray) capture ray difficulty.
+
 ```{r}
 #| label: play-anova-analysis
-
-# Full factorial ANOVA with all experimental factors
-# mean_atoms_per_ray included as covariate to test for effect modification
 
 # Convert factors
 play_data <- play_data |>
@@ -2290,15 +2309,6 @@ play_data <- play_data |>
     vot_ray_trace = factor(vot_ray_trace, levels = c(FALSE, TRUE)),
     vot_hypothesis = factor(vot_hypothesis, levels = c(FALSE, TRUE))
   )
-
-# Check which factors have variation
-cat("=== Factor Levels in Play Data ===\n")
-cat("Model:", paste(levels(droplevels(play_data$model_name)), collapse = ", "), "\n")
-cat("Prompt Style:", paste(levels(droplevels(play_data$prompt_style)), collapse = ", "), "\n")
-cat("Extended Thinking:", paste(levels(droplevels(play_data$enable_thinking)), collapse = ", "), "\n")
-cat("VoT Grid State:", paste(levels(droplevels(play_data$vot_grid_state)), collapse = ", "), "\n")
-cat("VoT Ray Trace:", paste(levels(droplevels(play_data$vot_ray_trace)), collapse = ", "), "\n")
-cat("VoT Hypothesis:", paste(levels(droplevels(play_data$vot_hypothesis)), collapse = ", "), "\n\n")
 
 # Build model formula dynamically
 has_model_var <- length(unique(play_data$model_name)) > 1
@@ -2335,34 +2345,38 @@ if (length(vot_parts) > 0) {
                           " + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)")
 }
 
-# Model 1: Atoms Correct (main effects with config random effects)
-cat("=== ANOVA: Atoms Correct (Mixed-Effects Linear Model) ===\n")
-cat("Testing which factors affect the number of atoms correctly identified (0-4).\n")
-cat("Covariates: mean_cells_per_ray, mean_atoms_per_ray (ray difficulty)\n")
-cat("Random effect: config_index (configuration difficulty)\n")
-cat("Formula:", atoms_formula, "\n\n")
-
 model_atoms <- lmer(as.formula(atoms_formula), data = play_data)
+```
+
+#### Model 1: Atoms Correct (0-4)
+
+Testing which factors affect the number of atoms correctly identified.
+
+**Model formula**: `r atoms_formula`
+
+```{r}
+#| label: play-atoms-anova
+#| echo: false
+
 print(Anova(model_atoms, type = 3))
 
 # Random effects variance
-cat("\n=== Random Effects ===\n")
-cat("Configuration (config_index) variance:\n")
-cat("- Accounts for config-level difficulty (atom placement effects)\n")
-cat("- Allows generalization beyond these 10 specific configurations\n\n")
 print(VarCorr(model_atoms))
 
-cat("\nIntraclass Correlation Coefficient (ICC):\n")
-cat("Proportion of variance due to configuration clustering\n\n")
 icc_value <- performance::icc(model_atoms)
-print(icc_value)
-
-# Pseudo R²
-cat("\n=== Model Fit: Pseudo R² (Nakagawa & Schielzeth) ===\n")
-cat("Marginal R²: Variance explained by fixed effects only\n")
-cat("Conditional R²: Variance explained by fixed + random effects\n\n")
 r2_result <- performance::r2_nakagawa(model_atoms)
-print(r2_result)
+```
+
+**Random Effects** — Configuration (config_index) variance accounts for config-level difficulty and allows generalization beyond these 10 configurations.
+
+**ICC**: `r round(icc_value$ICC_adjusted, 3)` — Proportion of variance due to configuration clustering
+
+**Model Fit**:
+- **Marginal R²** (fixed effects only): `r round(r2_result$R2_marginal, 3)`
+- **Conditional R²** (fixed + random effects): `r round(r2_result$R2_conditional, 3)`
+
+```{r}
+#| label: play-score-model
 
 # Model 2: Score (main effects with config random effects)
 if (length(vot_parts) > 0) {
@@ -2374,30 +2388,46 @@ if (length(vot_parts) > 0) {
                           " + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)")
 }
 
-cat("\n=== ANOVA: Score (Mixed-Effects Linear Model) ===\n")
-cat("Testing which factors affect game score (lower is better).\n")
-cat("Formula:", score_formula, "\n\n")
-
 model_score <- lmer(as.formula(score_formula), data = play_data)
+```
+
+#### Model 2: Score (Lower is Better)
+
+Testing which factors affect game score.
+
+**Model formula**: `r score_formula`
+
+```{r}
+#| label: play-score-anova
+#| echo: false
+
 print(Anova(model_score, type = 3))
 
 # Random effects
-cat("\n=== Random Effects ===\n")
 print(VarCorr(model_score))
-cat("\nICC:\n")
-print(performance::icc(model_score))
-cat("\nR²:\n")
-print(performance::r2_nakagawa(model_score))
+
+icc_score <- performance::icc(model_score)
+r2_score <- performance::r2_nakagawa(model_score)
 ```
+
+**ICC**: `r round(icc_score$ICC_adjusted, 3)`
+
+**Model Fit**:
+- **Marginal R²**: `r round(r2_score$R2_marginal, 3)`
+- **Conditional R²**: `r round(r2_score$R2_conditional, 3)`
+
+```
+
+### Effect Modification by Ray Complexity (Play Mode)
+
+Does ray complexity (mean atoms per ray) moderate treatment effects?
 
 ```{r}
 #| label: play-effect-modification
 
-# Test for effect modification by mean_atoms_per_ray (ray complexity)
-cat("=== Effect Modification: Does ray complexity moderate treatment effects? ===\n\n")
+run_play_effect_mod <- has_model_var || has_prompt_var || has_thinking_var
 
-# Only run if we have variation in the factors and valid mean_atoms_per_ray data
-if (has_model_var || has_prompt_var || has_thinking_var) {
+if (run_play_effect_mod) {
   # Build interaction formula with random effect
   interaction_parts <- c()
   if (has_model_var) interaction_parts <- c(interaction_parts, "model_name * mean_atoms_per_ray")
@@ -2411,31 +2441,46 @@ if (has_model_var || has_prompt_var || has_thinking_var) {
                               paste(interaction_parts, collapse = " + "),
                               " + (1 | config_index)")
 
-  # Atoms Correct: test interaction with mean_atoms_per_ray
-  cat("--- Atoms Correct with Ray Complexity Interaction ---\n")
-  cat("Formula:", atoms_mod_formula, "\n\n")
   model_atoms_mod <- lmer(as.formula(atoms_mod_formula), data = play_data)
-  print(Anova(model_atoms_mod, type = 3))
-
-  # Score: test interaction with mean_atoms_per_ray
-  cat("\n--- Score with Ray Complexity Interaction ---\n")
-  cat("Formula:", score_mod_formula, "\n\n")
   model_score_mod <- lmer(as.formula(score_mod_formula), data = play_data)
-  print(Anova(model_score_mod, type = 3))
-} else {
+}
+```
+
+**Atoms Correct Model**: `r if(exists("atoms_mod_formula")) atoms_mod_formula`
+
+```{r}
+#| label: play-effect-mod-atoms
+#| echo: false
+#| eval: !expr run_play_effect_mod
+
+print(Anova(model_atoms_mod, type = 3))
+```
+
+**Score Model**: `r if(exists("score_mod_formula")) score_mod_formula`
+
+```{r}
+#| label: play-effect-mod-score
+#| echo: false
+#| eval: !expr run_play_effect_mod
+
+print(Anova(model_score_mod, type = 3))
+```
+
+```{r}
+#| echo: false
+
+if (!run_play_effect_mod) {
   cat("Insufficient factor variation for effect modification analysis.\n")
 }
 ```
 
+### Regression Analysis: Play Mode
+
+Regression complements ANOVA by providing interpretable effect magnitudes. Coefficients show the expected change in outcome per unit change in predictor.
+
 ```{r}
 #| label: play-regression-analysis
 
-# Regression analysis: Interpret effect magnitudes
-cat("=== Regression Analysis: Play Mode ===\n")
-cat("Regression complements ANOVA by providing interpretable effect magnitudes.\n")
-cat("Coefficients show the expected change in outcome per unit change in predictor.\n\n")
-
-# Model for Atoms Correct with all main effects
 # Build formula with factors that have variation
 regression_parts <- formula_parts  # From earlier: model_name, prompt_style, enable_thinking
 if (has_vot_grid) regression_parts <- c(regression_parts, "vot_grid_state")
@@ -2446,8 +2491,6 @@ regression_parts <- c(regression_parts, "mean_atoms_per_ray", "mean_cells_per_ra
 atoms_reg_formula <- paste0("atoms_correct ~ ", paste(regression_parts, collapse = " + "),
                             " + (1 | config_index)")
 
-cat("--- Linear Mixed-Effects Regression: Atoms Correct ---\n")
-cat("Formula:", atoms_reg_formula, "\n\n")
 lmer_atoms <- lmer(as.formula(atoms_reg_formula), data = play_data)
 
 # Tidy summary (fixed effects only)
@@ -2460,16 +2503,12 @@ kable(atoms_reg_summary,
       col.names = c("Term", "β (Coefficient)", "SE", "t-statistic", "p-value", "95% CI Lower", "95% CI Upper"),
       caption = "Regression Coefficients: Atoms Correct (Fixed Effects)")
 
-# Model fit
-cat("\nMarginal R²:", round(performance::r2_nakagawa(lmer_atoms)$R2_marginal, 3), "\n")
-cat("Conditional R²:", round(performance::r2_nakagawa(lmer_atoms)$R2_conditional, 3), "\n\n")
+r2_atoms_reg <- performance::r2_nakagawa(lmer_atoms)
 
 # Model for Score
 score_reg_formula <- paste0("score ~ ", paste(regression_parts, collapse = " + "),
                             " + (1 | config_index)")
 
-cat("--- Linear Mixed-Effects Regression: Score (Lower is Better) ---\n")
-cat("Formula:", score_reg_formula, "\n\n")
 lmer_score <- lmer(as.formula(score_reg_formula), data = play_data)
 
 score_reg_summary <- tidy(lmer_score, effects = "fixed", conf.int = TRUE) |>
@@ -2481,57 +2520,81 @@ kable(score_reg_summary,
       col.names = c("Term", "β (Coefficient)", "SE", "t-statistic", "p-value", "95% CI Lower", "95% CI Upper"),
       caption = "Regression Coefficients: Score (Fixed Effects)")
 
-cat("\nMarginal R²:", round(performance::r2_nakagawa(lmer_score)$R2_marginal, 3), "\n")
-cat("Conditional R²:", round(performance::r2_nakagawa(lmer_score)$R2_conditional, 3), "\n\n")
+r2_score_reg <- performance::r2_nakagawa(lmer_score)
 
 # Standardized coefficients for comparison
-cat("--- Standardized Coefficients (Beta Weights) ---\n")
-cat("Allows comparison of relative importance across fixed effects.\n")
-cat("Note: Based on fixed effects only (random effects not standardized).\n\n")
-
 std_coef_atoms <- standardize_parameters(lmer_atoms, method = "refit")
 std_coef_score <- standardize_parameters(lmer_score, method = "refit")
+```
 
-cat("Atoms Correct:\n")
+**Model Fit — Atoms Correct**:
+- Marginal R²: `r round(r2_atoms_reg$R2_marginal, 3)`
+- Conditional R²: `r round(r2_atoms_reg$R2_conditional, 3)`
+
+**Model Fit — Score**:
+- Marginal R²: `r round(r2_score_reg$R2_marginal, 3)`
+- Conditional R²: `r round(r2_score_reg$R2_conditional, 3)`
+
+#### Standardized Coefficients (Beta Weights)
+
+Allows comparison of relative importance across fixed effects (based on fixed effects only).
+
+**Atoms Correct (Top 10)**:
+
+```{r}
+#| label: play-std-coefs-atoms
+#| echo: false
+
 print(std_coef_atoms |>
       filter(!grepl("Intercept", Parameter)) |>
       arrange(desc(abs(Std_Coefficient))) |>
       head(10))
+```
 
-cat("\n\nScore:\n")
+**Score (Top 10)**:
+
+```{r}
+#| label: play-std-coefs-score
+#| echo: false
+
 print(std_coef_score |>
       filter(!grepl("Intercept", Parameter)) |>
       arrange(desc(abs(Std_Coefficient))) |>
       head(10))
+```
 
-cat("\n\n=== Interpretation: Why Configuration Random Effects? ===\n\n")
-cat("Play mode data structure:\n")
-cat("- Unit of analysis: Entire games (one game per config × condition)\n")
-cat("- LLM chooses which rays to fire (endogenous ray selection)\n")
-cat("- Different conditions may fire different rays\n")
-cat("- Multiple games per configuration (clustering)\n\n")
+### Interpretation: Why Configuration Random Effects?
 
-cat("Why config-level random effects?\n")
-cat("1. Games within same config share atom placement\n")
-cat("2. Some configs are inherently harder/easier (random variation)\n")
-cat("3. Generalizes inference beyond these 10 specific configurations\n")
-cat("4. Accounts for correlation among games within same config\n\n")
+**Play mode data structure**:
+- Unit of analysis: Entire games (one game per config × condition)
+- LLM chooses which rays to fire (endogenous ray selection)
+- Different conditions may fire different rays
+- Multiple games per configuration (clustering)
 
-cat("Why NOT ray-level random effects (unlike Predict mode)?\n")
-cat("1. Rays are not predetermined - LLM chooses them\n")
-cat("2. Different conditions may fire different rays\n")
-cat("3. Ray selection is part of the strategy (endogenous)\n")
-cat("4. No repeated measures at individual ray level\n\n")
+**Why config-level random effects?**
 
-cat("Covariates (mean_cells_per_ray, mean_atoms_per_ray):\n")
-cat("- NOT confounders: Ray choice is endogenous to experimental condition\n")
-cat("- ARE precision variables: Describe difficulty of rays LLM chose to fire\n")
-cat("- Improve model fit: Explain variance, increase power\n\n")
+1. Games within same config share atom placement
+2. Some configs are inherently harder/easier (random variation)
+3. Generalizes inference beyond these 10 specific configurations
+4. Accounts for correlation among games within same config
 
-cat("Impact of ignoring config-level clustering:\n")
-cat("- Underestimates standard errors\n")
-cat("- Inflates Type I error (false positives)\n")
-cat("- Invalid inference (cannot generalize beyond these 10 configs)\n\n")
+**Why NOT ray-level random effects (unlike Predict mode)?**
+
+1. Rays are not predetermined—LLM chooses them
+2. Different conditions may fire different rays
+3. Ray selection is part of the strategy (endogenous)
+4. No repeated measures at individual ray level
+
+**Covariates** (mean_cells_per_ray, mean_atoms_per_ray):
+- **NOT confounders**: Ray choice is endogenous to experimental condition
+- **ARE precision variables**: Describe difficulty of rays LLM chose to fire
+- **Improve model fit**: Explain variance, increase power
+
+**Impact of ignoring config-level clustering**:
+- Underestimates standard errors
+- Inflates Type I error (false positives)
+- Invalid inference (cannot generalize beyond these 10 configs)
+
 ```
 
 ```{r}
@@ -2674,9 +2737,6 @@ diagnostic tasks\]
 \[To be completed after data collection\]
 
 # References
-
-::: {#refs}
-:::
 
 # Appendix A: Prompt Texts {.appendix}
 
