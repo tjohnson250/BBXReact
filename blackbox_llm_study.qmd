@@ -1005,14 +1005,14 @@ Following Cohen (1988), we interpret effect sizes using conventional
 benchmarks:
 
 | Measure | Small | Medium | Large | Notes |
-|---------|-------|--------|-------|-------|
+|----|----|----|----|----|
 | η² (Eta-squared) | 0.01 | 0.06 | 0.14 | Total variance explained |
 | η²p (Partial eta-squared) | 0.01 | 0.06 | 0.14 | Variance explained controlling for other factors |
 | ω² (Omega-squared) | 0.01 | 0.06 | 0.14 | Unbiased estimate (preferred over η²) |
 | Cohen's d | 0.20 | 0.50 | 0.80 | Standardized mean difference |
-| Cohen's f | 0.10 | 0.25 | 0.40 | Effect size for ANOVA (f = √[η²/(1-η²)]) |
+| Cohen's f | 0.10 | 0.25 | 0.40 | Effect size for ANOVA (f = √\[η²/(1-η²)\]) |
 | Cramér's V | 0.10 | 0.30 | 0.50 | Association strength for categorical variables |
-| Odds Ratio | 1.5 | 3.0 | 9.0 | OR = 1 means no effect; > 1 increases odds |
+| Odds Ratio | 1.5 | 3.0 | 9.0 | OR = 1 means no effect; \> 1 increases odds |
 
 Note: These are heuristics, not absolute cutoffs. Practical significance
 depends on context and cost-benefit considerations.
@@ -1339,6 +1339,163 @@ leaderboard_predict <- predict_data |>
 kable(leaderboard_predict,
       col.names = c("Rank", "Configuration", "Accuracy", "95% CI", "N"),
       caption = "Predict Mode Leaderboard (Top 10 Configurations)")
+```
+
+```{r}
+#| label: predict-forest-plot
+#| fig-width: 10
+#| fig-height: 12
+
+cat("\n=== Forest Plot: All Configurations with 95% CI ===\n")
+cat("Visual comparison of all experimental factor combinations.\n")
+cat("Non-overlapping CIs suggest statistically significant differences.\n\n")
+
+# Calculate accuracy and 95% CI for all configurations
+forest_data <- predict_data |>
+  mutate(
+    # Create readable configuration labels
+    config_label = paste0(
+      model_name, " | ",
+      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT")
+    )
+  ) |>
+  group_by(config_label, model_name, prompt_style, enable_thinking, vot_ray_trace) |>
+  summarise(
+    n = n(),
+    accuracy = mean(correct),
+    # 95% CI for proportion using normal approximation
+    ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+    ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+    .groups = "drop"
+  ) |>
+  # Order by accuracy (highest first)
+  arrange(desc(accuracy)) |>
+  mutate(
+    # Create ordered factor for plotting
+    config_label = factor(config_label, levels = config_label)
+  )
+
+# Forest plot
+p_forest <- ggplot(forest_data, aes(x = accuracy, y = config_label)) +
+  geom_point(aes(color = model_name), size = 3) +
+  geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper, color = model_name),
+                 height = 0.3, linewidth = 0.8) +
+  geom_vline(xintercept = 0.5, linetype = "dashed", color = "gray50", alpha = 0.5) +
+  geom_text(aes(label = paste0(round(accuracy * 100, 1), "%")),
+            hjust = -0.3, size = 3) +
+  labs(
+    title = "Predict Mode: All Configurations Ranked by Accuracy",
+    subtitle = "Error bars show 95% confidence intervals. Non-overlapping CIs suggest significant differences.",
+    x = "Accuracy",
+    y = "Configuration",
+    color = "Model"
+  ) +
+  scale_x_continuous(
+    limits = c(0, 1),
+    labels = scales::percent,
+    breaks = seq(0, 1, 0.1)
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    axis.text.y = element_text(size = 9, family = "mono"),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "top"
+  )
+
+print(p_forest)
+
+# Print summary statistics
+cat("\n=== Configuration Summary ===\n")
+cat("Total configurations:", nrow(forest_data), "\n")
+cat("Best performing:", as.character(forest_data$config_label[1]), "\n")
+cat("  Accuracy:", round(forest_data$accuracy[1] * 100, 1), "%\n")
+cat("  95% CI: [", round(forest_data$ci_lower[1] * 100, 1), "%, ",
+    round(forest_data$ci_upper[1] * 100, 1), "%]\n", sep = "")
+```
+
+```{r}
+#| label: predict-factor-comparisons
+#| fig-width: 10
+#| fig-height: 8
+
+cat("\n=== Factor-Level Comparisons ===\n")
+cat("Shows accuracy by individual factors, collapsing across other dimensions.\n\n")
+
+# Calculate marginal effects for each factor
+factor_data <- list(
+  Model = predict_data |>
+    group_by(model_name) |>
+    summarise(
+      n = n(),
+      accuracy = mean(correct),
+      ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+      ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n)
+    ) |>
+    mutate(factor = "Model", level = model_name),
+
+  Prompt = predict_data |>
+    group_by(prompt_style) |>
+    summarise(
+      n = n(),
+      accuracy = mean(correct),
+      ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+      ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n)
+    ) |>
+    mutate(factor = "Prompt", level = prompt_style),
+
+  Thinking = predict_data |>
+    group_by(enable_thinking) |>
+    summarise(
+      n = n(),
+      accuracy = mean(correct),
+      ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+      ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n)
+    ) |>
+    mutate(factor = "Extended Thinking", level = ifelse(enable_thinking, "Enabled", "Disabled")),
+
+  VoT = predict_data |>
+    group_by(vot_ray_trace) |>
+    summarise(
+      n = n(),
+      accuracy = mean(correct),
+      ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+      ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n)
+    ) |>
+    mutate(factor = "VoT Ray Trace", level = ifelse(vot_ray_trace, "Enabled", "Disabled"))
+) |>
+  bind_rows() |>
+  mutate(factor = factor(factor, levels = c("Model", "Prompt", "Extended Thinking", "VoT Ray Trace")))
+
+# Factor comparison plot
+p_factors <- ggplot(factor_data, aes(x = accuracy, y = level)) +
+  geom_point(size = 4, color = "#2C3E50") +
+  geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper),
+                 height = 0.2, linewidth = 1, color = "#2C3E50") +
+  geom_text(aes(label = paste0(round(accuracy * 100, 1), "%")),
+            hjust = -0.3, size = 3.5) +
+  facet_wrap(~factor, ncol = 1, scales = "free_y") +
+  labs(
+    title = "Main Effects: Accuracy by Individual Factors",
+    subtitle = "Marginal effects averaging across all other factors",
+    x = "Accuracy",
+    y = NULL
+  ) +
+  scale_x_continuous(
+    limits = c(0, 1),
+    labels = scales::percent,
+    breaks = seq(0, 1, 0.1)
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    strip.text = element_text(face = "bold", size = 12),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+print(p_factors)
 ```
 
 ```{r}
