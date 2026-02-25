@@ -1480,12 +1480,11 @@ print(p_factors)
 predict_by_config <- predict_data |>
   group_by(config_index, model_name) |>
   summarise(
-    n = n(),
     accuracy = mean(correct),
     .groups = "drop"
   ) |>
   pivot_wider(names_from = model_name, values_from = accuracy) |>
-  mutate(across(where(is.numeric) & !config_index, \(x) round(x, 3)))
+  mutate(across(where(is.numeric), \(x) round(x, 3)))
 
 kable(predict_by_config,
       caption = "Prediction Accuracy by Configuration and Model")

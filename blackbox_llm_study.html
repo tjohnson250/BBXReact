@@ -1355,7 +1355,7 @@ There are three possible outcomes for each ray you send into the box:
 <span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>predict_data <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(predict_json_files, extract_predict_results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Data loaded: 14100 predictions from 16 JSON files.</p>
+<p>Data loaded: 13630 predictions from 15 JSON files.</p>
 <ul>
 <li><strong>Models</strong>: Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6</li>
 <li><strong>Prompt styles</strong>: augmented, baseline</li>
@@ -1539,8 +1539,8 @@ kable(predictions_matrix,
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n_runs =</span> <span class="fu">n_distinct</span>(source_file), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <p>:::</p>
-<p><strong>Consistency</strong>: Inconsistent N detected across models.</p>
-<p><strong>Duplicate runs</strong>: Found duplicate runs in some conditions.</p>
+<p><strong>Consistency</strong>: All models have consistent N per configuration within each condition.</p>
+<p><strong>Duplicate runs</strong>: No duplicate runs detected.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1870,11 +1870,11 @@ kable(predictions_matrix,
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">940</td>
-<td style="text-align: right;">524</td>
-<td style="text-align: right;">0.557</td>
-<td style="text-align: right;">0.016</td>
-<td style="text-align: right;">10722.42</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">276</td>
+<td style="text-align: right;">0.587</td>
+<td style="text-align: right;">0.023</td>
+<td style="text-align: right;">10784.63</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
@@ -2211,15 +2211,14 @@ kable(predictions_matrix,
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>predict_by_config <span class="ot">&lt;-</span> predict_data <span class="sc">|&gt;</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(config_index, model_name) <span class="sc">|&gt;</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">accuracy =</span> <span class="fu">mean</span>(correct),</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> model_name, <span class="at">values_from =</span> accuracy) <span class="sc">|&gt;</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric) <span class="sc">&amp;</span> <span class="sc">!</span>config_index, \(x) <span class="fu">round</span>(x, <span class="dv">3</span>)))</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(predict_by_config,</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Prediction Accuracy by Configuration and Model"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">accuracy =</span> <span class="fu">mean</span>(correct),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> model_name, <span class="at">values_from =</span> accuracy) <span class="sc">|&gt;</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), \(x) <span class="fu">round</span>(x, <span class="dv">3</span>)))</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(predict_by_config,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Prediction Accuracy by Configuration and Model"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -2227,7 +2226,6 @@ kable(predictions_matrix,
 <thead>
 <tr class="header">
 <th style="text-align: right;">config_index</th>
-<th style="text-align: right;">n</th>
 <th style="text-align: right;">Haiku 4.5</th>
 <th style="text-align: right;">Opus 4.5</th>
 <th style="text-align: right;">Sonnet 4.5</th>
@@ -2237,163 +2235,73 @@ kable(predictions_matrix,
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">322</td>
 <td style="text-align: right;">0.671</td>
 <td style="text-align: right;">0.646</td>
 <td style="text-align: right;">0.702</td>
-<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0.641</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">0</td>
-<td style="text-align: right;">414</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.614</td>
-</tr>
-<tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">308</td>
 <td style="text-align: right;">0.818</td>
 <td style="text-align: right;">0.786</td>
 <td style="text-align: right;">0.812</td>
-<td style="text-align: right;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">396</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.763</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">350</td>
-<td style="text-align: right;">0.783</td>
-<td style="text-align: right;">0.851</td>
-<td style="text-align: right;">0.811</td>
-<td style="text-align: right;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">450</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
 <td style="text-align: right;">0.778</td>
 </tr>
 <tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.783</td>
+<td style="text-align: right;">0.851</td>
+<td style="text-align: right;">0.811</td>
+<td style="text-align: right;">0.790</td>
+</tr>
+<tr class="even">
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">392</td>
 <td style="text-align: right;">0.750</td>
 <td style="text-align: right;">0.730</td>
 <td style="text-align: right;">0.745</td>
-<td style="text-align: right;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">504</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.698</td>
+<td style="text-align: right;">0.732</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">252</td>
 <td style="text-align: right;">0.754</td>
 <td style="text-align: right;">0.817</td>
 <td style="text-align: right;">0.802</td>
-<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0.819</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">324</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.790</td>
-</tr>
-<tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">294</td>
 <td style="text-align: right;">0.816</td>
 <td style="text-align: right;">0.864</td>
 <td style="text-align: right;">0.864</td>
-<td style="text-align: right;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">378</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.799</td>
+<td style="text-align: right;">0.821</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">336</td>
 <td style="text-align: right;">0.869</td>
 <td style="text-align: right;">0.857</td>
 <td style="text-align: right;">0.869</td>
-<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0.839</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">6</td>
-<td style="text-align: right;">432</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.819</td>
-</tr>
-<tr class="odd">
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">322</td>
 <td style="text-align: right;">0.652</td>
 <td style="text-align: right;">0.727</td>
 <td style="text-align: right;">0.714</td>
-<td style="text-align: right;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">7</td>
-<td style="text-align: right;">414</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.725</td>
+<td style="text-align: right;">0.755</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">350</td>
 <td style="text-align: right;">0.817</td>
 <td style="text-align: right;">0.811</td>
 <td style="text-align: right;">0.834</td>
-<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0.825</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">8</td>
-<td style="text-align: right;">450</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.764</td>
-</tr>
-<tr class="odd">
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">364</td>
 <td style="text-align: right;">0.775</td>
 <td style="text-align: right;">0.780</td>
 <td style="text-align: right;">0.775</td>
-<td style="text-align: right;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">9</td>
-<td style="text-align: right;">468</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.739</td>
+<td style="text-align: right;">0.760</td>
 </tr>
 </tbody>
 </table>
@@ -2657,15 +2565,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Prompt Style</td>
-<td style="text-align: right;">0.265</td>
+<td style="text-align: right;">0.256</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Extended Thinking</td>
-<td style="text-align: right;">0.152</td>
+<td style="text-align: right;">0.137</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">VoT Ray Trace</td>
-<td style="text-align: right;">0.114</td>
+<td style="text-align: right;">0.101</td>
 </tr>
 </tbody>
 </table>
@@ -3232,21 +3140,21 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">absorbed</td>
-<td style="text-align: right;">550</td>
+<td style="text-align: right;">498</td>
 <td style="text-align: right;">42</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">detour</td>
-<td style="text-align: right;">1404</td>
-<td style="text-align: right;">32</td>
-<td style="text-align: right;">330</td>
+<td style="text-align: right;">1332</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">300</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">reflected</td>
-<td style="text-align: right;">582</td>
+<td style="text-align: right;">536</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">276</td>
+<td style="text-align: right;">256</td>
 </tr>
 </tbody>
 </table>
@@ -3338,20 +3246,20 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tr class="even">
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">detour -&gt; detour</td>
-<td style="text-align: right;">440</td>
-<td style="text-align: right;">0.411</td>
+<td style="text-align: right;">368</td>
+<td style="text-align: right;">0.434</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">reflected -&gt; detour</td>
-<td style="text-align: right;">208</td>
-<td style="text-align: right;">0.194</td>
+<td style="text-align: right;">162</td>
+<td style="text-align: right;">0.191</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">absorbed -&gt; detour</td>
-<td style="text-align: right;">176</td>
-<td style="text-align: right;">0.164</td>
+<td style="text-align: right;">124</td>
+<td style="text-align: right;">0.146</td>
 </tr>
 </tbody>
 </table>
@@ -3361,7 +3269,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <section id="budget-tag-hallucination-artifact" class="level3" data-number="4.1.8">
 <h3 data-number="4.1.8" class="anchored" data-anchor-id="budget-tag-hallucination-artifact"><span class="header-section-number">4.1.8</span> Budget Tag Hallucination Artifact</h3>
 <p>During experiment runs, we observed that models occasionally hallucinate XML-like <code>&lt;budget:...&gt;</code> tags in their visible response text—fabricating token usage metadata that mimics internal API bookkeeping. These tags (e.g., <code>&lt;budget:used_tokens&gt;</code>, <code>&lt;budget:token_budget&gt;</code>, <code>&lt;budget:token_usage&gt;</code>) are not present in any prompt or API parameter passed to the model; they appear to be confabulated from the model’s awareness of its extended thinking budget context.</p>
-<p><strong>Prevalence</strong>: 38 of 14100 predictions (0.27%) contained hallucinated budget tags.</p>
+<p><strong>Prevalence</strong>: 38 of 13630 predictions (0.28%) contained hallucinated budget tags.</p>
 <p><strong>Key patterns</strong>:</p>
 <ul>
 <li><strong>Exclusive to extended thinking</strong>: All 38 instances occurred with extended thinking enabled; no instances were found in non-thinking runs.</li>
@@ -3421,7 +3329,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </table>
 </div>
 </div>
-<p>The perfect correlation with incorrect predictions suggests these hallucinations are a signal of reasoning process failure: when the model generates metadata artifacts instead of reasoning about ray physics, it invariably produces an incorrect prediction. While the overall prevalence is low (0.27%), this artifact represents a qualitatively distinct failure mode—the model confabulating system-level metadata rather than engaging with the task.</p>
+<p>The perfect correlation with incorrect predictions suggests these hallucinations are a signal of reasoning process failure: when the model generates metadata artifacts instead of reasoning about ray physics, it invariably produces an incorrect prediction. While the overall prevalence is low (0.28%), this artifact represents a qualitatively distinct failure mode—the model confabulating system-level metadata rather than engaging with the task.</p>
 </section>
 </section>
 <section id="play-mode-results" class="level2" data-number="4.2">
