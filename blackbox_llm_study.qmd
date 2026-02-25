@@ -853,11 +853,11 @@ Play Mode Experiment Log
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **None** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **VoT A Grid State Tracking** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **VoT B Ray Trace Visualization** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **VoT C Ray Trace Visualization** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **VoT C Hypothesis Verification** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **None** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **VoT A Grid State Tracking** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **VoT B Ray Trace Visualization** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **VoT B Ray Trace Visualization** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **VoT C Hypothesis Verification** |
 
 : Play Mode Experiment Log
 
@@ -869,24 +869,20 @@ hypothesis management:
 #| echo: false
 
 play_design <- tibble(
-  Factor = c('Model', 'Prompt Style', 'Include Visualization', 'Extended Thinking', 'Allow Hypotheses', 'VoT Grid State', 'VoT Ray Trace', 'VoT Hypothesis', 'Atom Configuration'),
+  Factor = c('Model', 'Prompt Style', 'Include Visualization', 'Extended Thinking', 'Allow Hypotheses', 'VoT Condition', 'Atom Configuration'),
   Levels = c('Haiku 4.5, Sonnet 4.5, Opus 4.5',
              'Baseline, Augmented',
              'Yes (held constant)',
              'Yes (with budget), No',
              'Yes, No',
-             'Yes, No',
-             'Yes, No',
-             'Yes, No',
+             'None, A: Grid State, B: Ray Trace, C: Hypothesis',
              '10 fixed configurations'),
   Description = c('Model variant',
                   'Human-equivalent vs. detailed strategy guidance',
                   'Text board visualization in prompt (enabled for all runs)',
                   'Enable extended thinking with token budget',
                   'Enable mark/unmark/check actions for hypothesis tracking',
-                  'Show current grid state in prompt (VoT Option A)',
-                  'Include ray trace visualization (VoT Option B)',
-                  'Show hypothesized atom positions (VoT Option C)',
+                  'Visualization of Thought prompt addition (mutually exclusive): A shows current grid state, B includes ray trace visualization, C shows hypothesized atom positions',
                   'Predetermined atom placements for reproducibility')
 )
 
@@ -2280,12 +2276,25 @@ extract_play_results <- function(json_file) {
 
 # Load all results into a single long-format tibble
 play_data <- map_dfr(play_json_files, extract_play_results)
+
+# Create single VoT condition factor from mutually exclusive binary flags
+play_data <- play_data |>
+  mutate(
+    vot_condition = case_when(
+      vot_grid_state ~ "A: Grid State",
+      vot_ray_trace ~ "B: Ray Trace",
+      vot_hypothesis ~ "C: Hypothesis",
+      TRUE ~ "None"
+    ),
+    vot_condition = factor(vot_condition, levels = c("None", "A: Grid State", "B: Ray Trace", "C: Hypothesis"))
+  )
 ```
 
 Data loaded: `r nrow(play_data)` experiment results from `r length(play_json_files)` JSON files.
 
 - **Models**: `r paste(unique(play_data$model_name), collapse = ", ")`
 - **Prompt styles**: `r paste(unique(play_data$prompt_style), collapse = ", ")`
+- **VoT conditions**: `r paste(levels(play_data$vot_condition)[levels(play_data$vot_condition) %in% unique(as.character(play_data$vot_condition))], collapse = ", ")`
 - **Configurations tested**: `r length(unique(play_data$config_index))`
 - **Mean atoms per ray range**: `r round(min(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`
 - **Mean cells per ray range**: `r round(min(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`
@@ -2295,9 +2304,9 @@ Data loaded: `r nrow(play_data)` experiment results from `r length(play_json_fil
 ```{r}
 #| label: play-results-summary
 
-# Summary statistics by model, prompt, and thinking
+# Summary statistics by model, prompt, thinking, and VoT condition
 play_summary <- play_data |>
-  group_by(model_name, prompt_style, enable_thinking) |>
+  group_by(model_name, prompt_style, enable_thinking, vot_condition) |>
   summarise(
     n = n(),
     atoms_correct_mean = mean(atoms_correct),
@@ -2311,7 +2320,7 @@ play_summary <- play_data |>
   mutate(across(where(is.numeric) & !n, \(x) round(x, 2)))
 
 kable(play_summary,
-      col.names = c("Model", "Prompt", "Thinking", "N",
+      col.names = c("Model", "Prompt", "Thinking", "VoT", "N",
                     "Atoms Correct (M)", "Atoms Correct (SD)",
                     "Score (M)", "Score (SD)",
                     "Atoms/Ray", "Rays Used"))
@@ -2320,24 +2329,25 @@ kable(play_summary,
 ```{r}
 #| label: play-summary-by-vot
 
-# Summary by VoT factors
+# Summary by VoT condition
 play_summary_vot <- play_data |>
-  group_by(vot_grid_state, vot_ray_trace, vot_hypothesis) |>
+  group_by(vot_condition) |>
   summarise(
     n = n(),
     atoms_correct_mean = mean(atoms_correct),
     atoms_correct_sd = sd(atoms_correct),
     score_mean = mean(score),
     score_sd = sd(score),
+    rays_used_mean = mean(rays_used),
     mean_atoms_ray = mean(mean_atoms_per_ray, na.rm = TRUE),
     .groups = "drop"
   ) |>
   mutate(across(where(is.numeric) & !n, \(x) round(x, 2)))
 
 kable(play_summary_vot,
-      col.names = c("VoT Grid", "VoT Ray", "VoT Hyp", "N",
+      col.names = c("VoT Condition", "N",
                     "Atoms Correct (M)", "Atoms Correct (SD)",
-                    "Score (M)", "Score (SD)", "Atoms/Ray"))
+                    "Score (M)", "Score (SD)", "Rays Used", "Atoms/Ray"))
 ```
 
 ### Play Mode Leaderboard
@@ -2352,10 +2362,11 @@ leaderboard_play <- play_data |>
     condition = paste0(
       model_name, " | ",
       ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
-      ifelse(enable_thinking, "Think", "No-Think")
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      vot_condition
     )
   ) |>
-  group_by(condition, model_name, prompt_style, enable_thinking) |>
+  group_by(condition, model_name, prompt_style, enable_thinking, vot_condition) |>
   summarise(
     n = n(),
     atoms_correct_mean = mean(atoms_correct),
@@ -2390,19 +2401,14 @@ play_data <- play_data |>
   mutate(
     model_name = factor(model_name, levels = order_model_names(model_name)),
     prompt_style = factor(prompt_style, levels = c("baseline", "augmented")),
-    enable_thinking = factor(enable_thinking, levels = c(FALSE, TRUE)),
-    vot_grid_state = factor(vot_grid_state, levels = c(FALSE, TRUE)),
-    vot_ray_trace = factor(vot_ray_trace, levels = c(FALSE, TRUE)),
-    vot_hypothesis = factor(vot_hypothesis, levels = c(FALSE, TRUE))
+    enable_thinking = factor(enable_thinking, levels = c(FALSE, TRUE))
   )
 
 # Build model formula dynamically
 has_model_var <- length(unique(play_data$model_name)) > 1
 has_prompt_var <- length(unique(play_data$prompt_style)) > 1
 has_thinking_var <- length(unique(play_data$enable_thinking)) > 1
-has_vot_grid <- length(unique(play_data$vot_grid_state)) > 1
-has_vot_ray <- length(unique(play_data$vot_ray_trace)) > 1
-has_vot_hyp <- length(unique(play_data$vot_hypothesis)) > 1
+has_vot_var <- length(unique(play_data$vot_condition)) > 1
 
 # Build main formula
 formula_parts <- c()
@@ -2416,15 +2422,9 @@ if (has_model_var && has_prompt_var && has_thinking_var) {
   main_formula <- paste(formula_parts, collapse = " + ")
 }
 
-# Add VoT factors
-vot_parts <- c()
-if (has_vot_grid) vot_parts <- c(vot_parts, "vot_grid_state")
-if (has_vot_ray) vot_parts <- c(vot_parts, "vot_ray_trace")
-if (has_vot_hyp) vot_parts <- c(vot_parts, "vot_hypothesis")
-
-if (length(vot_parts) > 0) {
-  atoms_formula <- paste0("atoms_correct ~ ", main_formula, " + ",
-                          paste(vot_parts, collapse = " + "),
+# Add VoT condition factor
+if (has_vot_var) {
+  atoms_formula <- paste0("atoms_correct ~ ", main_formula, " + vot_condition",
                           " + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)")
 } else {
   atoms_formula <- paste0("atoms_correct ~ ", main_formula,
@@ -2465,9 +2465,8 @@ r2_result <- performance::r2_nakagawa(model_atoms)
 #| label: play-score-model
 
 # Model 2: Score (main effects with config random effects)
-if (length(vot_parts) > 0) {
-  score_formula <- paste0("score ~ ", main_formula, " + ",
-                          paste(vot_parts, collapse = " + "),
+if (has_vot_var) {
+  score_formula <- paste0("score ~ ", main_formula, " + vot_condition",
                           " + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)")
 } else {
   score_formula <- paste0("score ~ ", main_formula,
@@ -2511,7 +2510,7 @@ Does ray complexity (mean atoms per ray) moderate treatment effects?
 ```{r}
 #| label: play-effect-modification
 
-run_play_effect_mod <- has_model_var || has_prompt_var || has_thinking_var
+run_play_effect_mod <- has_model_var || has_prompt_var || has_thinking_var || has_vot_var
 
 if (run_play_effect_mod) {
   # Build interaction formula with random effect
@@ -2519,6 +2518,7 @@ if (run_play_effect_mod) {
   if (has_model_var) interaction_parts <- c(interaction_parts, "model_name * mean_atoms_per_ray")
   if (has_prompt_var) interaction_parts <- c(interaction_parts, "prompt_style * mean_atoms_per_ray")
   if (has_thinking_var) interaction_parts <- c(interaction_parts, "enable_thinking * mean_atoms_per_ray")
+  if (has_vot_var) interaction_parts <- c(interaction_parts, "vot_condition * mean_atoms_per_ray")
 
   atoms_mod_formula <- paste0("atoms_correct ~ ",
                               paste(interaction_parts, collapse = " + "),
@@ -2569,9 +2569,7 @@ Regression complements ANOVA by providing interpretable effect magnitudes. Coeff
 
 # Build formula with factors that have variation
 regression_parts <- formula_parts  # From earlier: model_name, prompt_style, enable_thinking
-if (has_vot_grid) regression_parts <- c(regression_parts, "vot_grid_state")
-if (has_vot_ray) regression_parts <- c(regression_parts, "vot_ray_trace")
-if (has_vot_hyp) regression_parts <- c(regression_parts, "vot_hypothesis")
+if (has_vot_var) regression_parts <- c(regression_parts, "vot_condition")
 regression_parts <- c(regression_parts, "mean_atoms_per_ray", "mean_cells_per_ray")
 
 atoms_reg_formula <- paste0("atoms_correct ~ ", paste(regression_parts, collapse = " + "),
@@ -2727,6 +2725,24 @@ p4 <- ggplot(play_data, aes(x = prompt_style, y = atoms_correct,
        color = "Thinking") +
   theme_minimal()
 print(p4)
+
+# VoT condition effect on atoms correct
+p5 <- ggplot(play_data, aes(x = vot_condition, y = atoms_correct, fill = vot_condition)) +
+  geom_boxplot() +
+  facet_wrap(~model_name) +
+  labs(title = "Effect of VoT Condition on Atoms Correct",
+       x = "VoT Condition", y = "Atoms Correct (0-4)", fill = "VoT") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+print(p5)
+
+# VoT condition effect on score
+p6 <- ggplot(play_data, aes(x = vot_condition, y = score, fill = vot_condition)) +
+  geom_boxplot() +
+  facet_wrap(~model_name) +
+  labs(title = "Effect of VoT Condition on Score",
+       x = "VoT Condition", y = "Score (lower is better)", fill = "VoT") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+print(p6)
 ```
 
 ## Error Analysis

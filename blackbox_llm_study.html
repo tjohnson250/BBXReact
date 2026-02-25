@@ -834,7 +834,7 @@ There are three possible outcomes for each ray you send into the box:
 <td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>No</strong></td>
-<td><strong>VoT C Ray Trace Visualization</strong></td>
+<td><strong>VoT C Hypothesis Verification</strong></td>
 </tr>
 <tr class="odd">
 <td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
@@ -858,7 +858,7 @@ There are three possible outcomes for each ray you send into the box:
 <td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>10K</strong></td>
-<td><strong>VoT B Ray Trace Visualization</strong></td>
+<td><strong>VoT C Hypothesis Verification</strong></td>
 </tr>
 </tbody>
 </table>
@@ -867,9 +867,9 @@ There are three possible outcomes for each ray you send into the box:
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 19%">
-<col style="width: 28%">
-<col style="width: 51%">
+<col style="width: 9%">
+<col style="width: 20%">
+<col style="width: 69%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -905,19 +905,9 @@ There are three possible outcomes for each ray you send into the box:
 <td style="text-align: left;">Enable mark/unmark/check actions for hypothesis tracking</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">VoT Grid State</td>
-<td style="text-align: left;">Yes, No</td>
-<td style="text-align: left;">Show current grid state in prompt (VoT Option A)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">VoT Ray Trace</td>
-<td style="text-align: left;">Yes, No</td>
-<td style="text-align: left;">Include ray trace visualization (VoT Option B)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">VoT Hypothesis</td>
-<td style="text-align: left;">Yes, No</td>
-<td style="text-align: left;">Show hypothesized atom positions (VoT Option C)</td>
+<td style="text-align: left;">VoT Condition</td>
+<td style="text-align: left;">None, A: Grid State, B: Ray Trace, C: Hypothesis</td>
+<td style="text-align: left;">Visualization of Thought prompt addition (mutually exclusive): A shows current grid state, B includes ray trace visualization, C shows hypothesized atom positions</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Atom Configuration</td>
@@ -3463,13 +3453,26 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb24-68"><a href="#cb24-68" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb24-69"><a href="#cb24-69" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-70"><a href="#cb24-70" aria-hidden="true" tabindex="-1"></a><span class="co"># Load all results into a single long-format tibble</span></span>
-<span id="cb24-71"><a href="#cb24-71" aria-hidden="true" tabindex="-1"></a>play_data <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(play_json_files, extract_play_results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb24-71"><a href="#cb24-71" aria-hidden="true" tabindex="-1"></a>play_data <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(play_json_files, extract_play_results)</span>
+<span id="cb24-72"><a href="#cb24-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-73"><a href="#cb24-73" aria-hidden="true" tabindex="-1"></a><span class="co"># Create single VoT condition factor from mutually exclusive binary flags</span></span>
+<span id="cb24-74"><a href="#cb24-74" aria-hidden="true" tabindex="-1"></a>play_data <span class="ot">&lt;-</span> play_data <span class="sc">|&gt;</span></span>
+<span id="cb24-75"><a href="#cb24-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb24-76"><a href="#cb24-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">vot_condition =</span> <span class="fu">case_when</span>(</span>
+<span id="cb24-77"><a href="#cb24-77" aria-hidden="true" tabindex="-1"></a>      vot_grid_state <span class="sc">~</span> <span class="st">"A: Grid State"</span>,</span>
+<span id="cb24-78"><a href="#cb24-78" aria-hidden="true" tabindex="-1"></a>      vot_ray_trace <span class="sc">~</span> <span class="st">"B: Ray Trace"</span>,</span>
+<span id="cb24-79"><a href="#cb24-79" aria-hidden="true" tabindex="-1"></a>      vot_hypothesis <span class="sc">~</span> <span class="st">"C: Hypothesis"</span>,</span>
+<span id="cb24-80"><a href="#cb24-80" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"None"</span></span>
+<span id="cb24-81"><a href="#cb24-81" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb24-82"><a href="#cb24-82" aria-hidden="true" tabindex="-1"></a>    <span class="at">vot_condition =</span> <span class="fu">factor</span>(vot_condition, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"None"</span>, <span class="st">"A: Grid State"</span>, <span class="st">"B: Ray Trace"</span>, <span class="st">"C: Hypothesis"</span>))</span>
+<span id="cb24-83"><a href="#cb24-83" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>Data loaded: 480 experiment results from 16 JSON files.</p>
 <ul>
 <li><strong>Models</strong>: Haiku 4.5, Sonnet 4.5, Opus 4.5</li>
 <li><strong>Prompt styles</strong>: augmented, baseline</li>
+<li><strong>VoT conditions</strong>: None, A: Grid State, B: Ray Trace, C: Hypothesis</li>
 <li><strong>Configurations tested</strong>: 10</li>
 <li><strong>Mean atoms per ray range</strong>: 0–2</li>
 <li><strong>Mean cells per ray range</strong>: 2–10</li>
@@ -3479,9 +3482,9 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 ::: {.cell}
 
 ```{.r .cell-code}
-# Summary statistics by model, prompt, and thinking
+# Summary statistics by model, prompt, thinking, and VoT condition
 play_summary &lt;- play_data |&gt;
-  group_by(model_name, prompt_style, enable_thinking) |&gt;
+  group_by(model_name, prompt_style, enable_thinking, vot_condition) |&gt;
   summarise(
     n = n(),
     atoms_correct_mean = mean(atoms_correct),
@@ -3495,29 +3498,31 @@ play_summary &lt;- play_data |&gt;
   mutate(across(where(is.numeric) &amp; !n, \(x) round(x, 2)))
 
 kable(play_summary,
-      col.names = c("Model", "Prompt", "Thinking", "N",
+      col.names = c("Model", "Prompt", "Thinking", "VoT", "N",
                     "Atoms Correct (M)", "Atoms Correct (SD)",
                     "Score (M)", "Score (SD)",
                     "Atoms/Ray", "Rays Used"))</code></pre>
 <div class="cell-output-display">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 9%">
-<col style="width: 9%">
 <col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 11%">
 <col style="width: 2%">
-<col style="width: 16%">
-<col style="width: 17%">
-<col style="width: 9%">
-<col style="width: 9%">
-<col style="width: 9%">
-<col style="width: 9%">
+<col style="width: 14%">
+<col style="width: 15%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Model</th>
 <th style="text-align: left;">Prompt</th>
 <th style="text-align: left;">Thinking</th>
+<th style="text-align: left;">VoT</th>
 <th style="text-align: right;">N</th>
 <th style="text-align: right;">Atoms Correct (M)</th>
 <th style="text-align: right;">Atoms Correct (SD)</th>
@@ -3532,145 +3537,625 @@ kable(play_summary,
 <td style="text-align: left;">Haiku 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">0.88</td>
-<td style="text-align: right;">1.20</td>
-<td style="text-align: right;">31.52</td>
-<td style="text-align: right;">8.20</td>
-<td style="text-align: right;">1.02</td>
-<td style="text-align: right;">11.03</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.25</td>
+<td style="text-align: right;">29.5</td>
+<td style="text-align: right;">8.44</td>
+<td style="text-align: right;">1.04</td>
+<td style="text-align: right;">9.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Haiku 4.5</td>
 <td style="text-align: left;">augmented</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">1.77</td>
-<td style="text-align: right;">1.44</td>
-<td style="text-align: right;">26.40</td>
-<td style="text-align: right;">10.17</td>
-<td style="text-align: right;">0.97</td>
-<td style="text-align: right;">10.95</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Haiku 4.5</td>
-<td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">0.82</td>
-<td style="text-align: right;">1.32</td>
-<td style="text-align: right;">26.80</td>
-<td style="text-align: right;">6.72</td>
-<td style="text-align: right;">1.12</td>
-<td style="text-align: right;">7.90</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Haiku 4.5</td>
-<td style="text-align: left;">baseline</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">0.75</td>
-<td style="text-align: right;">1.17</td>
-<td style="text-align: right;">29.82</td>
-<td style="text-align: right;">6.84</td>
-<td style="text-align: right;">1.00</td>
-<td style="text-align: right;">9.50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Opus 4.5</td>
-<td style="text-align: left;">augmented</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">1.18</td>
-<td style="text-align: right;">1.30</td>
-<td style="text-align: right;">29.62</td>
-<td style="text-align: right;">8.96</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.8</td>
 <td style="text-align: right;">1.03</td>
-<td style="text-align: right;">10.88</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Opus 4.5</td>
-<td style="text-align: left;">augmented</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">1.80</td>
-<td style="text-align: right;">1.40</td>
-<td style="text-align: right;">25.88</td>
-<td style="text-align: right;">9.77</td>
-<td style="text-align: right;">1.04</td>
-<td style="text-align: right;">10.72</td>
+<td style="text-align: right;">34.5</td>
+<td style="text-align: right;">8.63</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">12.8</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Opus 4.5</td>
-<td style="text-align: left;">baseline</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">0.92</td>
-<td style="text-align: right;">1.19</td>
-<td style="text-align: right;">28.20</td>
-<td style="text-align: right;">6.43</td>
-<td style="text-align: right;">1.05</td>
-<td style="text-align: right;">8.95</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Opus 4.5</td>
-<td style="text-align: left;">baseline</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">0.92</td>
-<td style="text-align: right;">1.29</td>
-<td style="text-align: right;">28.35</td>
-<td style="text-align: right;">7.50</td>
-<td style="text-align: right;">0.96</td>
-<td style="text-align: right;">9.00</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">Haiku 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">1.23</td>
-<td style="text-align: right;">1.31</td>
-<td style="text-align: right;">30.92</td>
-<td style="text-align: right;">10.06</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">31.4</td>
+<td style="text-align: right;">8.92</td>
 <td style="text-align: right;">1.00</td>
-<td style="text-align: right;">11.72</td>
+<td style="text-align: right;">10.7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.37</td>
+<td style="text-align: right;">30.7</td>
+<td style="text-align: right;">7.15</td>
+<td style="text-align: right;">1.03</td>
+<td style="text-align: right;">10.7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">1.73</td>
+<td style="text-align: right;">26.4</td>
+<td style="text-align: right;">10.81</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">11.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.34</td>
+<td style="text-align: right;">26.5</td>
+<td style="text-align: right;">11.74</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">10.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.42</td>
+<td style="text-align: right;">26.0</td>
+<td style="text-align: right;">9.61</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">10.4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">1.48</td>
+<td style="text-align: right;">26.7</td>
+<td style="text-align: right;">10.03</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">11.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.37</td>
+<td style="text-align: right;">27.7</td>
+<td style="text-align: right;">7.65</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">8.4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">1.26</td>
+<td style="text-align: right;">27.3</td>
+<td style="text-align: right;">7.48</td>
+<td style="text-align: right;">1.16</td>
+<td style="text-align: right;">7.6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">27.3</td>
+<td style="text-align: right;">4.69</td>
+<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">8.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.49</td>
+<td style="text-align: right;">24.9</td>
+<td style="text-align: right;">7.32</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">7.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">29.9</td>
+<td style="text-align: right;">7.69</td>
+<td style="text-align: right;">0.92</td>
+<td style="text-align: right;">9.7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">1.08</td>
+<td style="text-align: right;">30.0</td>
+<td style="text-align: right;">7.56</td>
+<td style="text-align: right;">1.03</td>
+<td style="text-align: right;">8.6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.37</td>
+<td style="text-align: right;">28.2</td>
+<td style="text-align: right;">7.60</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">8.8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.03</td>
+<td style="text-align: right;">31.2</td>
+<td style="text-align: right;">4.87</td>
+<td style="text-align: right;">1.04</td>
+<td style="text-align: right;">10.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">1.34</td>
+<td style="text-align: right;">29.5</td>
+<td style="text-align: right;">8.44</td>
+<td style="text-align: right;">1.04</td>
+<td style="text-align: right;">11.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.55</td>
+<td style="text-align: right;">28.4</td>
+<td style="text-align: right;">10.51</td>
+<td style="text-align: right;">1.04</td>
+<td style="text-align: right;">10.4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">29.8</td>
+<td style="text-align: right;">9.04</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">10.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.15</td>
+<td style="text-align: right;">30.8</td>
+<td style="text-align: right;">9.03</td>
+<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">11.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">1.35</td>
+<td style="text-align: right;">27.2</td>
+<td style="text-align: right;">7.15</td>
+<td style="text-align: right;">1.08</td>
+<td style="text-align: right;">10.8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">1.56</td>
+<td style="text-align: right;">24.2</td>
+<td style="text-align: right;">10.39</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">9.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">1.52</td>
+<td style="text-align: right;">23.5</td>
+<td style="text-align: right;">9.41</td>
+<td style="text-align: right;">1.13</td>
+<td style="text-align: right;">9.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.34</td>
+<td style="text-align: right;">28.6</td>
+<td style="text-align: right;">12.11</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">12.3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.03</td>
+<td style="text-align: right;">27.9</td>
+<td style="text-align: right;">6.26</td>
+<td style="text-align: right;">1.04</td>
+<td style="text-align: right;">8.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">1.25</td>
+<td style="text-align: right;">28.3</td>
+<td style="text-align: right;">6.91</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">10.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">28.6</td>
+<td style="text-align: right;">7.66</td>
+<td style="text-align: right;">1.16</td>
+<td style="text-align: right;">8.8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.23</td>
+<td style="text-align: right;">28.0</td>
+<td style="text-align: right;">5.75</td>
+<td style="text-align: right;">1.02</td>
+<td style="text-align: right;">8.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">1.49</td>
+<td style="text-align: right;">28.7</td>
+<td style="text-align: right;">8.64</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">8.6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.33</td>
+<td style="text-align: right;">29.2</td>
+<td style="text-align: right;">7.76</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">9.7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.49</td>
+<td style="text-align: right;">26.8</td>
+<td style="text-align: right;">8.68</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">7.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">28.7</td>
+<td style="text-align: right;">5.44</td>
+<td style="text-align: right;">1.03</td>
+<td style="text-align: right;">9.8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.14</td>
+<td style="text-align: right;">29.3</td>
+<td style="text-align: right;">7.89</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">10.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">1.51</td>
+<td style="text-align: right;">31.0</td>
+<td style="text-align: right;">13.01</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">12.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.37</td>
+<td style="text-align: right;">32.1</td>
+<td style="text-align: right;">9.75</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">11.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.40</td>
+<td style="text-align: right;">31.3</td>
+<td style="text-align: right;">10.38</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">12.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">1.15</td>
+<td style="text-align: right;">24.6</td>
+<td style="text-align: right;">9.17</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">10.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">1.57</td>
-<td style="text-align: right;">1.30</td>
-<td style="text-align: right;">27.68</td>
-<td style="text-align: right;">8.97</td>
-<td style="text-align: right;">0.98</td>
-<td style="text-align: right;">10.97</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">30.5</td>
+<td style="text-align: right;">9.82</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">11.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.42</td>
+<td style="text-align: right;">26.7</td>
+<td style="text-align: right;">7.90</td>
+<td style="text-align: right;">0.92</td>
+<td style="text-align: right;">11.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">1.35</td>
+<td style="text-align: right;">28.9</td>
+<td style="text-align: right;">9.12</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">11.2</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">0.98</td>
-<td style="text-align: right;">1.35</td>
-<td style="text-align: right;">27.48</td>
-<td style="text-align: right;">7.59</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">1.16</td>
+<td style="text-align: right;">29.4</td>
+<td style="text-align: right;">6.43</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">9.3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">28.5</td>
+<td style="text-align: right;">8.81</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">10.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.40</td>
+<td style="text-align: right;">25.8</td>
+<td style="text-align: right;">7.05</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">7.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">1.70</td>
+<td style="text-align: right;">26.2</td>
+<td style="text-align: right;">8.39</td>
 <td style="text-align: right;">1.04</td>
-<td style="text-align: right;">8.90</td>
+<td style="text-align: right;">9.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.49</td>
+<td style="text-align: right;">25.9</td>
+<td style="text-align: right;">9.24</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">7.7</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">0.95</td>
-<td style="text-align: right;">1.15</td>
-<td style="text-align: right;">28.00</td>
-<td style="text-align: right;">8.00</td>
+<td style="text-align: left;">A: Grid State</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.14</td>
+<td style="text-align: right;">30.4</td>
+<td style="text-align: right;">7.20</td>
 <td style="text-align: right;">0.97</td>
-<td style="text-align: right;">9.03</td>
+<td style="text-align: right;">10.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">27.8</td>
+<td style="text-align: right;">6.30</td>
+<td style="text-align: right;">0.91</td>
+<td style="text-align: right;">8.6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">27.9</td>
+<td style="text-align: right;">9.42</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">9.6</td>
 </tr>
 </tbody>
 </table>
@@ -3679,95 +4164,90 @@ kable(play_summary,
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary by VoT factors</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary by VoT condition</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>play_summary_vot <span class="ot">&lt;-</span> play_data <span class="sc">|&gt;</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(vot_grid_state, vot_ray_trace, vot_hypothesis) <span class="sc">|&gt;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(vot_condition) <span class="sc">|&gt;</span></span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">atoms_correct_mean =</span> <span class="fu">mean</span>(atoms_correct),</span>
 <span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">atoms_correct_sd =</span> <span class="fu">sd</span>(atoms_correct),</span>
 <span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">score_mean =</span> <span class="fu">mean</span>(score),</span>
 <span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">score_sd =</span> <span class="fu">sd</span>(score),</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_atoms_ray =</span> <span class="fu">mean</span>(mean_atoms_per_ray, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric) <span class="sc">&amp;</span> <span class="sc">!</span>n, \(x) <span class="fu">round</span>(x, <span class="dv">2</span>)))</span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(play_summary_vot,</span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"VoT Grid"</span>, <span class="st">"VoT Ray"</span>, <span class="st">"VoT Hyp"</span>, <span class="st">"N"</span>,</span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"Atoms Correct (M)"</span>, <span class="st">"Atoms Correct (SD)"</span>,</span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"Score (M)"</span>, <span class="st">"Score (SD)"</span>, <span class="st">"Atoms/Ray"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">rays_used_mean =</span> <span class="fu">mean</span>(rays_used),</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_atoms_ray =</span> <span class="fu">mean</span>(mean_atoms_per_ray, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric) <span class="sc">&amp;</span> <span class="sc">!</span>n, \(x) <span class="fu">round</span>(x, <span class="dv">2</span>)))</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(play_summary_vot,</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"VoT Condition"</span>, <span class="st">"N"</span>,</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"Atoms Correct (M)"</span>, <span class="st">"Atoms Correct (SD)"</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"Score (M)"</span>, <span class="st">"Score (SD)"</span>, <span class="st">"Rays Used"</span>, <span class="st">"Atoms/Ray"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 9%">
-<col style="width: 8%">
-<col style="width: 8%">
+<col style="width: 14%">
 <col style="width: 4%">
 <col style="width: 18%">
 <col style="width: 19%">
 <col style="width: 10%">
 <col style="width: 11%">
 <col style="width: 10%">
+<col style="width: 10%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">VoT Grid</th>
-<th style="text-align: left;">VoT Ray</th>
-<th style="text-align: left;">VoT Hyp</th>
+<th style="text-align: left;">VoT Condition</th>
 <th style="text-align: right;">N</th>
 <th style="text-align: right;">Atoms Correct (M)</th>
 <th style="text-align: right;">Atoms Correct (SD)</th>
 <th style="text-align: right;">Score (M)</th>
 <th style="text-align: right;">Score (SD)</th>
+<th style="text-align: right;">Rays Used</th>
 <th style="text-align: right;">Atoms/Ray</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">None</td>
 <td style="text-align: right;">120</td>
 <td style="text-align: right;">1.16</td>
 <td style="text-align: right;">1.34</td>
 <td style="text-align: right;">28.00</td>
 <td style="text-align: right;">8.02</td>
+<td style="text-align: right;">9.72</td>
 <td style="text-align: right;">1.01</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">120</td>
-<td style="text-align: right;">1.17</td>
-<td style="text-align: right;">1.29</td>
-<td style="text-align: right;">28.66</td>
-<td style="text-align: right;">8.35</td>
-<td style="text-align: right;">1.03</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">120</td>
-<td style="text-align: right;">1.13</td>
-<td style="text-align: right;">1.35</td>
-<td style="text-align: right;">27.83</td>
-<td style="text-align: right;">8.13</td>
-<td style="text-align: right;">1.01</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">A: Grid State</td>
 <td style="text-align: right;">120</td>
 <td style="text-align: right;">1.13</td>
 <td style="text-align: right;">1.32</td>
 <td style="text-align: right;">29.07</td>
 <td style="text-align: right;">9.24</td>
+<td style="text-align: right;">10.32</td>
 <td style="text-align: right;">1.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: right;">1.13</td>
+<td style="text-align: right;">1.35</td>
+<td style="text-align: right;">27.83</td>
+<td style="text-align: right;">8.13</td>
+<td style="text-align: right;">9.52</td>
+<td style="text-align: right;">1.01</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: right;">1.17</td>
+<td style="text-align: right;">1.29</td>
+<td style="text-align: right;">28.66</td>
+<td style="text-align: right;">8.35</td>
+<td style="text-align: right;">10.29</td>
+<td style="text-align: right;">1.03</td>
 </tr>
 </tbody>
 </table>
@@ -3784,41 +4264,42 @@ kable(play_summary,
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition =</span> <span class="fu">paste0</span>(</span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>      model_name, <span class="st">" | "</span>,</span>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(prompt_style <span class="sc">==</span> <span class="st">"augmented"</span>, <span class="st">"Aug"</span>, <span class="st">"Base"</span>), <span class="st">" | "</span>,</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(enable_thinking, <span class="st">"Think"</span>, <span class="st">"No-Think"</span>)</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(condition, model_name, prompt_style, enable_thinking) <span class="sc">|&gt;</span></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">atoms_correct_mean =</span> <span class="fu">mean</span>(atoms_correct),</span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">atoms_correct_se =</span> <span class="fu">sd</span>(atoms_correct) <span class="sc">/</span> <span class="fu">sqrt</span>(n),</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">score_mean =</span> <span class="fu">mean</span>(score),</span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">perfect_games =</span> <span class="fu">sum</span>(atoms_correct <span class="sc">==</span> <span class="dv">4</span>),</span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(atoms_correct_mean), score_mean) <span class="sc">|&gt;</span></span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">rank =</span> <span class="fu">row_number</span>(),</span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">atoms_ci =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(atoms_correct_mean, <span class="dv">2</span>), <span class="st">" ± "</span>, <span class="fu">round</span>(atoms_correct_se, <span class="dv">2</span>)),</span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">perfect_pct =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(perfect_games <span class="sc">/</span> n <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">"%"</span>)</span>
-<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(rank, condition, atoms_ci, score_mean, perfect_pct, n) <span class="sc">|&gt;</span></span>
-<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span>
-<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(leaderboard_play,</span>
-<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Rank"</span>, <span class="st">"Configuration"</span>, <span class="st">"Atoms Correct (M ± SE)"</span>, <span class="st">"Score (M)"</span>, <span class="st">"Perfect Games"</span>, <span class="st">"N"</span>),</span>
-<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Play Mode Leaderboard (Top 10 Configurations)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(enable_thinking, <span class="st">"Think"</span>, <span class="st">"No-Think"</span>), <span class="st">" | "</span>,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>      vot_condition</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(condition, model_name, prompt_style, enable_thinking, vot_condition) <span class="sc">|&gt;</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">atoms_correct_mean =</span> <span class="fu">mean</span>(atoms_correct),</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">atoms_correct_se =</span> <span class="fu">sd</span>(atoms_correct) <span class="sc">/</span> <span class="fu">sqrt</span>(n),</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">score_mean =</span> <span class="fu">mean</span>(score),</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">perfect_games =</span> <span class="fu">sum</span>(atoms_correct <span class="sc">==</span> <span class="dv">4</span>),</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(atoms_correct_mean), score_mean) <span class="sc">|&gt;</span></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">rank =</span> <span class="fu">row_number</span>(),</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">atoms_ci =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(atoms_correct_mean, <span class="dv">2</span>), <span class="st">" ± "</span>, <span class="fu">round</span>(atoms_correct_se, <span class="dv">2</span>)),</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">perfect_pct =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(perfect_games <span class="sc">/</span> n <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">"%"</span>)</span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(rank, condition, atoms_ci, score_mean, perfect_pct, n) <span class="sc">|&gt;</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(leaderboard_play,</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Rank"</span>, <span class="st">"Configuration"</span>, <span class="st">"Atoms Correct (M ± SE)"</span>, <span class="st">"Score (M)"</span>, <span class="st">"Perfect Games"</span>, <span class="st">"N"</span>),</span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Play Mode Leaderboard (Top 10 Configurations)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>Play Mode Leaderboard (Top 10 Configurations)</caption>
 <colgroup>
-<col style="width: 5%">
-<col style="width: 41%">
-<col style="width: 24%">
-<col style="width: 10%">
-<col style="width: 14%">
-<col style="width: 3%">
+<col style="width: 4%">
+<col style="width: 50%">
+<col style="width: 20%">
+<col style="width: 9%">
+<col style="width: 12%">
+<col style="width: 2%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -3833,83 +4314,83 @@ kable(play_summary,
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">Opus 4.5 | Aug | Think</td>
-<td style="text-align: left;">1.8 ± 0.22</td>
-<td style="text-align: right;">25.875</td>
-<td style="text-align: left;">15%</td>
-<td style="text-align: right;">40</td>
+<td style="text-align: left;">Opus 4.5 | Aug | Think | A: Grid State</td>
+<td style="text-align: left;">2 ± 0.49</td>
+<td style="text-align: right;">24.2</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">10</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: left;">Haiku 4.5 | Aug | Think</td>
-<td style="text-align: left;">1.77 ± 0.23</td>
-<td style="text-align: right;">26.400</td>
-<td style="text-align: left;">22.5%</td>
-<td style="text-align: right;">40</td>
+<td style="text-align: left;">Sonnet 4.5 | Aug | Think | None</td>
+<td style="text-align: left;">2 ± 0.37</td>
+<td style="text-align: right;">24.6</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">10</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
-<td style="text-align: left;">Sonnet 4.5 | Aug | Think</td>
-<td style="text-align: left;">1.57 ± 0.21</td>
-<td style="text-align: right;">27.675</td>
-<td style="text-align: left;">10%</td>
-<td style="text-align: right;">40</td>
+<td style="text-align: left;">Opus 4.5 | Aug | Think | B: Ray Trace</td>
+<td style="text-align: left;">1.9 ± 0.48</td>
+<td style="text-align: right;">23.5</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">10</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: left;">Sonnet 4.5 | Aug | No-Think</td>
-<td style="text-align: left;">1.23 ± 0.21</td>
-<td style="text-align: right;">30.925</td>
-<td style="text-align: left;">12.5%</td>
-<td style="text-align: right;">40</td>
+<td style="text-align: left;">Haiku 4.5 | Aug | Think | None</td>
+<td style="text-align: left;">1.9 ± 0.55</td>
+<td style="text-align: right;">26.4</td>
+<td style="text-align: left;">30%</td>
+<td style="text-align: right;">10</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: left;">Opus 4.5 | Aug | No-Think</td>
-<td style="text-align: left;">1.18 ± 0.21</td>
-<td style="text-align: right;">29.625</td>
-<td style="text-align: left;">12.5%</td>
-<td style="text-align: right;">40</td>
+<td style="text-align: left;">Haiku 4.5 | Aug | Think | C: Hypothesis</td>
+<td style="text-align: left;">1.8 ± 0.47</td>
+<td style="text-align: right;">26.7</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">10</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: left;">Sonnet 4.5 | Base | No-Think</td>
-<td style="text-align: left;">0.98 ± 0.21</td>
-<td style="text-align: right;">27.475</td>
-<td style="text-align: left;">10%</td>
-<td style="text-align: right;">40</td>
+<td style="text-align: left;">Haiku 4.5 | Aug | Think | B: Ray Trace</td>
+<td style="text-align: left;">1.7 ± 0.45</td>
+<td style="text-align: right;">26.0</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">10</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
-<td style="text-align: left;">Sonnet 4.5 | Base | Think</td>
-<td style="text-align: left;">0.95 ± 0.18</td>
-<td style="text-align: right;">28.000</td>
-<td style="text-align: left;">2.5%</td>
-<td style="text-align: right;">40</td>
+<td style="text-align: left;">Haiku 4.5 | Aug | Think | A: Grid State</td>
+<td style="text-align: left;">1.7 ± 0.42</td>
+<td style="text-align: right;">26.5</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">10</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
-<td style="text-align: left;">Opus 4.5 | Base | No-Think</td>
-<td style="text-align: left;">0.92 ± 0.19</td>
-<td style="text-align: right;">28.200</td>
-<td style="text-align: left;">5%</td>
-<td style="text-align: right;">40</td>
+<td style="text-align: left;">Sonnet 4.5 | Aug | Think | B: Ray Trace</td>
+<td style="text-align: left;">1.7 ± 0.45</td>
+<td style="text-align: right;">26.7</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">10</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
-<td style="text-align: left;">Opus 4.5 | Base | Think</td>
-<td style="text-align: left;">0.92 ± 0.2</td>
-<td style="text-align: right;">28.350</td>
-<td style="text-align: left;">7.5%</td>
-<td style="text-align: right;">40</td>
+<td style="text-align: left;">Opus 4.5 | Aug | Think | C: Hypothesis</td>
+<td style="text-align: left;">1.7 ± 0.42</td>
+<td style="text-align: right;">28.6</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">10</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
-<td style="text-align: left;">Haiku 4.5 | Aug | No-Think</td>
-<td style="text-align: left;">0.88 ± 0.19</td>
-<td style="text-align: right;">31.525</td>
-<td style="text-align: left;">7.5%</td>
-<td style="text-align: right;">40</td>
+<td style="text-align: left;">Opus 4.5 | Aug | Think | None</td>
+<td style="text-align: left;">1.6 ± 0.43</td>
+<td style="text-align: right;">27.2</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">10</td>
 </tr>
 </tbody>
 </table>
@@ -3927,54 +4408,43 @@ kable(play_summary,
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">model_name =</span> <span class="fu">factor</span>(model_name, <span class="at">levels =</span> <span class="fu">order_model_names</span>(model_name)),</span>
 <span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">prompt_style =</span> <span class="fu">factor</span>(prompt_style, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"baseline"</span>, <span class="st">"augmented"</span>)),</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">enable_thinking =</span> <span class="fu">factor</span>(enable_thinking, <span class="at">levels =</span> <span class="fu">c</span>(<span class="cn">FALSE</span>, <span class="cn">TRUE</span>)),</span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">vot_grid_state =</span> <span class="fu">factor</span>(vot_grid_state, <span class="at">levels =</span> <span class="fu">c</span>(<span class="cn">FALSE</span>, <span class="cn">TRUE</span>)),</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">vot_ray_trace =</span> <span class="fu">factor</span>(vot_ray_trace, <span class="at">levels =</span> <span class="fu">c</span>(<span class="cn">FALSE</span>, <span class="cn">TRUE</span>)),</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">vot_hypothesis =</span> <span class="fu">factor</span>(vot_hypothesis, <span class="at">levels =</span> <span class="fu">c</span>(<span class="cn">FALSE</span>, <span class="cn">TRUE</span>))</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Build model formula dynamically</span></span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>has_model_var <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(play_data<span class="sc">$</span>model_name)) <span class="sc">&gt;</span> <span class="dv">1</span></span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>has_prompt_var <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(play_data<span class="sc">$</span>prompt_style)) <span class="sc">&gt;</span> <span class="dv">1</span></span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>has_thinking_var <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(play_data<span class="sc">$</span>enable_thinking)) <span class="sc">&gt;</span> <span class="dv">1</span></span>
-<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>has_vot_grid <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(play_data<span class="sc">$</span>vot_grid_state)) <span class="sc">&gt;</span> <span class="dv">1</span></span>
-<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>has_vot_ray <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(play_data<span class="sc">$</span>vot_ray_trace)) <span class="sc">&gt;</span> <span class="dv">1</span></span>
-<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>has_vot_hyp <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(play_data<span class="sc">$</span>vot_hypothesis)) <span class="sc">&gt;</span> <span class="dv">1</span></span>
-<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Build main formula</span></span>
-<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>formula_parts <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
-<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_model_var) formula_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(formula_parts, <span class="st">"model_name"</span>)</span>
-<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_prompt_var) formula_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(formula_parts, <span class="st">"prompt_style"</span>)</span>
-<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_thinking_var) formula_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(formula_parts, <span class="st">"enable_thinking"</span>)</span>
-<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_model_var <span class="sc">&amp;&amp;</span> has_prompt_var <span class="sc">&amp;&amp;</span> has_thinking_var) {</span>
-<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>  main_formula <span class="ot">&lt;-</span> <span class="st">"model_name * prompt_style * enable_thinking"</span></span>
-<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>  main_formula <span class="ot">&lt;-</span> <span class="fu">paste</span>(formula_parts, <span class="at">collapse =</span> <span class="st">" + "</span>)</span>
-<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Add VoT factors</span></span>
-<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a>vot_parts <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
-<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_vot_grid) vot_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(vot_parts, <span class="st">"vot_grid_state"</span>)</span>
-<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_vot_ray) vot_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(vot_parts, <span class="st">"vot_ray_trace"</span>)</span>
-<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_vot_hyp) vot_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(vot_parts, <span class="st">"vot_hypothesis"</span>)</span>
-<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(vot_parts) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a>  atoms_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"atoms_correct ~ "</span>, main_formula, <span class="st">" + "</span>,</span>
-<span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">paste</span>(vot_parts, <span class="at">collapse =</span> <span class="st">" + "</span>),</span>
-<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a>                          <span class="st">" + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)"</span>)</span>
-<span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a>  atoms_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"atoms_correct ~ "</span>, main_formula,</span>
-<span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a>                          <span class="st">" + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)"</span>)</span>
-<span id="cb28-45"><a href="#cb28-45" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-47"><a href="#cb28-47" aria-hidden="true" tabindex="-1"></a>model_atoms <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">as.formula</span>(atoms_formula), <span class="at">data =</span> play_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">enable_thinking =</span> <span class="fu">factor</span>(enable_thinking, <span class="at">levels =</span> <span class="fu">c</span>(<span class="cn">FALSE</span>, <span class="cn">TRUE</span>))</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Build model formula dynamically</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>has_model_var <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(play_data<span class="sc">$</span>model_name)) <span class="sc">&gt;</span> <span class="dv">1</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>has_prompt_var <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(play_data<span class="sc">$</span>prompt_style)) <span class="sc">&gt;</span> <span class="dv">1</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>has_thinking_var <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(play_data<span class="sc">$</span>enable_thinking)) <span class="sc">&gt;</span> <span class="dv">1</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>has_vot_var <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(play_data<span class="sc">$</span>vot_condition)) <span class="sc">&gt;</span> <span class="dv">1</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Build main formula</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>formula_parts <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_model_var) formula_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(formula_parts, <span class="st">"model_name"</span>)</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_prompt_var) formula_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(formula_parts, <span class="st">"prompt_style"</span>)</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_thinking_var) formula_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(formula_parts, <span class="st">"enable_thinking"</span>)</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_model_var <span class="sc">&amp;&amp;</span> has_prompt_var <span class="sc">&amp;&amp;</span> has_thinking_var) {</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>  main_formula <span class="ot">&lt;-</span> <span class="st">"model_name * prompt_style * enable_thinking"</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>  main_formula <span class="ot">&lt;-</span> <span class="fu">paste</span>(formula_parts, <span class="at">collapse =</span> <span class="st">" + "</span>)</span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Add VoT condition factor</span></span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_vot_var) {</span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>  atoms_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"atoms_correct ~ "</span>, main_formula, <span class="st">" + vot_condition"</span>,</span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>                          <span class="st">" + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)"</span>)</span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>  atoms_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"atoms_correct ~ "</span>, main_formula,</span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a>                          <span class="st">" + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)"</span>)</span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>model_atoms <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">as.formula</span>(atoms_formula), <span class="at">data =</span> play_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <section id="model-1-atoms-correct-0-4" class="level4" data-number="4.2.2.1">
 <h4 data-number="4.2.2.1" class="anchored" data-anchor-id="model-1-atoms-correct-0-4"><span class="header-section-number">4.2.2.1</span> Model 1: Atoms Correct (0-4)</h4>
 <p>Testing which factors affect the number of atoms correctly identified.</p>
-<p><strong>Model formula</strong>: atoms_correct ~ model_name * prompt_style * enable_thinking + vot_grid_state + vot_ray_trace + vot_hypothesis + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)</p>
+<p><strong>Model formula</strong>: atoms_correct ~ model_name * prompt_style * enable_thinking + vot_condition + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table (Type III Wald chisquare tests)
@@ -3985,9 +4455,7 @@ Response: atoms_correct
 model_name                               0.3670  2  0.8323348    
 prompt_style                             0.0036  1  0.9520407    
 enable_thinking                          0.8654  1  0.3522327    
-vot_grid_state                           0.0599  1  0.8065953    
-vot_ray_trace                            0.0614  1  0.8042212    
-vot_hypothesis                           0.0005  1  0.9822117    
+vot_condition                            0.1109  3  0.9904988    
 mean_cells_per_ray                      14.2036  1  0.0001641 ***
 mean_atoms_per_ray                      10.0086  1  0.0015581 ** 
 model_name:prompt_style                  1.4129  2  0.4933897    
@@ -4010,23 +4478,22 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 2: Score (main effects with config random effects)</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(vot_parts) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  score_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"score ~ "</span>, main_formula, <span class="st">" + "</span>,</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">paste</span>(vot_parts, <span class="at">collapse =</span> <span class="st">" + "</span>),</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>                          <span class="st">" + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)"</span>)</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  score_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"score ~ "</span>, main_formula,</span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>                          <span class="st">" + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)"</span>)</span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>model_score <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">as.formula</span>(score_formula), <span class="at">data =</span> play_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_vot_var) {</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  score_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"score ~ "</span>, main_formula, <span class="st">" + vot_condition"</span>,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                          <span class="st">" + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)"</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  score_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"score ~ "</span>, main_formula,</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>                          <span class="st">" + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)"</span>)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>model_score <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">as.formula</span>(score_formula), <span class="at">data =</span> play_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="model-2-score-lower-is-better" class="level4" data-number="4.2.2.2">
 <h4 data-number="4.2.2.2" class="anchored" data-anchor-id="model-2-score-lower-is-better"><span class="header-section-number">4.2.2.2</span> Model 2: Score (Lower is Better)</h4>
 <p>Testing which factors affect game score.</p>
-<p><strong>Model formula</strong>: score ~ model_name * prompt_style * enable_thinking + vot_grid_state + vot_ray_trace + vot_hypothesis + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)</p>
+<p><strong>Model formula</strong>: score ~ model_name * prompt_style * enable_thinking + vot_condition + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table (Type III Wald chisquare tests)
@@ -4037,9 +4504,7 @@ Response: score
 model_name                               0.3128  2    0.85524    
 prompt_style                            11.5430  1    0.00068 ***
 enable_thinking                          5.5337  1    0.01865 *  
-vot_grid_state                           1.9582  1    0.16171    
-vot_ray_trace                            0.0620  1    0.80331    
-vot_hypothesis                           1.9525  1    0.16231    
+vot_condition                            4.7039  3    0.19481    
 mean_cells_per_ray                      55.5404  1  9.156e-14 ***
 mean_atoms_per_ray                       4.3600  1    0.03679 *  
 model_name:prompt_style                  2.0350  2    0.36150    
@@ -4066,7 +4531,7 @@ Does ray complexity (mean atoms per ray) moderate treatment effects?
 ::: {.cell}
 
 ```{.r .cell-code}
-run_play_effect_mod &lt;- has_model_var || has_prompt_var || has_thinking_var
+run_play_effect_mod &lt;- has_model_var || has_prompt_var || has_thinking_var || has_vot_var
 
 if (run_play_effect_mod) {
   # Build interaction formula with random effect
@@ -4074,6 +4539,7 @@ if (run_play_effect_mod) {
   if (has_model_var) interaction_parts &lt;- c(interaction_parts, "model_name * mean_atoms_per_ray")
   if (has_prompt_var) interaction_parts &lt;- c(interaction_parts, "prompt_style * mean_atoms_per_ray")
   if (has_thinking_var) interaction_parts &lt;- c(interaction_parts, "enable_thinking * mean_atoms_per_ray")
+  if (has_vot_var) interaction_parts &lt;- c(interaction_parts, "vot_condition * mean_atoms_per_ray")
 
   atoms_mod_formula &lt;- paste0("atoms_correct ~ ",
                               paste(interaction_parts, collapse = " + "),
@@ -4086,40 +4552,44 @@ if (run_play_effect_mod) {
   model_score_mod &lt;- lmer(as.formula(score_mod_formula), data = play_data)
 }</code></pre>
 <p>:::</p>
-<p><strong>Atoms Correct Model</strong>: atoms_correct ~ model_name * mean_atoms_per_ray + prompt_style * mean_atoms_per_ray + enable_thinking * mean_atoms_per_ray + (1 | config_index)</p>
+<p><strong>Atoms Correct Model</strong>: atoms_correct ~ model_name * mean_atoms_per_ray + prompt_style * mean_atoms_per_ray + enable_thinking * mean_atoms_per_ray + vot_condition * mean_atoms_per_ray + (1 | config_index)</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table (Type III Wald chisquare tests)
 
 Response: atoms_correct
                                     Chisq Df Pr(&gt;Chisq)   
-(Intercept)                        5.1668  1   0.023022 * 
-model_name                         0.4739  2   0.789024   
-mean_atoms_per_ray                 1.2987  1   0.254447   
-prompt_style                       8.8511  1   0.002929 **
-enable_thinking                    1.4040  1   0.236057   
-model_name:mean_atoms_per_ray      0.9369  2   0.625956   
-mean_atoms_per_ray:prompt_style    1.3581  1   0.243861   
-mean_atoms_per_ray:enable_thinking 0.0355  1   0.850581   
+(Intercept)                        5.7438  1   0.016547 * 
+model_name                         0.6618  2   0.718282   
+mean_atoms_per_ray                 1.9399  1   0.163683   
+prompt_style                       8.1882  1   0.004216 **
+enable_thinking                    1.3617  1   0.243247   
+vot_condition                      1.6591  3   0.646075   
+model_name:mean_atoms_per_ray      1.2145  2   0.544850   
+mean_atoms_per_ray:prompt_style    1.1066  1   0.292830   
+mean_atoms_per_ray:enable_thinking 0.0330  1   0.855887   
+mean_atoms_per_ray:vot_condition   1.8367  3   0.606977   
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
-<p><strong>Score Model</strong>: score ~ model_name * mean_atoms_per_ray + prompt_style * mean_atoms_per_ray + enable_thinking * mean_atoms_per_ray + (1 | config_index)</p>
+<p><strong>Score Model</strong>: score ~ model_name * mean_atoms_per_ray + prompt_style * mean_atoms_per_ray + enable_thinking * mean_atoms_per_ray + vot_condition * mean_atoms_per_ray + (1 | config_index)</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table (Type III Wald chisquare tests)
 
 Response: score
                                       Chisq Df Pr(&gt;Chisq)    
-(Intercept)                        134.4055  1  &lt; 2.2e-16 ***
-model_name                           0.9796  2  0.6127337    
-mean_atoms_per_ray                  17.1909  1  3.381e-05 ***
-prompt_style                        11.0847  1  0.0008704 ***
-enable_thinking                      0.6117  1  0.4341481    
-model_name:mean_atoms_per_ray        1.0161  2  0.6016530    
-mean_atoms_per_ray:prompt_style     13.9388  1  0.0001889 ***
-mean_atoms_per_ray:enable_thinking   0.0267  1  0.8701434    
+(Intercept)                        102.0409  1  &lt; 2.2e-16 ***
+model_name                           0.8185  2  0.6641392    
+mean_atoms_per_ray                   9.3010  1  0.0022903 ** 
+prompt_style                        11.2212  1  0.0008087 ***
+enable_thinking                      0.5828  1  0.4451992    
+vot_condition                        1.3735  3  0.7117675    
+model_name:mean_atoms_per_ray        0.8715  2  0.6467670    
+mean_atoms_per_ray:prompt_style     14.0283  1  0.0001801 ***
+mean_atoms_per_ray:enable_thinking   0.0320  1  0.8579570    
+mean_atoms_per_ray:vot_condition     0.9043  3  0.8243790    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -4134,32 +4604,30 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build formula with factors that have variation</span></span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>regression_parts <span class="ot">&lt;-</span> formula_parts  <span class="co"># From earlier: model_name, prompt_style, enable_thinking</span></span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_vot_grid) regression_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(regression_parts, <span class="st">"vot_grid_state"</span>)</span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_vot_ray) regression_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(regression_parts, <span class="st">"vot_ray_trace"</span>)</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_vot_hyp) regression_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(regression_parts, <span class="st">"vot_hypothesis"</span>)</span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>regression_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(regression_parts, <span class="st">"mean_atoms_per_ray"</span>, <span class="st">"mean_cells_per_ray"</span>)</span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>atoms_reg_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"atoms_correct ~ "</span>, <span class="fu">paste</span>(regression_parts, <span class="at">collapse =</span> <span class="st">" + "</span>),</span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>                            <span class="st">" + (1 | config_index)"</span>)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_vot_var) regression_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(regression_parts, <span class="st">"vot_condition"</span>)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>regression_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(regression_parts, <span class="st">"mean_atoms_per_ray"</span>, <span class="st">"mean_cells_per_ray"</span>)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>atoms_reg_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"atoms_correct ~ "</span>, <span class="fu">paste</span>(regression_parts, <span class="at">collapse =</span> <span class="st">" + "</span>),</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>                            <span class="st">" + (1 | config_index)"</span>)</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>lmer_atoms <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">as.formula</span>(atoms_reg_formula), <span class="at">data =</span> play_data)</span>
 <span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>lmer_atoms <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">as.formula</span>(atoms_reg_formula), <span class="at">data =</span> play_data)</span>
-<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Tidy summary (fixed effects only)</span></span>
-<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>atoms_reg_summary <span class="ot">&lt;-</span> <span class="fu">tidy</span>(lmer_atoms, <span class="at">effects =</span> <span class="st">"fixed"</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(estimate, conf.low, conf.high, statistic), <span class="sc">~</span><span class="fu">round</span>(., <span class="dv">3</span>)),</span>
-<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">p.value =</span> <span class="fu">format.pval</span>(p.value, <span class="at">digits =</span> <span class="dv">3</span>, <span class="at">eps =</span> <span class="fl">0.001</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, std.error, statistic, p.value, conf.low, conf.high)</span>
-<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(atoms_reg_summary,</span>
-<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Term"</span>, <span class="st">"β (Coefficient)"</span>, <span class="st">"SE"</span>, <span class="st">"t-statistic"</span>, <span class="st">"p-value"</span>, <span class="st">"95% CI Lower"</span>, <span class="st">"95% CI Upper"</span>),</span>
-<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Regression Coefficients: Atoms Correct (Fixed Effects)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Tidy summary (fixed effects only)</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>atoms_reg_summary <span class="ot">&lt;-</span> <span class="fu">tidy</span>(lmer_atoms, <span class="at">effects =</span> <span class="st">"fixed"</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(estimate, conf.low, conf.high, statistic), <span class="sc">~</span><span class="fu">round</span>(., <span class="dv">3</span>)),</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">p.value =</span> <span class="fu">format.pval</span>(p.value, <span class="at">digits =</span> <span class="dv">3</span>, <span class="at">eps =</span> <span class="fl">0.001</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, std.error, statistic, p.value, conf.low, conf.high)</span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(atoms_reg_summary,</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Term"</span>, <span class="st">"β (Coefficient)"</span>, <span class="st">"SE"</span>, <span class="st">"t-statistic"</span>, <span class="st">"p-value"</span>, <span class="st">"95% CI Lower"</span>, <span class="st">"95% CI Upper"</span>),</span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Regression Coefficients: Atoms Correct (Fixed Effects)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>Regression Coefficients: Atoms Correct (Fixed Effects)</caption>
 <colgroup>
-<col style="width: 23%">
-<col style="width: 17%">
+<col style="width: 27%">
+<col style="width: 16%">
 <col style="width: 10%">
 <col style="width: 12%">
 <col style="width: 8%">
@@ -4224,7 +4692,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">0.384</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">vot_grid_stateTRUE</td>
+<td style="text-align: left;">vot_conditionA: Grid State</td>
 <td style="text-align: right;">-0.024</td>
 <td style="text-align: right;">0.1047820</td>
 <td style="text-align: right;">-0.230</td>
@@ -4233,7 +4701,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">0.182</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">vot_ray_traceTRUE</td>
+<td style="text-align: left;">vot_conditionB: Ray Trace</td>
 <td style="text-align: right;">-0.025</td>
 <td style="text-align: right;">0.1047642</td>
 <td style="text-align: right;">-0.242</td>
@@ -4242,7 +4710,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">0.180</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">vot_hypothesisTRUE</td>
+<td style="text-align: left;">vot_conditionC: Hypothesis</td>
 <td style="text-align: right;">-0.005</td>
 <td style="text-align: right;">0.1049183</td>
 <td style="text-align: right;">-0.050</td>
@@ -4294,8 +4762,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <table class="caption-top table table-sm table-striped small">
 <caption>Regression Coefficients: Score (Fixed Effects)</caption>
 <colgroup>
-<col style="width: 23%">
-<col style="width: 17%">
+<col style="width: 27%">
+<col style="width: 16%">
 <col style="width: 10%">
 <col style="width: 12%">
 <col style="width: 8%">
@@ -4360,7 +4828,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">-0.226</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">vot_grid_stateTRUE</td>
+<td style="text-align: left;">vot_conditionA: Grid State</td>
 <td style="text-align: right;">0.967</td>
 <td style="text-align: right;">0.7094300</td>
 <td style="text-align: right;">1.363</td>
@@ -4369,7 +4837,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">2.361</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">vot_ray_traceTRUE</td>
+<td style="text-align: left;">vot_conditionB: Ray Trace</td>
 <td style="text-align: right;">-0.174</td>
 <td style="text-align: right;">0.7093091</td>
 <td style="text-align: right;">-0.246</td>
@@ -4378,7 +4846,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">1.220</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">vot_hypothesisTRUE</td>
+<td style="text-align: left;">vot_conditionC: Hypothesis</td>
 <td style="text-align: right;">0.995</td>
 <td style="text-align: right;">0.7103532</td>
 <td style="text-align: right;">1.401</td>
@@ -4426,17 +4894,17 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code># Standardization method: refit
 
-Parameter                | Std. Coef. |         95% CI
-------------------------------------------------------
-prompt style [augmented] |       0.37 | [ 0.26,  0.48]
-enable thinking [TRUE]   |       0.18 | [ 0.07,  0.29]
-mean cells per ray       |      -0.13 | [-0.20, -0.07]
-mean atoms per ray       |      -0.13 | [-0.22, -0.04]
-model name [Opus 4.5]    |       0.12 | [-0.01,  0.26]
-model name [Sonnet 4.5]  |       0.10 | [-0.03,  0.24]
-vot ray trace [TRUE]     |      -0.02 | [-0.17,  0.14]
-vot grid state [TRUE]    |      -0.02 | [-0.17,  0.14]
-vot hypothesis [TRUE]    |  -4.01e-03 | [-0.16,  0.15]</code></pre>
+Parameter                   | Std. Coef. |         95% CI
+---------------------------------------------------------
+prompt style [augmented]    |       0.37 | [ 0.26,  0.48]
+enable thinking [TRUE]      |       0.18 | [ 0.07,  0.29]
+mean cells per ray          |      -0.13 | [-0.20, -0.07]
+mean atoms per ray          |      -0.13 | [-0.22, -0.04]
+model name [Opus 4.5]       |       0.12 | [-0.01,  0.26]
+model name [Sonnet 4.5]     |       0.10 | [-0.03,  0.24]
+vot conditionB × Ray Trace  |      -0.02 | [-0.17,  0.14]
+vot conditionA × Grid State |      -0.02 | [-0.17,  0.14]
+vot conditionC × Hypothesis |  -4.01e-03 | [-0.16,  0.15]</code></pre>
 </div>
 </div>
 <p><strong>Score (Top 10)</strong>:</p>
@@ -4444,17 +4912,17 @@ vot hypothesis [TRUE]    |  -4.01e-03 | [-0.16,  0.15]</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code># Standardization method: refit
 
-Parameter                | Std. Coef. |         95% CI
-------------------------------------------------------
-mean cells per ray       |       0.27 | [ 0.20,  0.34]
-enable thinking [TRUE]   |      -0.15 | [-0.26, -0.03]
-mean atoms per ray       |      -0.12 | [-0.22, -0.02]
-vot hypothesis [TRUE]    |       0.12 | [-0.05,  0.28]
-vot grid state [TRUE]    |       0.11 | [-0.05,  0.28]
-model name [Opus 4.5]    |      -0.10 | [-0.25,  0.04]
-prompt style [augmented] |       0.08 | [-0.04,  0.19]
-model name [Sonnet 4.5]  |      -0.07 | [-0.22,  0.07]
-vot ray trace [TRUE]     |      -0.02 | [-0.19,  0.14]</code></pre>
+Parameter                   | Std. Coef. |         95% CI
+---------------------------------------------------------
+mean cells per ray          |       0.27 | [ 0.20,  0.34]
+enable thinking [TRUE]      |      -0.15 | [-0.26, -0.03]
+mean atoms per ray          |      -0.12 | [-0.22, -0.02]
+vot conditionC × Hypothesis |       0.12 | [-0.05,  0.28]
+vot conditionA × Grid State |       0.11 | [-0.05,  0.28]
+model name [Opus 4.5]       |      -0.10 | [-0.25,  0.04]
+prompt style [augmented]    |       0.08 | [-0.04,  0.19]
+model name [Sonnet 4.5]     |      -0.07 | [-0.22,  0.07]
+vot conditionB × Ray Trace  |      -0.02 | [-0.19,  0.14]</code></pre>
 </div>
 </div>
 </section>
@@ -4556,6 +5024,42 @@ print(p1)</code></pre>
 </figure>
 </div>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># VoT condition effect on atoms correct</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>p5 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(play_data, <span class="fu">aes</span>(<span class="at">x =</span> vot_condition, <span class="at">y =</span> atoms_correct, <span class="at">fill =</span> vot_condition)) <span class="sc">+</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>model_name) <span class="sc">+</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Effect of VoT Condition on Atoms Correct"</span>,</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"VoT Condition"</span>, <span class="at">y =</span> <span class="st">"Atoms Correct (0-4)"</span>, <span class="at">fill =</span> <span class="st">"VoT"</span>) <span class="sc">+</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p5)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="blackbox_llm_study_files/figure-html/play-visualizations-5.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># VoT condition effect on score</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>p6 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(play_data, <span class="fu">aes</span>(<span class="at">x =</span> vot_condition, <span class="at">y =</span> score, <span class="at">fill =</span> vot_condition)) <span class="sc">+</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>model_name) <span class="sc">+</span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Effect of VoT Condition on Score"</span>,</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"VoT Condition"</span>, <span class="at">y =</span> <span class="st">"Score (lower is better)"</span>, <span class="at">fill =</span> <span class="st">"VoT"</span>) <span class="sc">+</span></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p6)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="blackbox_llm_study_files/figure-html/play-visualizations-6.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
 <p>:::</p>
 </section>
 </section>
@@ -4564,16 +5068,16 @@ print(p1)</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Placeholder for error taxonomy</span></span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Will categorize errors from extended thinking traces</span></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="co"># error_categories &lt;- c(</span></span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   "Constraint tracking failure",</span></span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   "Spatial reasoning error",</span></span>
-<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   "Non-parsimonious hypothesis",</span></span>
-<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   "Failure to update on evidence",</span></span>
-<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   "Experiment design inefficiency"</span></span>
-<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Placeholder for error taxonomy</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Will categorize errors from extended thinking traces</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="co"># error_categories &lt;- c(</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   "Constraint tracking failure",</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   "Spatial reasoning error",</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   "Non-parsimonious hypothesis",</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   "Failure to update on evidence",</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   "Experiment design inefficiency"</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>[Error analysis to be added after data collection]</p>
