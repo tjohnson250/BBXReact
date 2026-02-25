@@ -765,7 +765,9 @@ Extended instructions including:
 Either prompt style can be combined with:
 
 -   **Include Visualization**: Text-based board visualization showing
-    current state
+    current state. **Note**: Include Visualization was enabled for all
+    experimental runs in both Predict and Play modes and is therefore
+    not a varying factor in the analyses.
 -   **VoT (Visualization of Thought) Options**:
     -   Grid State (Play only): Shows current board state in prompt
     -   Ray Trace: Shows ray path visualization
@@ -860,7 +862,7 @@ play_design <- tibble(
   Factor = c('Model', 'Prompt Style', 'Include Visualization', 'Extended Thinking', 'Allow Hypotheses', 'VoT Grid State', 'VoT Ray Trace', 'VoT Hypothesis', 'Atom Configuration'),
   Levels = c('Haiku 4.5, Sonnet 4.5, Opus 4.5',
              'Baseline, Augmented',
-             'Yes, No',
+             'Yes (held constant)',
              'Yes (with budget), No',
              'Yes, No',
              'Yes, No',
@@ -869,7 +871,7 @@ play_design <- tibble(
              '10 fixed configurations'),
   Description = c('Model variant',
                   'Human-equivalent vs. detailed strategy guidance',
-                  'Text board visualization in prompt',
+                  'Text board visualization in prompt (enabled for all runs)',
                   'Enable extended thinking with token budget',
                   'Enable mark/unmark/check actions for hypothesis tracking',
                   'Show current grid state in prompt (VoT Option A)',
@@ -2117,6 +2119,81 @@ error_by_model |>
   kable(col.names = c("Model", "Error Pattern (Actual → Predicted)", "Count", "Proportion"),
         caption = "Most Common Error Types by Model (Top 3 per Model)")
 ```
+
+### Budget Tag Hallucination Artifact
+
+During experiment runs, we observed that models occasionally
+hallucinate XML-like `<budget:...>` tags in their visible response
+text—fabricating token usage metadata that mimics internal API
+bookkeeping. These tags (e.g., `<budget:used_tokens>`,
+`<budget:token_budget>`, `<budget:token_usage>`) are not present in
+any prompt or API parameter passed to the model; they appear to be
+confabulated from the model's awareness of its extended thinking
+budget context.
+
+```{r}
+#| label: predict-budget-hallucination
+#| echo: false
+
+# Detect budget tag hallucinations in predict data reasoning field
+budget_hallucinations <- predict_data |>
+  mutate(
+    has_budget_tag = grepl("budget:", reasoning, fixed = TRUE) |
+                     grepl("token_budget", reasoning, fixed = TRUE)
+  )
+
+budget_summary <- budget_hallucinations |>
+  summarise(
+    total_predictions = n(),
+    n_with_tag = sum(has_budget_tag),
+    pct_with_tag = round(mean(has_budget_tag) * 100, 2),
+    n_correct_with_tag = sum(has_budget_tag & correct),
+    n_incorrect_with_tag = sum(has_budget_tag & !correct)
+  )
+
+budget_by_factor <- budget_hallucinations |>
+  filter(has_budget_tag) |>
+  count(model_name, prompt_style, enable_thinking) |>
+  arrange(desc(n))
+```
+
+**Prevalence**: `r budget_summary$n_with_tag` of
+`r budget_summary$total_predictions` predictions
+(`r budget_summary$pct_with_tag`%) contained hallucinated budget
+tags.
+
+**Key patterns**:
+
+-   **Exclusive to extended thinking**: All
+    `r budget_summary$n_with_tag` instances occurred with extended
+    thinking enabled; no instances were found in non-thinking runs.
+-   **100% incorrect**: Every prediction containing a budget tag
+    hallucination was incorrect
+    (`r budget_summary$n_correct_with_tag`/`r budget_summary$n_with_tag`
+    correct).
+-   **Not present in Play mode**: No budget tag hallucinations were
+    found in Play mode data, suggesting the multi-turn conversational
+    structure may suppress this artifact.
+
+```{r}
+#| label: predict-budget-by-factor
+#| echo: false
+
+if (nrow(budget_by_factor) > 0) {
+  kable(budget_by_factor,
+        col.names = c("Model", "Prompt", "Thinking", "Count"),
+        caption = "Budget Tag Hallucinations by Experimental Condition")
+}
+```
+
+The perfect correlation with incorrect predictions suggests these
+hallucinations are a signal of reasoning process failure: when the
+model generates metadata artifacts instead of reasoning about ray
+physics, it invariably produces an incorrect prediction. While the
+overall prevalence is low (`r budget_summary$pct_with_tag`%), this
+artifact represents a qualitatively distinct failure mode—the model
+confabulating system-level metadata rather than engaging with the
+task.
 
 ## Play Mode Results
 
