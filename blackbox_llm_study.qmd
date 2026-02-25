@@ -45,6 +45,16 @@ library(lme4)        # Mixed-effects models
 library(lmerTest)    # p-values for mixed models
 library(broom.mixed) # Tidy methods for mixed models
 
+# Order model names by family (Haiku < Sonnet < Opus), then version
+order_model_names <- function(names) {
+  family_rank <- c("Haiku" = 1, "Sonnet" = 2, "Opus" = 3)
+  unique_names <- unique(na.omit(names))
+  parts <- strsplit(unique_names, " ")
+  families <- sapply(parts, `[`, 1)
+  versions <- as.numeric(sapply(parts, `[`, 2))
+  unique_names[order(family_rank[families], versions)]
+}
+
 # Set plotting defaults
 theme_set(theme_minimal())
 ```
@@ -1514,7 +1524,7 @@ This analysis uses mixed-effects logistic regression to test whether experimenta
 # Convert factors for ANOVA
 predict_data <- predict_data |>
   mutate(
-    model_name = factor(model_name, levels = c("Haiku 4.5", "Sonnet 4.5", "Opus 4.5")),
+    model_name = factor(model_name, levels = order_model_names(model_name)),
     prompt_style = factor(prompt_style, levels = c("baseline", "augmented")),
     enable_thinking = factor(enable_thinking, levels = c(FALSE, TRUE)),
     vot_ray_trace = factor(vot_ray_trace, levels = c(FALSE, TRUE)),
@@ -2378,7 +2388,7 @@ Full factorial ANOVA using mixed-effects models with configuration-level random 
 # Convert factors
 play_data <- play_data |>
   mutate(
-    model_name = factor(model_name, levels = c("Haiku 4.5", "Sonnet 4.5", "Opus 4.5")),
+    model_name = factor(model_name, levels = order_model_names(model_name)),
     prompt_style = factor(prompt_style, levels = c("baseline", "augmented")),
     enable_thinking = factor(enable_thinking, levels = c(FALSE, TRUE)),
     vot_grid_state = factor(vot_grid_state, levels = c(FALSE, TRUE)),
