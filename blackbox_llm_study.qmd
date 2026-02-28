@@ -2277,6 +2277,18 @@ extract_play_results <- function(json_file) {
 # Load all results into a single long-format tibble
 play_data <- map_dfr(play_json_files, extract_play_results)
 
+# Validate: allowHypotheses should be TRUE for all play experiments
+hyp_check <- play_data |>
+  filter(!allow_hypotheses) |>
+  group_by(source_file) |>
+  summarise(n_false = n(), .groups = "drop")
+
+if (nrow(hyp_check) > 0) {
+  warning("Files with allowHypotheses = false detected:\n",
+          paste0("  ", hyp_check$source_file, " (", hyp_check$n_false, " configs)\n", collapse = ""),
+          "Total configs with allowHypotheses = false: ", sum(hyp_check$n_false))
+}
+
 # Create single VoT condition factor from mutually exclusive binary flags
 play_data <- play_data |>
   mutate(
@@ -2298,6 +2310,8 @@ Data loaded: `r nrow(play_data)` experiment results from `r length(play_json_fil
 - **Configurations tested**: `r length(unique(play_data$config_index))`
 - **Mean atoms per ray range**: `r round(min(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`
 - **Mean cells per ray range**: `r round(min(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`
+
+`r if (nrow(hyp_check) > 0) paste0("**WARNING: ", nrow(hyp_check), " file(s) with allowHypotheses = false (", sum(hyp_check$n_false), " total configs):** ", paste(hyp_check$source_file, " (", hyp_check$n_false, " configs)", collapse = ", "))`
 
 ```
 
