@@ -2759,6 +2759,227 @@ p6 <- ggplot(play_data, aes(x = vot_condition, y = score, fill = vot_condition))
 print(p6)
 ```
 
+## Predict vs Play: Cross-Mode Comparison
+
+This section examines whether configuration difficulty and model performance are consistent across the two reasoning modes. Predict mode tests **forward reasoning** (given atoms, predict ray behavior), while Play mode tests **inverse reasoning** (observe ray behavior, infer atom locations). If forward and inverse reasoning rely on shared spatial representations, we expect configuration difficulty and model rankings to correlate across modes.
+
+```{r}
+#| label: cross-mode-config-profiles
+
+# Predict: accuracy by configuration (aggregated across all conditions)
+predict_by_config <- predict_data |>
+  mutate(config_index = as.integer(config_index)) |>
+  group_by(config_index) |>
+  summarise(
+    predict_n = n(),
+    predict_accuracy = mean(correct),
+    predict_se = sqrt(predict_accuracy * (1 - predict_accuracy) / predict_n),
+    .groups = "drop"
+  )
+
+# Play: performance by configuration (aggregated across all conditions)
+play_by_config <- play_data |>
+  mutate(config_index = as.integer(config_index)) |>
+  group_by(config_index) |>
+  summarise(
+    play_n = n(),
+    play_atoms_correct = mean(atoms_correct),
+    play_atoms_sd = sd(atoms_correct),
+    play_score = mean(score),
+    play_score_sd = sd(score),
+    .groups = "drop"
+  )
+
+# Join predict and play by configuration
+cross_mode <- inner_join(predict_by_config, play_by_config, by = "config_index") |>
+  mutate(across(where(is.numeric) & !c(config_index, predict_n, play_n),
+                \(x) round(x, 3)))
+
+kable(cross_mode,
+      col.names = c("Config", "N (Predict)", "Accuracy", "SE",
+                     "N (Play)", "Atoms Correct (M)", "Atoms Correct (SD)",
+                     "Score (M)", "Score (SD)"),
+      caption = "Configuration-Level Performance: Predict vs Play Mode")
+```
+
+### Difficulty Profile Correlation
+
+```{r}
+#| label: cross-mode-correlation
+#| fig-width: 10
+#| fig-height: 5
+
+# Correlation between predict accuracy and play atoms correct
+cor_atoms <- cor.test(cross_mode$predict_accuracy, cross_mode$play_atoms_correct)
+cor_score <- cor.test(cross_mode$predict_accuracy, cross_mode$play_score)
+
+p_cross1 <- ggplot(cross_mode, aes(x = predict_accuracy, y = play_atoms_correct)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+  geom_text(aes(label = config_index), vjust = -0.8, size = 3) +
+  labs(
+    title = "Configuration Difficulty: Predict Accuracy vs Play Atoms Correct",
+    subtitle = paste0("r = ", round(cor_atoms$estimate, 3),
+                      ", p = ", format.pval(cor_atoms$p.value, digits = 3)),
+    x = "Predict Mode Accuracy",
+    y = "Play Mode Atoms Correct (0–4)"
+  ) +
+  scale_x_continuous(labels = scales::percent) +
+  theme_minimal()
+
+p_cross2 <- ggplot(cross_mode, aes(x = predict_accuracy, y = play_score)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+  geom_text(aes(label = config_index), vjust = -0.8, size = 3) +
+  labs(
+    title = "Configuration Difficulty: Predict Accuracy vs Play Score",
+    subtitle = paste0("r = ", round(cor_score$estimate, 3),
+                      ", p = ", format.pval(cor_score$p.value, digits = 3)),
+    x = "Predict Mode Accuracy",
+    y = "Play Mode Score (lower is better)"
+  ) +
+  scale_x_continuous(labels = scales::percent) +
+  theme_minimal()
+
+gridExtra::grid.arrange(p_cross1, p_cross2, ncol = 2)
+```
+
+`r if(abs(cor_atoms$estimate) > 0.5 && cor_atoms$p.value < 0.05) "Configuration difficulty is **significantly correlated** across modes: configurations that are harder to predict are also harder to play." else if(abs(cor_atoms$estimate) > 0.3) "Configuration difficulty shows a **moderate** correlation across modes, though the relationship is not statistically significant at conventional levels." else "Configuration difficulty shows **weak or no correlation** across modes, suggesting forward and inverse reasoning may rely on different cognitive demands."`
+
+### Model Rankings Across Modes
+
+```{r}
+#| label: cross-mode-model-comparison
+#| fig-width: 10
+#| fig-height: 6
+
+# Predict: accuracy by model and configuration
+predict_by_model_config <- predict_data |>
+  mutate(config_index = as.integer(config_index)) |>
+  group_by(model_name, config_index) |>
+  summarise(
+    predict_accuracy = mean(correct),
+    .groups = "drop"
+  )
+
+# Play: atoms correct by model and configuration
+play_by_model_config <- play_data |>
+  mutate(config_index = as.integer(config_index)) |>
+  group_by(model_name, config_index) |>
+  summarise(
+    play_atoms_correct = mean(atoms_correct),
+    .groups = "drop"
+  )
+
+# Join by model and configuration
+model_config_cross <- inner_join(predict_by_model_config, play_by_model_config,
+                                  by = c("model_name", "config_index"))
+
+# Scatter: predict accuracy vs play atoms correct, colored by model
+p_model_cross <- ggplot(model_config_cross,
+                         aes(x = predict_accuracy, y = play_atoms_correct,
+                             color = model_name)) +
+  geom_point(size = 2.5, alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 0.8) +
+  geom_text(aes(label = config_index), vjust = -0.6, size = 2.5, show.legend = FALSE) +
+  labs(
+    title = "Predict vs Play Performance by Model and Configuration",
+    x = "Predict Mode Accuracy",
+    y = "Play Mode Atoms Correct (0–4)",
+    color = "Model"
+  ) +
+  scale_x_continuous(labels = scales::percent) +
+  theme_minimal() +
+  theme(legend.position = "top")
+print(p_model_cross)
+
+# Per-model correlations
+model_cors <- model_config_cross |>
+  group_by(model_name) |>
+  summarise(
+    n_configs = n(),
+    r = cor(predict_accuracy, play_atoms_correct),
+    .groups = "drop"
+  ) |>
+  mutate(r = round(r, 3))
+
+kable(model_cors,
+      col.names = c("Model", "N Configs", "r (Predict–Play)"),
+      caption = "Within-Model Correlation Between Predict Accuracy and Play Atoms Correct")
+```
+
+### Aggregate Model Performance Comparison
+
+```{r}
+#| label: cross-mode-model-summary
+#| fig-width: 10
+#| fig-height: 5
+
+# Model-level aggregates
+predict_model_agg <- predict_data |>
+  group_by(model_name) |>
+  summarise(
+    predict_accuracy = mean(correct),
+    predict_se = sqrt(predict_accuracy * (1 - predict_accuracy) / n()),
+    .groups = "drop"
+  )
+
+play_model_agg <- play_data |>
+  group_by(model_name) |>
+  summarise(
+    play_atoms_pct = mean(atoms_correct) / 4,  # normalize to 0–1 scale
+    play_atoms_se = sd(atoms_correct) / (4 * sqrt(n())),
+    .groups = "drop"
+  )
+
+model_comparison <- inner_join(predict_model_agg, play_model_agg, by = "model_name") |>
+  pivot_longer(
+    cols = c(predict_accuracy, play_atoms_pct),
+    names_to = "mode",
+    values_to = "performance"
+  ) |>
+  mutate(
+    se = ifelse(mode == "predict_accuracy", predict_se, play_atoms_se),
+    mode = ifelse(mode == "predict_accuracy", "Predict (Accuracy)", "Play (Atoms Correct %)")
+  )
+
+p_compare <- ggplot(model_comparison, aes(x = model_name, y = performance, fill = mode)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  geom_errorbar(aes(ymin = performance - 1.96 * se, ymax = performance + 1.96 * se),
+                position = position_dodge(width = 0.7), width = 0.2) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(
+    title = "Model Performance: Predict Accuracy vs Play Atoms Correct (%)",
+    subtitle = "Error bars show 95% confidence intervals. Play atoms correct normalized to 0–100% scale.",
+    x = "Model", y = "Performance", fill = "Mode"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "top")
+print(p_compare)
+```
+
+### Forward–Inverse Reasoning Gap
+
+```{r}
+#| label: cross-mode-gap
+
+# Per-model gap between predict and play
+gap_data <- inner_join(predict_model_agg, play_model_agg, by = "model_name") |>
+  mutate(
+    gap = predict_accuracy - play_atoms_pct,
+    gap_pct = paste0(round(gap * 100, 1), " pp")
+  )
+
+kable(gap_data |>
+        mutate(across(c(predict_accuracy, play_atoms_pct, gap), \(x) round(x, 3))) |>
+        select(model_name, predict_accuracy, play_atoms_pct, gap, gap_pct),
+      col.names = c("Model", "Predict Accuracy", "Play Atoms %", "Gap", "Gap (pp)"),
+      caption = "Forward–Inverse Reasoning Gap by Model (positive = predict outperforms play)")
+```
+
+`r if(all(gap_data$gap > 0)) "All models show a **positive gap**: forward reasoning (predict) consistently outperforms inverse reasoning (play), consistent with the theoretical expectation that abductive inference is harder than deductive prediction." else if(all(gap_data$gap < 0)) "All models show a **negative gap**: inverse reasoning (play) outperforms forward reasoning (predict), a surprising result suggesting LLMs may benefit from the iterative, hypothesis-driven structure of play mode." else "The gap direction **varies by model**, suggesting that the relative difficulty of forward vs inverse reasoning depends on model architecture or scale."`
+
 ## Error Analysis
 
 ```{r}
