@@ -2696,6 +2696,69 @@ print(std_coef_score |>
 ```
 
 ```{r}
+#| label: play-forest-plot
+#| fig-width: 10
+#| fig-height: 12
+
+# Calculate mean atoms correct and 95% CI for all configurations
+play_forest_data <- play_data |>
+  mutate(
+    # Create readable configuration labels
+    config_label = paste0(
+      model_name, " | ",
+      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+      ifelse(as.logical(enable_thinking), "Think", "No-Think"), " | ",
+      gsub("^[A-C]: ", "", as.character(vot_condition))
+    )
+  ) |>
+  group_by(config_label, model_name, prompt_style, enable_thinking, vot_condition) |>
+  summarise(
+    n = n(),
+    mean_correct = mean(atoms_correct),
+    se = sd(atoms_correct) / sqrt(n()),
+    ci_lower = mean_correct - 1.96 * se,
+    ci_upper = mean_correct + 1.96 * se,
+    .groups = "drop"
+  ) |>
+  arrange(desc(mean_correct)) |>
+  mutate(
+    config_label = factor(config_label, levels = config_label)
+  )
+
+# Forest plot
+p_play_forest <- ggplot(play_forest_data, aes(x = mean_correct, y = config_label)) +
+  geom_point(aes(color = model_name), size = 3) +
+  geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper, color = model_name),
+                 height = 0.3, linewidth = 0.8) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "gray50", alpha = 0.5) +
+  geom_text(aes(label = sprintf("%.2f", mean_correct)),
+            hjust = -0.3, size = 3) +
+  labs(
+    title = "Play Mode: All Configurations Ranked by Atoms Correct",
+    subtitle = "Error bars show 95% confidence intervals (mean ± 1.96 SE). Dashed line at chance level (1/4 atoms).",
+    x = "Mean Atoms Correct",
+    y = "Configuration",
+    color = "Model"
+  ) +
+  scale_x_continuous(
+    limits = c(0, 4),
+    breaks = seq(0, 4, 0.5)
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    axis.text.y = element_text(size = 9, family = "mono"),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "top"
+  )
+
+print(p_play_forest)
+```
+
+**Total configurations**: `r nrow(play_forest_data)`
+**Best performing**: `r as.character(play_forest_data$config_label[1])` (mean = `r round(play_forest_data$mean_correct[1], 2)` atoms correct)
+
+```{r}
 #| label: play-visualizations
 #| fig-width: 10
 #| fig-height: 6
