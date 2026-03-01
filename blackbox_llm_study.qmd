@@ -2980,6 +2980,180 @@ kable(gap_data |>
 
 `r if(all(gap_data$gap > 0)) "All models show a **positive gap**: forward reasoning (predict) consistently outperforms inverse reasoning (play), consistent with the theoretical expectation that abductive inference is harder than deductive prediction." else if(all(gap_data$gap < 0)) "All models show a **negative gap**: inverse reasoning (play) outperforms forward reasoning (predict), a surprising result suggesting LLMs may benefit from the iterative, hypothesis-driven structure of play mode." else "The gap direction **varies by model**, suggesting that the relative difficulty of forward vs inverse reasoning depends on model architecture or scale."`
 
+## Optimal Solver Benchmark
+
+The greedy optimal solver uses an information-theoretic strategy that minimizes expected remaining candidates at each step over the full C(64,4) = 635,376 candidate space. This provides a principled upper bound on play performance: the fewest rays and lowest score achievable by a perfectly rational agent with unlimited computation.
+
+```{r}
+#| label: optimal-load
+
+# Load optimal solver benchmark results
+optimal_json_path <- "optimal_solver_results.json"
+has_optimal <- file.exists(optimal_json_path)
+
+if (has_optimal) {
+  optimal_raw <- fromJSON(optimal_json_path)
+
+  # fromJSON flattens configs into a data frame with score as nested df
+  optimal_data <- tibble(
+    config_index = optimal_raw$configs$config_index,
+    optimal_rays = optimal_raw$configs$optimal_rays,
+    optimal_ray_points = optimal_raw$configs$score$ray_points,
+    optimal_score = optimal_raw$configs$score$total,
+    optimal_solved = optimal_raw$configs$solved
+  )
+
+  cat("Optimal solver benchmark loaded:",
+      optimal_raw$metadata$n_configs, "configs,",
+      "strategy:", optimal_raw$metadata$strategy, "\n")
+  cat("Configs hash:", optimal_raw$metadata$configs_hash, "\n")
+  cat("Generated:", optimal_raw$metadata$generated_at, "\n")
+} else {
+  warning("optimal_solver_results.json not found. Run: python blackbox_solver.py benchmark")
+}
+```
+
+```{r}
+#| label: optimal-summary-table
+#| eval: !expr has_optimal
+
+kable(optimal_data |>
+        select(config_index, optimal_rays, optimal_ray_points, optimal_score, optimal_solved),
+      col.names = c("Config", "Rays", "Ray Points", "Total Score", "Solved"),
+      caption = "Optimal Solver Performance by Configuration (greedy strategy, no missed atoms)") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+`r if(has_optimal) paste0("The greedy optimal solver solves all 10 configurations in a mean of **", round(mean(optimal_data$optimal_rays), 1), " rays** (range: ", min(optimal_data$optimal_rays), "–", max(optimal_data$optimal_rays), ") with a mean score of **", round(mean(optimal_data$optimal_score), 1), "** (range: ", min(optimal_data$optimal_score), "–", max(optimal_data$optimal_score), "). Since it always identifies all 4 atoms, the score consists entirely of ray points with no missed-atom penalty.")`
+
+### LLM vs Optimal Comparison
+
+```{r}
+#| label: optimal-vs-llm-table
+#| eval: !expr has_optimal
+
+# Aggregate play data by config
+play_config_agg <- play_data |>
+  group_by(config_index) |>
+  summarise(
+    n_games = n(),
+    llm_rays_mean = mean(rays_used),
+    llm_atoms_mean = mean(atoms_correct),
+    llm_score_mean = mean(score),
+    .groups = "drop"
+  )
+
+# Join with optimal data
+comparison <- inner_join(play_config_agg, optimal_data, by = "config_index") |>
+  mutate(
+    rays_ratio = round(llm_rays_mean / optimal_rays, 2),
+    score_ratio = round(llm_score_mean / optimal_score, 2)
+  )
+
+kable(comparison |>
+        mutate(across(c(llm_rays_mean, llm_atoms_mean, llm_score_mean), \(x) round(x, 1))) |>
+        select(config_index, optimal_rays, llm_rays_mean, rays_ratio,
+               optimal_score, llm_score_mean, score_ratio, llm_atoms_mean),
+      col.names = c("Config", "Optimal Rays", "LLM Rays (M)", "Rays Ratio",
+                     "Optimal Score", "LLM Score (M)", "Score Ratio", "LLM Atoms (M)"),
+      caption = "LLM vs Optimal Solver: Side-by-side comparison (ratio = LLM / Optimal; higher = worse)") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+`r if(has_optimal && exists("comparison")) paste0("Across configurations, LLMs use **", round(mean(comparison$rays_ratio), 1), "×** as many rays as the optimal solver on average (range: ", round(min(comparison$rays_ratio), 1), "×–", round(max(comparison$rays_ratio), 1), "×) and achieve scores **", round(mean(comparison$score_ratio), 1), "×** the optimal (range: ", round(min(comparison$score_ratio), 1), "×–", round(max(comparison$score_ratio), 1), "×). Score ratios above 1.0× reflect both extra ray costs and missed-atom penalties.")`
+
+```{r}
+#| label: optimal-rays-comparison
+#| eval: !expr has_optimal
+#| fig-cap: "Rays Used: LLM (mean across conditions) vs Optimal Solver by Configuration"
+
+rays_long <- comparison |>
+  select(config_index, optimal_rays, llm_rays_mean) |>
+  pivot_longer(cols = c(optimal_rays, llm_rays_mean),
+               names_to = "agent", values_to = "rays") |>
+  mutate(agent = ifelse(agent == "optimal_rays", "Optimal Solver", "LLM (Mean)"))
+
+ggplot(rays_long, aes(x = factor(config_index), y = rays, fill = agent)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  scale_fill_manual(values = c("Optimal Solver" = "#2196F3", "LLM (Mean)" = "#FF9800")) +
+  labs(x = "Configuration", y = "Rays Used", fill = NULL,
+       title = "Rays Used: Optimal Solver vs LLM by Configuration") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| label: optimal-score-comparison
+#| eval: !expr has_optimal
+#| fig-cap: "Score: LLM (mean across conditions) vs Optimal Solver by Configuration"
+
+score_long <- comparison |>
+  select(config_index, optimal_score, llm_score_mean) |>
+  pivot_longer(cols = c(optimal_score, llm_score_mean),
+               names_to = "agent", values_to = "score_val") |>
+  mutate(agent = ifelse(agent == "optimal_score", "Optimal Solver", "LLM (Mean)"))
+
+ggplot(score_long, aes(x = factor(config_index), y = score_val, fill = agent)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  scale_fill_manual(values = c("Optimal Solver" = "#2196F3", "LLM (Mean)" = "#FF9800")) +
+  labs(x = "Configuration", y = "Score (lower is better)", fill = NULL,
+       title = "Score: Optimal Solver vs LLM by Configuration") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| label: optimal-score-ratio-by-model
+#| eval: !expr has_optimal
+#| fig-cap: "Score Ratio (LLM / Optimal) by Model and Configuration"
+
+# Per-model per-config aggregation
+play_model_config <- play_data |>
+  group_by(model_name, config_index) |>
+  summarise(
+    llm_score_mean = mean(score),
+    llm_rays_mean = mean(rays_used),
+    llm_atoms_mean = mean(atoms_correct),
+    .groups = "drop"
+  ) |>
+  inner_join(optimal_data, by = "config_index") |>
+  mutate(score_ratio = llm_score_mean / optimal_score)
+
+ggplot(play_model_config, aes(x = factor(config_index), y = score_ratio, fill = model_name)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  geom_hline(yintercept = 1.0, linetype = "dashed", color = "grey40") +
+  annotate("text", x = 0.5, y = 1.0, label = "1.0× (optimal)", hjust = 0, vjust = -0.5,
+           size = 3, color = "grey40") +
+  labs(x = "Configuration", y = "Score Ratio (LLM / Optimal)",
+       fill = "Model",
+       title = "Score Ratio by Model and Configuration",
+       subtitle = "Dashed line = optimal performance (1.0×). Higher bars = worse performance.") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| label: optimal-difficulty-vs-atoms
+#| eval: !expr has_optimal
+#| fig-cap: "Configuration Difficulty (Optimal Rays) vs LLM Atoms Correct"
+
+diff_cor <- cor.test(play_model_config$optimal_rays, play_model_config$llm_atoms_mean)
+
+ggplot(play_model_config, aes(x = optimal_rays, y = llm_atoms_mean, color = model_name)) +
+  geom_jitter(width = 0.1, height = 0.05, size = 2.5, alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, aes(group = 1), color = "grey40", linetype = "dashed") +
+  labs(x = "Optimal Solver Rays (configuration difficulty)",
+       y = "LLM Atoms Correct (mean)",
+       color = "Model",
+       title = "Configuration Difficulty vs LLM Atom Identification",
+       subtitle = paste0("r = ", round(diff_cor$estimate, 3),
+                         ", p = ", format.pval(diff_cor$p.value, digits = 3),
+                         ". More difficult configs (more optimal rays) may yield fewer correct atoms.")) +
+  scale_y_continuous(limits = c(0, 4)) +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
 ## Error Analysis
 
 ```{r}

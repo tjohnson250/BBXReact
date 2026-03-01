@@ -23,6 +23,9 @@ import itertools
 import math
 import time
 import random
+import json
+import hashlib
+from datetime import datetime, timezone
 from collections import defaultdict, Counter
 
 
@@ -43,6 +46,21 @@ ENTRY = {
 }
 
 ALL_RAYS = [(s, p) for s in SIDES for p in range(1, GRID + 1)]
+
+# 10 fixed experiment configurations matching blackbox.jsx EXPERIMENT_CONFIGS
+# Each is a tuple of (row, col) tuples, 1-indexed
+EXPERIMENT_CONFIGS = (
+    ((2, 3), (3, 6), (6, 2), (7, 7)),  # Config 0: Spread pattern
+    ((1, 1), (1, 3), (2, 2), (5, 6)),  # Config 1: Cluster in corner
+    ((2, 2), (4, 4), (6, 6), (8, 8)),  # Config 2: Diagonal pattern
+    ((1, 4), (4, 8), (8, 5), (5, 1)),  # Config 3: Edge-heavy
+    ((3, 4), (4, 3), (4, 5), (5, 4)),  # Config 4: Central cluster
+    ((2, 2), (2, 3), (2, 4), (4, 2)),  # Config 5: L-shape
+    ((1, 1), (1, 8), (8, 1), (8, 8)),  # Config 6: Corners
+    ((2, 7), (3, 2), (6, 5), (7, 3)),  # Config 7: Asymmetric
+    ((4, 2), (4, 4), (4, 6), (4, 8)),  # Config 8: Row cluster
+    ((1, 5), (3, 3), (5, 7), (8, 2)),  # Config 9: Mixed
+)
 
 
 # =============================================================================
@@ -642,6 +660,148 @@ def cmd_tree(configs, max_depth=3):
 
 
 # =============================================================================
+# Command: Benchmark Experiment Configs
+# =============================================================================
+
+def configs_hash():
+    """SHA-256 hash of EXPERIMENT_CONFIGS for cache invalidation (first 16 hex chars)."""
+    data = str(sorted(EXPERIMENT_CONFIGS)).encode()
+    return hashlib.sha256(data).hexdigest()[:16]
+
+
+def compute_game_score(history):
+    """Compute game score matching JSX calculateScore() (lines 707-731).
+
+    Args:
+        history: list of (side, pos, outcome, old_count, new_count, n_outcomes)
+
+    Returns:
+        dict with ray_points, missed_penalty, total, atoms_missed
+    """
+    ray_points = 0
+    for side, pos, outcome, *_ in history:
+        ray_points += 1  # Entry point
+        if outcome[0] == 'X':
+            # Detour: exit at different channel → entry + exit = 2
+            ray_points += 1
+        # Absorbed ('H') and Reflected ('R') only cost entry point
+    # Optimal solver always finds all 4 atoms when solved
+    return {
+        'ray_points': ray_points,
+        'missed_penalty': 0,
+        'total': ray_points,
+        'atoms_missed': 0,
+    }
+
+
+def cmd_benchmark(configs, output_path='optimal_solver_results.json'):
+    """Run greedy optimal solver on all 10 experiment configs and write JSON."""
+    N = len(configs)
+
+    print(f'\n{"=" * 65}')
+    print(f'BENCHMARK: Optimal solver on {len(EXPERIMENT_CONFIGS)} experiment configs')
+    print(f'{"=" * 65}')
+    print(f'Candidate space: {N:,}')
+    print(f'Strategy: greedy optimal (minimize E[remaining])')
+    print(f'Configs hash: {configs_hash()}\n')
+
+    # Compute optimal first shot (reuse find_best_ray, not cmd_first which prints)
+    print('Computing optimal first shot...', flush=True)
+    t0 = time.time()
+    first_ray, first_score, first_partition, first_results = find_best_ray(configs)
+    first_time = time.time() - t0
+    first_side, first_pos = first_ray
+    first_entropy = entropy_partition(first_partition, N)
+    print(f'  Best first shot: {fmt_ray(first_side, first_pos)}  '
+          f'E[remain]={first_score:,.0f}  '
+          f'outcomes={len(first_partition)}  '
+          f'entropy={first_entropy:.2f} bits  '
+          f'[{first_time:.1f}s]\n')
+
+    # Solve each experiment config
+    results = []
+    t_total = time.time()
+
+    for idx, cfg_tuple in enumerate(EXPERIMENT_CONFIGS):
+        target = frozenset(cfg_tuple)
+        print(f'  Config {idx}: {sorted(target)}  ', end='', flush=True)
+
+        t_game = time.time()
+        game = solve_game(configs, target, first_ray, first_partition, verbose=False)
+        elapsed = time.time() - t_game
+
+        score = compute_game_score(game['history'])
+
+        # Build history detail
+        history_detail = []
+        for side, pos, outcome, old_count, new_count, n_outcomes in game['history']:
+            history_detail.append({
+                'ray': {'side': side, 'position': pos},
+                'outcome': fmt_outcome(outcome),
+                'outcome_raw': list(outcome),
+                'candidates_before': old_count,
+                'candidates_after': new_count,
+                'n_outcomes': n_outcomes,
+            })
+
+        results.append({
+            'config_index': idx,
+            'atoms': [list(a) for a in sorted(cfg_tuple)],
+            'optimal_rays': game['n_rays'],
+            'solved': game['solved'],
+            'score': score,
+            'history': history_detail,
+            'compute_time_s': round(elapsed, 2),
+        })
+
+        status = '✓' if game['solved'] else '✗'
+        print(f'{status} {game["n_rays"]} rays, score={score["total"]}, [{elapsed:.1f}s]')
+
+    total_time = time.time() - t_total
+
+    # Build output JSON
+    output = {
+        'metadata': {
+            'generator': 'blackbox_solver.py benchmark',
+            'generated_at': datetime.now(timezone.utc).isoformat(),
+            'configs_hash': configs_hash(),
+            'n_configs': len(EXPERIMENT_CONFIGS),
+            'candidate_space': N,
+            'strategy': 'greedy_optimal',
+            'total_compute_time_s': round(total_time + first_time, 2),
+        },
+        'first_shot': {
+            'side': first_side,
+            'position': first_pos,
+            'expected_remaining': round(first_score, 2),
+            'n_outcomes': len(first_partition),
+            'entropy_bits': round(first_entropy, 4),
+        },
+        'configs': results,
+    }
+
+    with open(output_path, 'w') as f:
+        json.dump(output, f, indent=2)
+
+    # Summary
+    rays_list = [r['optimal_rays'] for r in results]
+    scores_list = [r['score']['total'] for r in results]
+    solved_count = sum(1 for r in results if r['solved'])
+
+    print(f'\n{"=" * 65}')
+    print(f'SUMMARY')
+    print(f'{"=" * 65}')
+    print(f'  Solved: {solved_count}/{len(results)}')
+    print(f'  Rays:  mean={sum(rays_list)/len(rays_list):.1f}  '
+          f'min={min(rays_list)}  max={max(rays_list)}')
+    print(f'  Score: mean={sum(scores_list)/len(scores_list):.1f}  '
+          f'min={min(scores_list)}  max={max(scores_list)}')
+    print(f'  Total compute time: {total_time + first_time:.1f}s')
+    print(f'  Output: {output_path}')
+    print(f'{"=" * 65}')
+
+
+# =============================================================================
 # Main
 # =============================================================================
 
@@ -654,6 +814,7 @@ def main():
         print('  python blackbox_solver.py sim [N]       Simulate N games (default 20)')
         print('  python blackbox_solver.py play          Interactive solver')
         print('  python blackbox_solver.py tree [DEPTH]  Decision tree (default depth 2)')
+        print('  python blackbox_solver.py benchmark     Solve all 10 experiment configs')
         sys.exit(0)
 
     mode = sys.argv[1].lower()
@@ -677,9 +838,12 @@ def main():
         depth = int(sys.argv[2]) if len(sys.argv) > 2 else 2
         cmd_tree(configs, max_depth=depth)
 
+    elif mode == 'benchmark':
+        cmd_benchmark(configs)
+
     else:
         print(f'Unknown command: {mode}')
-        print('Use: first, sim, play, or tree')
+        print('Use: first, sim, play, tree, or benchmark')
         sys.exit(1)
 
 

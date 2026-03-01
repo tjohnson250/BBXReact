@@ -61,6 +61,7 @@ Requires R with `tidyverse`, `knitr`, and `kableExtra` packages installed.
 - `cmd_sim()` — Simulates games with greedy optimal strategy
 - `cmd_play()` — Interactive mode for use alongside the JSX game
 - `cmd_tree()` — Builds optimal decision tree to a given depth
+- `cmd_benchmark()` — Solves all 10 `EXPERIMENT_CONFIGS` with greedy optimal strategy, writes `optimal_solver_results.json`
 
 **Running:**
 ```bash
@@ -68,6 +69,7 @@ python blackbox_solver.py first            # Optimal first shot analysis
 python blackbox_solver.py sim [N]          # Simulate N games (default 20)
 python blackbox_solver.py play             # Interactive solver
 python blackbox_solver.py tree [DEPTH]     # Decision tree (default depth 2)
+python blackbox_solver.py benchmark        # Solve all 10 experiment configs → optimal_solver_results.json
 ```
 
 ### Key Concepts
