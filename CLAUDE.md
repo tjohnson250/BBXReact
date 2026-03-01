@@ -7,7 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is an LLM reasoning research project that uses the Black Box game as a diagnostic benchmark to assess LLM capabilities in constraint satisfaction, spatial reasoning, and abductive inference. The project consists of:
 
 1. **React Application** (`blackbox.jsx`) - A single-file React component implementing the Black Box game with multiple modes for human play and LLM experimentation
-2. **Quarto Document** (`blackbox_llm_study.qmd`) - Academic paper documenting the research methodology and findings (R/tidyverse analysis)
+2. **Optimal Solver** (`blackbox_solver.py`) - Python script computing information-theoretically optimal ray sequences over the full C(64,4) = 635,376 candidate space
+3. **Quarto Document** (`blackbox_llm_study.qmd`) - Academic paper documenting the research methodology and findings (R/tidyverse analysis)
 
 ## Running the Application
 
@@ -48,6 +49,26 @@ Requires R with `tidyverse`, `knitr`, and `kableExtra` packages installed.
 - Multiple game modes: Play, Sandbox, LLM, Predict, Experiment
 - Real-time visualization of ray paths and game state
 - Export functionality for JSON and HTML reports
+
+### blackbox_solver.py Structure
+
+**Ray Tracing** — `trace_ray()` implements the same physics as the JSX version. Ray tracing must match the JSX exactly for `play` mode to work correctly.
+
+**Information-Theoretic Evaluation** — `partition_by_ray()` partitions candidates by outcome; `score_partition()` computes E[remaining] = Σ(nᵢ²/N); `find_best_ray()` selects the ray minimizing this score.
+
+**Modes:**
+- `cmd_first()` — Analyzes optimal first shot using D₄ symmetry (4 equivalence classes)
+- `cmd_sim()` — Simulates games with greedy optimal strategy
+- `cmd_play()` — Interactive mode for use alongside the JSX game
+- `cmd_tree()` — Builds optimal decision tree to a given depth
+
+**Running:**
+```bash
+python blackbox_solver.py first            # Optimal first shot analysis
+python blackbox_solver.py sim [N]          # Simulate N games (default 20)
+python blackbox_solver.py play             # Interactive solver
+python blackbox_solver.py tree [DEPTH]     # Decision tree (default depth 2)
+```
 
 ### Key Concepts
 

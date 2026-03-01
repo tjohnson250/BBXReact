@@ -36,6 +36,26 @@ Instructions for using the application are included within the artifact.
 - Claude.ai account
 - Modern browser with JavaScript enabled
 
+### Optimal Solver (`blackbox_solver.py`)
+
+A Python script that computes the information-theoretically optimal strategy for solving Black Box puzzles. It operates over the full C(64,4) = 635,376 candidate space and uses a greedy strategy that minimizes expected remaining candidates (equivalent to maximizing Shannon entropy) at each step.
+
+**Modes:**
+
+| Mode | Command | Description |
+|------|---------|-------------|
+| **First** | `python blackbox_solver.py first` | Analyzes the optimal first shot using D₄ symmetry of the grid |
+| **Simulate** | `python blackbox_solver.py sim [N]` | Simulates N games (default 20) with play-by-play output |
+| **Play** | `python blackbox_solver.py play` | Interactive mode — fire recommended rays in the JSX game and enter observed outcomes |
+| **Tree** | `python blackbox_solver.py tree [DEPTH]` | Builds the optimal decision tree to a given depth (default 2) |
+
+The `play` mode is designed to work alongside the React application: the solver recommends the optimal ray, the user fires it in the JSX game, and enters the observed outcome (e.g., `SOUTH-3`, `ABSORBED`, `REFLECTED`). The solver then narrows the candidate space and recommends the next ray.
+
+**Key results:** The greedy optimal solver averages ~7 rays to uniquely identify atom configurations, with a 100% solve rate and a range of 5–9 rays.
+
+**Requirements:**
+- Python 3 (standard library only, no external dependencies)
+
 ### Research Paper (`blackbox_llm_study.qmd`)
 
 Draft (currently incomplete) Quarto document containing the academic paper with methodology, results, and analysis.
