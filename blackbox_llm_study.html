@@ -238,14 +238,20 @@ window.Quarto = {
   <li><a href="#world-models" id="toc-world-models" class="nav-link" data-scroll-target="#world-models"><span class="header-section-number">5.2.3</span> World Models</a></li>
   <li><a href="#abductive-reasoning" id="toc-abductive-reasoning" class="nav-link" data-scroll-target="#abductive-reasoning"><span class="header-section-number">5.2.4</span> Abductive Reasoning</a></li>
   </ul></li>
-  <li><a href="#implications" id="toc-implications" class="nav-link" data-scroll-target="#implications"><span class="header-section-number">5.3</span> Implications</a>
+  <li><a href="#benchmark-comparison" id="toc-benchmark-comparison" class="nav-link" data-scroll-target="#benchmark-comparison"><span class="header-section-number">5.3</span> Benchmark Comparison</a>
   <ul class="collapse">
-  <li><a href="#for-llm-deployment-in-diagnostic-domains" id="toc-for-llm-deployment-in-diagnostic-domains" class="nav-link" data-scroll-target="#for-llm-deployment-in-diagnostic-domains"><span class="header-section-number">5.3.1</span> For LLM Deployment in Diagnostic Domains</a></li>
-  <li><a href="#for-llm-modulo-architectures" id="toc-for-llm-modulo-architectures" class="nav-link" data-scroll-target="#for-llm-modulo-architectures"><span class="header-section-number">5.3.2</span> For LLM-Modulo Architectures</a></li>
-  <li><a href="#for-benchmark-development" id="toc-for-benchmark-development" class="nav-link" data-scroll-target="#for-benchmark-development"><span class="header-section-number">5.3.3</span> For Benchmark Development</a></li>
+  <li><a href="#consistent-constraint-satisfaction-weakness" id="toc-consistent-constraint-satisfaction-weakness" class="nav-link" data-scroll-target="#consistent-constraint-satisfaction-weakness"><span class="header-section-number">5.3.1</span> Consistent Constraint Satisfaction Weakness</a></li>
+  <li><a href="#performance-collapse-at-complexity-thresholds" id="toc-performance-collapse-at-complexity-thresholds" class="nav-link" data-scroll-target="#performance-collapse-at-complexity-thresholds"><span class="header-section-number">5.3.2</span> Performance Collapse at Complexity Thresholds</a></li>
+  <li><a href="#what-black-box-uniquely-reveals" id="toc-what-black-box-uniquely-reveals" class="nav-link" data-scroll-target="#what-black-box-uniquely-reveals"><span class="header-section-number">5.3.3</span> What Black Box Uniquely Reveals</a></li>
   </ul></li>
-  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations"><span class="header-section-number">5.4</span> Limitations</a></li>
-  <li><a href="#future-directions" id="toc-future-directions" class="nav-link" data-scroll-target="#future-directions"><span class="header-section-number">5.5</span> Future Directions</a></li>
+  <li><a href="#implications" id="toc-implications" class="nav-link" data-scroll-target="#implications"><span class="header-section-number">5.4</span> Implications</a>
+  <ul class="collapse">
+  <li><a href="#for-llm-deployment-in-diagnostic-domains" id="toc-for-llm-deployment-in-diagnostic-domains" class="nav-link" data-scroll-target="#for-llm-deployment-in-diagnostic-domains"><span class="header-section-number">5.4.1</span> For LLM Deployment in Diagnostic Domains</a></li>
+  <li><a href="#for-llm-modulo-architectures" id="toc-for-llm-modulo-architectures" class="nav-link" data-scroll-target="#for-llm-modulo-architectures"><span class="header-section-number">5.4.2</span> For LLM-Modulo Architectures</a></li>
+  <li><a href="#for-benchmark-development" id="toc-for-benchmark-development" class="nav-link" data-scroll-target="#for-benchmark-development"><span class="header-section-number">5.4.3</span> For Benchmark Development</a></li>
+  </ul></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations"><span class="header-section-number">5.5</span> Limitations</a></li>
+  <li><a href="#future-directions" id="toc-future-directions" class="nav-link" data-scroll-target="#future-directions"><span class="header-section-number">5.6</span> Future Directions</a></li>
   </ul></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">6</span> Conclusion</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">7</span> References</a></li>
@@ -1358,9 +1364,9 @@ There are three possible outcomes for each ray you send into the box:
 <span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>predict_data <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(predict_json_files, extract_predict_results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Data loaded: 13630 predictions from 15 JSON files.</p>
+<p>Data loaded: 15040 predictions from 18 JSON files.</p>
 <ul>
-<li><strong>Models</strong>: Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6</li>
+<li><strong>Models</strong>: Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</li>
 <li><strong>Prompt styles</strong>: augmented, baseline</li>
 <li><strong>Extended thinking</strong>: FALSE, TRUE</li>
 <li><strong>VoT ray trace</strong>: FALSE, TRUE</li>
@@ -1748,6 +1754,39 @@ kable(predictions_matrix,
 <td style="text-align: right;">69663.18</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">278</td>
+<td style="text-align: right;">0.591</td>
+<td style="text-align: right;">0.023</td>
+<td style="text-align: right;">10535.14</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">0.532</td>
+<td style="text-align: right;">0.023</td>
+<td style="text-align: right;">11202.86</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">354</td>
+<td style="text-align: right;">0.753</td>
+<td style="text-align: right;">0.020</td>
+<td style="text-align: right;">67770.07</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">FALSE</td>
@@ -1758,7 +1797,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.019</td>
 <td style="text-align: right;">10893.54</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">FALSE</td>
@@ -1769,7 +1808,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.016</td>
 <td style="text-align: right;">12927.71</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
@@ -1780,7 +1819,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.010</td>
 <td style="text-align: right;">20636.58</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
@@ -1791,7 +1830,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.009</td>
 <td style="text-align: right;">23033.25</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
@@ -1802,7 +1841,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.023</td>
 <td style="text-align: right;">11023.54</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -1813,7 +1852,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.022</td>
 <td style="text-align: right;">41686.14</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -1824,7 +1863,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.019</td>
 <td style="text-align: right;">68985.51</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">FALSE</td>
@@ -1835,7 +1874,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.017</td>
 <td style="text-align: right;">10247.92</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">FALSE</td>
@@ -1846,7 +1885,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.019</td>
 <td style="text-align: right;">17046.00</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
@@ -1857,7 +1896,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.011</td>
 <td style="text-align: right;">20267.15</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
@@ -1868,7 +1907,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.008</td>
 <td style="text-align: right;">23906.89</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
@@ -1879,7 +1918,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.023</td>
 <td style="text-align: right;">10784.63</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
@@ -1890,7 +1929,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.023</td>
 <td style="text-align: right;">10592.90</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -1901,7 +1940,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0.019</td>
 <td style="text-align: right;">65685.45</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -2118,7 +2157,7 @@ kable(predictions_matrix,
 </div>
 </div>
 </div>
-<p><strong>Total configurations</strong>: 29 <strong>Best performing</strong>: Sonnet 4.6 | Aug | Think | VoT <strong>Accuracy</strong>: 96.6% (95% CI: [95%, 98.2%])</p>
+<p><strong>Total configurations</strong>: 32 <strong>Best performing</strong>: Sonnet 4.6 | Aug | Think | VoT <strong>Accuracy</strong>: 96.6% (95% CI: [95%, 98.2%])</p>
 </section>
 <section id="factor-level-comparisons" class="level3" data-number="4.1.3">
 <h3 data-number="4.1.3" class="anchored" data-anchor-id="factor-level-comparisons"><span class="header-section-number">4.1.3</span> Factor-Level Comparisons</h3>
@@ -2231,6 +2270,7 @@ kable(predictions_matrix,
 <th style="text-align: right;">config_index</th>
 <th style="text-align: right;">Haiku 4.5</th>
 <th style="text-align: right;">Opus 4.5</th>
+<th style="text-align: right;">Opus 4.6</th>
 <th style="text-align: right;">Sonnet 4.5</th>
 <th style="text-align: right;">Sonnet 4.6</th>
 </tr>
@@ -2240,6 +2280,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0.671</td>
 <td style="text-align: right;">0.646</td>
+<td style="text-align: right;">0.565</td>
 <td style="text-align: right;">0.702</td>
 <td style="text-align: right;">0.641</td>
 </tr>
@@ -2247,6 +2288,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0.818</td>
 <td style="text-align: right;">0.786</td>
+<td style="text-align: right;">0.621</td>
 <td style="text-align: right;">0.812</td>
 <td style="text-align: right;">0.778</td>
 </tr>
@@ -2254,6 +2296,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.783</td>
 <td style="text-align: right;">0.851</td>
+<td style="text-align: right;">0.627</td>
 <td style="text-align: right;">0.811</td>
 <td style="text-align: right;">0.790</td>
 </tr>
@@ -2261,6 +2304,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">0.750</td>
 <td style="text-align: right;">0.730</td>
+<td style="text-align: right;">0.488</td>
 <td style="text-align: right;">0.745</td>
 <td style="text-align: right;">0.732</td>
 </tr>
@@ -2268,6 +2312,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">0.754</td>
 <td style="text-align: right;">0.817</td>
+<td style="text-align: right;">0.685</td>
 <td style="text-align: right;">0.802</td>
 <td style="text-align: right;">0.819</td>
 </tr>
@@ -2275,6 +2320,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">0.816</td>
 <td style="text-align: right;">0.864</td>
+<td style="text-align: right;">0.714</td>
 <td style="text-align: right;">0.864</td>
 <td style="text-align: right;">0.821</td>
 </tr>
@@ -2282,6 +2328,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">6</td>
 <td style="text-align: right;">0.869</td>
 <td style="text-align: right;">0.857</td>
+<td style="text-align: right;">0.681</td>
 <td style="text-align: right;">0.869</td>
 <td style="text-align: right;">0.839</td>
 </tr>
@@ -2289,6 +2336,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">7</td>
 <td style="text-align: right;">0.652</td>
 <td style="text-align: right;">0.727</td>
+<td style="text-align: right;">0.623</td>
 <td style="text-align: right;">0.714</td>
 <td style="text-align: right;">0.755</td>
 </tr>
@@ -2296,6 +2344,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">0.817</td>
 <td style="text-align: right;">0.811</td>
+<td style="text-align: right;">0.640</td>
 <td style="text-align: right;">0.834</td>
 <td style="text-align: right;">0.825</td>
 </tr>
@@ -2303,6 +2352,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">0.775</td>
 <td style="text-align: right;">0.780</td>
+<td style="text-align: right;">0.654</td>
 <td style="text-align: right;">0.775</td>
 <td style="text-align: right;">0.760</td>
 </tr>
@@ -2376,17 +2426,17 @@ kable(predictions_matrix,
 
 Response: correct
                                            Chisq Df Pr(&gt;Chisq)    
-(Intercept)                              53.7256  1  2.305e-13 ***
-model_name                                7.7529  3   0.051404 .  
-prompt_style                              6.9975  1   0.008162 ** 
-enable_thinking                          10.6040  1   0.001128 ** 
-vot_ray_trace                            59.5417  1  1.197e-14 ***
-cells_traveled                          395.4228  1  &lt; 2.2e-16 ***
-atoms_affecting                         124.7022  1  &lt; 2.2e-16 ***
-model_name:prompt_style                   8.2579  3   0.040971 *  
-model_name:enable_thinking               29.0707  3  2.164e-06 ***
-prompt_style:enable_thinking             24.4314  1  7.700e-07 ***
-model_name:prompt_style:enable_thinking   8.8019  3   0.032044 *  
+(Intercept)                              57.2568  1  3.825e-14 ***
+model_name                                8.7288  4  0.0682462 .  
+prompt_style                              8.5055  1  0.0035407 ** 
+enable_thinking                          12.4166  1  0.0004255 ***
+vot_ray_trace                            43.6367  1  3.954e-11 ***
+cells_traveled                          466.3921  1  &lt; 2.2e-16 ***
+atoms_affecting                         147.4716  1  &lt; 2.2e-16 ***
+model_name:prompt_style                   7.1040  3  0.0686563 .  
+model_name:enable_thinking               37.1545  4  1.674e-07 ***
+prompt_style:enable_thinking             22.5209  1  2.079e-06 ***
+model_name:prompt_style:enable_thinking   7.9726  3  0.0465822 *  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -2422,118 +2472,134 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">1.076</td>
 <td style="text-align: right;">0.792</td>
 <td style="text-align: right;">1.462</td>
-<td style="text-align: left;">0.6385</td>
+<td style="text-align: left;">0.6388</td>
 <td style="text-align: left;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.6</td>
-<td style="text-align: right;">0.764</td>
-<td style="text-align: right;">0.583</td>
-<td style="text-align: right;">0.999</td>
-<td style="text-align: left;">0.0495</td>
-<td style="text-align: left;">*</td>
+<td style="text-align: right;">0.795</td>
+<td style="text-align: right;">0.608</td>
+<td style="text-align: right;">1.040</td>
+<td style="text-align: left;">0.0946</td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.5</td>
 <td style="text-align: right;">0.953</td>
 <td style="text-align: right;">0.703</td>
 <td style="text-align: right;">1.292</td>
-<td style="text-align: left;">0.7559</td>
+<td style="text-align: left;">0.7564</td>
 <td style="text-align: left;"></td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">model_nameOpus 4.6</td>
+<td style="text-align: right;">0.776</td>
+<td style="text-align: right;">0.594</td>
+<td style="text-align: right;">1.016</td>
+<td style="text-align: left;">0.0647</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">prompt_styleaugmented</td>
-<td style="text-align: right;">1.455</td>
-<td style="text-align: right;">1.102</td>
-<td style="text-align: right;">1.921</td>
-<td style="text-align: left;">0.0082</td>
+<td style="text-align: right;">1.511</td>
+<td style="text-align: right;">1.145</td>
+<td style="text-align: right;">1.995</td>
+<td style="text-align: left;">0.0035</td>
 <td style="text-align: left;">*</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">enable_thinkingTRUE</td>
-<td style="text-align: right;">1.592</td>
-<td style="text-align: right;">1.203</td>
-<td style="text-align: right;">2.106</td>
-<td style="text-align: left;">0.0011</td>
+<td style="text-align: right;">1.653</td>
+<td style="text-align: right;">1.250</td>
+<td style="text-align: right;">2.186</td>
+<td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">vot_ray_traceTRUE</td>
-<td style="text-align: right;">1.534</td>
-<td style="text-align: right;">1.376</td>
-<td style="text-align: right;">1.710</td>
+<td style="text-align: right;">1.410</td>
+<td style="text-align: right;">1.273</td>
+<td style="text-align: right;">1.562</td>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">cells_traveled</td>
-<td style="text-align: right;">0.823</td>
-<td style="text-align: right;">0.807</td>
-<td style="text-align: right;">0.839</td>
+<td style="text-align: right;">0.820</td>
+<td style="text-align: right;">0.805</td>
+<td style="text-align: right;">0.835</td>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">atoms_affecting</td>
-<td style="text-align: right;">0.653</td>
-<td style="text-align: right;">0.606</td>
-<td style="text-align: right;">0.704</td>
+<td style="text-align: right;">0.648</td>
+<td style="text-align: right;">0.604</td>
+<td style="text-align: right;">0.695</td>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.5:prompt_styleaugmented</td>
-<td style="text-align: right;">1.252</td>
-<td style="text-align: right;">0.845</td>
-<td style="text-align: right;">1.854</td>
-<td style="text-align: left;">0.2628</td>
+<td style="text-align: right;">1.250</td>
+<td style="text-align: right;">0.844</td>
+<td style="text-align: right;">1.852</td>
+<td style="text-align: left;">0.2650</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.6:prompt_styleaugmented</td>
-<td style="text-align: right;">1.678</td>
-<td style="text-align: right;">1.167</td>
-<td style="text-align: right;">2.414</td>
-<td style="text-align: left;">0.0052</td>
+<td style="text-align: right;">1.610</td>
+<td style="text-align: right;">1.120</td>
+<td style="text-align: right;">2.315</td>
+<td style="text-align: left;">0.0101</td>
 <td style="text-align: left;">*</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">model_nameOpus 4.5:prompt_styleaugmented</td>
-<td style="text-align: right;">1.438</td>
-<td style="text-align: right;">0.972</td>
-<td style="text-align: right;">2.127</td>
-<td style="text-align: left;">0.0691</td>
+<td style="text-align: right;">1.436</td>
+<td style="text-align: right;">0.971</td>
+<td style="text-align: right;">2.125</td>
+<td style="text-align: left;">0.0701</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.5:enable_thinkingTRUE</td>
-<td style="text-align: right;">0.989</td>
+<td style="text-align: right;">0.988</td>
 <td style="text-align: right;">0.668</td>
 <td style="text-align: right;">1.462</td>
-<td style="text-align: left;">0.9539</td>
+<td style="text-align: left;">0.9531</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.6:enable_thinkingTRUE</td>
-<td style="text-align: right;">2.384</td>
-<td style="text-align: right;">1.636</td>
-<td style="text-align: right;">3.475</td>
+<td style="text-align: right;">2.285</td>
+<td style="text-align: right;">1.568</td>
+<td style="text-align: right;">3.328</td>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.5:enable_thinkingTRUE</td>
-<td style="text-align: right;">1.171</td>
+<td style="text-align: right;">1.170</td>
 <td style="text-align: right;">0.792</td>
-<td style="text-align: right;">1.731</td>
-<td style="text-align: left;">0.4286</td>
+<td style="text-align: right;">1.730</td>
+<td style="text-align: left;">0.4302</td>
 <td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">model_nameOpus 4.6:enable_thinkingTRUE</td>
+<td style="text-align: right;">2.444</td>
+<td style="text-align: right;">1.594</td>
+<td style="text-align: right;">3.746</td>
+<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: left;">*</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">prompt_styleaugmented:enable_thinkingTRUE</td>
-<td style="text-align: right;">2.895</td>
-<td style="text-align: right;">1.899</td>
-<td style="text-align: right;">4.413</td>
+<td style="text-align: right;">2.775</td>
+<td style="text-align: right;">1.821</td>
+<td style="text-align: right;">4.231</td>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
@@ -2541,24 +2607,24 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: left;">model_nameSonnet 4.5:prompt_styleaugmented:enable_thinkingTRUE</td>
 <td style="text-align: right;">1.163</td>
 <td style="text-align: right;">0.625</td>
-<td style="text-align: right;">2.162</td>
-<td style="text-align: left;">0.6339</td>
+<td style="text-align: right;">2.164</td>
+<td style="text-align: left;">0.6332</td>
 <td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.6:prompt_styleaugmented:enable_thinkingTRUE</td>
-<td style="text-align: right;">0.481</td>
-<td style="text-align: right;">0.262</td>
-<td style="text-align: right;">0.883</td>
-<td style="text-align: left;">0.0182</td>
+<td style="text-align: right;">0.502</td>
+<td style="text-align: right;">0.274</td>
+<td style="text-align: right;">0.922</td>
+<td style="text-align: left;">0.0263</td>
 <td style="text-align: left;">*</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameOpus 4.5:prompt_styleaugmented:enable_thinkingTRUE</td>
-<td style="text-align: right;">0.761</td>
-<td style="text-align: right;">0.415</td>
-<td style="text-align: right;">1.395</td>
-<td style="text-align: left;">0.3771</td>
+<td style="text-align: right;">0.762</td>
+<td style="text-align: right;">0.416</td>
+<td style="text-align: right;">1.397</td>
+<td style="text-align: left;">0.3795</td>
 <td style="text-align: left;"></td>
 </tr>
 </tbody>
@@ -2573,12 +2639,12 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code> Groups              Name        Std.Dev.
- ray_id:config_index (Intercept) 0.65993 
- config_index        (Intercept) 0.80874 </code></pre>
+ ray_id:config_index (Intercept) 0.59555 
+ config_index        (Intercept) 0.82881 </code></pre>
 </div>
 </div>
-<p><strong>Intraclass Correlation Coefficient (ICC)</strong>: 0.249 — Proportion of variance due to clustering at both configuration and ray-within-config levels.</p>
-<p><strong>Model Fit</strong> (Pseudo R², Nakagawa &amp; Schielzeth): - <strong>Marginal R²</strong> (fixed effects only): 0.201 - <strong>Conditional R²</strong> (fixed + random effects): 0.4</p>
+<p><strong>Intraclass Correlation Coefficient (ICC)</strong>: 0.24 — Proportion of variance due to clustering at both configuration and ray-within-config levels.</p>
+<p><strong>Model Fit</strong> (Pseudo R², Nakagawa &amp; Schielzeth): - <strong>Marginal R²</strong> (fixed effects only): 0.204 - <strong>Conditional R²</strong> (fixed + random effects): 0.395</p>
 </section>
 <section id="cramérs-v-effect-size-for-categorical-associations" class="level4" data-number="4.1.4.3">
 <h4 data-number="4.1.4.3" class="anchored" data-anchor-id="cramérs-v-effect-size-for-categorical-associations"><span class="header-section-number">4.1.4.3</span> Cramér’s V (Effect Size for Categorical Associations)</h4>
@@ -2596,19 +2662,19 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Model</td>
-<td style="text-align: right;">0.013</td>
+<td style="text-align: right;">0.107</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Prompt Style</td>
-<td style="text-align: right;">0.256</td>
+<td style="text-align: right;">0.260</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Extended Thinking</td>
-<td style="text-align: right;">0.137</td>
+<td style="text-align: right;">0.154</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">VoT Ray Trace</td>
-<td style="text-align: right;">0.101</td>
+<td style="text-align: right;">0.083</td>
 </tr>
 </tbody>
 </table>
@@ -2647,15 +2713,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">1.076</td>
 <td style="text-align: right;">0.792</td>
 <td style="text-align: right;">1.462</td>
-<td style="text-align: left;">0.63854</td>
+<td style="text-align: left;">0.63884</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.6</td>
-<td style="text-align: right;">-0.270</td>
-<td style="text-align: right;">0.764</td>
-<td style="text-align: right;">0.583</td>
-<td style="text-align: right;">0.999</td>
-<td style="text-align: left;">0.04952</td>
+<td style="text-align: right;">-0.229</td>
+<td style="text-align: right;">0.795</td>
+<td style="text-align: right;">0.608</td>
+<td style="text-align: right;">1.040</td>
+<td style="text-align: left;">0.09463</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.5</td>
@@ -2663,46 +2729,54 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">0.953</td>
 <td style="text-align: right;">0.703</td>
 <td style="text-align: right;">1.292</td>
-<td style="text-align: left;">0.75591</td>
+<td style="text-align: left;">0.75640</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">model_nameOpus 4.6</td>
+<td style="text-align: right;">-0.253</td>
+<td style="text-align: right;">0.776</td>
+<td style="text-align: right;">0.594</td>
+<td style="text-align: right;">1.016</td>
+<td style="text-align: left;">0.06466</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">prompt_styleaugmented</td>
-<td style="text-align: right;">0.375</td>
-<td style="text-align: right;">1.455</td>
-<td style="text-align: right;">1.102</td>
-<td style="text-align: right;">1.921</td>
-<td style="text-align: left;">0.00816</td>
+<td style="text-align: right;">0.413</td>
+<td style="text-align: right;">1.511</td>
+<td style="text-align: right;">1.145</td>
+<td style="text-align: right;">1.995</td>
+<td style="text-align: left;">0.00354</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">enable_thinkingTRUE</td>
-<td style="text-align: right;">0.465</td>
-<td style="text-align: right;">1.592</td>
-<td style="text-align: right;">1.203</td>
-<td style="text-align: right;">2.106</td>
-<td style="text-align: left;">0.00113</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">vot_ray_traceTRUE</td>
-<td style="text-align: right;">0.428</td>
-<td style="text-align: right;">1.534</td>
-<td style="text-align: right;">1.376</td>
-<td style="text-align: right;">1.710</td>
+<td style="text-align: right;">0.503</td>
+<td style="text-align: right;">1.653</td>
+<td style="text-align: right;">1.250</td>
+<td style="text-align: right;">2.186</td>
 <td style="text-align: left;">&lt; 0.001</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">cells_traveled</td>
-<td style="text-align: right;">-0.195</td>
-<td style="text-align: right;">0.823</td>
-<td style="text-align: right;">0.807</td>
-<td style="text-align: right;">0.839</td>
+<td style="text-align: left;">vot_ray_traceTRUE</td>
+<td style="text-align: right;">0.344</td>
+<td style="text-align: right;">1.410</td>
+<td style="text-align: right;">1.273</td>
+<td style="text-align: right;">1.562</td>
 <td style="text-align: left;">&lt; 0.001</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">cells_traveled</td>
+<td style="text-align: right;">-0.199</td>
+<td style="text-align: right;">0.820</td>
+<td style="text-align: right;">0.805</td>
+<td style="text-align: right;">0.835</td>
+<td style="text-align: left;">&lt; 0.001</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">atoms_affecting</td>
-<td style="text-align: right;">-0.426</td>
-<td style="text-align: right;">0.653</td>
-<td style="text-align: right;">0.606</td>
-<td style="text-align: right;">0.704</td>
+<td style="text-align: right;">-0.434</td>
+<td style="text-align: right;">0.648</td>
+<td style="text-align: right;">0.604</td>
+<td style="text-align: right;">0.695</td>
 <td style="text-align: left;">&lt; 0.001</td>
 </tr>
 </tbody>
@@ -2744,14 +2818,14 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 
 Response: correct
                                   Chisq Df Pr(&gt;Chisq)    
-(Intercept)                     27.9304  1  1.258e-07 ***
-model_name                       6.6074  3  0.0855213 .  
-cells_traveled                 107.6653  1  &lt; 2.2e-16 ***
-prompt_style                    18.9335  1  1.354e-05 ***
-enable_thinking                  8.1896  1  0.0042131 ** 
-model_name:cells_traveled        1.4776  3  0.6874385    
-cells_traveled:prompt_style     11.9455  1  0.0005478 ***
-cells_traveled:enable_thinking  29.7572  1  4.897e-08 ***
+(Intercept)                     29.1139  1  6.825e-08 ***
+model_name                       6.4673  4  0.1668651    
+cells_traveled                 112.9570  1  &lt; 2.2e-16 ***
+prompt_style                    18.3097  1  1.877e-05 ***
+enable_thinking                  7.1027  1  0.0076967 ** 
+model_name:cells_traveled        1.7084  4  0.7891878    
+cells_traveled:prompt_style     12.6386  1  0.0003779 ***
+cells_traveled:enable_thinking  38.0941  1  6.741e-10 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -2784,40 +2858,48 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: left;">model_nameSonnet 4.5:cells_traveled</td>
 <td style="text-align: right;">-0.030</td>
 <td style="text-align: right;">0.970</td>
-<td style="text-align: right;">0.921</td>
+<td style="text-align: right;">0.922</td>
 <td style="text-align: right;">1.021</td>
-<td style="text-align: left;">0.247</td>
+<td style="text-align: left;">0.249</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.6:cells_traveled</td>
-<td style="text-align: right;">-0.022</td>
-<td style="text-align: right;">0.978</td>
-<td style="text-align: right;">0.930</td>
-<td style="text-align: right;">1.028</td>
-<td style="text-align: left;">0.380</td>
+<td style="text-align: right;">-0.021</td>
+<td style="text-align: right;">0.979</td>
+<td style="text-align: right;">0.931</td>
+<td style="text-align: right;">1.029</td>
+<td style="text-align: left;">0.402</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.5:cells_traveled</td>
 <td style="text-align: right;">-0.015</td>
 <td style="text-align: right;">0.985</td>
 <td style="text-align: right;">0.936</td>
-<td style="text-align: right;">1.036</td>
-<td style="text-align: left;">0.559</td>
+<td style="text-align: right;">1.037</td>
+<td style="text-align: left;">0.562</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">cells_traveled:prompt_styleaugmented</td>
-<td style="text-align: right;">0.066</td>
-<td style="text-align: right;">1.068</td>
-<td style="text-align: right;">1.029</td>
-<td style="text-align: right;">1.109</td>
-<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: left;">model_nameOpus 4.6:cells_traveled</td>
+<td style="text-align: right;">-0.002</td>
+<td style="text-align: right;">0.998</td>
+<td style="text-align: right;">0.936</td>
+<td style="text-align: right;">1.064</td>
+<td style="text-align: left;">0.950</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">cells_traveled:enable_thinkingTRUE</td>
-<td style="text-align: right;">0.104</td>
+<td style="text-align: left;">cells_traveled:prompt_styleaugmented</td>
+<td style="text-align: right;">0.068</td>
+<td style="text-align: right;">1.070</td>
+<td style="text-align: right;">1.031</td>
 <td style="text-align: right;">1.110</td>
-<td style="text-align: right;">1.069</td>
-<td style="text-align: right;">1.152</td>
+<td style="text-align: left;">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cells_traveled:enable_thinkingTRUE</td>
+<td style="text-align: right;">0.112</td>
+<td style="text-align: right;">1.118</td>
+<td style="text-align: right;">1.079</td>
+<td style="text-align: right;">1.158</td>
 <td style="text-align: left;">&lt;0.001</td>
 </tr>
 </tbody>
@@ -2897,14 +2979,14 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 
 Response: correct
                                    Chisq Df Pr(&gt;Chisq)    
-(Intercept)                       2.3046  1  0.1289906    
-model_name                        1.6392  3  0.6505405    
-atoms_affecting                  14.4084  1  0.0001471 ***
-prompt_style                    825.5077  1  &lt; 2.2e-16 ***
-enable_thinking                  58.6960  1  1.840e-14 ***
-model_name:atoms_affecting        1.5090  3  0.6801884    
-atoms_affecting:prompt_style    221.8917  1  &lt; 2.2e-16 ***
-atoms_affecting:enable_thinking  25.4738  1  4.484e-07 ***
+(Intercept)                       2.0419  1  0.1530137    
+model_name                        1.9195  4  0.7505644    
+atoms_affecting                  12.8763  1  0.0003328 ***
+prompt_style                    829.7578  1  &lt; 2.2e-16 ***
+enable_thinking                  62.9036  1  2.171e-15 ***
+model_name:atoms_affecting        1.6006  4  0.8086754    
+atoms_affecting:prompt_style    220.8834  1  &lt; 2.2e-16 ***
+atoms_affecting:enable_thinking  31.5288  1  1.965e-08 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -2937,17 +3019,17 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: left;">model_nameSonnet 4.5:atoms_affecting</td>
 <td style="text-align: right;">0.093</td>
 <td style="text-align: right;">1.097</td>
-<td style="text-align: right;">0.915</td>
+<td style="text-align: right;">0.916</td>
 <td style="text-align: right;">1.315</td>
 <td style="text-align: left;">0.315</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.6:atoms_affecting</td>
-<td style="text-align: right;">0.097</td>
-<td style="text-align: right;">1.102</td>
-<td style="text-align: right;">0.925</td>
-<td style="text-align: right;">1.313</td>
-<td style="text-align: left;">0.275</td>
+<td style="text-align: right;">0.099</td>
+<td style="text-align: right;">1.104</td>
+<td style="text-align: right;">0.928</td>
+<td style="text-align: right;">1.315</td>
+<td style="text-align: left;">0.264</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.5:atoms_affecting</td>
@@ -2958,19 +3040,27 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: left;">0.594</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">atoms_affecting:prompt_styleaugmented</td>
-<td style="text-align: right;">-1.026</td>
-<td style="text-align: right;">0.358</td>
-<td style="text-align: right;">0.313</td>
-<td style="text-align: right;">0.410</td>
-<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: left;">model_nameOpus 4.6:atoms_affecting</td>
+<td style="text-align: right;">0.085</td>
+<td style="text-align: right;">1.089</td>
+<td style="text-align: right;">0.873</td>
+<td style="text-align: right;">1.358</td>
+<td style="text-align: left;">0.450</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">atoms_affecting:prompt_styleaugmented</td>
+<td style="text-align: right;">-1.018</td>
+<td style="text-align: right;">0.361</td>
+<td style="text-align: right;">0.316</td>
+<td style="text-align: right;">0.413</td>
+<td style="text-align: left;">&lt;0.001</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">atoms_affecting:enable_thinkingTRUE</td>
-<td style="text-align: right;">0.337</td>
-<td style="text-align: right;">1.401</td>
-<td style="text-align: right;">1.229</td>
-<td style="text-align: right;">1.597</td>
+<td style="text-align: right;">0.355</td>
+<td style="text-align: right;">1.426</td>
+<td style="text-align: right;">1.260</td>
+<td style="text-align: right;">1.614</td>
 <td style="text-align: left;">&lt;0.001</td>
 </tr>
 </tbody>
@@ -3199,21 +3289,21 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">absorbed</td>
-<td style="text-align: right;">498</td>
-<td style="text-align: right;">42</td>
+<td style="text-align: right;">578</td>
+<td style="text-align: right;">48</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">detour</td>
-<td style="text-align: right;">1332</td>
-<td style="text-align: right;">30</td>
-<td style="text-align: right;">300</td>
+<td style="text-align: right;">1516</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">370</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">reflected</td>
-<td style="text-align: right;">536</td>
+<td style="text-align: right;">646</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">256</td>
+<td style="text-align: right;">324</td>
 </tr>
 </tbody>
 </table>
@@ -3320,6 +3410,24 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">132</td>
 <td style="text-align: right;">0.187</td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">detour -&gt; detour</td>
+<td style="text-align: right;">184</td>
+<td style="text-align: right;">0.348</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">reflected -&gt; detour</td>
+<td style="text-align: right;">110</td>
+<td style="text-align: right;">0.208</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">absorbed -&gt; detour</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">0.152</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -3328,7 +3436,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <section id="budget-tag-hallucination-artifact" class="level3" data-number="4.1.8">
 <h3 data-number="4.1.8" class="anchored" data-anchor-id="budget-tag-hallucination-artifact"><span class="header-section-number">4.1.8</span> Budget Tag Hallucination Artifact</h3>
 <p>During experiment runs, we observed that models occasionally hallucinate XML-like <code>&lt;budget:...&gt;</code> tags in their visible response text—fabricating token usage metadata that mimics internal API bookkeeping. These tags (e.g., <code>&lt;budget:used_tokens&gt;</code>, <code>&lt;budget:token_budget&gt;</code>, <code>&lt;budget:token_usage&gt;</code>) are not present in any prompt or API parameter passed to the model; they appear to be confabulated from the model’s awareness of its extended thinking budget context.</p>
-<p><strong>Prevalence</strong>: 38 of 13630 predictions (0.28%) contained hallucinated budget tags.</p>
+<p><strong>Prevalence</strong>: 38 of 15040 predictions (0.25%) contained hallucinated budget tags.</p>
 <p><strong>Key patterns</strong>:</p>
 <ul>
 <li><strong>Exclusive to extended thinking</strong>: All 38 instances occurred with extended thinking enabled; no instances were found in non-thinking runs.</li>
@@ -3388,7 +3496,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </table>
 </div>
 </div>
-<p>The perfect correlation with incorrect predictions suggests these hallucinations are a signal of reasoning process failure: when the model generates metadata artifacts instead of reasoning about ray physics, it invariably produces an incorrect prediction. While the overall prevalence is low (0.28%), this artifact represents a qualitatively distinct failure mode—the model confabulating system-level metadata rather than engaging with the task.</p>
+<p>The perfect correlation with incorrect predictions suggests these hallucinations are a signal of reasoning process failure: when the model generates metadata artifacts instead of reasoning about ray physics, it invariably produces an incorrect prediction. While the overall prevalence is low (0.25%), this artifact represents a qualitatively distinct failure mode—the model confabulating system-level metadata rather than engaging with the task.</p>
 </section>
 </section>
 <section id="play-mode-results" class="level2" data-number="4.2">
@@ -5640,9 +5748,9 @@ print(p_play_forest)</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">1334</td>
-<td style="text-align: right;">0.664</td>
-<td style="text-align: right;">0.013</td>
+<td style="text-align: right;">1472</td>
+<td style="text-align: right;">0.655</td>
+<td style="text-align: right;">0.012</td>
 <td style="text-align: right;">77</td>
 <td style="text-align: right;">1.883</td>
 <td style="text-align: right;">0.843</td>
@@ -5651,8 +5759,8 @@ print(p_play_forest)</code></pre>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">1276</td>
-<td style="text-align: right;">0.798</td>
+<td style="text-align: right;">1408</td>
+<td style="text-align: right;">0.781</td>
 <td style="text-align: right;">0.011</td>
 <td style="text-align: right;">77</td>
 <td style="text-align: right;">1.909</td>
@@ -5662,8 +5770,8 @@ print(p_play_forest)</code></pre>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">1450</td>
-<td style="text-align: right;">0.808</td>
+<td style="text-align: right;">1600</td>
+<td style="text-align: right;">0.791</td>
 <td style="text-align: right;">0.010</td>
 <td style="text-align: right;">77</td>
 <td style="text-align: right;">1.442</td>
@@ -5673,8 +5781,8 @@ print(p_play_forest)</code></pre>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">1624</td>
-<td style="text-align: right;">0.739</td>
+<td style="text-align: right;">1792</td>
+<td style="text-align: right;">0.715</td>
 <td style="text-align: right;">0.011</td>
 <td style="text-align: right;">77</td>
 <td style="text-align: right;">0.247</td>
@@ -5684,8 +5792,8 @@ print(p_play_forest)</code></pre>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">1044</td>
-<td style="text-align: right;">0.799</td>
+<td style="text-align: right;">1152</td>
+<td style="text-align: right;">0.788</td>
 <td style="text-align: right;">0.012</td>
 <td style="text-align: right;">77</td>
 <td style="text-align: right;">0.779</td>
@@ -5695,8 +5803,8 @@ print(p_play_forest)</code></pre>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">1218</td>
-<td style="text-align: right;">0.841</td>
+<td style="text-align: right;">1344</td>
+<td style="text-align: right;">0.829</td>
 <td style="text-align: right;">0.010</td>
 <td style="text-align: right;">77</td>
 <td style="text-align: right;">3.766</td>
@@ -5706,8 +5814,8 @@ print(p_play_forest)</code></pre>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">1392</td>
-<td style="text-align: right;">0.858</td>
+<td style="text-align: right;">1536</td>
+<td style="text-align: right;">0.841</td>
 <td style="text-align: right;">0.009</td>
 <td style="text-align: right;">77</td>
 <td style="text-align: right;">0.364</td>
@@ -5717,8 +5825,8 @@ print(p_play_forest)</code></pre>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">1334</td>
-<td style="text-align: right;">0.714</td>
+<td style="text-align: right;">1472</td>
+<td style="text-align: right;">0.705</td>
 <td style="text-align: right;">0.012</td>
 <td style="text-align: right;">77</td>
 <td style="text-align: right;">0.818</td>
@@ -5728,8 +5836,8 @@ print(p_play_forest)</code></pre>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">1450</td>
-<td style="text-align: right;">0.822</td>
+<td style="text-align: right;">1600</td>
+<td style="text-align: right;">0.805</td>
 <td style="text-align: right;">0.010</td>
 <td style="text-align: right;">77</td>
 <td style="text-align: right;">1.078</td>
@@ -5889,6 +5997,11 @@ print(p_play_forest)</code></pre>
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">0.191</td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.346</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -6009,6 +6122,13 @@ print(p_play_forest)</code></pre>
 <td style="text-align: right;">0.302</td>
 <td style="text-align: right;">0.484</td>
 <td style="text-align: left;">48.4 pp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: right;">0.626</td>
+<td style="text-align: right;">0.362</td>
+<td style="text-align: right;">0.263</td>
+<td style="text-align: left;">26.3 pp</td>
 </tr>
 </tbody>
 </table>
@@ -6467,23 +6587,150 @@ Generated: 2026-03-01T17:14:02.565821+00:00 </code></pre>
 <p>[Discuss how results relate to Occam’s Razor, hypothesis generation findings]</p>
 </section>
 </section>
-<section id="implications" class="level2" data-number="5.3">
-<h2 data-number="5.3" class="anchored" data-anchor-id="implications"><span class="header-section-number">5.3</span> Implications</h2>
-<section id="for-llm-deployment-in-diagnostic-domains" class="level3" data-number="5.3.1">
-<h3 data-number="5.3.1" class="anchored" data-anchor-id="for-llm-deployment-in-diagnostic-domains"><span class="header-section-number">5.3.1</span> For LLM Deployment in Diagnostic Domains</h3>
+<section id="benchmark-comparison" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="benchmark-comparison"><span class="header-section-number">5.3</span> Benchmark Comparison</h2>
+<p>No single existing benchmark tests the full diagnostic reasoning pipeline that Black Box requires. Established benchmarks typically isolate spatial reasoning, constraint satisfaction, or game-playing individually, whereas Black Box demands all three capabilities operate simultaneously—spatial ray tracing, constraint propagation from accumulated evidence, and abductive inference about hidden state. This section contextualizes Claude’s Black Box performance against its published results on benchmarks targeting each component capability. We restrict comparison to benchmarks where Claude-specific performance data is available, avoiding extrapolation from other model families.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>benchmark_comparison <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tribble</span>(</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span>Benchmark, <span class="sc">~</span><span class="st">`</span><span class="at">Capability Tested</span><span class="st">`</span>, <span class="sc">~</span><span class="st">`</span><span class="at">Claude Result</span><span class="st">`</span>, <span class="sc">~</span><span class="st">`</span><span class="at">Black Box Analog</span><span class="st">`</span>,</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ZebraLogic"</span>, <span class="st">"Constraint satisfaction (logic grids)"</span>, <span class="st">"33.4% overall; 12.4% on hard puzzles (Sonnet 3.5)"</span>, <span class="st">"Tracking excluded cells across ray observations"</span>,</span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ConstraintBench"</span>, <span class="st">"Constraint satisfaction (optimization)"</span>, <span class="st">"49.0-50.5% feasibility (Opus 4.5/4.6)"</span>, <span class="st">"Maintaining feasible hypothesis sets under accumulating ray evidence"</span>,</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LogicGame"</span>, <span class="st">"Rule-based planning"</span>, <span class="st">"19.15% overall (Sonnet 3.5)"</span>, <span class="st">"Multi-step ray selection strategy"</span>,</span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"CrossWordBench"</span>, <span class="st">"Intersecting grid constraints"</span>, <span class="st">"0.482 WCR (Sonnet 3.7)"</span>, <span class="st">"Multi-ray constraints on shared grid cells"</span>,</span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"BALROG"</span>, <span class="st">"Game environments (text/visual)"</span>, <span class="st">"Partial success on simple games only"</span>, <span class="st">"Performance collapse on complex atom configurations"</span>,</span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"PuzzlePlex"</span>, <span class="st">"Multi-turn puzzle solving"</span>, <span class="st">"Below simple heuristics"</span>, <span class="st">"LLMs use ~2x optimal rays"</span>,</span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"lmgame-Bench"</span>, <span class="st">"Game-playing (incl. Sokoban)"</span>, <span class="st">"Top non-reasoning tier (Sonnet 3.7)"</span>, <span class="st">"Structured prompts yield modest gains"</span>,</span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Black Box Predict"</span>, <span class="st">"Spatial + forward reasoning"</span>, <span class="st">"[from experiment data]"</span>, <span class="st">"Forward reasoning baseline"</span>,</span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Black Box Play"</span>, <span class="st">"Spatial + constraint + abductive"</span>, <span class="st">"[from experiment data]"</span>, <span class="st">"Full diagnostic pipeline"</span></span>
+<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(benchmark_comparison,</span>
+<span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Benchmark"</span>, <span class="st">"Capability Tested"</span>, <span class="st">"Claude Result"</span>, <span class="st">"Black Box Analog"</span>),</span>
+<span id="cb64-16"><a href="#cb64-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Claude performance on established benchmarks compared to Black Box analogs. All results reflect published Claude model evaluations."</span>) <span class="sc">|&gt;</span></span>
+<span id="cb64-17"><a href="#cb64-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb64-18"><a href="#cb64-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pack_rows</span>(<span class="st">"Constraint Satisfaction"</span>, <span class="dv">1</span>, <span class="dv">4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb64-19"><a href="#cb64-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pack_rows</span>(<span class="st">"Game-Playing &amp; Spatial Reasoning"</span>, <span class="dv">5</span>, <span class="dv">7</span>) <span class="sc">|&gt;</span></span>
+<span id="cb64-20"><a href="#cb64-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pack_rows</span>(<span class="st">"Black Box (This Study)"</span>, <span class="dv">8</span>, <span class="dv">9</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="tbl-benchmark-comparison" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-benchmark-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Claude performance on established benchmarks compared to Black Box analogs. All results reflect published Claude model evaluations.
+</figcaption>
+<div aria-describedby="tbl-benchmark-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed do-not-create-environment cell caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Benchmark</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Capability Tested</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Claude Result</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Black Box Analog</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd" data-grouplength="4">
+<td colspan="4" style="border-bottom: 1px solid"><strong>Constraint Satisfaction</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">ZebraLogic</td>
+<td style="text-align: left;">Constraint satisfaction (logic grids)</td>
+<td style="text-align: left;">33.4% overall; 12.4% on hard puzzles (Sonnet 3.5)</td>
+<td style="text-align: left;">Tracking excluded cells across ray observations</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">ConstraintBench</td>
+<td style="text-align: left;">Constraint satisfaction (optimization)</td>
+<td style="text-align: left;">49.0-50.5% feasibility (Opus 4.5/4.6)</td>
+<td style="text-align: left;">Maintaining feasible hypothesis sets under accumulating ray evidence</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">LogicGame</td>
+<td style="text-align: left;">Rule-based planning</td>
+<td style="text-align: left;">19.15% overall (Sonnet 3.5)</td>
+<td style="text-align: left;">Multi-step ray selection strategy</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">CrossWordBench</td>
+<td style="text-align: left;">Intersecting grid constraints</td>
+<td style="text-align: left;">0.482 WCR (Sonnet 3.7)</td>
+<td style="text-align: left;">Multi-ray constraints on shared grid cells</td>
+</tr>
+<tr class="even" data-grouplength="3">
+<td colspan="4" style="border-bottom: 1px solid"><strong>Game-Playing &amp; Spatial Reasoning</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">BALROG</td>
+<td style="text-align: left;">Game environments (text/visual)</td>
+<td style="text-align: left;">Partial success on simple games only</td>
+<td style="text-align: left;">Performance collapse on complex atom configurations</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">PuzzlePlex</td>
+<td style="text-align: left;">Multi-turn puzzle solving</td>
+<td style="text-align: left;">Below simple heuristics</td>
+<td style="text-align: left;">LLMs use ~2x optimal rays</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">lmgame-Bench</td>
+<td style="text-align: left;">Game-playing (incl. Sokoban)</td>
+<td style="text-align: left;">Top non-reasoning tier (Sonnet 3.7)</td>
+<td style="text-align: left;">Structured prompts yield modest gains</td>
+</tr>
+<tr class="even" data-grouplength="2">
+<td colspan="4" style="border-bottom: 1px solid"><strong>Black Box (This Study)</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Black Box Predict</td>
+<td style="text-align: left;">Spatial + forward reasoning</td>
+<td style="text-align: left;">[from experiment data]</td>
+<td style="text-align: left;">Forward reasoning baseline</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Black Box Play</td>
+<td style="text-align: left;">Spatial + constraint + abductive</td>
+<td style="text-align: left;">[from experiment data]</td>
+<td style="text-align: left;">Full diagnostic pipeline</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<section id="consistent-constraint-satisfaction-weakness" class="level3" data-number="5.3.1">
+<h3 data-number="5.3.1" class="anchored" data-anchor-id="consistent-constraint-satisfaction-weakness"><span class="header-section-number">5.3.1</span> Consistent Constraint Satisfaction Weakness</h3>
+<p>Claude’s performance on constraint satisfaction benchmarks reveals a systematic limitation that Black Box corroborates. On ZebraLogic, Claude Sonnet 3.5 achieves 33.4% overall accuracy that drops to 12.4% on hard puzzles <span class="citation" data-cites="lin2024zebralogic">(<a href="#ref-lin2024zebralogic" role="doc-biblioref">Lin et al. 2024</a>)</span>; on LogicGame, the same model reaches only 19.15% <span class="citation" data-cites="gui2024logicgame">(<a href="#ref-gui2024logicgame" role="doc-biblioref">Gui et al. 2024</a>)</span>; and on CrossWordBench, Claude Sonnet 3.7 achieves a word completion rate of 0.482 <span class="citation" data-cites="wang2025crosswordbench">(<a href="#ref-wang2025crosswordbench" role="doc-biblioref">J. Wang et al. 2025</a>)</span>. ConstraintBench further confirms this pattern, with Claude Opus models achieving only 49–51% feasibility on constraint satisfaction problems, identifying constraint satisfaction—not objective optimization—as the primary bottleneck <span class="citation" data-cites="tso2026constraintbench">(<a href="#ref-tso2026constraintbench" role="doc-biblioref">Tso et al. 2026</a>)</span>. Black Box’s constraint tracking task (ruling out candidate cells based on accumulated ray evidence) is fundamentally a constraint satisfaction problem, and the approximately 2<span class="math inline">\(\times\)</span> gap between LLM and optimal solver performance is consistent with these benchmark results. The pattern across benchmarks is clear: performance degrades sharply as constraint complexity increases.</p>
+</section>
+<section id="performance-collapse-at-complexity-thresholds" class="level3" data-number="5.3.2">
+<h3 data-number="5.3.2" class="anchored" data-anchor-id="performance-collapse-at-complexity-thresholds"><span class="header-section-number">5.3.2</span> Performance Collapse at Complexity Thresholds</h3>
+<p>BALROG demonstrates that Claude achieves partial success on simple game environments but fails on complex ones <span class="citation" data-cites="paglieri2024balrog">(<a href="#ref-paglieri2024balrog" role="doc-biblioref">Paglieri et al. 2024</a>)</span>. PuzzlePlex confirms that LLMs perform below simple heuristics on multi-turn puzzles <span class="citation" data-cites="puzzleplex2025">(<a href="#ref-puzzleplex2025" role="doc-biblioref">Authors 2025b</a>)</span>. lmgame-Bench shows Claude Sonnet 3.7 performing in the top tier among non-reasoning models but still far below optimal play on structured games like Sokoban <span class="citation" data-cites="hu2025lmgamebench">(<a href="#ref-hu2025lmgamebench" role="doc-biblioref">Hu et al. 2025</a>)</span>. Black Box exhibits the same pattern: the optimal solver requires 5–9 rays depending on configuration difficulty, LLMs use approximately twice as many, and the gap widens on harder configurations. This aligns with <span class="citation" data-cites="shojaee2025illusion">Shojaee et al. (<a href="#ref-shojaee2025illusion" role="doc-biblioref">2025</a>)</span>’s observation of “accuracy collapse” at complexity thresholds, where reasoning model performance deteriorates abruptly rather than gradually as problem difficulty increases.</p>
+</section>
+<section id="what-black-box-uniquely-reveals" class="level3" data-number="5.3.3">
+<h3 data-number="5.3.3" class="anchored" data-anchor-id="what-black-box-uniquely-reveals"><span class="header-section-number">5.3.3</span> What Black Box Uniquely Reveals</h3>
+<p>The benchmarks reviewed above each test isolated capabilities—constraint satisfaction, spatial reasoning, or game-playing—in separate task environments. Black Box’s contribution is testing the <em>intersection</em> of spatial reasoning, constraint satisfaction, abductive inference, active test selection, and sequential belief updating within a single unified task. Its two-mode design (Predict and Play) enables decomposition of the forward–inverse reasoning asymmetry: Predict isolates spatial simulation (given atoms, predict ray behavior), while Play requires the full diagnostic pipeline (observe rays, infer hidden atoms). This decomposition, absent from existing benchmarks, reveals whether failures stem from inability to simulate the physics or from inability to reason backward from observations. Furthermore, the optimal solver provides an information-theoretic performance ceiling, enabling rationality ratio analysis (LLM rays / optimal rays) rather than simple accuracy reporting—a quantitative measure of reasoning efficiency that most benchmarks lack.</p>
+</section>
+</section>
+<section id="implications" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="implications"><span class="header-section-number">5.4</span> Implications</h2>
+<section id="for-llm-deployment-in-diagnostic-domains" class="level3" data-number="5.4.1">
+<h3 data-number="5.4.1" class="anchored" data-anchor-id="for-llm-deployment-in-diagnostic-domains"><span class="header-section-number">5.4.1</span> For LLM Deployment in Diagnostic Domains</h3>
 <p>[Discuss implications for medical diagnosis, fault detection, and other diagnostic tasks]</p>
 </section>
-<section id="for-llm-modulo-architectures" class="level3" data-number="5.3.2">
-<h3 data-number="5.3.2" class="anchored" data-anchor-id="for-llm-modulo-architectures"><span class="header-section-number">5.3.2</span> For LLM-Modulo Architectures</h3>
+<section id="for-llm-modulo-architectures" class="level3" data-number="5.4.2">
+<h3 data-number="5.4.2" class="anchored" data-anchor-id="for-llm-modulo-architectures"><span class="header-section-number">5.4.2</span> For LLM-Modulo Architectures</h3>
 <p>[Discuss whether tool augmentation addresses the limitations]</p>
 </section>
-<section id="for-benchmark-development" class="level3" data-number="5.3.3">
-<h3 data-number="5.3.3" class="anchored" data-anchor-id="for-benchmark-development"><span class="header-section-number">5.3.3</span> For Benchmark Development</h3>
+<section id="for-benchmark-development" class="level3" data-number="5.4.3">
+<h3 data-number="5.4.3" class="anchored" data-anchor-id="for-benchmark-development"><span class="header-section-number">5.4.3</span> For Benchmark Development</h3>
 <p>[Discuss Black Box as a diagnostic tool for reasoning assessment]</p>
 </section>
 </section>
-<section id="limitations" class="level2" data-number="5.4">
-<h2 data-number="5.4" class="anchored" data-anchor-id="limitations"><span class="header-section-number">5.4</span> Limitations</h2>
+<section id="limitations" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="limitations"><span class="header-section-number">5.5</span> Limitations</h2>
 <ol type="1">
 <li><strong>Single game domain</strong>: Results may not generalize to all reasoning tasks</li>
 <li><strong>Prompt sensitivity</strong>: Different prompt formulations might yield different results</li>
@@ -6491,8 +6738,8 @@ Generated: 2026-03-01T17:14:02.565821+00:00 </code></pre>
 <li><strong>Sample size</strong>: [Discuss statistical power]</li>
 </ol>
 </section>
-<section id="future-directions" class="level2" data-number="5.5">
-<h2 data-number="5.5" class="anchored" data-anchor-id="future-directions"><span class="header-section-number">5.5</span> Future Directions</h2>
+<section id="future-directions" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="future-directions"><span class="header-section-number">5.6</span> Future Directions</h2>
 <ol type="1">
 <li><strong>Extended model comparison</strong>: GPT-4, Gemini, open-source models</li>
 <li><strong>Tool augmentation study</strong>: Provide ray-tracing verification tool</li>
@@ -6616,6 +6863,9 @@ Gui, Jiayi, Yiming Liu, Jiale Cheng, Xiaotao Gu, Xiao Liu, Hongning Wang, Yuxiao
 <div id="ref-harig2025worldmodels" class="csl-entry" role="listitem">
 Harig, Tobin et al. 2025. <span>“LLM World Models Are Mental: Output Layer Evidence of Brittle World Model Use in LLM Mechanical Reasoning.”</span> <em>arXiv Preprint arXiv:2507.15521</em>.
 </div>
+<div id="ref-hu2025lmgamebench" class="csl-entry" role="listitem">
+Hu, Lanxiang, Mingjia Huo, Yuxuan Zhang, Haoyang Yu, Eric P. Xing, Ion Stoica, Tajana Rosing, Haojian Jin, and Hao Zhang. 2025. <span>“Lmgame-Bench: How Good Are LLMs at Playing Games?”</span> <em>arXiv Preprint arXiv:2505.15146</em>. <a href="https://arxiv.org/abs/2505.15146">https://arxiv.org/abs/2505.15146</a>.
+</div>
 <div id="ref-kambhampati2024llmmodulo" class="csl-entry" role="listitem">
 Kambhampati, Subbarao et al. 2024. <span>“LLMs Can’t Plan, but Can Help Planning in LLM-Modulo Frameworks.”</span> <em>arXiv Preprint arXiv:2402.01817</em>.
 </div>
@@ -6645,6 +6895,9 @@ Shojaee, Parshin, Iman Mirzadeh, Keivan Alizadeh, Maxwell Horton, Samy Bengio, a
 </div>
 <div id="ref-tikhonov2024plugh" class="csl-entry" role="listitem">
 Tikhonov, Alexey et al. 2024. <span>“PLUGH: A Benchmark for Spatial Understanding and Reasoning in Large Language Models.”</span> In <em>arXiv Preprint</em>. <a href="https://arxiv.org/abs/2408.04648">https://arxiv.org/abs/2408.04648</a>.
+</div>
+<div id="ref-tso2026constraintbench" class="csl-entry" role="listitem">
+Tso, Joseph, Preston Schmittou, Quan Huynh, and Jibran Hutchins. 2026. <span>“ConstraintBench: Benchmarking LLM Constraint Reasoning on Direct Optimization.”</span> <em>arXiv Preprint arXiv:2602.22465</em>. <a href="https://arxiv.org/abs/2602.22465">https://arxiv.org/abs/2602.22465</a>.
 </div>
 <div id="ref-valmeekam2023planning" class="csl-entry" role="listitem">
 Valmeekam, Karthik, Matthew Marquez, Alberto Olmo, Sarath Sreedharan, and Subbarao Kambhampati. 2023. <span>“On the Planning Abilities of Large Language Models: A Critical Investigation.”</span> <em>Advances in Neural Information Processing Systems</em> 36.

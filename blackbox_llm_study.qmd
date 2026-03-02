@@ -3263,6 +3263,47 @@ findings\]
 \[Discuss how results relate to Occam's Razor, hypothesis generation
 findings\]
 
+## Benchmark Comparison
+
+No single existing benchmark tests the full diagnostic reasoning pipeline that Black Box requires. Established benchmarks typically isolate spatial reasoning, constraint satisfaction, or game-playing individually, whereas Black Box demands all three capabilities operate simultaneously---spatial ray tracing, constraint propagation from accumulated evidence, and abductive inference about hidden state. This section contextualizes Claude's Black Box performance against its published results on benchmarks targeting each component capability. We restrict comparison to benchmarks where Claude-specific performance data is available, avoiding extrapolation from other model families.
+
+```{r}
+#| label: tbl-benchmark-comparison
+
+benchmark_comparison <- tibble::tribble(
+  ~Benchmark, ~`Capability Tested`, ~`Claude Result`, ~`Black Box Analog`,
+  "ZebraLogic", "Constraint satisfaction (logic grids)", "33.4% overall; 12.4% on hard puzzles (Sonnet 3.5)", "Tracking excluded cells across ray observations",
+  "ConstraintBench", "Constraint satisfaction (optimization)", "49.0-50.5% feasibility (Opus 4.5/4.6)", "Maintaining feasible hypothesis sets under accumulating ray evidence",
+  "LogicGame", "Rule-based planning", "19.15% overall (Sonnet 3.5)", "Multi-step ray selection strategy",
+  "CrossWordBench", "Intersecting grid constraints", "0.482 WCR (Sonnet 3.7)", "Multi-ray constraints on shared grid cells",
+  "BALROG", "Game environments (text/visual)", "Partial success on simple games only", "Performance collapse on complex atom configurations",
+  "PuzzlePlex", "Multi-turn puzzle solving", "Below simple heuristics", "LLMs use ~2x optimal rays",
+  "lmgame-Bench", "Game-playing (incl. Sokoban)", "Top non-reasoning tier (Sonnet 3.7)", "Structured prompts yield modest gains",
+  "Black Box Predict", "Spatial + forward reasoning", "[from experiment data]", "Forward reasoning baseline",
+  "Black Box Play", "Spatial + constraint + abductive", "[from experiment data]", "Full diagnostic pipeline"
+)
+
+kable(benchmark_comparison,
+      col.names = c("Benchmark", "Capability Tested", "Claude Result", "Black Box Analog"),
+      caption = "Claude performance on established benchmarks compared to Black Box analogs. All results reflect published Claude model evaluations.") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) |>
+  pack_rows("Constraint Satisfaction", 1, 4) |>
+  pack_rows("Game-Playing & Spatial Reasoning", 5, 7) |>
+  pack_rows("Black Box (This Study)", 8, 9)
+```
+
+### Consistent Constraint Satisfaction Weakness
+
+Claude's performance on constraint satisfaction benchmarks reveals a systematic limitation that Black Box corroborates. On ZebraLogic, Claude Sonnet 3.5 achieves 33.4% overall accuracy that drops to 12.4% on hard puzzles [@lin2024zebralogic]; on LogicGame, the same model reaches only 19.15% [@gui2024logicgame]; and on CrossWordBench, Claude Sonnet 3.7 achieves a word completion rate of 0.482 [@wang2025crosswordbench]. ConstraintBench further confirms this pattern, with Claude Opus models achieving only 49--51% feasibility on constraint satisfaction problems, identifying constraint satisfaction---not objective optimization---as the primary bottleneck [@tso2026constraintbench]. Black Box's constraint tracking task (ruling out candidate cells based on accumulated ray evidence) is fundamentally a constraint satisfaction problem, and the approximately 2$\times$ gap between LLM and optimal solver performance is consistent with these benchmark results. The pattern across benchmarks is clear: performance degrades sharply as constraint complexity increases.
+
+### Performance Collapse at Complexity Thresholds
+
+BALROG demonstrates that Claude achieves partial success on simple game environments but fails on complex ones [@paglieri2024balrog]. PuzzlePlex confirms that LLMs perform below simple heuristics on multi-turn puzzles [@puzzleplex2025]. lmgame-Bench shows Claude Sonnet 3.7 performing in the top tier among non-reasoning models but still far below optimal play on structured games like Sokoban [@hu2025lmgamebench]. Black Box exhibits the same pattern: the optimal solver requires 5--9 rays depending on configuration difficulty, LLMs use approximately twice as many, and the gap widens on harder configurations. This aligns with @shojaee2025illusion's observation of "accuracy collapse" at complexity thresholds, where reasoning model performance deteriorates abruptly rather than gradually as problem difficulty increases.
+
+### What Black Box Uniquely Reveals
+
+The benchmarks reviewed above each test isolated capabilities---constraint satisfaction, spatial reasoning, or game-playing---in separate task environments. Black Box's contribution is testing the *intersection* of spatial reasoning, constraint satisfaction, abductive inference, active test selection, and sequential belief updating within a single unified task. Its two-mode design (Predict and Play) enables decomposition of the forward--inverse reasoning asymmetry: Predict isolates spatial simulation (given atoms, predict ray behavior), while Play requires the full diagnostic pipeline (observe rays, infer hidden atoms). This decomposition, absent from existing benchmarks, reveals whether failures stem from inability to simulate the physics or from inability to reason backward from observations. Furthermore, the optimal solver provides an information-theoretic performance ceiling, enabling rationality ratio analysis (LLM rays / optimal rays) rather than simple accuracy reporting---a quantitative measure of reasoning efficiency that most benchmarks lack.
+
 ## Implications
 
 ### For LLM Deployment in Diagnostic Domains
