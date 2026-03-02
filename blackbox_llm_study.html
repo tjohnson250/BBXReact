@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Todd R. Johnson">
-<meta name="dcterms.date" content="2026-03-01">
+<meta name="dcterms.date" content="2026-03-02">
 <meta name="keywords" content="large language models, diagnostic reasoning, hidden state identification, medical diagnosis, benchmark">
 
 <title>Black Box as a Diagnostic Reasoning Benchmark for LLMs</title>
@@ -290,7 +290,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 1, 2026</p>
+      <p class="date">March 2, 2026</p>
     </div>
   </div>
   
@@ -300,7 +300,7 @@ window.Quarto = {
 <div>
   <div class="abstract">
     <div class="block-title">Abstract</div>
-    <p>Diagnostic reasoning—identifying hidden states from observable evidence under a known causal model—is fundamental to medical diagnosis, fault detection, and troubleshooting. This study uses the classic Black Box game as a benchmark to assess LLM capabilities in diagnostic reasoning. Black Box requires the core processes of diagnosis: generating hypotheses about hidden states, selecting informative tests, tracking constraints as evidence accumulates, and updating beliefs appropriately. Unlike medical benchmarks that may reward pattern matching to training data, Black Box provides out-of-distribution problems with verifiable ground truth. We present baseline results comparing Claude model variants (Haiku, Sonnet, Opus) across prompt conditions. Our findings reveal systematic limitations in the component processes of diagnostic reasoning that persist despite scaling and prompt engineering, with implications for the deployment of LLMs in medical diagnosis and other domains requiring hidden state identification.</p>
+    <p>Diagnostic reasoning—identifying hidden states from observable evidence under a known causal model—is fundamental to medical diagnosis, fault detection, and troubleshooting. This study uses the classic Black Box game as a benchmark to assess LLM capabilities in diagnostic reasoning. Black Box requires the core processes of diagnosis: generating hypotheses about hidden states, selecting informative tests, tracking constraints as evidence accumulates, and updating beliefs appropriately. Unlike medical benchmarks that may reward pattern matching to training data, Black Box provides out-of-distribution problems with verifiable ground truth. We present baseline results comparing Claude model variants (Haiku 4.5, Sonnet 4.5/4.6, Opus 4.5/4.6) across prompt conditions. Our findings reveal systematic limitations in the component processes of diagnostic reasoning that persist despite scaling and prompt engineering, with implications for the deployment of LLMs in medical diagnosis and other domains requiring hidden state identification.</p>
   </div>
 </div>
 
@@ -638,13 +638,15 @@ There are three possible outcomes for each ray you send into the box:
 </section>
 <section id="models" class="level2" data-number="3.4">
 <h2 data-number="3.4" class="anchored" data-anchor-id="models"><span class="header-section-number">3.4</span> Models</h2>
-<p>We evaluated three Claude 4.5 model variants:</p>
+<p>We evaluated five Claude model variants spanning two generations:</p>
 <ul>
 <li><strong>Claude Haiku 4.5</strong> (<code>claude-haiku-4-5-20251001</code>): Smallest, fastest</li>
 <li><strong>Claude Sonnet 4.5</strong> (<code>claude-sonnet-4-5-20250929</code>): Mid-tier</li>
-<li><strong>Claude Opus 4.5</strong> (<code>claude-opus-4-5-20251101</code>): Largest, most capable</li>
+<li><strong>Claude Opus 4.5</strong> (<code>claude-opus-4-5-20251101</code>): Largest 4.5 variant</li>
+<li><strong>Claude Sonnet 4.6</strong> (<code>claude-sonnet-4-6</code>): Mid-tier, next generation</li>
+<li><strong>Claude Opus 4.6</strong> (<code>claude-opus-4-6</code>): Largest, most capable</li>
 </ul>
-<p>All models were accessed through the Anthropic API with extended thinking enabled to capture reasoning processes.</p>
+<p>The inclusion of both 4.5 and 4.6 generation models enables within-family comparison of how architectural and training improvements affect diagnostic reasoning capabilities. All models were accessed through the Anthropic API with extended thinking enabled to capture reasoning processes.</p>
 </section>
 <section id="experimental-design" class="level2" data-number="3.5">
 <h2 data-number="3.5" class="anchored" data-anchor-id="experimental-design"><span class="header-section-number">3.5</span> Experimental Design</h2>
@@ -655,9 +657,9 @@ There are three possible outcomes for each ray you send into the box:
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 18%">
-<col style="width: 31%">
-<col style="width: 49%">
+<col style="width: 15%">
+<col style="width: 43%">
+<col style="width: 40%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -669,7 +671,7 @@ There are three possible outcomes for each ray you send into the box:
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Model</td>
-<td style="text-align: left;">Haiku 4.5, Sonnet 4.5, Opus 4.5</td>
+<td style="text-align: left;">Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</td>
 <td style="text-align: left;">Model variant</td>
 </tr>
 <tr class="even">
@@ -713,49 +715,49 @@ There are three possible outcomes for each ray you send into the box:
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>No</strong></td>
 <td><strong>None</strong></td>
 </tr>
 <tr class="even">
-<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>No</strong></td>
 <td><strong>VoT B Ray Trace Visualization</strong></td>
 </tr>
 <tr class="odd">
-<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>None</strong></td>
 </tr>
 <tr class="even">
-<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>VoT B Ray Trace Visualization</strong></td>
 </tr>
 <tr class="odd">
-<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>No</strong></td>
 <td><strong>None</strong></td>
 </tr>
 <tr class="even">
-<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>No</strong></td>
 <td><strong>VoT B Ray Trace Visualization</strong></td>
 </tr>
 <tr class="odd">
-<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>None</strong></td>
 </tr>
 <tr class="even">
-<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>VoT B Ray Trace Visualization</strong></td>
@@ -784,97 +786,97 @@ There are three possible outcomes for each ray you send into the box:
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>No</strong></td>
 <td><strong>None</strong></td>
 </tr>
 <tr class="even">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>No</strong></td>
 <td><strong>VoT A Grid State Tracking</strong></td>
 </tr>
 <tr class="odd">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>No</strong></td>
 <td><strong>VoT B Ray Trace Visualization</strong></td>
 </tr>
 <tr class="even">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>No</strong></td>
 <td><strong>VoT C Hypothesis Verification</strong></td>
 </tr>
 <tr class="odd">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>None</strong></td>
 </tr>
 <tr class="even">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>VoT A Grid State Tracking</strong></td>
 </tr>
 <tr class="odd">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>VoT B Ray Trace Visualization</strong></td>
 </tr>
 <tr class="even">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>baseline</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>VoT C Hypothesis Verification</strong></td>
 </tr>
 <tr class="odd">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>No</strong></td>
 <td><strong>None</strong></td>
 </tr>
 <tr class="even">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>No</strong></td>
 <td><strong>VoT A Grid State Tracking</strong></td>
 </tr>
 <tr class="odd">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>No</strong></td>
 <td><strong>VoT B Ray Trace Visualization</strong></td>
 </tr>
 <tr class="even">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>No</strong></td>
 <td><strong>VoT C Hypothesis Verification</strong></td>
 </tr>
 <tr class="odd">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>None</strong></td>
 </tr>
 <tr class="even">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>VoT A Grid State Tracking</strong></td>
 </tr>
 <tr class="odd">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>VoT B Ray Trace Visualization</strong></td>
 </tr>
 <tr class="even">
-<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5</strong></td>
+<td><strong>Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</strong></td>
 <td><strong>augmented</strong></td>
 <td><strong>10K</strong></td>
 <td><strong>VoT C Hypothesis Verification</strong></td>
@@ -887,8 +889,8 @@ There are three possible outcomes for each ray you send into the box:
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 9%">
-<col style="width: 20%">
-<col style="width: 69%">
+<col style="width: 22%">
+<col style="width: 68%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -900,7 +902,7 @@ There are three possible outcomes for each ray you send into the box:
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Model</td>
-<td style="text-align: left;">Haiku 4.5, Sonnet 4.5, Opus 4.5</td>
+<td style="text-align: left;">Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</td>
 <td style="text-align: left;">Model variant</td>
 </tr>
 <tr class="even">
