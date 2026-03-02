@@ -1272,6 +1272,88 @@ runs_per_condition <- predict_data |>
 **Duplicate runs**: `r if(any(runs_per_condition$n_runs > 1)) "Found duplicate runs in some conditions." else "No duplicate runs detected."`
 
 ```{r}
+#| label: predict-missing-conditions
+
+# Define expected full factorial design
+expected_predict_models <- c("Haiku 4.5", "Sonnet 4.5", "Opus 4.5", "Sonnet 4.6", "Opus 4.6")
+expected_predict_design <- expand_grid(
+  model_name = expected_predict_models,
+  prompt_style = c("baseline", "augmented"),
+  enable_thinking = c(FALSE, TRUE),
+  vot_ray_trace = c(FALSE, TRUE),
+  config_index = 0:9
+)
+
+# What's actually present
+actual_predict_conditions <- predict_data |>
+  distinct(model_name, prompt_style, enable_thinking, vot_ray_trace, config_index)
+
+# Find missing cells
+missing_predict <- anti_join(
+  expected_predict_design, actual_predict_conditions,
+  by = c("model_name", "prompt_style", "enable_thinking", "vot_ray_trace", "config_index")
+)
+
+# Summarise missing by condition (collapse config indices)
+missing_predict_summary <- missing_predict |>
+  group_by(model_name, prompt_style, enable_thinking, vot_ray_trace) |>
+  summarise(
+    n_missing_configs = n(),
+    missing_configs = paste(config_index, collapse = ", "),
+    .groups = "drop"
+  ) |>
+  arrange(model_name, prompt_style, enable_thinking, vot_ray_trace)
+
+# Condition-level coverage matrix (how many of 10 configs present per condition)
+predict_coverage <- expected_predict_design |>
+  distinct(model_name, prompt_style, enable_thinking, vot_ray_trace) |>
+  left_join(
+    predict_data |>
+      group_by(model_name, prompt_style, enable_thinking, vot_ray_trace) |>
+      summarise(configs_present = n_distinct(config_index),
+                total_predictions = n(), .groups = "drop"),
+    by = c("model_name", "prompt_style", "enable_thinking", "vot_ray_trace")
+  ) |>
+  replace_na(list(configs_present = 0, total_predictions = 0)) |>
+  mutate(
+    condition = paste0(
+      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT")
+    )
+  )
+
+# Pivot to show models as columns
+predict_coverage_matrix <- predict_coverage |>
+  select(model_name, condition, configs_present) |>
+  pivot_wider(names_from = model_name, values_from = configs_present) |>
+  arrange(condition)
+
+if (nrow(missing_predict) > 0) {
+  cat("**Missing experimental runs detected.**\n\n")
+  kable(predict_coverage_matrix,
+        caption = "Predict Mode: Configurations Present (out of 10) by Model and Condition",
+        format = "pipe") |> print()
+  cat("\n\n**Missing conditions detail:**\n\n")
+  kable(missing_predict_summary,
+        col.names = c("Model", "Prompt", "Thinking", "VoT Ray", "Missing (n)", "Config Indices"),
+        caption = "Predict Mode: Missing Experimental Runs",
+        format = "pipe") |> print()
+} else {
+  cat("All", nrow(expected_predict_design), "expected predict-mode cells are present",
+      "(5 models x 2 prompts x 2 thinking x 2 VoT x 10 configs).\n")
+}
+
+# Check for unexpected model names not in the design
+unexpected_models_predict <- setdiff(unique(predict_data$model_name), expected_predict_models)
+if (length(unexpected_models_predict) > 0) {
+  cat("\n**Unexpected model names in data:**", paste(unexpected_models_predict, collapse = ", "), "\n")
+}
+```
+
+`r if (nrow(missing_predict) > 0) paste0("**WARNING: ", nrow(missing_predict_summary), " condition(s) have missing configurations (", nrow(missing_predict), " total missing cells out of ", nrow(expected_predict_design), " expected).**") else "All expected predict-mode experimental runs are present."`
+
+```{r}
 #| label: predict-results-summary
 
 # Summary statistics by all experimental factors
@@ -2320,6 +2402,105 @@ Data loaded: `r nrow(play_data)` experiment results from `r length(play_json_fil
 `r if (nrow(hyp_check) > 0) paste0("**WARNING: ", nrow(hyp_check), " file(s) with allowHypotheses = false (", sum(hyp_check$n_false), " total configs):** ", paste(hyp_check$source_file, " (", hyp_check$n_false, " configs)", collapse = ", "))`
 
 ```
+
+### Data Completeness Check
+
+```{r}
+#| label: play-missing-conditions
+
+# Define expected full factorial design
+expected_play_models <- c("Haiku 4.5", "Sonnet 4.5", "Opus 4.5", "Sonnet 4.6", "Opus 4.6")
+expected_play_design <- expand_grid(
+  model_name = expected_play_models,
+  prompt_style = c("baseline", "augmented"),
+  enable_thinking = c(FALSE, TRUE),
+  vot_condition = factor(
+    c("None", "A: Grid State", "B: Ray Trace", "C: Hypothesis"),
+    levels = c("None", "A: Grid State", "B: Ray Trace", "C: Hypothesis")
+  ),
+  config_index = 0:9
+)
+
+# What's actually present
+actual_play_conditions <- play_data |>
+  distinct(model_name, prompt_style, enable_thinking, vot_condition, config_index)
+
+# Find missing cells
+missing_play <- anti_join(
+  expected_play_design, actual_play_conditions,
+  by = c("model_name", "prompt_style", "enable_thinking", "vot_condition", "config_index")
+)
+
+# Summarise missing by condition (collapse config indices)
+missing_play_summary <- missing_play |>
+  group_by(model_name, prompt_style, enable_thinking, vot_condition) |>
+  summarise(
+    n_missing_configs = n(),
+    missing_configs = paste(config_index, collapse = ", "),
+    .groups = "drop"
+  ) |>
+  arrange(model_name, prompt_style, enable_thinking, vot_condition)
+
+# Condition-level coverage matrix (how many of 10 configs present per condition)
+play_coverage <- expected_play_design |>
+  distinct(model_name, prompt_style, enable_thinking, vot_condition) |>
+  left_join(
+    play_data |>
+      group_by(model_name, prompt_style, enable_thinking, vot_condition) |>
+      summarise(configs_present = n_distinct(config_index),
+                total_games = n(), .groups = "drop"),
+    by = c("model_name", "prompt_style", "enable_thinking", "vot_condition")
+  ) |>
+  replace_na(list(configs_present = 0, total_games = 0)) |>
+  mutate(
+    condition = paste0(
+      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      vot_condition
+    )
+  )
+
+# Pivot to show models as columns
+play_coverage_matrix <- play_coverage |>
+  select(model_name, condition, configs_present) |>
+  pivot_wider(names_from = model_name, values_from = configs_present) |>
+  arrange(condition)
+
+if (nrow(missing_play) > 0) {
+  cat("**Missing experimental runs detected.**\n\n")
+  kable(play_coverage_matrix,
+        caption = "Play Mode: Configurations Present (out of 10) by Model and Condition",
+        format = "pipe") |> print()
+  cat("\n\n**Missing conditions detail:**\n\n")
+  kable(missing_play_summary,
+        col.names = c("Model", "Prompt", "Thinking", "VoT", "Missing (n)", "Config Indices"),
+        caption = "Play Mode: Missing Experimental Runs",
+        format = "pipe") |> print()
+} else {
+  cat("All", nrow(expected_play_design), "expected play-mode cells are present",
+      "(5 models x 2 prompts x 2 thinking x 4 VoT x 10 configs).\n")
+}
+
+# Check for unexpected model names
+unexpected_models_play <- setdiff(unique(play_data$model_name), expected_play_models)
+if (length(unexpected_models_play) > 0) {
+  cat("\n**Unexpected model names in data:**", paste(unexpected_models_play, collapse = ", "), "\n")
+}
+
+# Check for duplicate runs (same condition run multiple times)
+play_duplicates <- play_data |>
+  group_by(model_name, prompt_style, enable_thinking, vot_condition, config_index) |>
+  summarise(n_runs = n(), .groups = "drop") |>
+  filter(n_runs > 1)
+if (nrow(play_duplicates) > 0) {
+  cat("\n**Duplicate runs detected (same condition × config run multiple times):**\n")
+  kable(play_duplicates,
+        col.names = c("Model", "Prompt", "Thinking", "VoT", "Config", "Runs"),
+        format = "pipe") |> print()
+}
+```
+
+`r if (nrow(missing_play) > 0) paste0("**WARNING: ", nrow(missing_play_summary), " condition(s) have missing configurations (", nrow(missing_play), " total missing cells out of ", nrow(expected_play_design), " expected).**") else "All expected play-mode experimental runs are present."`
 
 ```{r}
 #| label: play-results-summary
