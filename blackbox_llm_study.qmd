@@ -22,7 +22,7 @@ execute:
   echo: true
   warning: false
 abstract: |
-  Diagnostic reasoning—identifying hidden states from observable evidence under a known causal model—is fundamental to medical diagnosis, fault detection, and troubleshooting. This study uses the classic Black Box game as a benchmark to assess LLM capabilities in diagnostic reasoning. Black Box requires the core processes of diagnosis: generating hypotheses about hidden states, selecting informative tests, tracking constraints as evidence accumulates, and updating beliefs appropriately. Unlike medical benchmarks that may reward pattern matching to training data, Black Box provides out-of-distribution problems with verifiable ground truth. We present baseline results comparing Claude model variants (Haiku, Sonnet, Opus) across prompt conditions. Our findings reveal systematic limitations in the component processes of diagnostic reasoning that persist despite scaling and prompt engineering, with implications for the deployment of LLMs in medical diagnosis and other domains requiring hidden state identification.
+  Diagnostic reasoning—identifying hidden states from observable evidence under a known causal model—is fundamental to medical diagnosis, fault detection, and troubleshooting. This study uses the classic Black Box game as a benchmark to assess LLM capabilities in diagnostic reasoning. Black Box requires the core processes of diagnosis: generating hypotheses about hidden states, selecting informative tests, tracking constraints as evidence accumulates, and updating beliefs appropriately. Unlike medical benchmarks that may reward pattern matching to training data, Black Box provides out-of-distribution problems with verifiable ground truth. We present baseline results comparing Claude model variants (Haiku 4.5, Sonnet 4.5/4.6, Opus 4.5/4.6) across prompt conditions. Our findings reveal systematic limitations in the component processes of diagnostic reasoning that persist despite scaling and prompt engineering, with implications for the deployment of LLMs in medical diagnosis and other domains requiring hidden state identification.
 keywords: [large language models, diagnostic reasoning, hidden state identification, medical diagnosis, benchmark]
 editor: 
   markdown: 
@@ -785,16 +785,22 @@ Either prompt style can be combined with:
 
 ## Models
 
-We evaluated three Claude 4.5 model variants:
+We evaluated five Claude model variants spanning two generations:
 
 -   **Claude Haiku 4.5** (`claude-haiku-4-5-20251001`): Smallest,
     fastest
 -   **Claude Sonnet 4.5** (`claude-sonnet-4-5-20250929`): Mid-tier
--   **Claude Opus 4.5** (`claude-opus-4-5-20251101`): Largest, most
-    capable
+-   **Claude Opus 4.5** (`claude-opus-4-5-20251101`): Largest 4.5
+    variant
+-   **Claude Sonnet 4.6** (`claude-sonnet-4-6`): Mid-tier, next
+    generation
+-   **Claude Opus 4.6** (`claude-opus-4-6`): Largest, most capable
 
-All models were accessed through the Anthropic API with extended
-thinking enabled to capture reasoning processes.
+The inclusion of both 4.5 and 4.6 generation models enables
+within-family comparison of how architectural and training improvements
+affect diagnostic reasoning capabilities. All models were accessed
+through the Anthropic API with extended thinking enabled to capture
+reasoning processes.
 
 ## Experimental Design
 
@@ -810,7 +816,7 @@ reproducibility across conditions.
 
 predict_design <- tibble(
   Factor = c('Model', 'Prompt Style', 'Extended Thinking', 'VoT Ray Trace', 'Atom Configuration'),
-  Levels = c('Haiku 4.5, Sonnet 4.5, Opus 4.5',
+  Levels = c('Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6',
              'Baseline, Augmented',
              'Yes (with budget), No',
              'Yes, No',
@@ -827,14 +833,14 @@ kable(predict_design, format = "pipe")
 
 | Model | Prompt | Extended Thinking | Vot (None, B Ray Trace) |
 |----|----|----|----|
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **None** |
-| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
-| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **None** |
-| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **VoT B Ray Trace Visualization** |
-| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **None** |
-| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **VoT B Ray Trace Visualization** |
-| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **None** |
-| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **VoT B Ray Trace Visualization** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **10K** | **None** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **10K** | **VoT B Ray Trace Visualization** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **No** | **None** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **No** | **VoT B Ray Trace Visualization** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **10K** | **None** |
+| **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **10K** | **VoT B Ray Trace Visualization** |
 
 ### Play Mode Factors
 
@@ -842,22 +848,22 @@ Play Mode Experiment Log
 
 | Model | Prompt | Extended Thinking | VoT (None, A, B, or C) |
 |----|----|----|----|
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **None** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT A Grid State Tracking** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **No** | **VoT C Hypothesis Verification** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **None** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **VoT A Grid State Tracking** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **VoT B Ray Trace Visualization** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **baseline** | **10K** | **VoT C Hypothesis Verification** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **None** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **VoT A Grid State Tracking** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **VoT B Ray Trace Visualization** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **No** | **VoT C Hypothesis Verification** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **None** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **VoT A Grid State Tracking** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **VoT B Ray Trace Visualization** |
-| **Haiku 4.5, Sonnet 4.5, Opus 4.5** | **augmented** | **10K** | **VoT C Hypothesis Verification** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT A Grid State Tracking** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT C Hypothesis Verification** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **10K** | **None** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **10K** | **VoT A Grid State Tracking** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **10K** | **VoT B Ray Trace Visualization** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **10K** | **VoT C Hypothesis Verification** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **No** | **None** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **No** | **VoT A Grid State Tracking** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **No** | **VoT B Ray Trace Visualization** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **No** | **VoT C Hypothesis Verification** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **10K** | **None** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **10K** | **VoT A Grid State Tracking** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **10K** | **VoT B Ray Trace Visualization** |
+| **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **augmented** | **10K** | **VoT C Hypothesis Verification** |
 
 : Play Mode Experiment Log
 
@@ -870,7 +876,7 @@ hypothesis management:
 
 play_design <- tibble(
   Factor = c('Model', 'Prompt Style', 'Include Visualization', 'Extended Thinking', 'Allow Hypotheses', 'VoT Condition', 'Atom Configuration'),
-  Levels = c('Haiku 4.5, Sonnet 4.5, Opus 4.5',
+  Levels = c('Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6',
              'Baseline, Augmented',
              'Yes (held constant)',
              'Yes (with budget), No',
