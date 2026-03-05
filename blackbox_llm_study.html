@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Todd R. Johnson">
-<meta name="dcterms.date" content="2026-03-02">
+<meta name="dcterms.date" content="2026-03-05">
 <meta name="keywords" content="large language models, diagnostic reasoning, hidden state identification, medical diagnosis, benchmark">
 
 <title>Black Box as a Diagnostic Reasoning Benchmark for LLMs</title>
@@ -290,7 +290,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 2, 2026</p>
+      <p class="date">March 5, 2026</p>
     </div>
   </div>
   
@@ -1366,7 +1366,7 @@ There are three possible outcomes for each ray you send into the box:
 <span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>predict_data <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(predict_json_files, extract_predict_results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Data loaded: 15510 predictions from 19 JSON files.</p>
+<p>Data loaded: 18800 predictions from 24 JSON files.</p>
 <ul>
 <li><strong>Models</strong>: Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</li>
 <li><strong>Prompt styles</strong>: augmented, baseline</li>
@@ -1504,7 +1504,7 @@ kable(predictions_matrix,
 <td style="text-align: right;">52</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">bas_think_no</td>
+<td style="text-align: left;">bas_no_vot</td>
 <td style="text-align: right;">46</td>
 <td style="text-align: right;">44</td>
 <td style="text-align: right;">50</td>
@@ -1517,6 +1517,19 @@ kable(predictions_matrix,
 <td style="text-align: right;">52</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">bas_think_no</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">56</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">52</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">bas_think_vot</td>
 <td style="text-align: right;">46</td>
 <td style="text-align: right;">44</td>
@@ -1626,39 +1639,7 @@ kable(predictions_matrix,
 <span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>**Missing experimental runs detected.**
-
-
-
-Table: Predict Mode: Configurations Present (out of 10) by Model and Condition
-
-|condition                          | Haiku 4.5| Sonnet 4.5| Opus 4.5| Sonnet 4.6| Opus 4.6|
-|:----------------------------------|---------:|----------:|--------:|----------:|--------:|
-|Aug &amp;#124; No-Think &amp;#124; No-VoT  |        10|         10|       10|         10|        0|
-|Aug &amp;#124; No-Think &amp;#124; VoT     |        10|         10|       10|         10|        0|
-|Aug &amp;#124; Think &amp;#124; No-VoT     |        10|         10|       10|         10|        0|
-|Aug &amp;#124; Think &amp;#124; VoT        |        10|         10|       10|         10|        0|
-|Base &amp;#124; No-Think &amp;#124; No-VoT |        10|         10|       10|         10|       10|
-|Base &amp;#124; No-Think &amp;#124; VoT    |         0|          0|        0|         10|       10|
-|Base &amp;#124; Think &amp;#124; No-VoT    |        10|         10|       10|         10|       10|
-|Base &amp;#124; Think &amp;#124; VoT       |        10|         10|       10|         10|       10|
-
-
-**Missing conditions detail:**
-
-
-
-Table: Predict Mode: Missing Experimental Runs
-
-|Model      |Prompt    |Thinking |VoT Ray | Missing (n)|Config Indices               |
-|:----------|:---------|:--------|:-------|-----------:|:----------------------------|
-|Haiku 4.5  |baseline  |FALSE    |TRUE    |          10|0, 1, 2, 3, 4, 5, 6, 7, 8, 9 |
-|Opus 4.5   |baseline  |FALSE    |TRUE    |          10|0, 1, 2, 3, 4, 5, 6, 7, 8, 9 |
-|Opus 4.6   |augmented |FALSE    |FALSE   |          10|0, 1, 2, 3, 4, 5, 6, 7, 8, 9 |
-|Opus 4.6   |augmented |FALSE    |TRUE    |          10|0, 1, 2, 3, 4, 5, 6, 7, 8, 9 |
-|Opus 4.6   |augmented |TRUE     |FALSE   |          10|0, 1, 2, 3, 4, 5, 6, 7, 8, 9 |
-|Opus 4.6   |augmented |TRUE     |TRUE    |          10|0, 1, 2, 3, 4, 5, 6, 7, 8, 9 |
-|Sonnet 4.5 |baseline  |FALSE    |TRUE    |          10|0, 1, 2, 3, 4, 5, 6, 7, 8, 9 |</code></pre>
+<pre><code>All 400 expected predict-mode cells are present (5 models x 2 prompts x 2 thinking x 2 VoT x 10 configs).</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -1669,7 +1650,7 @@ Table: Predict Mode: Missing Experimental Runs
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p><strong>WARNING: 7 condition(s) have missing configurations (70 total missing cells out of 400 expected).</strong></p>
+<p>All expected predict-mode experimental runs are present.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1777,6 +1758,17 @@ Table: Predict Mode: Missing Experimental Runs
 <tr class="even">
 <td style="text-align: left;">Haiku 4.5</td>
 <td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">248</td>
+<td style="text-align: right;">0.528</td>
+<td style="text-align: right;">0.023</td>
+<td style="text-align: right;">11719.38</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Haiku 4.5</td>
+<td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">470</td>
@@ -1785,7 +1777,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.022</td>
 <td style="text-align: right;">39523.49</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Haiku 4.5</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -1796,7 +1788,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.019</td>
 <td style="text-align: right;">66692.71</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Opus 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">FALSE</td>
@@ -1807,7 +1799,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.018</td>
 <td style="text-align: right;">10909.51</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Opus 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">FALSE</td>
@@ -1818,7 +1810,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.018</td>
 <td style="text-align: right;">12618.99</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Opus 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
@@ -1829,7 +1821,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.011</td>
 <td style="text-align: right;">20568.46</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Opus 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
@@ -1840,7 +1832,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.011</td>
 <td style="text-align: right;">23033.41</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Opus 4.5</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
@@ -1850,6 +1842,17 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.566</td>
 <td style="text-align: right;">0.023</td>
 <td style="text-align: right;">11015.83</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.5</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">248</td>
+<td style="text-align: right;">0.528</td>
+<td style="text-align: right;">0.023</td>
+<td style="text-align: right;">11500.29</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Opus 4.5</td>
@@ -1872,6 +1875,50 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.783</td>
 <td style="text-align: right;">0.019</td>
 <td style="text-align: right;">69663.18</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">352</td>
+<td style="text-align: right;">0.749</td>
+<td style="text-align: right;">0.020</td>
+<td style="text-align: right;">10819.92</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">380</td>
+<td style="text-align: right;">0.809</td>
+<td style="text-align: right;">0.018</td>
+<td style="text-align: right;">12121.75</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">436</td>
+<td style="text-align: right;">0.928</td>
+<td style="text-align: right;">0.012</td>
+<td style="text-align: right;">21100.77</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">448</td>
+<td style="text-align: right;">0.953</td>
+<td style="text-align: right;">0.010</td>
+<td style="text-align: right;">24972.77</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
@@ -1975,6 +2022,17 @@ Table: Predict Mode: Missing Experimental Runs
 <tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">baseline</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">240</td>
+<td style="text-align: right;">0.511</td>
+<td style="text-align: right;">0.023</td>
+<td style="text-align: right;">12235.34</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sonnet 4.5</td>
+<td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">470</td>
@@ -1983,7 +2041,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.022</td>
 <td style="text-align: right;">41686.14</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -1994,7 +2052,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.019</td>
 <td style="text-align: right;">68985.51</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">FALSE</td>
@@ -2005,7 +2063,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.017</td>
 <td style="text-align: right;">10247.92</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">FALSE</td>
@@ -2016,7 +2074,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.019</td>
 <td style="text-align: right;">17046.00</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
@@ -2027,7 +2085,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.011</td>
 <td style="text-align: right;">20267.15</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
@@ -2038,7 +2096,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.008</td>
 <td style="text-align: right;">23906.89</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
@@ -2049,7 +2107,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.023</td>
 <td style="text-align: right;">10784.63</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
@@ -2060,7 +2118,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.023</td>
 <td style="text-align: right;">10592.90</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -2071,7 +2129,7 @@ Table: Predict Mode: Missing Experimental Runs
 <td style="text-align: right;">0.019</td>
 <td style="text-align: right;">65685.45</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -2126,10 +2184,10 @@ Table: Predict Mode: Missing Experimental Runs
 <table class="caption-top table table-sm table-striped small">
 <caption>Predict Mode Leaderboard (Top 10 Configurations)</caption>
 <colgroup>
-<col style="width: 5%">
-<col style="width: 61%">
+<col style="width: 6%">
+<col style="width: 59%">
 <col style="width: 10%">
-<col style="width: 17%">
+<col style="width: 18%">
 <col style="width: 4%">
 </colgroup>
 <thead>
@@ -2165,51 +2223,51 @@ Table: Predict Mode: Missing Experimental Runs
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: left;">Sonnet 4.5 | Aug | Think | No-VoT</td>
+<td style="text-align: left;">Opus 4.6 | Aug | Think | VoT</td>
 <td style="text-align: left;">95.3%</td>
 <td style="text-align: left;">[93.4%, 97.2%]</td>
 <td style="text-align: right;">470</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
+<td style="text-align: left;">Sonnet 4.5 | Aug | Think | No-VoT</td>
+<td style="text-align: left;">95.3%</td>
+<td style="text-align: left;">[93.4%, 97.2%]</td>
+<td style="text-align: right;">470</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">Sonnet 4.6 | Aug | Think | No-VoT</td>
 <td style="text-align: left;">94%</td>
 <td style="text-align: left;">[91.9%, 96.2%]</td>
 <td style="text-align: right;">470</td>
 </tr>
-<tr class="even">
-<td style="text-align: right;">6</td>
-<td style="text-align: left;">Opus 4.5 | Aug | Think | No-VoT</td>
-<td style="text-align: left;">93.6%</td>
-<td style="text-align: left;">[91.4%, 95.8%]</td>
-<td style="text-align: right;">470</td>
-</tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
-<td style="text-align: left;">Opus 4.5 | Aug | Think | VoT</td>
+<td style="text-align: left;">Opus 4.5 | Aug | Think | No-VoT</td>
 <td style="text-align: left;">93.6%</td>
 <td style="text-align: left;">[91.4%, 95.8%]</td>
 <td style="text-align: right;">470</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
-<td style="text-align: left;">Haiku 4.5 | Aug | Think | No-VoT</td>
-<td style="text-align: left;">90.6%</td>
-<td style="text-align: left;">[88%, 93.3%]</td>
+<td style="text-align: left;">Opus 4.5 | Aug | Think | VoT</td>
+<td style="text-align: left;">93.6%</td>
+<td style="text-align: left;">[91.4%, 95.8%]</td>
 <td style="text-align: right;">470</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
-<td style="text-align: left;">Sonnet 4.5 | Aug | No-Think | VoT</td>
-<td style="text-align: left;">85.1%</td>
-<td style="text-align: left;">[81.9%, 88.3%]</td>
+<td style="text-align: left;">Opus 4.6 | Aug | Think | No-VoT</td>
+<td style="text-align: left;">92.8%</td>
+<td style="text-align: left;">[90.4%, 95.1%]</td>
 <td style="text-align: right;">470</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
-<td style="text-align: left;">Sonnet 4.6 | Aug | No-Think | No-VoT</td>
-<td style="text-align: left;">83%</td>
-<td style="text-align: left;">[79.6%, 86.4%]</td>
+<td style="text-align: left;">Haiku 4.5 | Aug | Think | No-VoT</td>
+<td style="text-align: left;">90.6%</td>
+<td style="text-align: left;">[88%, 93.3%]</td>
 <td style="text-align: right;">470</td>
 </tr>
 </tbody>
@@ -2288,7 +2346,7 @@ Table: Predict Mode: Missing Experimental Runs
 </div>
 </div>
 </div>
-<p><strong>Total configurations</strong>: 33 <strong>Best performing</strong>: Sonnet 4.6 | Aug | Think | VoT <strong>Accuracy</strong>: 96.6% (95% CI: [95%, 98.2%])</p>
+<p><strong>Total configurations</strong>: 40 <strong>Best performing</strong>: Sonnet 4.6 | Aug | Think | VoT <strong>Accuracy</strong>: 96.6% (95% CI: [95%, 98.2%])</p>
 </section>
 <section id="factor-level-comparisons" class="level3" data-number="4.1.3">
 <h3 data-number="4.1.3" class="anchored" data-anchor-id="factor-level-comparisons"><span class="header-section-number">4.1.3</span> Factor-Level Comparisons</h3>
@@ -2409,82 +2467,82 @@ Table: Predict Mode: Missing Experimental Runs
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.671</td>
-<td style="text-align: right;">0.646</td>
-<td style="text-align: right;">0.609</td>
-<td style="text-align: right;">0.702</td>
+<td style="text-align: right;">0.636</td>
+<td style="text-align: right;">0.614</td>
+<td style="text-align: right;">0.652</td>
+<td style="text-align: right;">0.663</td>
 <td style="text-align: right;">0.641</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">0.818</td>
-<td style="text-align: right;">0.786</td>
-<td style="text-align: right;">0.648</td>
-<td style="text-align: right;">0.812</td>
+<td style="text-align: right;">0.761</td>
+<td style="text-align: right;">0.750</td>
+<td style="text-align: right;">0.784</td>
+<td style="text-align: right;">0.773</td>
 <td style="text-align: right;">0.778</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">0.783</td>
-<td style="text-align: right;">0.851</td>
-<td style="text-align: right;">0.680</td>
-<td style="text-align: right;">0.811</td>
+<td style="text-align: right;">0.760</td>
+<td style="text-align: right;">0.820</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.785</td>
 <td style="text-align: right;">0.790</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">0.750</td>
-<td style="text-align: right;">0.730</td>
-<td style="text-align: right;">0.554</td>
-<td style="text-align: right;">0.745</td>
+<td style="text-align: right;">0.719</td>
+<td style="text-align: right;">0.692</td>
+<td style="text-align: right;">0.714</td>
+<td style="text-align: right;">0.705</td>
 <td style="text-align: right;">0.732</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">0.754</td>
-<td style="text-align: right;">0.817</td>
-<td style="text-align: right;">0.750</td>
-<td style="text-align: right;">0.802</td>
+<td style="text-align: right;">0.729</td>
+<td style="text-align: right;">0.785</td>
+<td style="text-align: right;">0.792</td>
+<td style="text-align: right;">0.771</td>
 <td style="text-align: right;">0.819</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">0.816</td>
-<td style="text-align: right;">0.864</td>
-<td style="text-align: right;">0.702</td>
-<td style="text-align: right;">0.864</td>
+<td style="text-align: right;">0.804</td>
+<td style="text-align: right;">0.845</td>
+<td style="text-align: right;">0.810</td>
+<td style="text-align: right;">0.839</td>
 <td style="text-align: right;">0.821</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">0.869</td>
-<td style="text-align: right;">0.857</td>
-<td style="text-align: right;">0.677</td>
-<td style="text-align: right;">0.869</td>
+<td style="text-align: right;">0.844</td>
+<td style="text-align: right;">0.833</td>
+<td style="text-align: right;">0.828</td>
+<td style="text-align: right;">0.844</td>
 <td style="text-align: right;">0.839</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">0.652</td>
-<td style="text-align: right;">0.727</td>
-<td style="text-align: right;">0.674</td>
-<td style="text-align: right;">0.714</td>
+<td style="text-align: right;">0.630</td>
+<td style="text-align: right;">0.696</td>
+<td style="text-align: right;">0.717</td>
+<td style="text-align: right;">0.685</td>
 <td style="text-align: right;">0.755</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">0.817</td>
-<td style="text-align: right;">0.811</td>
-<td style="text-align: right;">0.700</td>
-<td style="text-align: right;">0.834</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.765</td>
+<td style="text-align: right;">0.785</td>
+<td style="text-align: right;">0.785</td>
 <td style="text-align: right;">0.825</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">0.775</td>
-<td style="text-align: right;">0.780</td>
-<td style="text-align: right;">0.663</td>
-<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.745</td>
+<td style="text-align: right;">0.750</td>
+<td style="text-align: right;">0.764</td>
+<td style="text-align: right;">0.731</td>
 <td style="text-align: right;">0.760</td>
 </tr>
 </tbody>
@@ -2557,17 +2615,17 @@ Table: Predict Mode: Missing Experimental Runs
 
 Response: correct
                                            Chisq Df Pr(&gt;Chisq)    
-(Intercept)                              55.5660  1  9.037e-14 ***
-model_name                                8.4067  4   0.077765 .  
-prompt_style                              8.7846  1   0.003038 ** 
-enable_thinking                          12.7765  1   0.000351 ***
-vot_ray_trace                            43.4065  1  4.447e-11 ***
-cells_traveled                          457.9133  1  &lt; 2.2e-16 ***
-atoms_affecting                         146.4696  1  &lt; 2.2e-16 ***
-model_name:prompt_style                   6.9944  3   0.072076 .  
-model_name:enable_thinking               38.6973  4  8.045e-08 ***
-prompt_style:enable_thinking             22.5131  1  2.087e-06 ***
-model_name:prompt_style:enable_thinking   7.8665  3   0.048853 *  
+(Intercept)                              53.1963  1  3.018e-13 ***
+model_name                                1.2163  4  0.8753999    
+prompt_style                             39.9128  1  2.656e-10 ***
+enable_thinking                          49.3321  1  2.161e-12 ***
+vot_ray_trace                            22.8939  1  1.712e-06 ***
+cells_traveled                          656.5486  1  &lt; 2.2e-16 ***
+atoms_affecting                         220.6100  1  &lt; 2.2e-16 ***
+model_name:prompt_style                   8.2388  4  0.0832128 .  
+model_name:enable_thinking               16.1965  4  0.0027665 ** 
+prompt_style:enable_thinking             12.8438  1  0.0003386 ***
+model_name:prompt_style:enable_thinking   3.4216  4  0.4898995    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -2600,162 +2658,178 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.5</td>
-<td style="text-align: right;">1.076</td>
-<td style="text-align: right;">0.793</td>
-<td style="text-align: right;">1.460</td>
-<td style="text-align: left;">0.6383</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.807</td>
+<td style="text-align: right;">1.239</td>
+<td style="text-align: left;">0.9998</td>
 <td style="text-align: left;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.6</td>
-<td style="text-align: right;">0.800</td>
-<td style="text-align: right;">0.613</td>
-<td style="text-align: right;">1.045</td>
-<td style="text-align: left;">0.1017</td>
+<td style="text-align: right;">1.088</td>
+<td style="text-align: right;">0.878</td>
+<td style="text-align: right;">1.348</td>
+<td style="text-align: left;">0.4430</td>
 <td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.5</td>
-<td style="text-align: right;">0.953</td>
-<td style="text-align: right;">0.704</td>
-<td style="text-align: right;">1.290</td>
-<td style="text-align: left;">0.7561</td>
+<td style="text-align: right;">0.988</td>
+<td style="text-align: right;">0.798</td>
+<td style="text-align: right;">1.224</td>
+<td style="text-align: left;">0.9134</td>
 <td style="text-align: left;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameOpus 4.6</td>
-<td style="text-align: right;">0.781</td>
-<td style="text-align: right;">0.598</td>
-<td style="text-align: right;">1.020</td>
-<td style="text-align: left;">0.0699</td>
+<td style="text-align: right;">1.062</td>
+<td style="text-align: right;">0.857</td>
+<td style="text-align: right;">1.316</td>
+<td style="text-align: left;">0.5841</td>
 <td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">prompt_styleaugmented</td>
-<td style="text-align: right;">1.517</td>
-<td style="text-align: right;">1.152</td>
-<td style="text-align: right;">1.999</td>
-<td style="text-align: left;">0.0030</td>
+<td style="text-align: right;">2.074</td>
+<td style="text-align: right;">1.654</td>
+<td style="text-align: right;">2.601</td>
+<td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">enable_thinkingTRUE</td>
-<td style="text-align: right;">1.659</td>
-<td style="text-align: right;">1.257</td>
-<td style="text-align: right;">2.189</td>
+<td style="text-align: right;">2.270</td>
+<td style="text-align: right;">1.806</td>
+<td style="text-align: right;">2.853</td>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">vot_ray_traceTRUE</td>
-<td style="text-align: right;">1.393</td>
-<td style="text-align: right;">1.262</td>
-<td style="text-align: right;">1.537</td>
+<td style="text-align: right;">1.223</td>
+<td style="text-align: right;">1.126</td>
+<td style="text-align: right;">1.328</td>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">cells_traveled</td>
-<td style="text-align: right;">0.824</td>
 <td style="text-align: right;">0.810</td>
-<td style="text-align: right;">0.839</td>
+<td style="text-align: right;">0.797</td>
+<td style="text-align: right;">0.823</td>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">atoms_affecting</td>
-<td style="text-align: right;">0.653</td>
-<td style="text-align: right;">0.609</td>
-<td style="text-align: right;">0.700</td>
+<td style="text-align: right;">0.623</td>
+<td style="text-align: right;">0.585</td>
+<td style="text-align: right;">0.663</td>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.5:prompt_styleaugmented</td>
-<td style="text-align: right;">1.249</td>
-<td style="text-align: right;">0.845</td>
-<td style="text-align: right;">1.847</td>
-<td style="text-align: left;">0.2640</td>
+<td style="text-align: right;">1.348</td>
+<td style="text-align: right;">0.973</td>
+<td style="text-align: right;">1.868</td>
+<td style="text-align: left;">0.0729</td>
 <td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.6:prompt_styleaugmented</td>
-<td style="text-align: right;">1.599</td>
-<td style="text-align: right;">1.114</td>
-<td style="text-align: right;">2.293</td>
-<td style="text-align: left;">0.0108</td>
-<td style="text-align: left;">*</td>
+<td style="text-align: right;">1.179</td>
+<td style="text-align: right;">0.851</td>
+<td style="text-align: right;">1.633</td>
+<td style="text-align: left;">0.3219</td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameOpus 4.5:prompt_styleaugmented</td>
-<td style="text-align: right;">1.434</td>
-<td style="text-align: right;">0.972</td>
-<td style="text-align: right;">2.117</td>
-<td style="text-align: left;">0.0696</td>
-<td style="text-align: left;"></td>
+<td style="text-align: right;">1.387</td>
+<td style="text-align: right;">1.001</td>
+<td style="text-align: right;">1.923</td>
+<td style="text-align: left;">0.0495</td>
+<td style="text-align: left;">*</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">model_nameOpus 4.6:prompt_styleaugmented</td>
+<td style="text-align: right;">0.956</td>
+<td style="text-align: right;">0.694</td>
+<td style="text-align: right;">1.317</td>
+<td style="text-align: left;">0.7826</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.5:enable_thinkingTRUE</td>
-<td style="text-align: right;">0.988</td>
-<td style="text-align: right;">0.670</td>
-<td style="text-align: right;">1.459</td>
-<td style="text-align: left;">0.9531</td>
+<td style="text-align: right;">1.064</td>
+<td style="text-align: right;">0.769</td>
+<td style="text-align: right;">1.472</td>
+<td style="text-align: left;">0.7081</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.6:enable_thinkingTRUE</td>
-<td style="text-align: right;">2.266</td>
-<td style="text-align: right;">1.559</td>
-<td style="text-align: right;">3.293</td>
-<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: right;">1.676</td>
+<td style="text-align: right;">1.193</td>
+<td style="text-align: right;">2.354</td>
+<td style="text-align: left;">0.0029</td>
 <td style="text-align: left;">*</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">model_nameOpus 4.5:enable_thinkingTRUE</td>
-<td style="text-align: right;">1.170</td>
-<td style="text-align: right;">0.793</td>
-<td style="text-align: right;">1.725</td>
-<td style="text-align: left;">0.4292</td>
+<td style="text-align: right;">1.129</td>
+<td style="text-align: right;">0.815</td>
+<td style="text-align: right;">1.564</td>
+<td style="text-align: left;">0.4642</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.6:enable_thinkingTRUE</td>
-<td style="text-align: right;">2.228</td>
-<td style="text-align: right;">1.535</td>
-<td style="text-align: right;">3.234</td>
+<td style="text-align: right;">1.648</td>
+<td style="text-align: right;">1.175</td>
+<td style="text-align: right;">2.311</td>
+<td style="text-align: left;">0.0038</td>
+<td style="text-align: left;">*</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">prompt_styleaugmented:enable_thinkingTRUE</td>
+<td style="text-align: right;">2.038</td>
+<td style="text-align: right;">1.381</td>
+<td style="text-align: right;">3.007</td>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;">*</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">prompt_styleaugmented:enable_thinkingTRUE</td>
-<td style="text-align: right;">2.753</td>
-<td style="text-align: right;">1.812</td>
-<td style="text-align: right;">4.182</td>
-<td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: left;">*</td>
+<td style="text-align: left;">model_nameSonnet 4.5:prompt_styleaugmented:enable_thinkingTRUE</td>
+<td style="text-align: right;">1.081</td>
+<td style="text-align: right;">0.605</td>
+<td style="text-align: right;">1.932</td>
+<td style="text-align: left;">0.7934</td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">model_nameSonnet 4.5:prompt_styleaugmented:enable_thinkingTRUE</td>
-<td style="text-align: right;">1.163</td>
-<td style="text-align: right;">0.628</td>
-<td style="text-align: right;">2.156</td>
-<td style="text-align: left;">0.6307</td>
+<td style="text-align: left;">model_nameSonnet 4.6:prompt_styleaugmented:enable_thinkingTRUE</td>
+<td style="text-align: right;">0.685</td>
+<td style="text-align: right;">0.381</td>
+<td style="text-align: right;">1.231</td>
+<td style="text-align: left;">0.2056</td>
 <td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">model_nameSonnet 4.6:prompt_styleaugmented:enable_thinkingTRUE</td>
-<td style="text-align: right;">0.507</td>
-<td style="text-align: right;">0.277</td>
-<td style="text-align: right;">0.926</td>
-<td style="text-align: left;">0.0272</td>
-<td style="text-align: left;">*</td>
+<td style="text-align: left;">model_nameOpus 4.5:prompt_styleaugmented:enable_thinkingTRUE</td>
+<td style="text-align: right;">0.789</td>
+<td style="text-align: right;">0.448</td>
+<td style="text-align: right;">1.390</td>
+<td style="text-align: left;">0.4124</td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">model_nameOpus 4.5:prompt_styleaugmented:enable_thinkingTRUE</td>
-<td style="text-align: right;">0.763</td>
-<td style="text-align: right;">0.418</td>
-<td style="text-align: right;">1.393</td>
-<td style="text-align: left;">0.3787</td>
+<td style="text-align: left;">model_nameOpus 4.6:prompt_styleaugmented:enable_thinkingTRUE</td>
+<td style="text-align: right;">0.731</td>
+<td style="text-align: right;">0.413</td>
+<td style="text-align: right;">1.292</td>
+<td style="text-align: left;">0.2808</td>
 <td style="text-align: left;"></td>
 </tr>
 </tbody>
@@ -2770,12 +2844,12 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code> Groups              Name        Std.Dev.
- ray_id:config_index (Intercept) 0.60190 
- config_index        (Intercept) 0.82783 </code></pre>
+ ray_id:config_index (Intercept) 0.58436 
+ config_index        (Intercept) 0.87481 </code></pre>
 </div>
 </div>
-<p><strong>Intraclass Correlation Coefficient (ICC)</strong>: 0.242 — Proportion of variance due to clustering at both configuration and ray-within-config levels.</p>
-<p><strong>Model Fit</strong> (Pseudo R², Nakagawa &amp; Schielzeth): - <strong>Marginal R²</strong> (fixed effects only): 0.197 - <strong>Conditional R²</strong> (fixed + random effects): 0.391</p>
+<p><strong>Intraclass Correlation Coefficient (ICC)</strong>: 0.252 — Proportion of variance due to clustering at both configuration and ray-within-config levels.</p>
+<p><strong>Model Fit</strong> (Pseudo R², Nakagawa &amp; Schielzeth): - <strong>Marginal R²</strong> (fixed effects only): 0.217 - <strong>Conditional R²</strong> (fixed + random effects): 0.414</p>
 </section>
 <section id="cramérs-v-effect-size-for-categorical-associations" class="level4" data-number="4.1.4.3">
 <h4 data-number="4.1.4.3" class="anchored" data-anchor-id="cramérs-v-effect-size-for-categorical-associations"><span class="header-section-number">4.1.4.3</span> Cramér’s V (Effect Size for Categorical Associations)</h4>
@@ -2793,19 +2867,19 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Model</td>
-<td style="text-align: right;">0.092</td>
+<td style="text-align: right;">0.021</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Prompt Style</td>
-<td style="text-align: right;">0.252</td>
+<td style="text-align: right;">0.270</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Extended Thinking</td>
-<td style="text-align: right;">0.150</td>
+<td style="text-align: right;">0.183</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">VoT Ray Trace</td>
-<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">0.027</td>
 </tr>
 </tbody>
 </table>
@@ -2840,75 +2914,75 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.5</td>
-<td style="text-align: right;">0.073</td>
-<td style="text-align: right;">1.076</td>
-<td style="text-align: right;">0.793</td>
-<td style="text-align: right;">1.460</td>
-<td style="text-align: left;">0.63835</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.807</td>
+<td style="text-align: right;">1.239</td>
+<td style="text-align: left;">1.000</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.6</td>
-<td style="text-align: right;">-0.223</td>
-<td style="text-align: right;">0.800</td>
-<td style="text-align: right;">0.613</td>
-<td style="text-align: right;">1.045</td>
-<td style="text-align: left;">0.10174</td>
+<td style="text-align: right;">0.084</td>
+<td style="text-align: right;">1.088</td>
+<td style="text-align: right;">0.878</td>
+<td style="text-align: right;">1.348</td>
+<td style="text-align: left;">0.443</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.5</td>
-<td style="text-align: right;">-0.048</td>
-<td style="text-align: right;">0.953</td>
-<td style="text-align: right;">0.704</td>
-<td style="text-align: right;">1.290</td>
-<td style="text-align: left;">0.75609</td>
+<td style="text-align: right;">-0.012</td>
+<td style="text-align: right;">0.988</td>
+<td style="text-align: right;">0.798</td>
+<td style="text-align: right;">1.224</td>
+<td style="text-align: left;">0.913</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameOpus 4.6</td>
-<td style="text-align: right;">-0.247</td>
-<td style="text-align: right;">0.781</td>
-<td style="text-align: right;">0.598</td>
-<td style="text-align: right;">1.020</td>
-<td style="text-align: left;">0.06989</td>
+<td style="text-align: right;">0.060</td>
+<td style="text-align: right;">1.062</td>
+<td style="text-align: right;">0.857</td>
+<td style="text-align: right;">1.316</td>
+<td style="text-align: left;">0.584</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">prompt_styleaugmented</td>
-<td style="text-align: right;">0.417</td>
-<td style="text-align: right;">1.517</td>
-<td style="text-align: right;">1.152</td>
-<td style="text-align: right;">1.999</td>
-<td style="text-align: left;">0.00304</td>
+<td style="text-align: right;">0.730</td>
+<td style="text-align: right;">2.074</td>
+<td style="text-align: right;">1.654</td>
+<td style="text-align: right;">2.601</td>
+<td style="text-align: left;">&lt;0.001</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">enable_thinkingTRUE</td>
-<td style="text-align: right;">0.506</td>
-<td style="text-align: right;">1.659</td>
-<td style="text-align: right;">1.257</td>
-<td style="text-align: right;">2.189</td>
-<td style="text-align: left;">&lt; 0.001</td>
+<td style="text-align: right;">0.820</td>
+<td style="text-align: right;">2.270</td>
+<td style="text-align: right;">1.806</td>
+<td style="text-align: right;">2.853</td>
+<td style="text-align: left;">&lt;0.001</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">vot_ray_traceTRUE</td>
-<td style="text-align: right;">0.331</td>
-<td style="text-align: right;">1.393</td>
-<td style="text-align: right;">1.262</td>
-<td style="text-align: right;">1.537</td>
-<td style="text-align: left;">&lt; 0.001</td>
+<td style="text-align: right;">0.201</td>
+<td style="text-align: right;">1.223</td>
+<td style="text-align: right;">1.126</td>
+<td style="text-align: right;">1.328</td>
+<td style="text-align: left;">&lt;0.001</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">cells_traveled</td>
-<td style="text-align: right;">-0.193</td>
-<td style="text-align: right;">0.824</td>
+<td style="text-align: right;">-0.211</td>
 <td style="text-align: right;">0.810</td>
-<td style="text-align: right;">0.839</td>
-<td style="text-align: left;">&lt; 0.001</td>
+<td style="text-align: right;">0.797</td>
+<td style="text-align: right;">0.823</td>
+<td style="text-align: left;">&lt;0.001</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">atoms_affecting</td>
-<td style="text-align: right;">-0.426</td>
-<td style="text-align: right;">0.653</td>
-<td style="text-align: right;">0.609</td>
-<td style="text-align: right;">0.700</td>
-<td style="text-align: left;">&lt; 0.001</td>
+<td style="text-align: right;">-0.473</td>
+<td style="text-align: right;">0.623</td>
+<td style="text-align: right;">0.585</td>
+<td style="text-align: right;">0.663</td>
+<td style="text-align: left;">&lt;0.001</td>
 </tr>
 </tbody>
 </table>
@@ -2949,14 +3023,14 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 
 Response: correct
                                   Chisq Df Pr(&gt;Chisq)    
-(Intercept)                     29.7344  1  4.955e-08 ***
-model_name                       6.6536  4  0.1553678    
-cells_traveled                 117.9076  1  &lt; 2.2e-16 ***
-prompt_style                    17.7454  1  2.525e-05 ***
-enable_thinking                  6.0914  1  0.0135840 *  
-model_name:cells_traveled        3.3708  4  0.4977870    
-cells_traveled:prompt_style     13.4154  1  0.0002496 ***
-cells_traveled:enable_thinking  45.6720  1  1.398e-11 ***
+(Intercept)                     33.7796  1  6.172e-09 ***
+model_name                       6.9791  4   0.136997    
+cells_traveled                 191.0674  1  &lt; 2.2e-16 ***
+prompt_style                    16.1232  1  5.935e-05 ***
+enable_thinking                  9.4523  1   0.002109 ** 
+model_name:cells_traveled        5.2759  4   0.260137    
+cells_traveled:prompt_style     26.1911  1  3.093e-07 ***
+cells_traveled:enable_thinking  57.0123  1  4.331e-14 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -2987,50 +3061,50 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.5:cells_traveled</td>
-<td style="text-align: right;">-0.030</td>
-<td style="text-align: right;">0.970</td>
-<td style="text-align: right;">0.922</td>
-<td style="text-align: right;">1.021</td>
-<td style="text-align: left;">0.251</td>
+<td style="text-align: right;">-0.027</td>
+<td style="text-align: right;">0.973</td>
+<td style="text-align: right;">0.928</td>
+<td style="text-align: right;">1.020</td>
+<td style="text-align: left;">0.253</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.6:cells_traveled</td>
-<td style="text-align: right;">-0.020</td>
-<td style="text-align: right;">0.980</td>
-<td style="text-align: right;">0.932</td>
-<td style="text-align: right;">1.030</td>
-<td style="text-align: left;">0.424</td>
+<td style="text-align: right;">-0.008</td>
+<td style="text-align: right;">0.992</td>
+<td style="text-align: right;">0.946</td>
+<td style="text-align: right;">1.041</td>
+<td style="text-align: left;">0.752</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.5:cells_traveled</td>
-<td style="text-align: right;">-0.015</td>
-<td style="text-align: right;">0.985</td>
+<td style="text-align: right;">-0.019</td>
+<td style="text-align: right;">0.981</td>
 <td style="text-align: right;">0.936</td>
-<td style="text-align: right;">1.037</td>
-<td style="text-align: left;">0.565</td>
+<td style="text-align: right;">1.028</td>
+<td style="text-align: left;">0.425</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameOpus 4.6:cells_traveled</td>
-<td style="text-align: right;">0.019</td>
-<td style="text-align: right;">1.020</td>
-<td style="text-align: right;">0.961</td>
-<td style="text-align: right;">1.082</td>
-<td style="text-align: left;">0.518</td>
+<td style="text-align: right;">0.024</td>
+<td style="text-align: right;">1.024</td>
+<td style="text-align: right;">0.977</td>
+<td style="text-align: right;">1.073</td>
+<td style="text-align: left;">0.318</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">cells_traveled:prompt_styleaugmented</td>
-<td style="text-align: right;">0.070</td>
-<td style="text-align: right;">1.072</td>
-<td style="text-align: right;">1.033</td>
-<td style="text-align: right;">1.113</td>
+<td style="text-align: right;">0.081</td>
+<td style="text-align: right;">1.084</td>
+<td style="text-align: right;">1.051</td>
+<td style="text-align: right;">1.119</td>
 <td style="text-align: left;">&lt;0.001</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">cells_traveled:enable_thinkingTRUE</td>
-<td style="text-align: right;">0.119</td>
-<td style="text-align: right;">1.126</td>
-<td style="text-align: right;">1.088</td>
-<td style="text-align: right;">1.166</td>
+<td style="text-align: right;">0.121</td>
+<td style="text-align: right;">1.128</td>
+<td style="text-align: right;">1.093</td>
+<td style="text-align: right;">1.164</td>
 <td style="text-align: left;">&lt;0.001</td>
 </tr>
 </tbody>
@@ -3109,15 +3183,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <pre><code>Analysis of Deviance Table (Type III Wald chisquare tests)
 
 Response: correct
-                                   Chisq Df Pr(&gt;Chisq)    
-(Intercept)                       1.8864  1  0.1696140    
-model_name                        1.5854  4  0.8114087    
-atoms_affecting                  11.4494  1  0.0007152 ***
-prompt_style                    829.0255  1  &lt; 2.2e-16 ***
-enable_thinking                  63.6583  1  1.480e-15 ***
-model_name:atoms_affecting        2.7201  4  0.6057016    
-atoms_affecting:prompt_style    218.2487  1  &lt; 2.2e-16 ***
-atoms_affecting:enable_thinking  38.1438  1  6.572e-10 ***
+                                    Chisq Df Pr(&gt;Chisq)    
+(Intercept)                        1.1755  1  0.2782769    
+model_name                         0.8500  4  0.9316218    
+atoms_affecting                   12.3463  1  0.0004419 ***
+prompt_style                    1124.3690  1  &lt; 2.2e-16 ***
+enable_thinking                   79.3057  1  &lt; 2.2e-16 ***
+model_name:atoms_affecting         3.2405  4  0.5184134    
+atoms_affecting:prompt_style     320.0841  1  &lt; 2.2e-16 ***
+atoms_affecting:enable_thinking   55.2104  1  1.083e-13 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -3148,50 +3222,50 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.5:atoms_affecting</td>
-<td style="text-align: right;">0.093</td>
-<td style="text-align: right;">1.098</td>
-<td style="text-align: right;">0.916</td>
-<td style="text-align: right;">1.315</td>
-<td style="text-align: left;">0.313</td>
+<td style="text-align: right;">0.104</td>
+<td style="text-align: right;">1.109</td>
+<td style="text-align: right;">0.943</td>
+<td style="text-align: right;">1.305</td>
+<td style="text-align: left;">0.2101</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.6:atoms_affecting</td>
-<td style="text-align: right;">0.102</td>
-<td style="text-align: right;">1.108</td>
-<td style="text-align: right;">0.931</td>
-<td style="text-align: right;">1.319</td>
-<td style="text-align: left;">0.250</td>
+<td style="text-align: right;">0.145</td>
+<td style="text-align: right;">1.156</td>
+<td style="text-align: right;">0.980</td>
+<td style="text-align: right;">1.363</td>
+<td style="text-align: left;">0.0851</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.5:atoms_affecting</td>
-<td style="text-align: right;">0.049</td>
-<td style="text-align: right;">1.050</td>
-<td style="text-align: right;">0.878</td>
-<td style="text-align: right;">1.257</td>
-<td style="text-align: left;">0.592</td>
+<td style="text-align: right;">0.068</td>
+<td style="text-align: right;">1.071</td>
+<td style="text-align: right;">0.911</td>
+<td style="text-align: right;">1.259</td>
+<td style="text-align: left;">0.4077</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameOpus 4.6:atoms_affecting</td>
-<td style="text-align: right;">0.158</td>
-<td style="text-align: right;">1.171</td>
-<td style="text-align: right;">0.952</td>
-<td style="text-align: right;">1.440</td>
-<td style="text-align: left;">0.135</td>
+<td style="text-align: right;">0.083</td>
+<td style="text-align: right;">1.087</td>
+<td style="text-align: right;">0.924</td>
+<td style="text-align: right;">1.279</td>
+<td style="text-align: left;">0.3156</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">atoms_affecting:prompt_styleaugmented</td>
-<td style="text-align: right;">-1.011</td>
-<td style="text-align: right;">0.364</td>
-<td style="text-align: right;">0.318</td>
-<td style="text-align: right;">0.416</td>
+<td style="text-align: right;">-1.021</td>
+<td style="text-align: right;">0.360</td>
+<td style="text-align: right;">0.322</td>
+<td style="text-align: right;">0.403</td>
 <td style="text-align: left;">&lt;0.001</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">atoms_affecting:enable_thinkingTRUE</td>
-<td style="text-align: right;">0.380</td>
-<td style="text-align: right;">1.463</td>
-<td style="text-align: right;">1.296</td>
-<td style="text-align: right;">1.650</td>
+<td style="text-align: right;">0.414</td>
+<td style="text-align: right;">1.512</td>
+<td style="text-align: right;">1.356</td>
+<td style="text-align: right;">1.687</td>
 <td style="text-align: left;">&lt;0.001</td>
 </tr>
 </tbody>
@@ -3420,21 +3494,21 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">absorbed</td>
-<td style="text-align: right;">590</td>
-<td style="text-align: right;">48</td>
+<td style="text-align: right;">770</td>
+<td style="text-align: right;">62</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">detour</td>
-<td style="text-align: right;">1554</td>
+<td style="text-align: right;">1972</td>
 <td style="text-align: right;">42</td>
-<td style="text-align: right;">378</td>
+<td style="text-align: right;">472</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">reflected</td>
-<td style="text-align: right;">680</td>
+<td style="text-align: right;">856</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">338</td>
+<td style="text-align: right;">394</td>
 </tr>
 </tbody>
 </table>
@@ -3472,38 +3546,38 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tr class="odd">
 <td style="text-align: left;">Haiku 4.5</td>
 <td style="text-align: left;">detour -&gt; detour</td>
-<td style="text-align: right;">366</td>
-<td style="text-align: right;">0.485</td>
+<td style="text-align: right;">450</td>
+<td style="text-align: right;">0.461</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Haiku 4.5</td>
-<td style="text-align: left;">absorbed -&gt; detour</td>
-<td style="text-align: right;">132</td>
-<td style="text-align: right;">0.175</td>
+<td style="text-align: left;">reflected -&gt; detour</td>
+<td style="text-align: right;">180</td>
+<td style="text-align: right;">0.184</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Haiku 4.5</td>
-<td style="text-align: left;">reflected -&gt; detour</td>
-<td style="text-align: right;">124</td>
-<td style="text-align: right;">0.164</td>
+<td style="text-align: left;">absorbed -&gt; detour</td>
+<td style="text-align: right;">174</td>
+<td style="text-align: right;">0.178</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">detour -&gt; detour</td>
-<td style="text-align: right;">314</td>
-<td style="text-align: right;">0.458</td>
+<td style="text-align: right;">400</td>
+<td style="text-align: right;">0.437</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">reflected -&gt; detour</td>
-<td style="text-align: right;">116</td>
-<td style="text-align: right;">0.169</td>
+<td style="text-align: right;">166</td>
+<td style="text-align: right;">0.181</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">absorbed -&gt; detour</td>
-<td style="text-align: right;">110</td>
-<td style="text-align: right;">0.160</td>
+<td style="text-align: right;">152</td>
+<td style="text-align: right;">0.166</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
@@ -3526,38 +3600,38 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tr class="even">
 <td style="text-align: left;">Opus 4.5</td>
 <td style="text-align: left;">detour -&gt; detour</td>
-<td style="text-align: right;">284</td>
-<td style="text-align: right;">0.402</td>
+<td style="text-align: right;">376</td>
+<td style="text-align: right;">0.405</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Opus 4.5</td>
 <td style="text-align: left;">reflected -&gt; detour</td>
-<td style="text-align: right;">134</td>
-<td style="text-align: right;">0.190</td>
+<td style="text-align: right;">180</td>
+<td style="text-align: right;">0.194</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Opus 4.5</td>
 <td style="text-align: left;">absorbed -&gt; detour</td>
-<td style="text-align: right;">132</td>
-<td style="text-align: right;">0.187</td>
+<td style="text-align: right;">166</td>
+<td style="text-align: right;">0.179</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: left;">detour -&gt; detour</td>
-<td style="text-align: right;">222</td>
-<td style="text-align: right;">0.349</td>
+<td style="text-align: right;">378</td>
+<td style="text-align: right;">0.420</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: left;">reflected -&gt; detour</td>
-<td style="text-align: right;">144</td>
-<td style="text-align: right;">0.226</td>
+<td style="text-align: right;">168</td>
+<td style="text-align: right;">0.187</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: left;">absorbed -&gt; detour</td>
-<td style="text-align: right;">92</td>
-<td style="text-align: right;">0.145</td>
+<td style="text-align: right;">154</td>
+<td style="text-align: right;">0.171</td>
 </tr>
 </tbody>
 </table>
@@ -3567,11 +3641,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <section id="budget-tag-hallucination-artifact" class="level3" data-number="4.1.8">
 <h3 data-number="4.1.8" class="anchored" data-anchor-id="budget-tag-hallucination-artifact"><span class="header-section-number">4.1.8</span> Budget Tag Hallucination Artifact</h3>
 <p>During experiment runs, we observed that models occasionally hallucinate XML-like <code>&lt;budget:...&gt;</code> tags in their visible response text—fabricating token usage metadata that mimics internal API bookkeeping. These tags (e.g., <code>&lt;budget:used_tokens&gt;</code>, <code>&lt;budget:token_budget&gt;</code>, <code>&lt;budget:token_usage&gt;</code>) are not present in any prompt or API parameter passed to the model; they appear to be confabulated from the model’s awareness of its extended thinking budget context.</p>
-<p><strong>Prevalence</strong>: 38 of 15510 predictions (0.25%) contained hallucinated budget tags.</p>
+<p><strong>Prevalence</strong>: 54 of 18800 predictions (0.29%) contained hallucinated budget tags.</p>
 <p><strong>Key patterns</strong>:</p>
 <ul>
-<li><strong>Exclusive to extended thinking</strong>: All 38 instances occurred with extended thinking enabled; no instances were found in non-thinking runs.</li>
-<li><strong>100% incorrect</strong>: Every prediction containing a budget tag hallucination was incorrect (0/38 correct).</li>
+<li><strong>Exclusive to extended thinking</strong>: All 54 instances occurred with extended thinking enabled; no instances were found in non-thinking runs.</li>
+<li><strong>100% incorrect</strong>: Every prediction containing a budget tag hallucination was incorrect (0/54 correct).</li>
 <li><strong>Not present in Play mode</strong>: No budget tag hallucinations were found in Play mode data, suggesting the multi-turn conversational structure may suppress this artifact.</li>
 </ul>
 <div class="cell">
@@ -3588,36 +3662,42 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">Opus 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">10</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Haiku 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">8</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">8</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">8</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">2</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Opus 4.5</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -3627,7 +3707,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </table>
 </div>
 </div>
-<p>The perfect correlation with incorrect predictions suggests these hallucinations are a signal of reasoning process failure: when the model generates metadata artifacts instead of reasoning about ray physics, it invariably produces an incorrect prediction. While the overall prevalence is low (0.25%), this artifact represents a qualitatively distinct failure mode—the model confabulating system-level metadata rather than engaging with the task.</p>
+<p>The perfect correlation with incorrect predictions suggests these hallucinations are a signal of reasoning process failure: when the model generates metadata artifacts instead of reasoning about ray physics, it invariably produces an incorrect prediction. While the overall prevalence is low (0.29%), this artifact represents a qualitatively distinct failure mode—the model confabulating system-level metadata rather than engaging with the task.</p>
 </section>
 </section>
 <section id="play-mode-results" class="level2" data-number="4.2">
@@ -3732,7 +3812,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb27-95"><a href="#cb27-95" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Data loaded: 770 experiment results from 35 JSON files.</p>
+<p>Data loaded: 800 experiment results from 37 JSON files.</p>
 <ul>
 <li><strong>Models</strong>: Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</li>
 <li><strong>Prompt styles</strong>: augmented, baseline</li>
@@ -3821,43 +3901,7 @@ if (nrow(missing_play) &gt; 0) {
       "(5 models x 2 prompts x 2 thinking x 4 VoT x 10 configs).\n")
 }</code></pre>
 <div class="cell-output cell-output-stdout">
-<pre><code>**Missing experimental runs detected.**
-
-
-
-Table: Play Mode: Configurations Present (out of 10) by Model and Condition
-
-|condition                                 | Haiku 4.5| Sonnet 4.5| Opus 4.5| Sonnet 4.6| Opus 4.6|
-|:-----------------------------------------|---------:|----------:|--------:|----------:|--------:|
-|Aug &amp;#124; No-Think &amp;#124; A: Grid State  |        10|         10|       10|         10|       10|
-|Aug &amp;#124; No-Think &amp;#124; B: Ray Trace   |        10|         10|       10|         10|       10|
-|Aug &amp;#124; No-Think &amp;#124; C: Hypothesis  |        10|         10|       10|         10|       10|
-|Aug &amp;#124; No-Think &amp;#124; None           |        10|         10|       10|         10|       10|
-|Aug &amp;#124; Think &amp;#124; A: Grid State     |        10|         10|       10|         10|       10|
-|Aug &amp;#124; Think &amp;#124; B: Ray Trace      |        10|         10|       10|         10|        0|
-|Aug &amp;#124; Think &amp;#124; C: Hypothesis     |        10|         10|       10|         10|       10|
-|Aug &amp;#124; Think &amp;#124; None              |        10|         10|       10|         10|       10|
-|Base &amp;#124; No-Think &amp;#124; A: Grid State |        10|         10|       10|         10|       10|
-|Base &amp;#124; No-Think &amp;#124; B: Ray Trace  |        10|         10|       10|         10|       10|
-|Base &amp;#124; No-Think &amp;#124; C: Hypothesis |        10|         10|       10|         10|       10|
-|Base &amp;#124; No-Think &amp;#124; None          |        10|         10|       10|         10|       10|
-|Base &amp;#124; Think &amp;#124; A: Grid State    |        10|         10|       10|         10|       10|
-|Base &amp;#124; Think &amp;#124; B: Ray Trace     |        10|         10|       10|         10|       10|
-|Base &amp;#124; Think &amp;#124; C: Hypothesis    |        10|         10|       10|          0|        0|
-|Base &amp;#124; Think &amp;#124; None             |        10|         10|       10|         10|       10|
-
-
-**Missing conditions detail:**
-
-
-
-Table: Play Mode: Missing Experimental Runs
-
-|Model      |Prompt    |Thinking |VoT           | Missing (n)|Config Indices               |
-|:----------|:---------|:--------|:-------------|-----------:|:----------------------------|
-|Opus 4.6   |augmented |TRUE     |B: Ray Trace  |          10|0, 1, 2, 3, 4, 5, 6, 7, 8, 9 |
-|Opus 4.6   |baseline  |TRUE     |C: Hypothesis |          10|0, 1, 2, 3, 4, 5, 6, 7, 8, 9 |
-|Sonnet 4.6 |baseline  |TRUE     |C: Hypothesis |          10|0, 1, 2, 3, 4, 5, 6, 7, 8, 9 |</code></pre>
+<pre><code>All 800 expected play-mode cells are present (5 models x 2 prompts x 2 thinking x 4 VoT x 10 configs).</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -3880,7 +3924,7 @@ Table: Play Mode: Missing Experimental Runs
 <span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <p>:::</p>
-<p><strong>WARNING: 3 condition(s) have missing configurations (30 total missing cells out of 800 expected).</strong></p>
+<p>All expected play-mode experimental runs are present.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -4434,6 +4478,19 @@ Table: Play Mode: Missing Experimental Runs
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">B: Ray Trace</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3.1</td>
+<td style="text-align: right;">0.74</td>
+<td style="text-align: right;">21.3</td>
+<td style="text-align: right;">5.60</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">11.8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">augmented</td>
+<td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">C: Hypothesis</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: right;">1.9</td>
@@ -4443,7 +4500,7 @@ Table: Play Mode: Missing Experimental Runs
 <td style="text-align: right;">1.03</td>
 <td style="text-align: right;">13.8</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
@@ -4456,7 +4513,7 @@ Table: Play Mode: Missing Experimental Runs
 <td style="text-align: right;">0.99</td>
 <td style="text-align: right;">10.8</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
@@ -4469,7 +4526,7 @@ Table: Play Mode: Missing Experimental Runs
 <td style="text-align: right;">1.08</td>
 <td style="text-align: right;">11.9</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
@@ -4482,7 +4539,7 @@ Table: Play Mode: Missing Experimental Runs
 <td style="text-align: right;">1.05</td>
 <td style="text-align: right;">11.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">FALSE</td>
@@ -4495,7 +4552,7 @@ Table: Play Mode: Missing Experimental Runs
 <td style="text-align: right;">1.09</td>
 <td style="text-align: right;">14.4</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -4508,7 +4565,7 @@ Table: Play Mode: Missing Experimental Runs
 <td style="text-align: right;">1.07</td>
 <td style="text-align: right;">10.2</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -4521,7 +4578,7 @@ Table: Play Mode: Missing Experimental Runs
 <td style="text-align: right;">1.10</td>
 <td style="text-align: right;">10.1</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: left;">baseline</td>
 <td style="text-align: left;">TRUE</td>
@@ -4533,6 +4590,19 @@ Table: Play Mode: Missing Experimental Runs
 <td style="text-align: right;">7.37</td>
 <td style="text-align: right;">0.97</td>
 <td style="text-align: right;">9.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Opus 4.6</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">1.35</td>
+<td style="text-align: right;">26.7</td>
+<td style="text-align: right;">8.43</td>
+<td style="text-align: right;">1.11</td>
+<td style="text-align: right;">10.1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Sonnet 4.5</td>
@@ -4937,6 +5007,19 @@ Table: Play Mode: Missing Experimental Runs
 <td style="text-align: right;">0.96</td>
 <td style="text-align: right;">8.3</td>
 </tr>
+<tr class="even">
+<td style="text-align: left;">Sonnet 4.6</td>
+<td style="text-align: left;">baseline</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">C: Hypothesis</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">1.16</td>
+<td style="text-align: right;">29.3</td>
+<td style="text-align: right;">6.91</td>
+<td style="text-align: right;">0.91</td>
+<td style="text-align: right;">10.7</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -5011,23 +5094,23 @@ Table: Play Mode: Missing Experimental Runs
 </tr>
 <tr class="odd">
 <td style="text-align: left;">B: Ray Trace</td>
-<td style="text-align: right;">190</td>
-<td style="text-align: right;">1.21</td>
-<td style="text-align: right;">1.38</td>
-<td style="text-align: right;">28.60</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">1.30</td>
+<td style="text-align: right;">1.41</td>
+<td style="text-align: right;">28.24</td>
 <td style="text-align: right;">8.95</td>
-<td style="text-align: right;">10.39</td>
+<td style="text-align: right;">10.46</td>
 <td style="text-align: right;">1.00</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">C: Hypothesis</td>
-<td style="text-align: right;">180</td>
+<td style="text-align: right;">200</td>
 <td style="text-align: right;">1.31</td>
-<td style="text-align: right;">1.36</td>
-<td style="text-align: right;">30.06</td>
-<td style="text-align: right;">9.40</td>
-<td style="text-align: right;">11.74</td>
-<td style="text-align: right;">1.03</td>
+<td style="text-align: right;">1.35</td>
+<td style="text-align: right;">29.85</td>
+<td style="text-align: right;">9.24</td>
+<td style="text-align: right;">11.61</td>
+<td style="text-align: right;">1.02</td>
 </tr>
 </tbody>
 </table>
@@ -5094,82 +5177,82 @@ Table: Play Mode: Missing Experimental Runs
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
+<td style="text-align: left;">Opus 4.6 | Aug | Think | B: Ray Trace</td>
+<td style="text-align: left;">3.1 ± 0.23</td>
+<td style="text-align: right;">21.3</td>
+<td style="text-align: left;">30%</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
 <td style="text-align: left;">Sonnet 4.6 | Aug | Think | B: Ray Trace</td>
 <td style="text-align: left;">3 ± 0.3</td>
 <td style="text-align: right;">20.9</td>
 <td style="text-align: left;">30%</td>
 <td style="text-align: right;">10</td>
 </tr>
-<tr class="even">
-<td style="text-align: right;">2</td>
+<tr class="odd">
+<td style="text-align: right;">3</td>
 <td style="text-align: left;">Sonnet 4.6 | Aug | Think | None</td>
 <td style="text-align: left;">2.6 ± 0.4</td>
 <td style="text-align: right;">24.5</td>
 <td style="text-align: left;">30%</td>
 <td style="text-align: right;">10</td>
 </tr>
-<tr class="odd">
-<td style="text-align: right;">3</td>
+<tr class="even">
+<td style="text-align: right;">4</td>
 <td style="text-align: left;">Opus 4.6 | Aug | Think | A: Grid State</td>
 <td style="text-align: left;">2.5 ± 0.4</td>
 <td style="text-align: right;">25.5</td>
 <td style="text-align: left;">30%</td>
 <td style="text-align: right;">10</td>
 </tr>
-<tr class="even">
-<td style="text-align: right;">4</td>
+<tr class="odd">
+<td style="text-align: right;">5</td>
 <td style="text-align: left;">Opus 4.6 | Aug | Think | None</td>
 <td style="text-align: left;">2.4 ± 0.43</td>
 <td style="text-align: right;">23.3</td>
 <td style="text-align: left;">30%</td>
 <td style="text-align: right;">10</td>
 </tr>
-<tr class="odd">
-<td style="text-align: right;">5</td>
+<tr class="even">
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">Sonnet 4.6 | Aug | Think | A: Grid State</td>
 <td style="text-align: left;">2.4 ± 0.37</td>
 <td style="text-align: right;">24.3</td>
 <td style="text-align: left;">30%</td>
 <td style="text-align: right;">10</td>
 </tr>
-<tr class="even">
-<td style="text-align: right;">6</td>
+<tr class="odd">
+<td style="text-align: right;">7</td>
 <td style="text-align: left;">Sonnet 4.6 | Aug | Think | C: Hypothesis</td>
 <td style="text-align: left;">2.4 ± 0.54</td>
 <td style="text-align: right;">27.9</td>
 <td style="text-align: left;">40%</td>
 <td style="text-align: right;">10</td>
 </tr>
-<tr class="odd">
-<td style="text-align: right;">7</td>
+<tr class="even">
+<td style="text-align: right;">8</td>
 <td style="text-align: left;">Opus 4.5 | Aug | Think | A: Grid State</td>
 <td style="text-align: left;">2 ± 0.49</td>
 <td style="text-align: right;">24.2</td>
 <td style="text-align: left;">20%</td>
 <td style="text-align: right;">10</td>
 </tr>
-<tr class="even">
-<td style="text-align: right;">8</td>
+<tr class="odd">
+<td style="text-align: right;">9</td>
 <td style="text-align: left;">Sonnet 4.5 | Aug | Think | None</td>
 <td style="text-align: left;">2 ± 0.37</td>
 <td style="text-align: right;">24.6</td>
 <td style="text-align: left;">10%</td>
 <td style="text-align: right;">10</td>
 </tr>
-<tr class="odd">
-<td style="text-align: right;">9</td>
+<tr class="even">
+<td style="text-align: right;">10</td>
 <td style="text-align: left;">Opus 4.5 | Aug | Think | B: Ray Trace</td>
 <td style="text-align: left;">1.9 ± 0.48</td>
 <td style="text-align: right;">23.5</td>
 <td style="text-align: left;">20%</td>
-<td style="text-align: right;">10</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">10</td>
-<td style="text-align: left;">Haiku 4.5 | Aug | Think | None</td>
-<td style="text-align: left;">1.9 ± 0.55</td>
-<td style="text-align: right;">26.4</td>
-<td style="text-align: left;">30%</td>
 <td style="text-align: right;">10</td>
 </tr>
 </tbody>
@@ -5231,29 +5314,29 @@ Table: Play Mode: Missing Experimental Runs
 
 Response: atoms_correct
                                           Chisq Df Pr(&gt;Chisq)    
-(Intercept)                             39.7702  1  2.857e-10 ***
-model_name                               1.5320  4  0.8209627    
-prompt_style                             0.0001  1  0.9912308    
-enable_thinking                          1.0262  1  0.3110543    
-vot_condition                            0.9336  3  0.8173015    
-mean_cells_per_ray                      22.3606  1  2.260e-06 ***
-mean_atoms_per_ray                      21.0404  1  4.497e-06 ***
-model_name:prompt_style                  4.6884  4  0.3207871    
-model_name:enable_thinking               6.5045  4  0.1645068    
-prompt_style:enable_thinking            14.7877  1  0.0001203 ***
-model_name:prompt_style:enable_thinking  4.5621  4  0.3352458    
+(Intercept)                             36.7258  1  1.360e-09 ***
+model_name                               1.5088  4  0.8250739    
+prompt_style                             0.0006  1  0.9806273    
+enable_thinking                          0.9931  1  0.3189900    
+vot_condition                            0.3893  3  0.9424481    
+mean_cells_per_ray                      18.5125  1  1.688e-05 ***
+mean_atoms_per_ray                      21.4161  1  3.697e-06 ***
+model_name:prompt_style                  4.6153  4  0.3290917    
+model_name:enable_thinking               7.8392  4  0.0976474 .  
+prompt_style:enable_thinking            14.7514  1  0.0001227 ***
+model_name:prompt_style:enable_thinking  4.2548  4  0.3726239    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code> Groups       Name        Std.Dev.
- config_index (Intercept) 0.82325 
- Residual                 0.81788 </code></pre>
+ config_index (Intercept) 0.82034 
+ Residual                 0.82211 </code></pre>
 </div>
 </div>
 <p><strong>Random Effects</strong> — Configuration (config_index) variance accounts for config-level difficulty and allows generalization beyond these 10 configurations.</p>
-<p><strong>ICC</strong>: 0.503 — Proportion of variance due to configuration clustering</p>
-<p><strong>Model Fit</strong>: - <strong>Marginal R²</strong> (fixed effects only): 0.193 - <strong>Conditional R²</strong> (fixed + random effects): 0.599</p>
+<p><strong>ICC</strong>: 0.499 — Proportion of variance due to configuration clustering</p>
+<p><strong>Model Fit</strong>: - <strong>Marginal R²</strong> (fixed effects only): 0.201 - <strong>Conditional R²</strong> (fixed + random effects): 0.6</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -5280,28 +5363,28 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 
 Response: score
                                           Chisq Df Pr(&gt;Chisq)    
-(Intercept)                             24.1886  1  8.735e-07 ***
-model_name                              61.1115  4  1.694e-12 ***
-prompt_style                            11.7286  1  0.0006155 ***
-enable_thinking                          5.7823  1  0.0161885 *  
-vot_condition                           10.2471  3  0.0165784 *  
-mean_cells_per_ray                      95.9612  1  &lt; 2.2e-16 ***
-mean_atoms_per_ray                       6.4086  1  0.0113569 *  
-model_name:prompt_style                  8.5821  4  0.0724378 .  
-model_name:enable_thinking              48.6513  4  6.903e-10 ***
-prompt_style:enable_thinking            19.3953  1  1.063e-05 ***
-model_name:prompt_style:enable_thinking  8.0350  4  0.0903043 .  
+(Intercept)                             28.0836  1  1.162e-07 ***
+model_name                              60.7431  4  2.025e-12 ***
+prompt_style                            11.7363  1  0.0006129 ***
+enable_thinking                          5.6520  1  0.0174357 *  
+vot_condition                           14.1810  3  0.0026689 ** 
+mean_cells_per_ray                      89.3372  1  &lt; 2.2e-16 ***
+mean_atoms_per_ray                       7.2678  1  0.0070203 ** 
+model_name:prompt_style                  8.5635  4  0.0729855 .  
+model_name:enable_thinking              54.4989  4  4.137e-11 ***
+prompt_style:enable_thinking            19.4394  1  1.038e-05 ***
+model_name:prompt_style:enable_thinking  8.4127  4  0.0775787 .  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code> Groups       Name        Std.Dev.
- config_index (Intercept) 6.6893  
- Residual                 5.3281  </code></pre>
+ config_index (Intercept) 6.7338  
+ Residual                 5.3369  </code></pre>
 </div>
 </div>
-<p><strong>ICC</strong>: 0.612</p>
-<p><strong>Model Fit</strong>: - <strong>Marginal R²</strong>: 0.171 - <strong>Conditional R²</strong>: 0.678</p>
+<p><strong>ICC</strong>: 0.614</p>
+<p><strong>Model Fit</strong>: - <strong>Marginal R²</strong>: 0.168 - <strong>Conditional R²</strong>: 0.679</p>
 <pre><code>
 ### Effect Modification by Ray Complexity (Play Mode)
 
@@ -5339,16 +5422,16 @@ if (run_play_effect_mod) {
 
 Response: atoms_correct
                                      Chisq Df Pr(&gt;Chisq)    
-(Intercept)                         5.2632  1  0.0217805 *  
-model_name                          8.1162  4  0.0874122 .  
-mean_atoms_per_ray                  2.4432  1  0.1180325    
-prompt_style                       14.4655  1  0.0001428 ***
-enable_thinking                     5.1096  1  0.0237943 *  
-vot_condition                       0.8629  3  0.8343624    
-model_name:mean_atoms_per_ray       2.7474  4  0.6009454    
-mean_atoms_per_ray:prompt_style     1.9772  1  0.1596811    
-mean_atoms_per_ray:enable_thinking  0.1098  1  0.7403316    
-mean_atoms_per_ray:vot_condition    1.0946  3  0.7783675    
+(Intercept)                         5.5252  1  0.0187446 *  
+model_name                          8.7995  4  0.0663112 .  
+mean_atoms_per_ray                  3.0049  1  0.0830152 .  
+prompt_style                       14.1938  1  0.0001649 ***
+enable_thinking                     4.9454  1  0.0261605 *  
+vot_condition                       1.0567  3  0.7875389    
+model_name:mean_atoms_per_ray       2.4541  4  0.6528718    
+mean_atoms_per_ray:prompt_style     1.3903  1  0.2383533    
+mean_atoms_per_ray:enable_thinking  0.0283  1  0.8664139    
+mean_atoms_per_ray:vot_condition    1.3588  3  0.7152269    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -5360,16 +5443,16 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 
 Response: score
                                       Chisq Df Pr(&gt;Chisq)    
-(Intercept)                        130.6763  1  &lt; 2.2e-16 ***
-model_name                           3.2889  4    0.51070    
-mean_atoms_per_ray                  19.8074  1  8.565e-06 ***
-prompt_style                        16.9831  1  3.771e-05 ***
-enable_thinking                      4.5973  1    0.03202 *  
-vot_condition                        0.7654  3    0.85771    
-model_name:mean_atoms_per_ray        7.7270  4    0.10211    
-mean_atoms_per_ray:prompt_style     19.7203  1  8.964e-06 ***
-mean_atoms_per_ray:enable_thinking   0.2612  1    0.60928    
-mean_atoms_per_ray:vot_condition     0.1030  3    0.99147    
+(Intercept)                        131.6743  1  &lt; 2.2e-16 ***
+model_name                           3.8517  4    0.42645    
+mean_atoms_per_ray                  18.7534  1  1.488e-05 ***
+prompt_style                        16.0010  1  6.331e-05 ***
+enable_thinking                      4.6384  1    0.03126 *  
+vot_condition                        0.5511  3    0.90754    
+model_name:mean_atoms_per_ray        8.0824  4    0.08860 .  
+mean_atoms_per_ray:prompt_style     17.9663  1  2.248e-05 ***
+mean_atoms_per_ray:enable_thinking   0.4668  1    0.49447    
+mean_atoms_per_ray:vot_condition     0.3837  3    0.94359    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -5428,111 +5511,111 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">(Intercept)</td>
-<td style="text-align: right;">2.399</td>
-<td style="text-align: right;">0.4306188</td>
-<td style="text-align: right;">5.571</td>
+<td style="text-align: right;">2.227</td>
+<td style="text-align: right;">0.4264751</td>
+<td style="text-align: right;">5.222</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">1.535</td>
-<td style="text-align: right;">3.263</td>
+<td style="text-align: right;">1.371</td>
+<td style="text-align: right;">3.083</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.5</td>
-<td style="text-align: right;">0.132</td>
-<td style="text-align: right;">0.0949023</td>
-<td style="text-align: right;">1.396</td>
-<td style="text-align: left;">0.163</td>
-<td style="text-align: right;">-0.054</td>
-<td style="text-align: right;">0.319</td>
+<td style="text-align: right;">0.130</td>
+<td style="text-align: right;">0.0957763</td>
+<td style="text-align: right;">1.354</td>
+<td style="text-align: left;">0.1762</td>
+<td style="text-align: right;">-0.058</td>
+<td style="text-align: right;">0.318</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.6</td>
-<td style="text-align: right;">0.493</td>
-<td style="text-align: right;">0.0963012</td>
-<td style="text-align: right;">5.118</td>
+<td style="text-align: right;">0.483</td>
+<td style="text-align: right;">0.0955754</td>
+<td style="text-align: right;">5.057</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">0.304</td>
-<td style="text-align: right;">0.682</td>
+<td style="text-align: right;">0.296</td>
+<td style="text-align: right;">0.671</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameOpus 4.5</td>
-<td style="text-align: right;">0.164</td>
-<td style="text-align: right;">0.0946439</td>
-<td style="text-align: right;">1.730</td>
-<td style="text-align: left;">0.084</td>
-<td style="text-align: right;">-0.022</td>
+<td style="text-align: right;">0.162</td>
+<td style="text-align: right;">0.0955281</td>
+<td style="text-align: right;">1.696</td>
+<td style="text-align: left;">0.0903</td>
+<td style="text-align: right;">-0.026</td>
 <td style="text-align: right;">0.350</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.6</td>
-<td style="text-align: right;">0.433</td>
-<td style="text-align: right;">0.0981271</td>
-<td style="text-align: right;">4.418</td>
+<td style="text-align: right;">0.519</td>
+<td style="text-align: right;">0.0955337</td>
+<td style="text-align: right;">5.435</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">0.241</td>
-<td style="text-align: right;">0.626</td>
+<td style="text-align: right;">0.332</td>
+<td style="text-align: right;">0.707</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">prompt_styleaugmented</td>
-<td style="text-align: right;">0.558</td>
-<td style="text-align: right;">0.0611968</td>
-<td style="text-align: right;">9.120</td>
+<td style="text-align: right;">0.591</td>
+<td style="text-align: right;">0.0604765</td>
+<td style="text-align: right;">9.771</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">0.438</td>
-<td style="text-align: right;">0.678</td>
+<td style="text-align: right;">0.472</td>
+<td style="text-align: right;">0.710</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">enable_thinkingTRUE</td>
-<td style="text-align: right;">0.413</td>
-<td style="text-align: right;">0.0618798</td>
-<td style="text-align: right;">6.675</td>
+<td style="text-align: right;">0.447</td>
+<td style="text-align: right;">0.0609174</td>
+<td style="text-align: right;">7.338</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">0.292</td>
-<td style="text-align: right;">0.535</td>
+<td style="text-align: right;">0.327</td>
+<td style="text-align: right;">0.567</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">vot_conditionA: Grid State</td>
 <td style="text-align: right;">0.050</td>
-<td style="text-align: right;">0.0845900</td>
-<td style="text-align: right;">0.592</td>
-<td style="text-align: left;">0.554</td>
-<td style="text-align: right;">-0.116</td>
-<td style="text-align: right;">0.216</td>
+<td style="text-align: right;">0.0853837</td>
+<td style="text-align: right;">0.585</td>
+<td style="text-align: left;">0.5584</td>
+<td style="text-align: right;">-0.118</td>
+<td style="text-align: right;">0.218</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">vot_conditionB: Ray Trace</td>
-<td style="text-align: right;">-0.037</td>
-<td style="text-align: right;">0.0858783</td>
-<td style="text-align: right;">-0.434</td>
-<td style="text-align: left;">0.664</td>
-<td style="text-align: right;">-0.206</td>
-<td style="text-align: right;">0.131</td>
+<td style="text-align: right;">0.024</td>
+<td style="text-align: right;">0.0855034</td>
+<td style="text-align: right;">0.283</td>
+<td style="text-align: left;">0.7771</td>
+<td style="text-align: right;">-0.144</td>
+<td style="text-align: right;">0.192</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">vot_conditionC: Hypothesis</td>
 <td style="text-align: right;">0.032</td>
-<td style="text-align: right;">0.0871899</td>
-<td style="text-align: right;">0.368</td>
-<td style="text-align: left;">0.713</td>
-<td style="text-align: right;">-0.139</td>
-<td style="text-align: right;">0.203</td>
+<td style="text-align: right;">0.0853850</td>
+<td style="text-align: right;">0.380</td>
+<td style="text-align: left;">0.7039</td>
+<td style="text-align: right;">-0.135</td>
+<td style="text-align: right;">0.200</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">mean_atoms_per_ray</td>
-<td style="text-align: right;">-0.698</td>
-<td style="text-align: right;">0.1780700</td>
-<td style="text-align: right;">-3.919</td>
+<td style="text-align: right;">-0.688</td>
+<td style="text-align: right;">0.1764329</td>
+<td style="text-align: right;">-3.900</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">-1.047</td>
-<td style="text-align: right;">-0.348</td>
+<td style="text-align: right;">-1.034</td>
+<td style="text-align: right;">-0.342</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">mean_cells_per_ray</td>
-<td style="text-align: right;">-0.184</td>
-<td style="text-align: right;">0.0370766</td>
-<td style="text-align: right;">-4.955</td>
+<td style="text-align: right;">-0.165</td>
+<td style="text-align: right;">0.0364162</td>
+<td style="text-align: right;">-4.536</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">-0.256</td>
-<td style="text-align: right;">-0.111</td>
+<td style="text-align: right;">-0.237</td>
+<td style="text-align: right;">-0.094</td>
 </tr>
 </tbody>
 </table>
@@ -5582,111 +5665,111 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">(Intercept)</td>
-<td style="text-align: right;">19.555</td>
-<td style="text-align: right;">3.1578635</td>
-<td style="text-align: right;">6.193</td>
-<td style="text-align: left;">&lt; 0.001</td>
-<td style="text-align: right;">13.146</td>
-<td style="text-align: right;">25.965</td>
+<td style="text-align: right;">21.152</td>
+<td style="text-align: right;">3.1408966</td>
+<td style="text-align: right;">6.734</td>
+<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: right;">14.767</td>
+<td style="text-align: right;">27.538</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.5</td>
-<td style="text-align: right;">-0.660</td>
-<td style="text-align: right;">0.6337132</td>
-<td style="text-align: right;">-1.041</td>
-<td style="text-align: left;">0.29827</td>
-<td style="text-align: right;">-1.904</td>
-<td style="text-align: right;">0.584</td>
+<td style="text-align: right;">-0.632</td>
+<td style="text-align: right;">0.6375563</td>
+<td style="text-align: right;">-0.992</td>
+<td style="text-align: left;">0.3217</td>
+<td style="text-align: right;">-1.884</td>
+<td style="text-align: right;">0.619</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.6</td>
-<td style="text-align: right;">1.343</td>
-<td style="text-align: right;">0.6430509</td>
-<td style="text-align: right;">2.088</td>
-<td style="text-align: left;">0.03711</td>
-<td style="text-align: right;">0.080</td>
-<td style="text-align: right;">2.605</td>
+<td style="text-align: right;">1.232</td>
+<td style="text-align: right;">0.6362162</td>
+<td style="text-align: right;">1.937</td>
+<td style="text-align: left;">0.0532</td>
+<td style="text-align: right;">-0.017</td>
+<td style="text-align: right;">2.481</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameOpus 4.5</td>
-<td style="text-align: right;">-0.884</td>
-<td style="text-align: right;">0.6319842</td>
-<td style="text-align: right;">-1.399</td>
-<td style="text-align: left;">0.16218</td>
-<td style="text-align: right;">-2.125</td>
-<td style="text-align: right;">0.356</td>
+<td style="text-align: right;">-0.867</td>
+<td style="text-align: right;">0.6359000</td>
+<td style="text-align: right;">-1.363</td>
+<td style="text-align: left;">0.1732</td>
+<td style="text-align: right;">-2.115</td>
+<td style="text-align: right;">0.381</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.6</td>
-<td style="text-align: right;">1.501</td>
-<td style="text-align: right;">0.6552436</td>
-<td style="text-align: right;">2.291</td>
-<td style="text-align: left;">0.02225</td>
-<td style="text-align: right;">0.215</td>
-<td style="text-align: right;">2.787</td>
+<td style="text-align: right;">0.858</td>
+<td style="text-align: right;">0.6359414</td>
+<td style="text-align: right;">1.349</td>
+<td style="text-align: left;">0.1776</td>
+<td style="text-align: right;">-0.390</td>
+<td style="text-align: right;">2.106</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">prompt_styleaugmented</td>
-<td style="text-align: right;">0.429</td>
-<td style="text-align: right;">0.4086455</td>
-<td style="text-align: right;">1.051</td>
-<td style="text-align: left;">0.29378</td>
-<td style="text-align: right;">-0.373</td>
-<td style="text-align: right;">1.232</td>
+<td style="text-align: right;">0.313</td>
+<td style="text-align: right;">0.4025775</td>
+<td style="text-align: right;">0.779</td>
+<td style="text-align: left;">0.4365</td>
+<td style="text-align: right;">-0.477</td>
+<td style="text-align: right;">1.104</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">enable_thinkingTRUE</td>
-<td style="text-align: right;">-3.672</td>
-<td style="text-align: right;">0.4132404</td>
-<td style="text-align: right;">-8.885</td>
-<td style="text-align: left;">&lt; 0.001</td>
-<td style="text-align: right;">-4.483</td>
-<td style="text-align: right;">-2.861</td>
+<td style="text-align: right;">-4.008</td>
+<td style="text-align: right;">0.4055416</td>
+<td style="text-align: right;">-9.884</td>
+<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: right;">-4.804</td>
+<td style="text-align: right;">-3.212</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">vot_conditionA: Grid State</td>
 <td style="text-align: right;">0.659</td>
-<td style="text-align: right;">0.5648487</td>
-<td style="text-align: right;">1.166</td>
-<td style="text-align: left;">0.24391</td>
-<td style="text-align: right;">-0.450</td>
-<td style="text-align: right;">1.768</td>
+<td style="text-align: right;">0.5683714</td>
+<td style="text-align: right;">1.160</td>
+<td style="text-align: left;">0.2465</td>
+<td style="text-align: right;">-0.456</td>
+<td style="text-align: right;">1.775</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">vot_conditionB: Ray Trace</td>
-<td style="text-align: right;">-0.217</td>
-<td style="text-align: right;">0.5734542</td>
-<td style="text-align: right;">-0.379</td>
-<td style="text-align: left;">0.70511</td>
-<td style="text-align: right;">-1.343</td>
-<td style="text-align: right;">0.909</td>
+<td style="text-align: right;">-0.618</td>
+<td style="text-align: right;">0.5691713</td>
+<td style="text-align: right;">-1.085</td>
+<td style="text-align: left;">0.2782</td>
+<td style="text-align: right;">-1.735</td>
+<td style="text-align: right;">0.500</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">vot_conditionC: Hypothesis</td>
-<td style="text-align: right;">1.519</td>
-<td style="text-align: right;">0.5822096</td>
-<td style="text-align: right;">2.609</td>
-<td style="text-align: left;">0.00925</td>
-<td style="text-align: right;">0.376</td>
-<td style="text-align: right;">2.662</td>
+<td style="text-align: right;">1.307</td>
+<td style="text-align: right;">0.5683804</td>
+<td style="text-align: right;">2.299</td>
+<td style="text-align: left;">0.0218</td>
+<td style="text-align: right;">0.191</td>
+<td style="text-align: right;">2.422</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">mean_atoms_per_ray</td>
-<td style="text-align: right;">-4.048</td>
-<td style="text-align: right;">1.1943510</td>
-<td style="text-align: right;">-3.389</td>
-<td style="text-align: left;">&lt; 0.001</td>
-<td style="text-align: right;">-6.393</td>
-<td style="text-align: right;">-1.703</td>
+<td style="text-align: right;">-4.154</td>
+<td style="text-align: right;">1.1798731</td>
+<td style="text-align: right;">-3.521</td>
+<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: right;">-6.471</td>
+<td style="text-align: right;">-1.838</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">mean_cells_per_ray</td>
-<td style="text-align: right;">2.353</td>
-<td style="text-align: right;">0.2479555</td>
-<td style="text-align: right;">9.489</td>
-<td style="text-align: left;">&lt; 0.001</td>
-<td style="text-align: right;">1.866</td>
-<td style="text-align: right;">2.840</td>
+<td style="text-align: right;">2.172</td>
+<td style="text-align: right;">0.2427849</td>
+<td style="text-align: right;">8.944</td>
+<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: right;">1.695</td>
+<td style="text-align: right;">2.648</td>
 </tr>
 </tbody>
 </table>
@@ -5700,8 +5783,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>std_coef_score <span class="ot">&lt;-</span> <span class="fu">standardize_parameters</span>(lmer_score, <span class="at">method =</span> <span class="st">"refit"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p><strong>Model Fit — Atoms Correct</strong>: - Marginal R²: 0.153 - Conditional R²: 0.574</p>
-<p><strong>Model Fit — Score</strong>: - Marginal R²: 0.123 - Conditional R²: 0.65</p>
+<p><strong>Model Fit — Atoms Correct</strong>: - Marginal R²: 0.158 - Conditional R²: 0.572</p>
+<p><strong>Model Fit — Score</strong>: - Marginal R²: 0.117 - Conditional R²: 0.649</p>
 <section id="standardized-coefficients-beta-weights" class="level4" data-number="4.2.3.1">
 <h4 data-number="4.2.3.1" class="anchored" data-anchor-id="standardized-coefficients-beta-weights"><span class="header-section-number">4.2.3.1</span> Standardized Coefficients (Beta Weights)</h4>
 <p>Allows comparison of relative importance across fixed effects (based on fixed effects only).</p>
@@ -5712,16 +5795,16 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 
 Parameter                   | Std. Coef. |         95% CI
 ---------------------------------------------------------
-prompt style [augmented]    |       0.41 | [ 0.32,  0.49]
-model name [Sonnet 4.6]     |       0.36 | [ 0.22,  0.50]
-model name [Opus 4.6]       |       0.32 | [ 0.18,  0.46]
-enable thinking [TRUE]      |       0.30 | [ 0.21,  0.39]
-mean atoms per ray          |      -0.15 | [-0.22, -0.07]
-mean cells per ray          |      -0.13 | [-0.19, -0.08]
+prompt style [augmented]    |       0.43 | [ 0.34,  0.51]
+model name [Opus 4.6]       |       0.38 | [ 0.24,  0.51]
+model name [Sonnet 4.6]     |       0.35 | [ 0.21,  0.49]
+enable thinking [TRUE]      |       0.32 | [ 0.24,  0.41]
+mean atoms per ray          |      -0.14 | [-0.22, -0.07]
+mean cells per ray          |      -0.12 | [-0.17, -0.07]
 model name [Opus 4.5]       |       0.12 | [-0.02,  0.25]
-model name [Sonnet 4.5]     |       0.10 | [-0.04,  0.23]
-vot conditionA × Grid State |       0.04 | [-0.08,  0.16]
-vot conditionB × Ray Trace  |      -0.03 | [-0.15,  0.10]</code></pre>
+model name [Sonnet 4.5]     |       0.09 | [-0.04,  0.23]
+vot conditionA × Grid State |       0.04 | [-0.09,  0.16]
+vot conditionC × Hypothesis |       0.02 | [-0.10,  0.14]</code></pre>
 </div>
 </div>
 <p><strong>Score (Top 10)</strong>:</p>
@@ -5731,16 +5814,16 @@ vot conditionB × Ray Trace  |      -0.03 | [-0.15,  0.10]</code></pre>
 
 Parameter                   | Std. Coef. |         95% CI
 ---------------------------------------------------------
-enable thinking [TRUE]      |      -0.40 | [-0.49, -0.31]
-mean cells per ray          |       0.26 | [ 0.21,  0.31]
-vot conditionC × Hypothesis |       0.17 | [ 0.04,  0.29]
-model name [Opus 4.6]       |       0.16 | [ 0.02,  0.31]
-model name [Sonnet 4.6]     |       0.15 | [ 0.01,  0.29]
-mean atoms per ray          |      -0.13 | [-0.20, -0.05]
+enable thinking [TRUE]      |      -0.44 | [-0.53, -0.35]
+mean cells per ray          |       0.24 | [ 0.19,  0.29]
+vot conditionC × Hypothesis |       0.14 | [ 0.02,  0.27]
+model name [Sonnet 4.6]     |       0.14 | [ 0.00,  0.27]
+mean atoms per ray          |      -0.13 | [-0.21, -0.06]
 model name [Opus 4.5]       |      -0.10 | [-0.23,  0.04]
-model name [Sonnet 4.5]     |      -0.07 | [-0.21,  0.06]
-vot conditionA × Grid State |       0.07 | [-0.05,  0.19]
-prompt style [augmented]    |       0.05 | [-0.04,  0.14]</code></pre>
+model name [Opus 4.6]       |       0.09 | [-0.04,  0.23]
+vot conditionA × Grid State |       0.07 | [-0.05,  0.20]
+model name [Sonnet 4.5]     |      -0.07 | [-0.21,  0.07]
+vot conditionB × Ray Trace  |      -0.07 | [-0.19,  0.06]</code></pre>
 </div>
 </div>
 </section>
@@ -5830,7 +5913,7 @@ print(p_play_forest)</code></pre>
 </div>
 </div>
 <p>:::</p>
-<p><strong>Total configurations</strong>: 77 <strong>Best performing</strong>: Sonnet 4.6 | Aug | Think | Ray Trace (mean = 3 atoms correct)</p>
+<p><strong>Total configurations</strong>: 80 <strong>Best performing</strong>: Opus 4.6 | Aug | Think | Ray Trace (mean = 3.1 atoms correct)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -6018,102 +6101,102 @@ print(p_play_forest)</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">1518</td>
-<td style="text-align: right;">0.657</td>
-<td style="text-align: right;">0.012</td>
-<td style="text-align: right;">77</td>
-<td style="text-align: right;">1.883</td>
-<td style="text-align: right;">0.843</td>
-<td style="text-align: right;">27.221</td>
-<td style="text-align: right;">6.652</td>
+<td style="text-align: right;">1840</td>
+<td style="text-align: right;">0.641</td>
+<td style="text-align: right;">0.011</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">1.900</td>
+<td style="text-align: right;">0.836</td>
+<td style="text-align: right;">27.238</td>
+<td style="text-align: right;">6.530</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">1452</td>
-<td style="text-align: right;">0.780</td>
-<td style="text-align: right;">0.011</td>
-<td style="text-align: right;">77</td>
-<td style="text-align: right;">1.909</td>
-<td style="text-align: right;">1.648</td>
-<td style="text-align: right;">23.792</td>
-<td style="text-align: right;">7.489</td>
+<td style="text-align: right;">1760</td>
+<td style="text-align: right;">0.769</td>
+<td style="text-align: right;">0.010</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">1.913</td>
+<td style="text-align: right;">1.647</td>
+<td style="text-align: right;">23.725</td>
+<td style="text-align: right;">7.386</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">1650</td>
-<td style="text-align: right;">0.793</td>
-<td style="text-align: right;">0.010</td>
-<td style="text-align: right;">77</td>
-<td style="text-align: right;">1.442</td>
-<td style="text-align: right;">1.094</td>
-<td style="text-align: right;">24.974</td>
-<td style="text-align: right;">7.436</td>
+<td style="text-align: right;">2000</td>
+<td style="text-align: right;">0.786</td>
+<td style="text-align: right;">0.009</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">1.475</td>
+<td style="text-align: right;">1.102</td>
+<td style="text-align: right;">24.875</td>
+<td style="text-align: right;">7.414</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">1848</td>
-<td style="text-align: right;">0.716</td>
+<td style="text-align: right;">2240</td>
+<td style="text-align: right;">0.713</td>
 <td style="text-align: right;">0.010</td>
-<td style="text-align: right;">77</td>
-<td style="text-align: right;">0.247</td>
-<td style="text-align: right;">0.566</td>
-<td style="text-align: right;">40.234</td>
-<td style="text-align: right;">6.519</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">0.275</td>
+<td style="text-align: right;">0.595</td>
+<td style="text-align: right;">39.987</td>
+<td style="text-align: right;">6.602</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">1188</td>
-<td style="text-align: right;">0.793</td>
-<td style="text-align: right;">0.012</td>
-<td style="text-align: right;">77</td>
+<td style="text-align: right;">1440</td>
 <td style="text-align: right;">0.779</td>
-<td style="text-align: right;">0.912</td>
-<td style="text-align: right;">33.831</td>
-<td style="text-align: right;">6.001</td>
+<td style="text-align: right;">0.011</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">0.812</td>
+<td style="text-align: right;">0.943</td>
+<td style="text-align: right;">33.562</td>
+<td style="text-align: right;">6.063</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">1386</td>
+<td style="text-align: right;">1680</td>
 <td style="text-align: right;">0.824</td>
-<td style="text-align: right;">0.010</td>
-<td style="text-align: right;">77</td>
-<td style="text-align: right;">3.766</td>
-<td style="text-align: right;">0.560</td>
-<td style="text-align: right;">15.909</td>
-<td style="text-align: right;">5.639</td>
+<td style="text-align: right;">0.009</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">3.775</td>
+<td style="text-align: right;">0.551</td>
+<td style="text-align: right;">15.787</td>
+<td style="text-align: right;">5.566</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">1584</td>
-<td style="text-align: right;">0.836</td>
-<td style="text-align: right;">0.009</td>
-<td style="text-align: right;">77</td>
-<td style="text-align: right;">0.364</td>
-<td style="text-align: right;">0.810</td>
-<td style="text-align: right;">34.208</td>
-<td style="text-align: right;">7.204</td>
+<td style="text-align: right;">1920</td>
+<td style="text-align: right;">0.838</td>
+<td style="text-align: right;">0.008</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">0.400</td>
+<td style="text-align: right;">0.851</td>
+<td style="text-align: right;">34.112</td>
+<td style="text-align: right;">7.183</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">1518</td>
-<td style="text-align: right;">0.709</td>
-<td style="text-align: right;">0.012</td>
-<td style="text-align: right;">77</td>
-<td style="text-align: right;">0.818</td>
-<td style="text-align: right;">0.839</td>
-<td style="text-align: right;">31.208</td>
-<td style="text-align: right;">5.841</td>
+<td style="text-align: right;">1840</td>
+<td style="text-align: right;">0.697</td>
+<td style="text-align: right;">0.011</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">0.875</td>
+<td style="text-align: right;">0.905</td>
+<td style="text-align: right;">30.975</td>
+<td style="text-align: right;">5.994</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">1650</td>
-<td style="text-align: right;">0.807</td>
-<td style="text-align: right;">0.010</td>
-<td style="text-align: right;">77</td>
-<td style="text-align: right;">1.078</td>
-<td style="text-align: right;">0.870</td>
-<td style="text-align: right;">26.974</td>
-<td style="text-align: right;">5.316</td>
+<td style="text-align: right;">2000</td>
+<td style="text-align: right;">0.787</td>
+<td style="text-align: right;">0.009</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">1.087</td>
+<td style="text-align: right;">0.860</td>
+<td style="text-align: right;">27.012</td>
+<td style="text-align: right;">5.235</td>
 </tr>
 </tbody>
 </table>
@@ -6250,27 +6333,27 @@ print(p_play_forest)</code></pre>
 <tr class="odd">
 <td style="text-align: left;">Haiku 4.5</td>
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">-0.029</td>
+<td style="text-align: right;">0.031</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">0.287</td>
+<td style="text-align: right;">0.302</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">0.040</td>
+<td style="text-align: right;">0.035</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Opus 4.5</td>
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">0.191</td>
+<td style="text-align: right;">0.230</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">0.166</td>
+<td style="text-align: right;">0.119</td>
 </tr>
 </tbody>
 </table>
@@ -6367,38 +6450,38 @@ print(p_play_forest)</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Haiku 4.5</td>
-<td style="text-align: right;">0.771</td>
+<td style="text-align: right;">0.740</td>
 <td style="text-align: right;">0.264</td>
-<td style="text-align: right;">0.507</td>
-<td style="text-align: left;">50.7 pp</td>
+<td style="text-align: right;">0.476</td>
+<td style="text-align: left;">47.6 pp</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Sonnet 4.5</td>
-<td style="text-align: right;">0.791</td>
+<td style="text-align: right;">0.756</td>
 <td style="text-align: right;">0.295</td>
-<td style="text-align: right;">0.496</td>
-<td style="text-align: left;">49.6 pp</td>
+<td style="text-align: right;">0.461</td>
+<td style="text-align: left;">46.1 pp</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: right;">0.774</td>
-<td style="text-align: right;">0.388</td>
-<td style="text-align: right;">0.386</td>
-<td style="text-align: left;">38.6 pp</td>
+<td style="text-align: right;">0.384</td>
+<td style="text-align: right;">0.390</td>
+<td style="text-align: left;">39 pp</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Opus 4.5</td>
-<td style="text-align: right;">0.785</td>
+<td style="text-align: right;">0.753</td>
 <td style="text-align: right;">0.302</td>
-<td style="text-align: right;">0.484</td>
-<td style="text-align: left;">48.4 pp</td>
+<td style="text-align: right;">0.452</td>
+<td style="text-align: left;">45.2 pp</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
-<td style="text-align: right;">0.662</td>
-<td style="text-align: right;">0.362</td>
-<td style="text-align: right;">0.299</td>
-<td style="text-align: left;">29.9 pp</td>
+<td style="text-align: right;">0.761</td>
+<td style="text-align: right;">0.389</td>
+<td style="text-align: right;">0.372</td>
+<td style="text-align: left;">37.2 pp</td>
 </tr>
 </tbody>
 </table>
@@ -6595,9 +6678,9 @@ Generated: 2026-03-01T17:14:02.565821+00:00 </code></pre>
 <td style="text-align: right;">10.0</td>
 <td style="text-align: right;">1.25</td>
 <td style="text-align: right;">12</td>
-<td style="text-align: right;">32.6</td>
-<td style="text-align: right;">2.72</td>
-<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">32.5</td>
+<td style="text-align: right;">2.71</td>
+<td style="text-align: right;">0.6</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
@@ -6606,7 +6689,7 @@ Generated: 2026-03-01T17:14:02.565821+00:00 </code></pre>
 <td style="text-align: right;">1.29</td>
 <td style="text-align: right;">13</td>
 <td style="text-align: right;">27.2</td>
-<td style="text-align: right;">2.09</td>
+<td style="text-align: right;">2.10</td>
 <td style="text-align: right;">1.9</td>
 </tr>
 <tr class="odd">
@@ -6615,7 +6698,7 @@ Generated: 2026-03-01T17:14:02.565821+00:00 </code></pre>
 <td style="text-align: right;">10.4</td>
 <td style="text-align: right;">1.48</td>
 <td style="text-align: right;">11</td>
-<td style="text-align: right;">23.8</td>
+<td style="text-align: right;">23.7</td>
 <td style="text-align: right;">2.16</td>
 <td style="text-align: right;">1.9</td>
 </tr>
@@ -6625,38 +6708,38 @@ Generated: 2026-03-01T17:14:02.565821+00:00 </code></pre>
 <td style="text-align: right;">10.6</td>
 <td style="text-align: right;">1.51</td>
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">25.0</td>
-<td style="text-align: right;">2.77</td>
-<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">24.9</td>
+<td style="text-align: right;">2.76</td>
+<td style="text-align: right;">1.5</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">12.4</td>
-<td style="text-align: right;">1.77</td>
+<td style="text-align: right;">12.3</td>
+<td style="text-align: right;">1.76</td>
 <td style="text-align: right;">12</td>
-<td style="text-align: right;">40.2</td>
-<td style="text-align: right;">3.35</td>
-<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">40.0</td>
+<td style="text-align: right;">3.33</td>
+<td style="text-align: right;">0.3</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">12.0</td>
+<td style="text-align: right;">11.9</td>
 <td style="text-align: right;">1.33</td>
 <td style="text-align: right;">14</td>
-<td style="text-align: right;">33.8</td>
-<td style="text-align: right;">2.42</td>
+<td style="text-align: right;">33.6</td>
+<td style="text-align: right;">2.40</td>
 <td style="text-align: right;">0.8</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">6</td>
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">11.4</td>
-<td style="text-align: right;">1.43</td>
+<td style="text-align: right;">11.3</td>
+<td style="text-align: right;">1.42</td>
 <td style="text-align: right;">12</td>
-<td style="text-align: right;">15.9</td>
-<td style="text-align: right;">1.33</td>
+<td style="text-align: right;">15.8</td>
+<td style="text-align: right;">1.32</td>
 <td style="text-align: right;">3.8</td>
 </tr>
 <tr class="even">
@@ -6665,8 +6748,8 @@ Generated: 2026-03-01T17:14:02.565821+00:00 </code></pre>
 <td style="text-align: right;">10.5</td>
 <td style="text-align: right;">1.31</td>
 <td style="text-align: right;">12</td>
-<td style="text-align: right;">34.2</td>
-<td style="text-align: right;">2.85</td>
+<td style="text-align: right;">34.1</td>
+<td style="text-align: right;">2.84</td>
 <td style="text-align: right;">0.4</td>
 </tr>
 <tr class="odd">
@@ -6675,18 +6758,18 @@ Generated: 2026-03-01T17:14:02.565821+00:00 </code></pre>
 <td style="text-align: right;">11.8</td>
 <td style="text-align: right;">1.48</td>
 <td style="text-align: right;">10</td>
-<td style="text-align: right;">31.2</td>
-<td style="text-align: right;">3.12</td>
-<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">31.0</td>
+<td style="text-align: right;">3.10</td>
+<td style="text-align: right;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">9.4</td>
-<td style="text-align: right;">1.89</td>
+<td style="text-align: right;">9.5</td>
+<td style="text-align: right;">1.90</td>
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">27.0</td>
-<td style="text-align: right;">3.37</td>
+<td style="text-align: right;">3.38</td>
 <td style="text-align: right;">1.1</td>
 </tr>
 </tbody>
