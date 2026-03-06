@@ -3391,13 +3391,15 @@ rays_long <- comparison |>
   )) |>
   mutate(agent = factor(agent, levels = c("Optimal Solver", best_short_label, "LLM (Mean)")))
 
-ggplot(rays_long, aes(x = factor(config_index), y = rays, fill = agent)) +
-  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
-  scale_fill_manual(values = setNames(
+ggplot(rays_long, aes(x = config_index, y = rays, color = agent, group = agent)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2.5) +
+  scale_color_manual(values = setNames(
     c("#2196F3", "#4CAF50", "#FF9800"),
     c("Optimal Solver", best_short_label, "LLM (Mean)")
   )) +
-  labs(x = "Configuration", y = "Rays Used", fill = NULL,
+  scale_x_continuous(breaks = unique(rays_long$config_index)) +
+  labs(x = "Configuration", y = "Rays Used", color = NULL,
        title = "Rays Used: Optimal vs Best Condition vs LLM Mean") +
   theme_minimal() +
   theme(legend.position = "top")
@@ -3419,13 +3421,15 @@ score_long <- comparison |>
   )) |>
   mutate(agent = factor(agent, levels = c("Optimal Solver", best_short_label, "LLM (Mean)")))
 
-ggplot(score_long, aes(x = factor(config_index), y = score_val, fill = agent)) +
-  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
-  scale_fill_manual(values = setNames(
+ggplot(score_long, aes(x = config_index, y = score_val, color = agent, group = agent)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2.5) +
+  scale_color_manual(values = setNames(
     c("#2196F3", "#4CAF50", "#FF9800"),
     c("Optimal Solver", best_short_label, "LLM (Mean)")
   )) +
-  labs(x = "Configuration", y = "Score (lower is better)", fill = NULL,
+  scale_x_continuous(breaks = unique(score_long$config_index)) +
+  labs(x = "Configuration", y = "Score (lower is better)", color = NULL,
        title = "Score: Optimal vs Best Condition vs LLM Mean") +
   theme_minimal() +
   theme(legend.position = "top")
@@ -3451,17 +3455,18 @@ play_model_config <- play_data |>
     is_best = model_name == best_condition_lookup$model_name
   )
 
-ggplot(play_model_config, aes(x = factor(config_index), y = score_ratio, fill = model_name)) +
-  geom_col(aes(color = is_best), position = position_dodge(width = 0.7), width = 0.6,
-           linewidth = 0.6) +
-  scale_color_manual(values = c("TRUE" = "black", "FALSE" = NA), guide = "none") +
+ggplot(play_model_config, aes(x = config_index, y = score_ratio, color = model_name, group = model_name)) +
+  geom_line(linewidth = 1) +
+  geom_point(aes(shape = is_best), size = 2.5) +
+  scale_shape_manual(values = c("TRUE" = 18, "FALSE" = 16), guide = "none") +
   geom_hline(yintercept = 1.0, linetype = "dashed", color = "grey40") +
-  annotate("text", x = 0.5, y = 1.0, label = "1.0× (optimal)", hjust = 0, vjust = -0.5,
-           size = 3, color = "grey40") +
+  annotate("text", x = min(play_model_config$config_index) - 0.3, y = 1.0,
+           label = "1.0× (optimal)", hjust = 0, vjust = -0.5, size = 3, color = "grey40") +
+  scale_x_continuous(breaks = unique(play_model_config$config_index)) +
   labs(x = "Configuration", y = "Score Ratio (LLM / Optimal)",
-       fill = "Model",
+       color = "Model",
        title = "Score Ratio by Model and Configuration",
-       subtitle = paste0("Dashed line = optimal performance (1.0×). Black outline = best model (",
+       subtitle = paste0("Dashed line = optimal performance (1.0×). Diamond markers = best model (",
                           best_condition_lookup$model_name, ").")) +
   theme_minimal() +
   theme(legend.position = "top")
