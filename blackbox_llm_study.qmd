@@ -1318,7 +1318,7 @@ predict_coverage <- expected_predict_design |>
   mutate(
     condition = paste0(
       ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
-      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
       ifelse(vot_ray_trace, "VoT", "No-VoT")
     )
   )
@@ -1387,7 +1387,7 @@ leaderboard_predict <- predict_data |>
     condition = paste0(
       model_name, " | ",
       ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
-      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
       ifelse(vot_ray_trace, "VoT", "No-VoT")
     )
   ) |>
@@ -1429,7 +1429,7 @@ forest_data <- predict_data |>
     config_label = paste0(
       model_name, " | ",
       ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
-      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
       ifelse(vot_ray_trace, "VoT", "No-VoT")
     )
   ) |>
@@ -2455,7 +2455,7 @@ play_coverage <- expected_play_design |>
   mutate(
     condition = paste0(
       ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
-      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
       vot_condition
     )
   )
@@ -2563,7 +2563,7 @@ leaderboard_play <- play_data |>
     condition = paste0(
       model_name, " | ",
       ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
-      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
       vot_condition
     )
   ) |>
@@ -3264,6 +3264,57 @@ if (has_optimal) {
 ```
 
 ```{r}
+#| label: optimal-best-model-prep
+#| eval: !expr has_optimal
+
+# Identify the best condition by lowest mean score (most comparable to optimal solver)
+best_condition_lookup <- play_data |>
+  mutate(
+    condition = paste0(
+      model_name, " | ",
+      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+      ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
+      vot_condition
+    )
+  ) |>
+  group_by(condition, model_name) |>
+  summarise(
+    score_mean = mean(score),
+    rays_mean = mean(rays_used),
+    atoms_mean = mean(atoms_correct),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  arrange(score_mean) |>
+  slice(1)
+
+best_condition_label <- best_condition_lookup$condition
+
+# Aggregate best condition's data per config_index
+best_config_agg <- play_data |>
+  mutate(
+    condition = paste0(
+      model_name, " | ",
+      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+      ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
+      vot_condition
+    )
+  ) |>
+  filter(condition == best_condition_label) |>
+  group_by(config_index) |>
+  summarise(
+    best_rays_mean = mean(rays_used),
+    best_atoms_mean = mean(atoms_correct),
+    best_score_mean = mean(score),
+    best_n = n(),
+    .groups = "drop"
+  )
+
+# Short label for chart legends (just model name)
+best_short_label <- paste0("Best (", best_condition_lookup$model_name, ")")
+```
+
+```{r}
 #| label: optimal-summary-table
 #| eval: !expr has_optimal
 
@@ -3293,24 +3344,36 @@ play_config_agg <- play_data |>
     .groups = "drop"
   )
 
-# Join with optimal data
+# Join with optimal data and best condition data
 comparison <- inner_join(play_config_agg, optimal_data, by = "config_index") |>
+  left_join(best_config_agg, by = "config_index") |>
   mutate(
     rays_ratio = round(llm_rays_mean / optimal_rays, 2),
-    score_ratio = round(llm_score_mean / optimal_score, 2)
+    score_ratio = round(llm_score_mean / optimal_score, 2),
+    best_rays_ratio = round(best_rays_mean / optimal_rays, 2),
+    best_score_ratio = round(best_score_mean / optimal_score, 2)
   )
 
 kable(comparison |>
-        mutate(across(c(llm_rays_mean, llm_atoms_mean, llm_score_mean), \(x) round(x, 1))) |>
-        select(config_index, optimal_rays, llm_rays_mean, rays_ratio,
-               optimal_score, llm_score_mean, score_ratio, llm_atoms_mean),
-      col.names = c("Config", "Optimal Rays", "LLM Rays (M)", "Rays Ratio",
-                     "Optimal Score", "LLM Score (M)", "Score Ratio", "LLM Atoms (M)"),
-      caption = "LLM vs Optimal Solver: Side-by-side comparison (ratio = LLM / Optimal; higher = worse)") |>
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+        mutate(across(c(llm_rays_mean, llm_atoms_mean, llm_score_mean,
+                        best_rays_mean, best_atoms_mean, best_score_mean), \(x) round(x, 1))) |>
+        select(config_index, optimal_rays, best_rays_mean, best_rays_ratio,
+               llm_rays_mean, rays_ratio,
+               optimal_score, best_score_mean, best_score_ratio,
+               llm_score_mean, score_ratio,
+               best_atoms_mean, llm_atoms_mean),
+      col.names = c("Config", "Opt Rays", "Best Rays (M)", "Best Ratio",
+                     "LLM Rays (M)", "LLM Ratio",
+                     "Opt Score", "Best Score (M)", "Best Ratio",
+                     "LLM Score (M)", "LLM Ratio",
+                     "Best Atoms (M)", "LLM Atoms (M)"),
+      caption = paste0("Optimal vs Best Condition vs LLM Mean (Best = ",
+                        best_condition_label, "; ratio = agent / optimal)")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) |>
+  scroll_box(width = "100%")
 ```
 
-`r if(has_optimal && exists("comparison")) paste0("Across configurations, LLMs use **", round(mean(comparison$rays_ratio), 1), "×** as many rays as the optimal solver on average (range: ", round(min(comparison$rays_ratio), 1), "×–", round(max(comparison$rays_ratio), 1), "×) and achieve scores **", round(mean(comparison$score_ratio), 1), "×** the optimal (range: ", round(min(comparison$score_ratio), 1), "×–", round(max(comparison$score_ratio), 1), "×). Score ratios above 1.0× reflect both extra ray costs and missed-atom penalties.")`
+`r if(has_optimal && exists("comparison")) paste0("Across configurations, LLMs use **", round(mean(comparison$rays_ratio), 1), "×** as many rays as the optimal solver on average (range: ", round(min(comparison$rays_ratio), 1), "×–", round(max(comparison$rays_ratio), 1), "×) and achieve scores **", round(mean(comparison$score_ratio), 1), "×** the optimal (range: ", round(min(comparison$score_ratio), 1), "×–", round(max(comparison$score_ratio), 1), "×). The best condition (", best_condition_label, ") narrows the gap: **", round(mean(comparison$best_rays_ratio, na.rm = TRUE), 1), "×** rays (range: ", round(min(comparison$best_rays_ratio, na.rm = TRUE), 1), "×–", round(max(comparison$best_rays_ratio, na.rm = TRUE), 1), "×) and **", round(mean(comparison$best_score_ratio, na.rm = TRUE), 1), "×** score (range: ", round(min(comparison$best_score_ratio, na.rm = TRUE), 1), "×–", round(max(comparison$best_score_ratio, na.rm = TRUE), 1), "×). Score ratios above 1.0× reflect both extra ray costs and missed-atom penalties.")`
 
 ```{r}
 #| label: optimal-rays-comparison
@@ -3318,16 +3381,24 @@ kable(comparison |>
 #| fig-cap: "Rays Used: LLM (mean across conditions) vs Optimal Solver by Configuration"
 
 rays_long <- comparison |>
-  select(config_index, optimal_rays, llm_rays_mean) |>
-  pivot_longer(cols = c(optimal_rays, llm_rays_mean),
+  select(config_index, optimal_rays, best_rays_mean, llm_rays_mean) |>
+  pivot_longer(cols = c(optimal_rays, best_rays_mean, llm_rays_mean),
                names_to = "agent", values_to = "rays") |>
-  mutate(agent = ifelse(agent == "optimal_rays", "Optimal Solver", "LLM (Mean)"))
+  mutate(agent = case_when(
+    agent == "optimal_rays" ~ "Optimal Solver",
+    agent == "best_rays_mean" ~ best_short_label,
+    TRUE ~ "LLM (Mean)"
+  )) |>
+  mutate(agent = factor(agent, levels = c("Optimal Solver", best_short_label, "LLM (Mean)")))
 
 ggplot(rays_long, aes(x = factor(config_index), y = rays, fill = agent)) +
-  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
-  scale_fill_manual(values = c("Optimal Solver" = "#2196F3", "LLM (Mean)" = "#FF9800")) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  scale_fill_manual(values = setNames(
+    c("#2196F3", "#4CAF50", "#FF9800"),
+    c("Optimal Solver", best_short_label, "LLM (Mean)")
+  )) +
   labs(x = "Configuration", y = "Rays Used", fill = NULL,
-       title = "Rays Used: Optimal Solver vs LLM by Configuration") +
+       title = "Rays Used: Optimal vs Best Condition vs LLM Mean") +
   theme_minimal() +
   theme(legend.position = "top")
 ```
@@ -3338,16 +3409,24 @@ ggplot(rays_long, aes(x = factor(config_index), y = rays, fill = agent)) +
 #| fig-cap: "Score: LLM (mean across conditions) vs Optimal Solver by Configuration"
 
 score_long <- comparison |>
-  select(config_index, optimal_score, llm_score_mean) |>
-  pivot_longer(cols = c(optimal_score, llm_score_mean),
+  select(config_index, optimal_score, best_score_mean, llm_score_mean) |>
+  pivot_longer(cols = c(optimal_score, best_score_mean, llm_score_mean),
                names_to = "agent", values_to = "score_val") |>
-  mutate(agent = ifelse(agent == "optimal_score", "Optimal Solver", "LLM (Mean)"))
+  mutate(agent = case_when(
+    agent == "optimal_score" ~ "Optimal Solver",
+    agent == "best_score_mean" ~ best_short_label,
+    TRUE ~ "LLM (Mean)"
+  )) |>
+  mutate(agent = factor(agent, levels = c("Optimal Solver", best_short_label, "LLM (Mean)")))
 
 ggplot(score_long, aes(x = factor(config_index), y = score_val, fill = agent)) +
-  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
-  scale_fill_manual(values = c("Optimal Solver" = "#2196F3", "LLM (Mean)" = "#FF9800")) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  scale_fill_manual(values = setNames(
+    c("#2196F3", "#4CAF50", "#FF9800"),
+    c("Optimal Solver", best_short_label, "LLM (Mean)")
+  )) +
   labs(x = "Configuration", y = "Score (lower is better)", fill = NULL,
-       title = "Score: Optimal Solver vs LLM by Configuration") +
+       title = "Score: Optimal vs Best Condition vs LLM Mean") +
   theme_minimal() +
   theme(legend.position = "top")
 ```
@@ -3367,17 +3446,23 @@ play_model_config <- play_data |>
     .groups = "drop"
   ) |>
   inner_join(optimal_data, by = "config_index") |>
-  mutate(score_ratio = llm_score_mean / optimal_score)
+  mutate(
+    score_ratio = llm_score_mean / optimal_score,
+    is_best = model_name == best_condition_lookup$model_name
+  )
 
 ggplot(play_model_config, aes(x = factor(config_index), y = score_ratio, fill = model_name)) +
-  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  geom_col(aes(color = is_best), position = position_dodge(width = 0.7), width = 0.6,
+           linewidth = 0.6) +
+  scale_color_manual(values = c("TRUE" = "black", "FALSE" = NA), guide = "none") +
   geom_hline(yintercept = 1.0, linetype = "dashed", color = "grey40") +
   annotate("text", x = 0.5, y = 1.0, label = "1.0× (optimal)", hjust = 0, vjust = -0.5,
            size = 3, color = "grey40") +
   labs(x = "Configuration", y = "Score Ratio (LLM / Optimal)",
        fill = "Model",
        title = "Score Ratio by Model and Configuration",
-       subtitle = "Dashed line = optimal performance (1.0×). Higher bars = worse performance.") +
+       subtitle = paste0("Dashed line = optimal performance (1.0×). Black outline = best model (",
+                          best_condition_lookup$model_name, ").")) +
   theme_minimal() +
   theme(legend.position = "top")
 ```
@@ -3389,8 +3474,14 @@ ggplot(play_model_config, aes(x = factor(config_index), y = score_ratio, fill = 
 
 diff_cor <- cor.test(play_model_config$optimal_rays, play_model_config$llm_atoms_mean)
 
+# Join best condition data with optimal rays for scatter overlay
+best_scatter <- best_config_agg |>
+  inner_join(optimal_data |> select(config_index, optimal_rays), by = "config_index")
+
 ggplot(play_model_config, aes(x = optimal_rays, y = llm_atoms_mean, color = model_name)) +
   geom_jitter(width = 0.1, height = 0.05, size = 2.5, alpha = 0.7) +
+  geom_point(data = best_scatter, aes(x = optimal_rays, y = best_atoms_mean),
+             inherit.aes = FALSE, shape = 18, size = 4.5, color = "#4CAF50") +
   geom_smooth(method = "lm", se = TRUE, aes(group = 1), color = "grey40", linetype = "dashed") +
   labs(x = "Optimal Solver Rays (configuration difficulty)",
        y = "LLM Atoms Correct (mean)",
@@ -3398,11 +3489,13 @@ ggplot(play_model_config, aes(x = optimal_rays, y = llm_atoms_mean, color = mode
        title = "Configuration Difficulty vs LLM Atom Identification",
        subtitle = paste0("r = ", round(diff_cor$estimate, 3),
                          ", p = ", format.pval(diff_cor$p.value, digits = 3),
-                         ". More difficult configs (more optimal rays) may yield fewer correct atoms.")) +
+                         ". Green diamonds = best condition (", best_condition_lookup$model_name, ").")) +
   scale_y_continuous(limits = c(0, 4)) +
   theme_minimal() +
   theme(legend.position = "top")
 ```
+
+`r if(has_optimal && exists("comparison") && exists("best_condition_lookup")) paste0("**Best condition summary.** The best-performing condition by score is *", best_condition_label, "*. Compared to the overall LLM mean, the best condition reduces the score ratio from ", round(mean(comparison$score_ratio), 1), "× to ", round(mean(comparison$best_score_ratio, na.rm = TRUE), 1), "× optimal (a ", round((1 - mean(comparison$best_score_ratio, na.rm = TRUE) / mean(comparison$score_ratio)) * 100, 0), "% reduction) and the rays ratio from ", round(mean(comparison$rays_ratio), 1), "× to ", round(mean(comparison$best_rays_ratio, na.rm = TRUE), 1), "× optimal. This highlights how much of the gap to optimal is driven by model capability vs. the averaging across weaker conditions.")`
 
 ## Error Analysis
 
