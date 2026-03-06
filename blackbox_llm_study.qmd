@@ -2917,12 +2917,13 @@ p_play_forest <- ggplot(play_forest_data, aes(x = mean_correct, y = config_label
   geom_point(aes(color = model_name), size = 3) +
   geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper, color = model_name),
                  height = 0.3, linewidth = 0.8) +
+  geom_vline(xintercept = 0.25, linetype = "dotted", color = "red", alpha = 0.7) +
   geom_vline(xintercept = 1, linetype = "dashed", color = "gray50", alpha = 0.5) +
   geom_text(aes(label = sprintf("%.2f", mean_correct)),
             hjust = -0.3, size = 3) +
   labs(
     title = "Play Mode: All Configurations Ranked by Atoms Correct",
-    subtitle = "Error bars show 95% confidence intervals (mean ± 1.96 SE). Dashed line at chance level (1/4 atoms).",
+    subtitle = "Dotted red line = chance (E[X] = 0.25). Dashed gray line = 1 atom.",
     x = "Mean Atoms Correct",
     y = "Configuration",
     color = "Model"
@@ -3230,6 +3231,170 @@ kable(gap_data |>
 
 `r if(all(gap_data$gap > 0)) "All models show a **positive gap**: forward reasoning (predict) consistently outperforms inverse reasoning (play), consistent with the theoretical expectation that abductive inference is harder than deductive prediction." else if(all(gap_data$gap < 0)) "All models show a **negative gap**: inverse reasoning (play) outperforms forward reasoning (predict), a surprising result suggesting LLMs may benefit from the iterative, hypothesis-driven structure of play mode." else "The gap direction **varies by model**, suggesting that the relative difficulty of forward vs inverse reasoning depends on model architecture or scale."`
 
+## Chance Performance Baseline
+
+To interpret LLM performance meaningfully, we need a lower bound: what would happen if an agent simply guessed 4 atom positions at random with no information? This chance baseline establishes the floor of the performance corridor. Any agent that extracts meaningful signal from ray observations should substantially exceed this level.
+
+### Hypergeometric Derivation
+
+An agent guessing 4 positions uniformly at random from the 64-cell grid, with 4 true atoms hidden, follows a hypergeometric distribution:
+
+$$X \sim \text{Hypergeometric}(N=64,\; K=4,\; n=4)$$
+
+where $X$ counts the number of correctly guessed atoms. The probability mass function is:
+
+$$P(X = k) = \frac{\binom{4}{k}\binom{60}{4-k}}{\binom{64}{4}}, \quad k = 0, 1, 2, 3, 4$$
+
+The expected value is $E[X] = nK/N = 4 \times 4 / 64 = 0.25$ atoms correct. Since the scoring formula is $\text{score} = \text{rays\_used} + 5 \times \text{atoms\_missed}$, a random guesser who fires zero rays achieves an expected score of $E[\text{score}] = 5 \times (4 - 0.25) = 18.75$. This represents a theoretical ceiling on bad performance—any rational agent should score *below* 18.75 on average.
+
+```{r}
+#| label: chance-baseline-pmf
+
+# Exact hypergeometric PMF for random guessing
+chance_pmf <- tibble(
+  k = 0:4,
+  prob = dhyper(k, 4, 60, 4),
+  missed = 4 - k,
+  penalty = 5 * missed,
+  score = penalty  # no rays fired
+)
+
+chance_EX <- sum(chance_pmf$k * chance_pmf$prob)
+chance_SD <- sqrt(sum((chance_pmf$k - chance_EX)^2 * chance_pmf$prob))
+chance_Escore <- sum(chance_pmf$score * chance_pmf$prob)
+
+kable(chance_pmf |>
+        mutate(prob = sprintf("%.4f", prob)) |>
+        rename(`Atoms Correct (k)` = k,
+               `P(X = k)` = prob,
+               `Atoms Missed` = missed,
+               `Miss Penalty` = penalty,
+               `Score (0 rays)` = score),
+      caption = "Hypergeometric PMF for Random Guessing (N=64, K=4, n=4)",
+      align = "ccccc") |>
+  kable_styling(full_width = FALSE)
+```
+
+A random guesser finds zero atoms `r sprintf("%.1f%%", chance_pmf$prob[1] * 100)` of the time, exactly one atom `r sprintf("%.1f%%", chance_pmf$prob[2] * 100)` of the time, and two or more atoms only `r sprintf("%.1f%%", sum(chance_pmf$prob[3:5]) * 100)` of the time. The expected number of correct atoms is `r sprintf("%.2f", chance_EX)` (SD = `r sprintf("%.2f", chance_SD)`), yielding an expected score of `r sprintf("%.2f", chance_Escore)`.
+
+### LLM Performance Above Chance
+
+```{r}
+#| label: chance-vs-llm-comparison
+
+# Per-model comparison against chance baseline
+chance_comparison <- play_data |>
+  group_by(model_name) |>
+  summarise(
+    n = n(),
+    mean_atoms = mean(atoms_correct),
+    sd_atoms = sd(atoms_correct),
+    mean_score = mean(score),
+    atoms_above_chance = mean_atoms - chance_EX,
+    cohens_d = (mean_atoms - chance_EX) / sd_atoms,
+    t_stat = (mean_atoms - chance_EX) / (sd_atoms / sqrt(n())),
+    p_value = pt(t_stat, df = n() - 1, lower.tail = FALSE),
+    score_below_chance = chance_Escore - mean_score,
+    .groups = "drop"
+  ) |>
+  mutate(model_name = factor(as.character(model_name),
+                             levels = order_model_names(as.character(model_name))))
+
+kable(chance_comparison |>
+        arrange(model_name) |>
+        mutate(
+          across(c(mean_atoms, sd_atoms, atoms_above_chance, cohens_d, score_below_chance),
+                 \(x) round(x, 2)),
+          mean_score = round(mean_score, 1),
+          p_value = ifelse(p_value < 0.001, "< 0.001", sprintf("%.3f", p_value))
+        ) |>
+        select(model_name, n, mean_atoms, sd_atoms, mean_score,
+               atoms_above_chance, cohens_d, p_value, score_below_chance),
+      col.names = c("Model", "N", "Mean Atoms", "SD", "Mean Score",
+                     "Atoms Above Chance", "Cohen's d", "p-value",
+                     "Score Below Chance"),
+      caption = "LLM Performance vs Chance Baseline (E[X] = 0.25 atoms, E[score] = 18.75)",
+      align = "lcccccccc") |>
+  kable_styling(full_width = FALSE)
+```
+
+`r if(all(chance_comparison$p_value < 0.05)) paste0("All models perform **significantly above chance** (all p < 0.05). The overall mean of ", sprintf("%.2f", mean(play_data$atoms_correct)), " atoms correct is ", sprintf("%.1f×", mean(play_data$atoms_correct) / chance_EX), " the chance expectation, confirming that LLMs extract meaningful signal from ray observations.") else "Some models do not significantly exceed chance performance, raising questions about whether they extract meaningful signal from ray observations."`
+
+```{r}
+#| label: chance-atoms-distribution
+#| fig-cap: "Distribution of Atoms Correct: Chance (Hypergeometric) vs Observed LLM Performance"
+
+# Observed LLM distribution
+llm_atom_dist <- play_data |>
+  count(atoms_correct) |>
+  mutate(
+    proportion = n / sum(n),
+    source = "LLM (Observed)"
+  ) |>
+  rename(k = atoms_correct)
+
+# Chance distribution
+chance_dist <- chance_pmf |>
+  mutate(
+    n = prob * nrow(play_data),  # scale to same total for visual comparison
+    proportion = prob,
+    source = "Chance (Hypergeometric)"
+  ) |>
+  select(k, n, proportion, source)
+
+# Combined for plotting
+dist_combined <- bind_rows(llm_atom_dist, chance_dist)
+
+ggplot(dist_combined, aes(x = factor(k), y = proportion, fill = source)) +
+  geom_col(position = "dodge", width = 0.7) +
+  scale_fill_manual(values = c("Chance (Hypergeometric)" = "#E57373",
+                                "LLM (Observed)" = "#4CAF50")) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(
+    x = "Atoms Correct",
+    y = "Proportion",
+    fill = NULL,
+    title = "Atoms Correct Distribution: Chance vs LLM",
+    subtitle = "Chance baseline concentrates at k = 0; LLMs shift dramatically rightward"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| label: chance-score-by-model
+#| fig-cap: "Mean Score by Model with Chance Baseline Reference"
+
+model_score_summary <- play_data |>
+  group_by(model_name) |>
+  summarise(
+    mean_score = mean(score),
+    se_score = sd(score) / sqrt(n()),
+    ci_lower = mean_score - 1.96 * se_score,
+    ci_upper = mean_score + 1.96 * se_score,
+    .groups = "drop"
+  ) |>
+  mutate(model_name = factor(as.character(model_name),
+                             levels = order_model_names(as.character(model_name))))
+
+ggplot(model_score_summary, aes(x = model_name, y = mean_score)) +
+  geom_hline(yintercept = chance_Escore, linetype = "dotted", color = "red", linewidth = 0.8) +
+  annotate("text", x = -Inf, y = chance_Escore, label = paste0("Chance (", chance_Escore, ")"),
+           hjust = -0.05, vjust = -0.5, size = 3, color = "red") +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.2, linewidth = 0.8) +
+  labs(
+    x = "Model",
+    y = "Mean Score (lower is better)",
+    title = "Mean Score by Model vs Chance Baseline",
+    subtitle = "Error bars show 95% CI. Red dotted line = chance score (no rays, random guess)."
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+The optimal solver benchmark in the next section completes the performance corridor, providing the lower bound (best achievable score) against which both chance and LLM performance can be measured.
+
 ## Optimal Solver Benchmark
 
 The greedy optimal solver uses an information-theoretic strategy that minimizes expected remaining candidates at each step over the full C(64,4) = 635,376 candidate space. This provides a principled upper bound on play performance: the fewest rays and lowest score achievable by a perfectly rational agent with unlimited computation.
@@ -3422,6 +3587,9 @@ score_long <- comparison |>
   mutate(agent = factor(agent, levels = c("Optimal Solver", best_short_label, "LLM (Mean)")))
 
 ggplot(score_long, aes(x = config_index, y = score_val, color = agent, group = agent)) +
+  geom_hline(yintercept = 18.75, linetype = "dotted", color = "red", linewidth = 0.8) +
+  annotate("text", x = max(score_long$config_index) + 0.3, y = 18.75,
+           label = "Chance (18.75)", hjust = 1, vjust = -0.5, size = 3, color = "red") +
   geom_line(linewidth = 1) +
   geom_point(size = 2.5) +
   scale_color_manual(values = setNames(
@@ -3455,6 +3623,9 @@ play_model_config <- play_data |>
     is_best = model_name == best_condition_lookup$model_name
   )
 
+chance_ratio_data <- optimal_data |>
+  mutate(chance_ratio = 18.75 / optimal_score)
+
 ggplot(play_model_config, aes(x = config_index, y = score_ratio, color = model_name, group = model_name)) +
   geom_line(linewidth = 1) +
   geom_point(aes(shape = is_best), size = 2.5) +
@@ -3462,11 +3633,16 @@ ggplot(play_model_config, aes(x = config_index, y = score_ratio, color = model_n
   geom_hline(yintercept = 1.0, linetype = "dashed", color = "grey40") +
   annotate("text", x = min(play_model_config$config_index) - 0.3, y = 1.0,
            label = "1.0× (optimal)", hjust = 0, vjust = -0.5, size = 3, color = "grey40") +
+  geom_line(data = chance_ratio_data, aes(x = config_index, y = chance_ratio, group = 1),
+            inherit.aes = FALSE, linetype = "dotted", color = "red", linewidth = 0.8) +
+  annotate("text", x = max(play_model_config$config_index) + 0.3,
+           y = mean(chance_ratio_data$chance_ratio),
+           label = "Chance", hjust = 1, vjust = -0.5, size = 3, color = "red") +
   scale_x_continuous(breaks = unique(play_model_config$config_index)) +
   labs(x = "Configuration", y = "Score Ratio (LLM / Optimal)",
        color = "Model",
        title = "Score Ratio by Model and Configuration",
-       subtitle = paste0("Dashed line = optimal performance (1.0×). Diamond markers = best model (",
+       subtitle = paste0("Dashed line = optimal (1.0×). Dotted red = chance. Diamond = best model (",
                           best_condition_lookup$model_name, ").")) +
   theme_minimal() +
   theme(legend.position = "top")
