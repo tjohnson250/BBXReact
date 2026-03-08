@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Todd R. Johnson">
-<meta name="dcterms.date" content="2026-03-07">
+<meta name="dcterms.date" content="2026-03-08">
 <meta name="keywords" content="large language models, diagnostic reasoning, hidden state identification, medical diagnosis, benchmark">
 
 <title>Black Box as a Diagnostic Reasoning Benchmark for LLMs</title>
@@ -302,7 +302,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 7, 2026</p>
+      <p class="date">March 8, 2026</p>
     </div>
   </div>
   
@@ -7766,75 +7766,81 @@ Classification date: 2026-03-08T03:05:12 </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Error counts by entry side</span></span>
-<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>entry_side <span class="ot">&lt;-</span> predict_errors <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Count total trials per side from the full predict dataset (correct + incorrect)</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>trials_per_side <span class="ot">&lt;-</span> predict_data <span class="sc">|&gt;</span></span>
 <span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">entry_side =</span> ray_entry<span class="sc">$</span>side) <span class="sc">|&gt;</span></span>
-<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(entry_side, error_label) <span class="sc">|&gt;</span></span>
-<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(entry_side) <span class="sc">|&gt;</span></span>
-<span id="cb81-6"><a href="#cb81-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pct =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n) <span class="sc">*</span> <span class="dv">100</span>, <span class="at">total =</span> <span class="fu">sum</span>(n)) <span class="sc">|&gt;</span></span>
-<span id="cb81-7"><a href="#cb81-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb81-8"><a href="#cb81-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb81-9"><a href="#cb81-9" aria-hidden="true" tabindex="-1"></a>entry_totals <span class="ot">&lt;-</span> entry_side <span class="sc">|&gt;</span></span>
-<span id="cb81-10"><a href="#cb81-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(entry_side, total) <span class="sc">|&gt;</span></span>
-<span id="cb81-11"><a href="#cb81-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total))</span>
-<span id="cb81-12"><a href="#cb81-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb81-13"><a href="#cb81-13" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(entry_totals,</span>
-<span id="cb81-14"><a href="#cb81-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Entry Side"</span>, <span class="st">"Total Errors"</span>),</span>
-<span id="cb81-15"><a href="#cb81-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Error Count by Ray Entry Side"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(entry_side, <span class="at">name =</span> <span class="st">"trials"</span>)</span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-6"><a href="#cb81-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Error counts by entry side</span></span>
+<span id="cb81-7"><a href="#cb81-7" aria-hidden="true" tabindex="-1"></a>errors_per_side <span class="ot">&lt;-</span> predict_errors <span class="sc">|&gt;</span></span>
+<span id="cb81-8"><a href="#cb81-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">entry_side =</span> ray_entry<span class="sc">$</span>side) <span class="sc">|&gt;</span></span>
+<span id="cb81-9"><a href="#cb81-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(entry_side, <span class="at">name =</span> <span class="st">"errors"</span>)</span>
+<span id="cb81-10"><a href="#cb81-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-11"><a href="#cb81-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Join to compute error rate normalized by trials</span></span>
+<span id="cb81-12"><a href="#cb81-12" aria-hidden="true" tabindex="-1"></a>entry_rate <span class="ot">&lt;-</span> trials_per_side <span class="sc">|&gt;</span></span>
+<span id="cb81-13"><a href="#cb81-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(errors_per_side, <span class="at">by =</span> <span class="st">"entry_side"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb81-14"><a href="#cb81-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb81-15"><a href="#cb81-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">errors =</span> <span class="fu">replace_na</span>(errors, <span class="dv">0</span>),</span>
+<span id="cb81-16"><a href="#cb81-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">error_rate =</span> errors <span class="sc">/</span> trials <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb81-17"><a href="#cb81-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb81-18"><a href="#cb81-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(error_rate))</span>
+<span id="cb81-19"><a href="#cb81-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-20"><a href="#cb81-20" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(entry_rate,</span>
+<span id="cb81-21"><a href="#cb81-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Entry Side"</span>, <span class="st">"Trials"</span>, <span class="st">"Errors"</span>, <span class="st">"Error Rate (%)"</span>),</span>
+<span id="cb81-22"><a href="#cb81-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">digits =</span> <span class="dv">1</span>,</span>
+<span id="cb81-23"><a href="#cb81-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Error Rate by Ray Entry Side (normalized by trials)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Error Count by Ray Entry Side</caption>
+<caption>Error Rate by Ray Entry Side (normalized by trials)</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Entry Side</th>
-<th style="text-align: right;">Total Errors</th>
+<th style="text-align: right;">Trials</th>
+<th style="text-align: right;">Errors</th>
+<th style="text-align: right;">Error Rate (%)</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">south</td>
-<td style="text-align: right;">886</td>
-</tr>
-<tr class="even">
 <td style="text-align: left;">north</td>
+<td style="text-align: right;">18800</td>
 <td style="text-align: right;">864</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">east</td>
-<td style="text-align: right;">347</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">west</td>
-<td style="text-align: right;">187</td>
+<td style="text-align: right;">4.6</td>
 </tr>
 </tbody>
 </table>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Normalized error distribution by entry side</span></span>
-<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>entry_side<span class="sc">$</span>error_label <span class="ot">&lt;-</span> <span class="fu">factor</span>(entry_side<span class="sc">$</span>error_label, <span class="at">levels =</span> cat_order)</span>
-<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a>p_entry <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(entry_side, <span class="fu">aes</span>(<span class="at">x =</span> entry_side, <span class="at">y =</span> pct, <span class="at">fill =</span> error_label)) <span class="sc">+</span></span>
-<span id="cb82-5"><a href="#cb82-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"stack"</span>, <span class="at">width =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
-<span id="cb82-6"><a href="#cb82-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
-<span id="cb82-7"><a href="#cb82-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Missed reflection"</span> <span class="ot">=</span> <span class="st">"#e74c3c"</span>,</span>
-<span id="cb82-8"><a href="#cb82-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Off-by-one path error"</span> <span class="ot">=</span> <span class="st">"#3498db"</span>,</span>
-<span id="cb82-9"><a href="#cb82-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Deflection direction error"</span> <span class="ot">=</span> <span class="st">"#2ecc71"</span>,</span>
-<span id="cb82-10"><a href="#cb82-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Missed absorption"</span> <span class="ot">=</span> <span class="st">"#e67e22"</span>,</span>
-<span id="cb82-11"><a href="#cb82-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"False absorption"</span> <span class="ot">=</span> <span class="st">"#9b59b6"</span>,</span>
-<span id="cb82-12"><a href="#cb82-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Large path tracking error"</span> <span class="ot">=</span> <span class="st">"#1abc9c"</span>,</span>
-<span id="cb82-13"><a href="#cb82-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"False reflection"</span> <span class="ot">=</span> <span class="st">"#95a5a6"</span></span>
-<span id="cb82-14"><a href="#cb82-14" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">+</span></span>
-<span id="cb82-15"><a href="#cb82-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb82-16"><a href="#cb82-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Error Distribution by Ray Entry Side"</span>,</span>
-<span id="cb82-17"><a href="#cb82-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"N/S entries produce far more errors than E/W entries"</span>,</span>
-<span id="cb82-18"><a href="#cb82-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Entry Side"</span>, <span class="at">y =</span> <span class="st">"Percentage of Errors"</span>, <span class="at">fill =</span> <span class="st">"Error Category"</span></span>
-<span id="cb82-19"><a href="#cb82-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb82-20"><a href="#cb82-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb82-21"><a href="#cb82-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"right"</span>)</span>
-<span id="cb82-22"><a href="#cb82-22" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p_entry)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Error category distribution by entry side</span></span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>entry_side <span class="ot">&lt;-</span> predict_errors <span class="sc">|&gt;</span></span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">entry_side =</span> ray_entry<span class="sc">$</span>side) <span class="sc">|&gt;</span></span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(entry_side, error_label) <span class="sc">|&gt;</span></span>
+<span id="cb82-5"><a href="#cb82-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(trials_per_side, <span class="at">by =</span> <span class="st">"entry_side"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb82-6"><a href="#cb82-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rate =</span> n <span class="sc">/</span> trials <span class="sc">*</span> <span class="dv">100</span>)</span>
+<span id="cb82-7"><a href="#cb82-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-8"><a href="#cb82-8" aria-hidden="true" tabindex="-1"></a>entry_side<span class="sc">$</span>error_label <span class="ot">&lt;-</span> <span class="fu">factor</span>(entry_side<span class="sc">$</span>error_label, <span class="at">levels =</span> cat_order)</span>
+<span id="cb82-9"><a href="#cb82-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-10"><a href="#cb82-10" aria-hidden="true" tabindex="-1"></a>p_entry <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(entry_side, <span class="fu">aes</span>(<span class="at">x =</span> entry_side, <span class="at">y =</span> rate, <span class="at">fill =</span> error_label)) <span class="sc">+</span></span>
+<span id="cb82-11"><a href="#cb82-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"stack"</span>, <span class="at">width =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb82-12"><a href="#cb82-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb82-13"><a href="#cb82-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Missed reflection"</span> <span class="ot">=</span> <span class="st">"#e74c3c"</span>,</span>
+<span id="cb82-14"><a href="#cb82-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Off-by-one path error"</span> <span class="ot">=</span> <span class="st">"#3498db"</span>,</span>
+<span id="cb82-15"><a href="#cb82-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Deflection direction error"</span> <span class="ot">=</span> <span class="st">"#2ecc71"</span>,</span>
+<span id="cb82-16"><a href="#cb82-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Missed absorption"</span> <span class="ot">=</span> <span class="st">"#e67e22"</span>,</span>
+<span id="cb82-17"><a href="#cb82-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"False absorption"</span> <span class="ot">=</span> <span class="st">"#9b59b6"</span>,</span>
+<span id="cb82-18"><a href="#cb82-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Large path tracking error"</span> <span class="ot">=</span> <span class="st">"#1abc9c"</span>,</span>
+<span id="cb82-19"><a href="#cb82-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"False reflection"</span> <span class="ot">=</span> <span class="st">"#95a5a6"</span></span>
+<span id="cb82-20"><a href="#cb82-20" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">+</span></span>
+<span id="cb82-21"><a href="#cb82-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb82-22"><a href="#cb82-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Error Rate by Ray Entry Side (Normalized by Trials)"</span>,</span>
+<span id="cb82-23"><a href="#cb82-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Error rate = errors / rays tested per side; later sides have fewer trials due to skip logic"</span>,</span>
+<span id="cb82-24"><a href="#cb82-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Entry Side"</span>, <span class="at">y =</span> <span class="st">"Error Rate (%)"</span>, <span class="at">fill =</span> <span class="st">"Error Category"</span></span>
+<span id="cb82-25"><a href="#cb82-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb82-26"><a href="#cb82-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb82-27"><a href="#cb82-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"right"</span>)</span>
+<span id="cb82-28"><a href="#cb82-28" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p_entry)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -7844,6 +7850,7 @@ Classification date: 2026-03-08T03:05:12 </code></pre>
 </div>
 </div>
 </div>
+<p><strong>Limitation:</strong> In predict mode, rays are tested in a fixed order (North 1–8, South 1–8, East 1–8, West 1–8), and rays whose entry point was already observed as an exit point of a prior ray are skipped. This means later sides (East, West) are tested on fewer rays — and specifically on the subset of positions that were <em>not</em> exit points for earlier rays. The table above normalizes error counts by the number of trials actually conducted per side. However, the non-random subsetting means the tested positions for later sides may be systematically different in difficulty. A stronger design would test all 32 entry points independently, regardless of prior exits.</p>
 </section>
 <section id="play-mode-spatial-vs.-non-spatial-failure-modes" class="level3" data-number="4.6.4">
 <h3 data-number="4.6.4" class="anchored" data-anchor-id="play-mode-spatial-vs.-non-spatial-failure-modes"><span class="header-section-number">4.6.4</span> Play Mode: Spatial vs.&nbsp;Non-Spatial Failure Modes</h3>
@@ -8107,6 +8114,7 @@ Table&nbsp;1: Claude performance on established benchmarks compared to Black Box
 <li><strong>Prompt sensitivity</strong>: Different prompt formulations might yield different results</li>
 <li><strong>Model versions</strong>: Rapid model updates may change performance characteristics</li>
 <li><strong>Sample size</strong>: [Discuss statistical power]</li>
+<li><strong>Predict mode ray selection</strong>: In predict mode, rays are tested in a fixed sequential order (North 1–8, South 1–8, East 1–8, West 1–8), and entry points already observed as exit points of prior rays are skipped. This means later sides (East, West) are tested on fewer rays, and the tested subset is non-random — it excludes positions that served as exits for earlier rays. All 32 entry points should have been tested independently to enable unbiased comparison across entry sides.</li>
 </ol>
 </section>
 <section id="future-directions" class="level2" data-number="5.6">
