@@ -1190,7 +1190,8 @@ extract_predict_results <- function(json_file) {
         enable_thinking = r$enableThinking,
         thinking_budget = r$thinkingBudget,
         vot_ray_trace = r$votRayTrace,
-        ray_entry = p$rayEntry,
+        entry_side = p$rayEntry$side,
+        entry_pos = p$rayEntry$pos,
         predicted = p$predicted,
         actual = p$actual,
         correct = p$correct,
@@ -1614,7 +1615,7 @@ predict_data <- predict_data |>
     vot_ray_trace = factor(vot_ray_trace, levels = c(FALSE, TRUE)),
     config_index = factor(config_index),
     # Create unique ray identifier (nested within config)
-    ray_id = paste(toupper(ray_entry$side), ray_entry$pos, sep = "_")
+    ray_id = paste(toupper(entry_side), entry_pos, sep = "_")
   )
 
 # Build model formula dynamically based on available factor levels
@@ -3889,11 +3890,12 @@ kable(group_by_prompt,
 #| eval: !expr has_error_classifications
 
 # Count total trials per side from the full predict dataset (correct + incorrect)
+# predict_data has entry_side as a direct column
 trials_per_side <- predict_data |>
-  mutate(entry_side = ray_entry$side) |>
   count(entry_side, name = "trials")
 
 # Error counts by entry side
+# predict_errors has ray_entry as a nested data.frame from fromJSON
 errors_per_side <- predict_errors |>
   mutate(entry_side = ray_entry$side) |>
   count(entry_side, name = "errors")
