@@ -3712,26 +3712,40 @@ kable(group_by_prompt,
 #| fig-height: 5
 #| eval: !expr has_error_classifications
 
+# Count total trials per side from the full predict dataset (correct + incorrect)
+trials_per_side <- predict_data |>
+  mutate(entry_side = ray_entry$side) |>
+  count(entry_side, name = "trials")
+
 # Error counts by entry side
+errors_per_side <- predict_errors |>
+  mutate(entry_side = ray_entry$side) |>
+  count(entry_side, name = "errors")
+
+# Join to compute error rate normalized by trials
+entry_rate <- trials_per_side |>
+  left_join(errors_per_side, by = "entry_side") |>
+  mutate(
+    errors = replace_na(errors, 0),
+    error_rate = errors / trials * 100
+  ) |>
+  arrange(desc(error_rate))
+
+kable(entry_rate,
+      col.names = c("Entry Side", "Trials", "Errors", "Error Rate (%)"),
+      digits = 1,
+      caption = "Error Rate by Ray Entry Side (normalized by trials)")
+
+# Error category distribution by entry side
 entry_side <- predict_errors |>
   mutate(entry_side = ray_entry$side) |>
   count(entry_side, error_label) |>
-  group_by(entry_side) |>
-  mutate(pct = n / sum(n) * 100, total = sum(n)) |>
-  ungroup()
+  left_join(trials_per_side, by = "entry_side") |>
+  mutate(rate = n / trials * 100)
 
-entry_totals <- entry_side |>
-  distinct(entry_side, total) |>
-  arrange(desc(total))
-
-kable(entry_totals,
-      col.names = c("Entry Side", "Total Errors"),
-      caption = "Error Count by Ray Entry Side")
-
-# Normalized error distribution by entry side
 entry_side$error_label <- factor(entry_side$error_label, levels = cat_order)
 
-p_entry <- ggplot(entry_side, aes(x = entry_side, y = pct, fill = error_label)) +
+p_entry <- ggplot(entry_side, aes(x = entry_side, y = rate, fill = error_label)) +
   geom_col(position = "stack", width = 0.6) +
   scale_fill_manual(values = c(
     "Missed reflection" = "#e74c3c",
@@ -3743,14 +3757,16 @@ p_entry <- ggplot(entry_side, aes(x = entry_side, y = pct, fill = error_label)) 
     "False reflection" = "#95a5a6"
   )) +
   labs(
-    title = "Error Distribution by Ray Entry Side",
-    subtitle = "N/S entries produce far more errors than E/W entries",
-    x = "Entry Side", y = "Percentage of Errors", fill = "Error Category"
+    title = "Error Rate by Ray Entry Side (Normalized by Trials)",
+    subtitle = "Error rate = errors / rays tested per side; later sides have fewer trials due to skip logic",
+    x = "Entry Side", y = "Error Rate (%)", fill = "Error Category"
   ) +
   theme_minimal() +
   theme(legend.position = "right")
 print(p_entry)
 ```
+
+**Limitation:** In predict mode, rays are tested in a fixed order (North 1–8, South 1–8, East 1–8, West 1–8), and rays whose entry point was already observed as an exit point of a prior ray are skipped. This means later sides (East, West) are tested on fewer rays — and specifically on the subset of positions that were *not* exit points for earlier rays. The table above normalizes error counts by the number of trials actually conducted per side. However, the non-random subsetting means the tested positions for later sides may be systematically different in difficulty. A stronger design would test all 32 entry points independently, regardless of prior exits.
 
 ### Play Mode: Spatial vs. Non-Spatial Failure Modes
 
@@ -3931,6 +3947,14 @@ diagnostic tasks\]
 3.  **Model versions**: Rapid model updates may change performance
     characteristics
 4.  **Sample size**: \[Discuss statistical power\]
+5.  **Predict mode ray selection**: In predict mode, rays are tested in
+    a fixed sequential order (North 1–8, South 1–8, East 1–8, West 1–8),
+    and entry points already observed as exit points of prior rays are
+    skipped. This means later sides (East, West) are tested on fewer
+    rays, and the tested subset is non-random — it excludes positions
+    that served as exits for earlier rays. All 32 entry points should
+    have been tested independently to enable unbiased comparison across
+    entry sides.
 
 ## Future Directions
 
