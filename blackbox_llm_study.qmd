@@ -3680,23 +3680,341 @@ ggplot(play_model_config, aes(x = optimal_rays, y = llm_atoms_mean, color = mode
 
 ## Error Analysis
 
+To move beyond the outcome-level confusion matrix above, we classify *which specific ray physics rule broke down* for each incorrect prediction. Since Predict mode is inherently spatial (given atoms, predict ray outcome), all errors are spatial — the interesting question is which rule the model failed to apply correctly.
+
+We use a **deterministic classification** approach: comparing the predicted and actual outcome types (absorbed/reflected/detour) and exit positions to identify the specific failure mechanism. This requires no LLM judge and is 100% reproducible. The classification script (`classify_errors.py --mode predict`) processes all incorrect predictions.
+
+For Play mode, where errors span both spatial and non-spatial domains (experiment design, constraint tracking, belief updating), we use an LLM-as-judge approach with optional gold-standard validation (`classify_errors.py --mode play --api-key KEY --gold-standard`).
+
 ```{r}
-#| label: error-analysis-placeholder
-#| eval: false
+#| label: load-error-classifications
 
-# Placeholder for error taxonomy
-# Will categorize errors from extended thinking traces
+error_class_file <- "error_classifications.json"
+has_error_classifications <- file.exists(error_class_file)
 
-# error_categories <- c(
-#   "Constraint tracking failure",
-#   "Spatial reasoning error",
-#   "Non-parsimonious hypothesis",
-#   "Failure to update on evidence",
-#   "Experiment design inefficiency"
-# )
+if (has_error_classifications) {
+  error_data <- jsonlite::fromJSON(error_class_file)
+
+  # Predict mode: deterministic classifications
+  predict_errors <- as_tibble(error_data$predict) |>
+    mutate(model_name = model)
+
+  # Play mode: LLM-as-judge classifications (if available)
+  has_play_errors <- !is.null(error_data$play) && length(error_data$play) > 0
+  if (has_play_errors) {
+    play_errors <- as_tibble(error_data$play) |>
+      mutate(
+        error_label = case_when(
+          primary_failure_mode == "ray_path_error" ~ "Ray path error",
+          primary_failure_mode == "deflection_geometry_error" ~ "Deflection geometry error",
+          primary_failure_mode == "constraint_tracking_error" ~ "Constraint tracking error",
+          primary_failure_mode == "experiment_design_error" ~ "Experiment design error",
+          primary_failure_mode == "belief_updating_error" ~ "Belief updating error",
+          primary_failure_mode == "premature_commitment" ~ "Premature commitment",
+          TRUE ~ primary_failure_mode
+        ),
+        error_domain = ifelse(is_spatial, "Spatial", "Non-spatial"),
+        model_name = model
+      )
+  }
+
+  # Gold-standard validation (if available)
+  has_gold <- !is.null(error_data$play_gold_standard) &&
+              length(error_data$play_gold_standard) > 0
+
+  cat("Loaded", nrow(predict_errors), "Predict mode error classifications",
+      "(deterministic)\n")
+  if (has_play_errors) cat("Loaded", nrow(play_errors),
+                            "Play mode classifications (LLM-as-judge)\n")
+  if (has_gold) cat("Loaded", length(error_data$play_gold_standard),
+                     "gold-standard validations (Opus)\n")
+  cat("Classification date:", error_data$metadata$classification_date, "\n")
+} else {
+  has_play_errors <- FALSE
+  has_gold <- FALSE
+  cat("Error classifications not found. Run: python classify_errors.py --mode predict\n")
+}
 ```
 
-\[Error analysis to be added after data collection\]
+### Predict Mode: Ray Physics Rule Failures
+
+In Predict mode, all errors are spatial by definition — the task is purely spatial reasoning. The deterministic classifier identifies which specific ray physics rule the model failed to apply, based on comparing the predicted vs. actual outcome types and exit positions.
+
+**Error taxonomy:**
+
+| Error Category | Pattern | Description |
+|---|---|---|
+| Missed absorption | pred: detour/reflected → actual: absorbed | Failed to check for atom directly in ray's path before checking diagonals |
+| Missed reflection | pred: detour/absorbed → actual: reflected | Failed to recognize reflection condition at entry point |
+| False absorption | pred: absorbed → actual: detour/reflected | Incorrectly identified absorption; confused diagonal atom with forward atom |
+| False reflection | pred: reflected → actual: detour/absorbed | Incorrectly identified reflection condition |
+| Deflection direction error | pred: detour(side A) → actual: detour(side B) | Deflected ray in wrong direction (e.g., south instead of west) |
+| Off-by-one path error | pred: detour(side-N) → actual: detour(side-N±1) | Coordinate indexing error in cell-by-cell tracing; 97% of same-side errors |
+| Large path tracking error | pred: detour(side-N) → actual: detour(side-M), \|N-M\| ≥ 2 | Multiple accumulated errors in ray tracing |
+
+```{r}
+#| label: predict-error-categories
+#| fig-width: 12
+#| fig-height: 6
+#| eval: !expr has_error_classifications
+
+# Error category distribution - overall
+cat_summary <- predict_errors |>
+  count(error_label) |>
+  arrange(desc(n)) |>
+  mutate(pct = round(n / sum(n) * 100, 1))
+
+kable(cat_summary,
+      col.names = c("Error Category", "Count", "Percentage"),
+      caption = "Predict Mode Error Categories (Deterministic Classification, N = 2,284)")
+
+# Error category by model
+error_by_model <- predict_errors |>
+  count(model_name, error_label) |>
+  group_by(model_name) |>
+  mutate(pct = n / sum(n) * 100) |>
+  ungroup()
+
+# Define order and colors based on error type
+cat_order <- c("Missed reflection", "Off-by-one path error",
+               "Deflection direction error", "Missed absorption",
+               "False absorption", "Large path tracking error",
+               "False reflection")
+error_by_model$error_label <- factor(error_by_model$error_label, levels = cat_order)
+
+# Color scheme: rule confusion errors in warm tones, path tracking in cool tones
+p_cats <- ggplot(error_by_model, aes(x = model_name, y = pct, fill = error_label)) +
+  geom_col(position = "stack", width = 0.7) +
+  scale_fill_manual(values = c(
+    "Missed reflection" = "#e74c3c",
+    "Off-by-one path error" = "#3498db",
+    "Deflection direction error" = "#2ecc71",
+    "Missed absorption" = "#e67e22",
+    "False absorption" = "#9b59b6",
+    "Large path tracking error" = "#1abc9c",
+    "False reflection" = "#95a5a6"
+  )) +
+  labs(
+    title = "Predict Mode Error Distribution by Model",
+    subtitle = "Deterministic classification from outcome type comparison",
+    x = "Model", y = "Percentage of Errors", fill = "Error Category"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "right")
+print(p_cats)
+```
+
+### Prompt Effect on Error Patterns
+
+The augmented prompt includes explicit coordinate system explanation, detailed deflection geometry with worked examples, and common error warnings. How does this change the error distribution?
+
+```{r}
+#| label: predict-error-by-prompt
+#| fig-width: 12
+#| fig-height: 5
+#| eval: !expr has_error_classifications
+
+# Error categories by prompt style
+error_by_prompt <- predict_errors |>
+  count(prompt_style, error_label) |>
+  group_by(prompt_style) |>
+  mutate(pct = n / sum(n) * 100) |>
+  ungroup()
+
+error_by_prompt$error_label <- factor(error_by_prompt$error_label, levels = cat_order)
+
+p_prompt <- ggplot(error_by_prompt, aes(x = prompt_style, y = pct, fill = error_label)) +
+  geom_col(position = "stack", width = 0.5) +
+  scale_fill_manual(values = c(
+    "Missed reflection" = "#e74c3c",
+    "Off-by-one path error" = "#3498db",
+    "Deflection direction error" = "#2ecc71",
+    "Missed absorption" = "#e67e22",
+    "False absorption" = "#9b59b6",
+    "Large path tracking error" = "#1abc9c",
+    "False reflection" = "#95a5a6"
+  )) +
+  labs(
+    title = "Error Distribution: Baseline vs Augmented Prompt",
+    subtitle = "Augmented prompt eliminates rule confusion errors but remaining errors are path tracking",
+    x = "Prompt Style", y = "Percentage of Errors", fill = "Error Category"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "right")
+print(p_prompt)
+
+# Table: side-by-side comparison
+prompt_comparison <- predict_errors |>
+  count(prompt_style, error_label) |>
+  group_by(prompt_style) |>
+  mutate(pct = round(n / sum(n) * 100, 1)) |>
+  ungroup() |>
+  select(prompt_style, error_label, pct) |>
+  pivot_wider(names_from = prompt_style, values_from = pct, values_fill = 0)
+
+kable(prompt_comparison,
+      caption = "Error Category Distribution by Prompt Style (% of errors within each style)")
+```
+
+```{r}
+#| label: predict-error-grouping
+#| eval: !expr has_error_classifications
+
+# Group errors into: rule confusion (missed/false absorption/reflection) vs path tracking
+predict_errors_grouped <- predict_errors |>
+  mutate(error_group = case_when(
+    error_category %in% c("missed_absorption", "missed_reflection",
+                           "false_absorption", "false_reflection") ~ "Rule confusion",
+    error_category %in% c("deflection_direction_error", "off_by_one_error",
+                           "large_path_error") ~ "Path tracking"
+  ))
+
+group_by_prompt <- predict_errors_grouped |>
+  count(prompt_style, error_group) |>
+  group_by(prompt_style) |>
+  mutate(pct = round(n / sum(n) * 100, 1)) |>
+  ungroup()
+
+kable(group_by_prompt,
+      col.names = c("Prompt", "Error Group", "Count", "%"),
+      caption = "Rule Confusion vs Path Tracking Errors by Prompt Style")
+```
+
+### Entry Side Asymmetry
+
+```{r}
+#| label: predict-entry-side
+#| fig-width: 10
+#| fig-height: 5
+#| eval: !expr has_error_classifications
+
+# Error counts by entry side
+entry_side <- predict_errors |>
+  mutate(entry_side = ray_entry$side) |>
+  count(entry_side, error_label) |>
+  group_by(entry_side) |>
+  mutate(pct = n / sum(n) * 100, total = sum(n)) |>
+  ungroup()
+
+entry_totals <- entry_side |>
+  distinct(entry_side, total) |>
+  arrange(desc(total))
+
+kable(entry_totals,
+      col.names = c("Entry Side", "Total Errors"),
+      caption = "Error Count by Ray Entry Side")
+
+# Normalized error distribution by entry side
+entry_side$error_label <- factor(entry_side$error_label, levels = cat_order)
+
+p_entry <- ggplot(entry_side, aes(x = entry_side, y = pct, fill = error_label)) +
+  geom_col(position = "stack", width = 0.6) +
+  scale_fill_manual(values = c(
+    "Missed reflection" = "#e74c3c",
+    "Off-by-one path error" = "#3498db",
+    "Deflection direction error" = "#2ecc71",
+    "Missed absorption" = "#e67e22",
+    "False absorption" = "#9b59b6",
+    "Large path tracking error" = "#1abc9c",
+    "False reflection" = "#95a5a6"
+  )) +
+  labs(
+    title = "Error Distribution by Ray Entry Side",
+    subtitle = "N/S entries produce far more errors than E/W entries",
+    x = "Entry Side", y = "Percentage of Errors", fill = "Error Category"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "right")
+print(p_entry)
+```
+
+### Play Mode: Spatial vs. Non-Spatial Failure Modes
+
+```{r}
+#| label: play-error-categories
+#| fig-width: 10
+#| fig-height: 5
+#| eval: !expr has_error_classifications && has_play_errors
+
+play_cat_summary <- play_errors |>
+  count(error_label, error_domain) |>
+  arrange(desc(n)) |>
+  mutate(pct = round(n / sum(n) * 100, 1))
+
+kable(play_cat_summary,
+      col.names = c("Primary Failure Mode", "Domain", "Count", "Percentage"),
+      caption = "Play Mode: Primary Failure Mode Distribution (LLM-as-judge)")
+
+# Spatial vs non-spatial by model
+play_spatial_by_model <- play_errors |>
+  count(model_name, error_domain) |>
+  group_by(model_name) |>
+  mutate(pct = n / sum(n) * 100) |>
+  ungroup()
+
+p_play_spatial <- ggplot(play_spatial_by_model,
+                          aes(x = model_name, y = pct, fill = error_domain)) +
+  geom_col(position = "stack", width = 0.6) +
+  geom_text(aes(label = paste0(round(pct, 0), "%")),
+            position = position_stack(vjust = 0.5), size = 3.5) +
+  scale_fill_manual(values = c("Spatial" = "#e74c3c", "Non-spatial" = "#3498db")) +
+  labs(
+    title = "Play Mode: Spatial vs Non-Spatial Primary Failure Mode",
+    subtitle = "Classified by LLM-as-judge (Claude Haiku 4.5)",
+    x = "Model", y = "Percentage", fill = "Error Domain"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+print(p_play_spatial)
+
+# Spatial errors per game vs atoms correct
+if ("spatial_errors_in_game" %in% names(play_errors)) {
+  p_spatial_atoms <- ggplot(play_errors,
+                             aes(x = spatial_errors_in_game, y = atoms_correct)) +
+    geom_jitter(aes(color = model_name), width = 0.2, height = 0.1, size = 2, alpha = 0.7) +
+    geom_smooth(method = "lm", se = TRUE, color = "grey40", linetype = "dashed") +
+    labs(
+      title = "Spatial Errors During Game vs Final Accuracy",
+      x = "Number of Spatial Reasoning Errors in Game",
+      y = "Atoms Correctly Identified (0-4)",
+      color = "Model"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "top")
+  print(p_spatial_atoms)
+}
+```
+
+### Gold-Standard Validation: Haiku vs Opus Agreement
+
+```{r}
+#| label: play-gold-standard
+#| eval: !expr has_error_classifications && has_gold
+
+gold <- as_tibble(error_data$play_gold_standard)
+
+agree_rate <- mean(gold$agreement) * 100
+
+cat(paste0("Overall Haiku-Opus agreement: ", round(agree_rate, 1), "% (",
+           sum(gold$agreement), "/", nrow(gold), ")\n"))
+
+# Agreement by category
+gold_confusion <- gold |>
+  count(haiku_primary, primary_failure_mode) |>
+  pivot_wider(names_from = primary_failure_mode, values_from = n, values_fill = 0)
+
+kable(gold_confusion,
+      caption = "Gold-Standard Confusion Matrix: Haiku (rows) vs Opus (columns)")
+
+# Agreement for spatial vs non-spatial
+gold_spatial <- gold |>
+  mutate(both_spatial = is_spatial & haiku_is_spatial,
+         both_nonspatial = !is_spatial & !haiku_is_spatial,
+         domain_agree = (is_spatial == haiku_is_spatial))
+domain_agree_rate <- mean(gold_spatial$domain_agree) * 100
+
+cat(paste0("Spatial/non-spatial domain agreement: ", round(domain_agree_rate, 1), "%\n"))
+```
 
 # Discussion
 
