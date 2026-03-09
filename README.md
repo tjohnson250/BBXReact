@@ -58,7 +58,7 @@ The `play` mode is designed to work alongside the React application: the solver 
 
 ### Research Paper (`blackbox_llm_study.qmd`)
 
-Draft (currently incomplete) Quarto document containing the academic paper with methodology, results, and analysis.
+Draft (currently incomplete) Quarto document containing the academic paper with methodology, results, and analysis. The rendered document is available at: https://tjohnson250.github.io/BBXReact/
 
 **Rendering:**
 ```bash
