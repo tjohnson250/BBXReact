@@ -40,6 +40,12 @@ Instructions for using the application are included within the artifact.
 
 A Python script that computes the information-theoretically optimal strategy for solving Black Box puzzles. It operates over the full C(64,4) = 635,376 candidate space and uses a greedy strategy that minimizes expected remaining candidates (equivalent to maximizing Shannon entropy) at each step.
 
+**Usage:**
+
+```bash
+python blackbox_solver.py <mode> [options]
+```
+
 **Modes:**
 
 | Mode | Command | Description |
@@ -48,6 +54,7 @@ A Python script that computes the information-theoretically optimal strategy for
 | **Simulate** | `python blackbox_solver.py sim [N]` | Simulates N games (default 20) with play-by-play output |
 | **Play** | `python blackbox_solver.py play` | Interactive mode — fire recommended rays in the JSX game and enter observed outcomes |
 | **Tree** | `python blackbox_solver.py tree [DEPTH]` | Builds the optimal decision tree to a given depth (default 2) |
+| **Benchmark** | `python blackbox_solver.py benchmark` | Solves all 10 experiment configurations and writes `optimal_solver_results.json` |
 
 The `play` mode is designed to work alongside the React application: the solver recommends the optimal ray, the user fires it in the JSX game, and enters the observed outcome (e.g., `SOUTH-3`, `ABSORBED`, `REFLECTED`). The solver then narrows the candidate space and recommends the next ray.
 
