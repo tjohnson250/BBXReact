@@ -730,7 +730,7 @@ function calculateScore(rays, atomsCorrect, totalAtoms = 4) {
   };
 }
 
-async function callClaude(messages, systemPrompt, model = 'claude-sonnet-4-5-20250929', useThinking = true, thinkingBudget = 10000) {
+async function callClaude(messages, systemPrompt, model = 'claude-sonnet-4-6', useThinking = true, thinkingBudget = 10000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
   
@@ -828,7 +828,7 @@ export default function BlackBoxGame() {
   const [llmLog, setLlmLog] = useState([]);
   const [predictLog, setPredictLog] = useState([]);
   const [predicting, setPredicting] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('claude-sonnet-4-5-20250929');
+  const [selectedModel, setSelectedModel] = useState('claude-sonnet-4-6');
   const [systemPrompt, setSystemPrompt] = useState(DEFAULT_SYSTEM_PROMPT);
   const [predictPrompt, setPredictPrompt] = useState(DEFAULT_PREDICT_SYSTEM_PROMPT);
   const [showPromptEditor, setShowPromptEditor] = useState(false);
@@ -882,7 +882,7 @@ export default function BlackBoxGame() {
     votRayTrace: false,    // Option B - All modes
     votHypothesis: false,  // Option C - Play modes only
     configIndices: [0, 1, 2, 3, 4], // Which configs to run (0-9)
-    modelsToTest: ['claude-sonnet-4-5-20250929'], // Can select multiple
+    modelsToTest: ['claude-sonnet-4-6'], // Can select multiple
     // Legacy field for backward compatibility
     promptCondition: 'baseline',
   });
@@ -899,8 +899,11 @@ export default function BlackBoxGame() {
   
   const modelOptions = [
     { id: 'claude-haiku-4-5-20251001', name: 'Haiku 4.5' },
+    { id: 'claude-sonnet-4-20250514', name: 'Sonnet 4' },
     { id: 'claude-sonnet-4-5-20250929', name: 'Sonnet 4.5' },
+    { id: 'claude-sonnet-4-6', name: 'Sonnet 4.6' },
     { id: 'claude-opus-4-5-20251101', name: 'Opus 4.5' },
+    { id: 'claude-opus-4-6', name: 'Opus 4.6' },
   ];
   
   // Track used edge positions (entry and exit points)
