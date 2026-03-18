@@ -921,7 +921,7 @@ def analyze_game(configs, result, first_ray, first_partition):
                 llm_score = score_partition(part, len(candidates))
                 llm_rank = len(all_results) + 1
 
-            is_optimal = (llm_rank == 1)
+            is_optimal = (llm_score is not None and abs(llm_score - opt_score) < 1e-9)
             score_delta = (llm_score - opt_score) if llm_score is not None else None
 
             # Get observed outcome from JSON and verify against trace_ray

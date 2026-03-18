@@ -4215,7 +4215,7 @@ p_delta_prog <- ggplot(non_excess_rays |> filter(!is.na(score_delta)),
 print(p_delta_prog)
 ```
 
-`r if(has_det_play) paste0("**Ray selection summary.** Across all models, ", round(mean(det_ray_summary$pct_optimal), 1), "% of non-excess rays matched the information-theoretically optimal choice (rank 1 of 32). The mean rank was ", round(mean(det_ray_summary$mean_rank), 2), ", indicating that LLM ray choices were typically near-optimal in the ranking but not at the top.")`
+`r if(has_det_play) paste0("**Ray selection summary.** Across all models, ", round(mean(det_ray_summary$pct_optimal), 1), "% of non-excess rays matched the information-theoretically optimal E[remaining] score (including ties among equally-optimal rays). The mean rank was ", round(mean(det_ray_summary$mean_rank), 2), ", indicating that LLM ray choices were typically near-optimal in the ranking but not at the top.")`
 
 #### Excess Rays
 
