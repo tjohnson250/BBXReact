@@ -4385,6 +4385,787 @@ kable(det_game_table,
   scroll_box(width = "100%")
 ```
 
+# Experiment 2: Baseline Prompt Correction {#sec-experiment-2}
+
+## Background
+
+During post-hoc review of Experiment 1, we discovered that the baseline system prompt contained a terminology error: the word "ball" appeared in 6 places where "atom" was the correct term. This inconsistency meant that the system prompt used different terminology from both the user prompt and the game's own output, which always refer to hidden objects as "atoms."
+
+The corrected baseline prompt replaces all 6 instances of "ball" with "atom," producing a terminologically consistent prompt. This experiment tests whether fixing this inconsistency affects LLM prediction accuracy. If terminology consistency matters, we would expect improved performance under the corrected prompt — particularly for models that are sensitive to subtle prompt variations. If it does not matter, performance should be statistically equivalent, suggesting that LLMs are robust to minor terminological mismatches.
+
+All other experimental parameters (visualization, thinking, VoT) remain identical to Experiment 1, enabling direct paired comparison of matched conditions.
+
+## Predict Mode Comparison
+
+### Data Loading
+
+```{r}
+#| label: e2-load-predict-data
+
+# --- Original (erroneous "ball" prompt) from archive ---
+e2_erroneous_predict_files <- list.files(
+  path = "Experiment 1/Erroneous Baseline/Predict",
+  pattern = "\\.json$",
+  full.names = TRUE
+)
+
+e2_predict_original <- map_dfr(e2_erroneous_predict_files, extract_predict_results) |>
+  mutate(prompt_version = "Original")
+
+# Deduplicate in case of re-exported files
+e2_predict_original <- e2_predict_original |>
+  distinct(experiment_id, entry_side, entry_pos, .keep_all = TRUE)
+
+# --- Corrected ("atom" prompt) from main Experiment 1 data ---
+e2_predict_corrected <- predict_data |>
+  filter(prompt_style == "baseline") |>
+  mutate(
+    prompt_version = "Corrected",
+    config_index = as.integer(as.character(config_index)),
+    model_name = as.character(model_name),
+    prompt_style = as.character(prompt_style),
+    enable_thinking = as.logical(as.character(enable_thinking)),
+    vot_ray_trace = as.logical(as.character(vot_ray_trace))
+  )
+
+# Deduplicate corrected data for consistency
+e2_predict_corrected <- e2_predict_corrected |>
+  distinct(experiment_id, entry_side, entry_pos, .keep_all = TRUE)
+
+# Combine
+e2_predict_data <- bind_rows(e2_predict_original, e2_predict_corrected) |>
+  mutate(
+    prompt_version = factor(prompt_version, levels = c("Original", "Corrected")),
+    model_name = factor(model_name, levels = order_model_names(model_name)),
+    enable_thinking = as.logical(as.character(enable_thinking)),
+    vot_ray_trace = as.logical(as.character(vot_ray_trace)),
+    config_index = factor(config_index)
+  )
+```
+
+Data loaded: `r nrow(e2_predict_data)` total predictions (`r sum(e2_predict_data$prompt_version == "Original")` Original, `r sum(e2_predict_data$prompt_version == "Corrected")` Corrected) across `r n_distinct(e2_predict_data$model_name)` models.
+
+- **Original models**: `r paste(unique(e2_predict_data$model_name[e2_predict_data$prompt_version == "Original"]), collapse = ", ")`
+- **Corrected models**: `r paste(unique(e2_predict_data$model_name[e2_predict_data$prompt_version == "Corrected"]), collapse = ", ")`
+
+### Data Completeness
+
+```{r}
+#| label: e2-predict-completeness
+
+# Coverage matrix: model × condition × version
+e2_coverage <- e2_predict_data |>
+  mutate(
+    condition = paste0(
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT")
+    )
+  ) |>
+  group_by(prompt_version, model_name, condition) |>
+  summarise(
+    configs_present = n_distinct(config_index),
+    n_predictions = n(),
+    .groups = "drop"
+  )
+
+# Pivot to show versions side by side
+e2_coverage_wide <- e2_coverage |>
+  pivot_wider(
+    names_from = prompt_version,
+    values_from = c(configs_present, n_predictions),
+    values_fill = 0
+  )
+
+kable(e2_coverage_wide,
+      col.names = c("Model", "Condition",
+                     "Configs (Orig)", "Configs (Corr)",
+                     "N (Orig)", "N (Corr)"),
+      caption = "Experiment 2: Data Coverage by Model, Condition, and Prompt Version") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                font_size = 11)
+
+# Identify matched conditions (present in both versions)
+e2_matched_conditions <- e2_coverage |>
+  group_by(model_name, condition) |>
+  filter(n_distinct(prompt_version) == 2) |>
+  ungroup() |>
+  distinct(model_name, condition)
+
+# Filter to matched conditions only
+e2_predict_matched <- e2_predict_data |>
+  mutate(
+    condition = paste0(
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT")
+    )
+  ) |>
+  semi_join(e2_matched_conditions, by = c("model_name", "condition"))
+
+cat("\n**Matched conditions** (present in both Original and Corrected):",
+    nrow(e2_matched_conditions), "model-condition pairs.\n")
+cat("**Matched predictions**: ", nrow(e2_predict_matched),
+    " (", sum(e2_predict_matched$prompt_version == "Original"), " Original + ",
+    sum(e2_predict_matched$prompt_version == "Corrected"), " Corrected)\n", sep = "")
+```
+
+### Accuracy Comparison by Model
+
+```{r}
+#| label: e2-predict-summary
+
+e2_predict_summary <- e2_predict_matched |>
+  group_by(model_name, prompt_version, enable_thinking, vot_ray_trace) |>
+  summarise(
+    n = n(),
+    n_correct = sum(correct),
+    accuracy = mean(correct),
+    accuracy_se = sqrt(accuracy * (1 - accuracy) / n),
+    ci_lower = accuracy - 1.96 * accuracy_se,
+    ci_upper = accuracy + 1.96 * accuracy_se,
+    .groups = "drop"
+  ) |>
+  mutate(across(c(accuracy, accuracy_se, ci_lower, ci_upper), \(x) round(x, 3)))
+
+kable(e2_predict_summary,
+      col.names = c("Model", "Prompt Version", "Thinking", "VoT",
+                     "N", "Correct", "Accuracy", "SE", "CI Lower", "CI Upper"),
+      caption = "Experiment 2: Predict Accuracy by Model, Condition, and Prompt Version") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                font_size = 11)
+```
+
+### Leaderboard
+
+Top 10 configurations by overall accuracy, including prompt version as a distinguishing factor.
+
+```{r}
+#| label: e2-predict-leaderboard
+
+e2_leaderboard <- e2_predict_matched |>
+  mutate(
+    condition = paste0(
+      model_name, " | Base | ",
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT"), " | ",
+      prompt_version
+    )
+  ) |>
+  group_by(condition, model_name, prompt_version, enable_thinking, vot_ray_trace) |>
+  summarise(
+    n = n(),
+    accuracy = mean(correct),
+    ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+    ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+    .groups = "drop"
+  ) |>
+  arrange(desc(accuracy)) |>
+  mutate(
+    rank = row_number(),
+    accuracy_pct = paste0(round(accuracy * 100, 1), "%"),
+    ci_95 = paste0("[", round(ci_lower * 100, 1), "%, ", round(ci_upper * 100, 1), "%]")
+  ) |>
+  select(rank, condition, accuracy_pct, ci_95, n) |>
+  head(10)
+
+kable(e2_leaderboard,
+      col.names = c("Rank", "Configuration", "Accuracy", "95% CI", "N"),
+      caption = "Experiment 2: Predict Mode Leaderboard (Top 10)")
+```
+
+### Forest Plot: Paired Comparison
+
+All configurations ranked by accuracy, colored by prompt version and shaped by model, enabling visual comparison of matched Original vs Corrected conditions.
+
+```{r}
+#| label: e2-predict-forest
+#| fig-width: 10
+#| fig-height: 14
+
+e2_forest_data <- e2_predict_matched |>
+  mutate(
+    config_label = paste0(
+      model_name, " | ",
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT"), " | ",
+      prompt_version
+    )
+  ) |>
+  group_by(config_label, model_name, prompt_version, enable_thinking, vot_ray_trace) |>
+  summarise(
+    n = n(),
+    accuracy = mean(correct),
+    ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+    ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+    .groups = "drop"
+  ) |>
+  arrange(desc(accuracy)) |>
+  mutate(config_label = factor(config_label, levels = rev(config_label)))
+
+p_e2_forest <- ggplot(e2_forest_data,
+                       aes(x = accuracy, y = config_label)) +
+  geom_point(aes(color = prompt_version, shape = model_name), size = 3) +
+  geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper, color = prompt_version),
+                 height = 0.3, linewidth = 0.8) +
+  geom_vline(xintercept = 0.5, linetype = "dashed", color = "gray50", alpha = 0.5) +
+  geom_text(aes(label = paste0(round(accuracy * 100, 1), "%")),
+            hjust = -0.3, size = 3) +
+  labs(
+    title = "Experiment 2: All Configurations Ranked by Accuracy",
+    subtitle = "Colored by prompt version, shaped by model. Non-overlapping CIs suggest significant differences.",
+    x = "Accuracy",
+    y = "Configuration",
+    color = "Prompt Version",
+    shape = "Model"
+  ) +
+  scale_x_continuous(
+    limits = c(0, 1),
+    labels = scales::percent,
+    breaks = seq(0, 1, 0.1)
+  ) +
+  scale_color_manual(values = c("Original" = "#E74C3C", "Corrected" = "#2ECC71")) +
+  theme_minimal(base_size = 11) +
+  theme(
+    axis.text.y = element_text(size = 9, family = "mono"),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "top"
+  )
+
+print(p_e2_forest)
+```
+
+### Accuracy Delta Plot
+
+For each matched condition (model x thinking x VoT), the accuracy difference (Corrected minus Original) with 95% confidence interval for the difference. Positive values indicate the corrected prompt improved accuracy.
+
+```{r}
+#| label: e2-predict-delta
+#| fig-width: 10
+#| fig-height: 8
+
+# Compute accuracy per condition-version pair
+e2_delta_data <- e2_predict_matched |>
+  group_by(model_name, enable_thinking, vot_ray_trace, prompt_version) |>
+  summarise(
+    n = n(),
+    accuracy = mean(correct),
+    .groups = "drop"
+  ) |>
+  pivot_wider(
+    names_from = prompt_version,
+    values_from = c(accuracy, n)
+  ) |>
+  mutate(
+    delta = accuracy_Corrected - accuracy_Original,
+    # SE of difference of two independent proportions
+    se_delta = sqrt(
+      accuracy_Original * (1 - accuracy_Original) / n_Original +
+      accuracy_Corrected * (1 - accuracy_Corrected) / n_Corrected
+    ),
+    ci_lower = delta - 1.96 * se_delta,
+    ci_upper = delta + 1.96 * se_delta,
+    condition_label = paste0(
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT")
+    )
+  )
+
+p_e2_delta <- ggplot(e2_delta_data,
+                      aes(x = delta, y = condition_label)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_point(size = 3, color = "#2C3E50") +
+  geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper),
+                 height = 0.2, linewidth = 0.8, color = "#2C3E50") +
+  geom_text(aes(label = paste0(ifelse(delta > 0, "+", ""),
+                                round(delta * 100, 1), " pp")),
+            hjust = -0.3, size = 3) +
+  facet_wrap(~model_name, ncol = 1, scales = "free_y") +
+  labs(
+    title = "Accuracy Change: Corrected vs Original Baseline Prompt",
+    subtitle = "Positive values = corrected prompt improved accuracy. Error bars = 95% CI for difference.",
+    x = "Accuracy Difference (Corrected - Original)",
+    y = "Condition"
+  ) +
+  scale_x_continuous(labels = scales::percent) +
+  theme_minimal(base_size = 11) +
+  theme(
+    strip.text = element_text(face = "bold", size = 12),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+print(p_e2_delta)
+```
+
+### ANOVA: Prompt Version Effect
+
+Mixed-effects logistic regression testing whether the corrected prompt significantly affects prediction accuracy, controlling for model, thinking, VoT, and ray complexity.
+
+**Model specification**:
+
+- **Outcome**: Correct prediction (binary: 0/1)
+- **Fixed effects**: `prompt_version * model_name + enable_thinking + vot_ray_trace + cells_traveled + atoms_affecting`
+- **Random effects**: `(1 | config_index/ray_id)` — nested configuration and ray-level intercepts
+- **Key factor**: `prompt_version` (Original vs Corrected)
+
+```{r}
+#| label: e2-predict-anova
+
+# Prepare factors
+e2_predict_matched <- e2_predict_matched |>
+  mutate(
+    model_name = factor(as.character(model_name),
+                        levels = order_model_names(as.character(model_name))),
+    prompt_version = factor(as.character(prompt_version),
+                            levels = c("Original", "Corrected")),
+    enable_thinking = factor(as.logical(as.character(enable_thinking)),
+                             levels = c(FALSE, TRUE)),
+    vot_ray_trace = factor(as.logical(as.character(vot_ray_trace)),
+                           levels = c(FALSE, TRUE)),
+    config_index = factor(config_index),
+    ray_id = paste(toupper(entry_side), entry_pos, sep = "_")
+  )
+
+e2_formula <- "correct ~ prompt_version * model_name + enable_thinking + vot_ray_trace + cells_traveled + atoms_affecting + (1 | config_index/ray_id)"
+
+e2_model <- glmer(as.formula(e2_formula),
+                   family = binomial(link = "logit"),
+                   data = e2_predict_matched,
+                   control = glmerControl(optimizer = "bobyqa"))
+```
+
+**Model formula**: `r e2_formula`
+
+```{r}
+#| label: e2-predict-anova-results
+#| echo: false
+
+print(Anova(e2_model, type = 3))
+```
+
+#### Odds Ratios with 95% Confidence Intervals
+
+**Interpretation**: OR > 1 means the factor increases odds of correct prediction; OR < 1 means it decreases odds.
+
+```{r}
+#| label: e2-predict-odds-ratios
+#| echo: false
+
+e2_fixed_coefs <- fixef(e2_model)
+e2_conf_int <- confint(e2_model, parm = "beta_", method = "Wald", quiet = TRUE)
+
+e2_tidy_or <- tidy(e2_model, effects = "fixed") |>
+  select(term, p.value)
+
+e2_or_results <- exp(cbind(OR = e2_fixed_coefs, e2_conf_int))
+e2_or_df <- as.data.frame(e2_or_results) |>
+  rownames_to_column("Term") |>
+  filter(!grepl("Intercept", Term)) |>
+  left_join(e2_tidy_or, by = c("Term" = "term")) |>
+  mutate(
+    across(c(OR, `2.5 %`, `97.5 %`), ~round(., 3)),
+    p.value = round(p.value, 4),
+    significant = p.value < 0.05
+  )
+
+e2_or_display <- e2_or_df |>
+  mutate(
+    `Odds Ratio` = OR,
+    `95% CI Lower` = `2.5 %`,
+    `95% CI Upper` = `97.5 %`,
+    `p-value` = format.pval(p.value, digits = 3, eps = 0.001),
+    Sig = ifelse(significant, "*", "")
+  ) |>
+  select(Term, `Odds Ratio`, `95% CI Lower`, `95% CI Upper`, `p-value`, Sig)
+
+kable(e2_or_display,
+      caption = "Experiment 2: Odds Ratios for Prediction Accuracy. * indicates p < 0.05.")
+```
+
+#### Random Effects Variance Components
+
+```{r}
+#| label: e2-predict-random-effects
+#| echo: false
+
+print(VarCorr(e2_model))
+
+e2_icc <- performance::icc(e2_model)
+```
+
+**ICC**: `r round(e2_icc$ICC_adjusted, 3)` — Proportion of variance due to clustering at configuration and ray-within-config levels.
+
+```{r}
+#| label: e2-predict-model-fit
+#| echo: false
+
+e2_r2 <- performance::r2_nakagawa(e2_model)
+```
+
+**Model Fit** (Pseudo R², Nakagawa & Schielzeth):
+
+- **Marginal R²** (fixed effects only): `r round(e2_r2$R2_marginal, 3)`
+- **Conditional R²** (fixed + random effects): `r round(e2_r2$R2_conditional, 3)`
+
+#### Effect Size
+
+```{r}
+#| label: e2-predict-cramers-v
+#| echo: false
+
+e2_cramers <- cramers_v(table(e2_predict_matched$prompt_version, e2_predict_matched$correct))
+```
+
+**Cramér's V** (prompt version × accuracy): `r round(e2_cramers$Cramers_v, 3)` — Interpretation: 0.10 = small, 0.30 = medium, 0.50 = large.
+
+### Effect Modification by Path Complexity
+
+Does the prompt correction effect vary with ray complexity? If the corrected prompt helps more on complex rays, the terminology fix may reduce cognitive load for the model on harder spatial reasoning tasks.
+
+```{r}
+#| label: e2-predict-effect-mod
+
+e2_mod_formula <- "correct ~ prompt_version * cells_traveled + model_name + (1 | config_index/ray_id)"
+
+e2_model_mod <- glmer(as.formula(e2_mod_formula),
+                       family = binomial(link = "logit"),
+                       data = e2_predict_matched,
+                       control = glmerControl(optimizer = "bobyqa"))
+```
+
+**Model formula**: `r e2_mod_formula`
+
+```{r}
+#| label: e2-predict-effect-mod-results
+#| echo: false
+
+print(Anova(e2_model_mod, type = 3))
+
+# Extract interaction coefficient
+e2_mod_coefs <- tidy(e2_model_mod, conf.int = TRUE) |>
+  filter(grepl(":", term)) |>
+  mutate(
+    OR = exp(estimate),
+    OR_lower = exp(conf.low),
+    OR_upper = exp(conf.high)
+  ) |>
+  select(term, estimate, OR, OR_lower, OR_upper, p.value) |>
+  mutate(across(c(estimate, OR, OR_lower, OR_upper), ~round(., 3)),
+         p.value = format.pval(p.value, digits = 3, eps = 0.001))
+
+if (nrow(e2_mod_coefs) > 0) {
+  kable(e2_mod_coefs,
+        col.names = c("Interaction Term", "β (log-odds)", "OR",
+                       "OR 95% CI Lower", "OR 95% CI Upper", "p-value"),
+        caption = "Experiment 2: Prompt Version × Path Complexity Interaction")
+}
+```
+
+**Interpretation**: A significant interaction would indicate that the prompt correction effect differs across ray complexity levels. A non-significant interaction suggests the effect (or lack thereof) of prompt correction is constant regardless of spatial complexity.
+
+### Error Pattern Comparison
+
+Do the types of errors differ between the original and corrected prompt? If terminology correction changes *which* errors models make (not just *how many*), it suggests the prompt wording shapes the model's reasoning strategy.
+
+```{r}
+#| label: e2-predict-error-patterns
+#| fig-width: 10
+#| fig-height: 8
+
+# Classify error types for both versions
+e2_errors <- e2_predict_matched |>
+  filter(!correct) |>
+  mutate(
+    predicted_type = case_when(
+      grepl("absorbed|HIT", predicted, ignore.case = TRUE) ~ "absorbed",
+      grepl("reflected|REFLECTION", predicted, ignore.case = TRUE) ~ "reflected",
+      TRUE ~ "detour"
+    ),
+    actual_type = case_when(
+      grepl("absorbed|HIT", actual, ignore.case = TRUE) ~ "absorbed",
+      grepl("reflected|REFLECTION", actual, ignore.case = TRUE) ~ "reflected",
+      TRUE ~ "detour"
+    ),
+    error_type = paste(actual_type, "->", predicted_type)
+  )
+
+# Confusion matrix by prompt version
+e2_error_matrix_orig <- e2_errors |>
+  filter(prompt_version == "Original") |>
+  count(actual_type, predicted_type) |>
+  pivot_wider(names_from = predicted_type, values_from = n, values_fill = 0)
+
+e2_error_matrix_corr <- e2_errors |>
+  filter(prompt_version == "Corrected") |>
+  count(actual_type, predicted_type) |>
+  pivot_wider(names_from = predicted_type, values_from = n, values_fill = 0)
+
+cat("**Original Prompt Error Matrix:**\n\n")
+kable(e2_error_matrix_orig,
+      caption = "Original Prompt: Actual vs Predicted Outcome Type") |>
+  print()
+
+cat("\n**Corrected Prompt Error Matrix:**\n\n")
+kable(e2_error_matrix_corr,
+      caption = "Corrected Prompt: Actual vs Predicted Outcome Type") |>
+  print()
+
+# Chi-squared test on error type distribution
+e2_error_table <- table(e2_errors$prompt_version, e2_errors$error_type)
+if (min(dim(e2_error_table)) > 1 && sum(e2_error_table) > 0) {
+  e2_chi_test <- chisq.test(e2_error_table, simulate.p.value = TRUE, B = 10000)
+  cat("\n**Chi-squared test** (error type distribution × prompt version):\n")
+  cat("  X² =", round(e2_chi_test$statistic, 2),
+      ", p =", format.pval(e2_chi_test$p.value, digits = 3), "\n")
+}
+
+# Stacked bar chart of error types by version, faceted by model
+e2_error_by_model <- e2_errors |>
+  count(model_name, prompt_version, error_type) |>
+  group_by(model_name, prompt_version) |>
+  mutate(prop = n / sum(n)) |>
+  ungroup()
+
+p_e2_errors <- ggplot(e2_error_by_model,
+                       aes(x = prompt_version, y = prop, fill = error_type)) +
+  geom_col(position = "stack") +
+  facet_wrap(~model_name, nrow = 1) +
+  labs(
+    title = "Error Type Distribution by Prompt Version",
+    subtitle = "Proportional breakdown of error types for incorrect predictions",
+    x = "Prompt Version",
+    y = "Proportion of Errors",
+    fill = "Error Type\n(Actual -> Predicted)"
+  ) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal(base_size = 11) +
+  theme(
+    strip.text = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+
+print(p_e2_errors)
+```
+
+## Play Mode Comparison
+
+```{r}
+#| label: e2-load-play-data
+
+# Check if erroneous baseline play data exists in archive
+e2_play_dir <- "Experiment 1/Erroneous Baseline/Play"
+e2_play_available <- dir.exists(e2_play_dir) &&
+  length(list.files(e2_play_dir, pattern = "\\.json$")) > 0
+```
+
+```{r}
+#| label: e2-play-data-load
+#| eval: !expr e2_play_available
+
+# Original (erroneous "ball" prompt) from archive
+e2_play_original <- map_dfr(
+  list.files(e2_play_dir, pattern = "\\.json$", full.names = TRUE),
+  extract_play_results
+) |>
+  mutate(prompt_version = "Original")
+
+# Deduplicate
+e2_play_original <- e2_play_original |>
+  distinct(experiment_id, .keep_all = TRUE)
+
+# Corrected ("atom" prompt) from main Experiment 1 data
+e2_play_corrected <- play_data |>
+  filter(prompt_style == "baseline") |>
+  mutate(
+    prompt_version = "Corrected",
+    config_index = as.integer(as.character(config_index)),
+    model_name = as.character(model_name),
+    prompt_style = as.character(prompt_style),
+    enable_thinking = as.logical(as.character(enable_thinking)),
+    vot_ray_trace = as.logical(as.character(vot_ray_trace))
+  )
+
+# Deduplicate for consistency
+e2_play_corrected <- e2_play_corrected |>
+  distinct(experiment_id, .keep_all = TRUE)
+
+# Combine
+e2_play_data <- bind_rows(e2_play_original, e2_play_corrected) |>
+  mutate(
+    prompt_version = factor(prompt_version, levels = c("Original", "Corrected")),
+    model_name = factor(model_name, levels = order_model_names(model_name)),
+    enable_thinking = as.logical(as.character(enable_thinking)),
+    vot_ray_trace = as.logical(as.character(vot_ray_trace)),
+    config_index = factor(config_index)
+  )
+```
+
+`r if (!e2_play_available) "**Erroneous baseline play data not found in archive.** Expected at: Experiment 1/Erroneous Baseline/Play/"`
+
+```{r}
+#| label: e2-play-completeness
+#| eval: !expr e2_play_available
+
+e2_play_coverage <- e2_play_data |>
+  mutate(
+    condition = paste0(
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT")
+    )
+  ) |>
+  group_by(prompt_version, model_name, condition) |>
+  summarise(
+    configs_present = n_distinct(config_index),
+    n_games = n(),
+    .groups = "drop"
+  )
+
+kable(e2_play_coverage,
+      col.names = c("Version", "Model", "Condition", "Configs", "Games"),
+      caption = "Experiment 2: Play Mode Data Coverage") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                font_size = 11)
+
+# Filter to matched conditions
+e2_play_matched_conds <- e2_play_coverage |>
+  group_by(model_name, condition) |>
+  filter(n_distinct(prompt_version) == 2) |>
+  ungroup() |>
+  distinct(model_name, condition)
+
+e2_play_matched <- e2_play_data |>
+  mutate(
+    condition = paste0(
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT")
+    )
+  ) |>
+  semi_join(e2_play_matched_conds, by = c("model_name", "condition"))
+```
+
+```{r}
+#| label: e2-play-comparison
+#| eval: !expr e2_play_available
+
+e2_play_summary <- e2_play_matched |>
+  group_by(model_name, prompt_version, enable_thinking, vot_ray_trace) |>
+  summarise(
+    n_games = n(),
+    mean_atoms_correct = mean(atoms_correct, na.rm = TRUE),
+    mean_score = mean(score, na.rm = TRUE),
+    mean_rays = mean(rays_used, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(across(c(mean_atoms_correct, mean_score, mean_rays), \(x) round(x, 2)))
+
+kable(e2_play_summary,
+      col.names = c("Model", "Version", "Thinking", "VoT",
+                     "Games", "Atoms Correct", "Score", "Rays Used"),
+      caption = "Experiment 2: Play Mode Performance by Model and Prompt Version") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                font_size = 11)
+```
+
+```{r}
+#| label: e2-play-delta-plot
+#| eval: !expr e2_play_available
+#| fig-width: 10
+#| fig-height: 8
+
+e2_play_delta <- e2_play_matched |>
+  group_by(model_name, enable_thinking, vot_ray_trace, prompt_version) |>
+  summarise(
+    n = n(),
+    mean_atoms = mean(atoms_correct, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  pivot_wider(
+    names_from = prompt_version,
+    values_from = c(mean_atoms, n)
+  ) |>
+  mutate(
+    delta = mean_atoms_Corrected - mean_atoms_Original,
+    condition_label = paste0(
+      ifelse(enable_thinking, "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT")
+    )
+  )
+
+p_e2_play_delta <- ggplot(e2_play_delta,
+                           aes(x = delta, y = condition_label)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_point(size = 3, color = "#2C3E50") +
+  geom_text(aes(label = round(delta, 2)), hjust = -0.3, size = 3) +
+  facet_wrap(~model_name, ncol = 1, scales = "free_y") +
+  labs(
+    title = "Play Mode: Atoms Correct Change (Corrected - Original)",
+    subtitle = "Positive values = corrected prompt found more atoms",
+    x = "Difference in Mean Atoms Correct",
+    y = "Condition"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    strip.text = element_text(face = "bold", size = 12),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+print(p_e2_play_delta)
+```
+
+```{r}
+#| label: e2-play-anova
+#| eval: !expr e2_play_available
+
+e2_play_matched <- e2_play_matched |>
+  mutate(
+    model_name = factor(model_name, levels = order_model_names(model_name)),
+    prompt_version = factor(prompt_version, levels = c("Original", "Corrected")),
+    enable_thinking = factor(enable_thinking, levels = c(FALSE, TRUE)),
+    vot_ray_trace = factor(vot_ray_trace, levels = c(FALSE, TRUE)),
+    config_index = factor(config_index)
+  )
+
+e2_play_formula <- "atoms_correct ~ prompt_version * model_name + enable_thinking + vot_ray_trace + (1 | config_index)"
+
+e2_play_model <- lmer(as.formula(e2_play_formula),
+                       data = e2_play_matched)
+
+cat("**Model formula**:", e2_play_formula, "\n\n")
+print(Anova(e2_play_model, type = 3))
+```
+
+## Cross-Mode Summary
+
+```{r}
+#| label: e2-cross-mode-summary
+#| eval: !expr e2_play_available
+
+# Summarise the prompt version effect across both modes
+e2_cross_mode <- tibble(
+  Mode = c("Predict", "Play"),
+  `Original Accuracy` = c(
+    round(mean(e2_predict_matched$correct[e2_predict_matched$prompt_version == "Original"]) * 100, 1),
+    round(mean(e2_play_matched$atoms_correct[e2_play_matched$prompt_version == "Original"], na.rm = TRUE), 2)
+  ),
+  `Corrected Accuracy` = c(
+    round(mean(e2_predict_matched$correct[e2_predict_matched$prompt_version == "Corrected"]) * 100, 1),
+    round(mean(e2_play_matched$atoms_correct[e2_play_matched$prompt_version == "Corrected"], na.rm = TRUE), 2)
+  ),
+  Metric = c("% Correct", "Mean Atoms Correct")
+)
+
+e2_cross_mode <- e2_cross_mode |>
+  mutate(Delta = `Corrected Accuracy` - `Original Accuracy`)
+
+kable(e2_cross_mode,
+      caption = "Experiment 2: Cross-Mode Summary of Prompt Correction Effect") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+`r if (!e2_play_available) "Cross-mode comparison will be available once Play mode reruns are completed."`
+
 # Discussion
 
 ## Summary of Findings
