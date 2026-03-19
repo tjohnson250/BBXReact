@@ -63,6 +63,46 @@ The `play` mode is designed to work alongside the React application: the solver 
 **Requirements:**
 - Python 3 (standard library only, no external dependencies)
 
+### Experiment Runner (`blackbox_experiment.py`)
+
+A Python script for running Black Box experiments against non-Anthropic models (OpenAI, Google Gemini, DeepSeek). Outputs results in the same JSON format as the React app for cross-model comparison.
+
+**Usage:**
+
+```bash
+python blackbox_experiment.py                          # uses experiment_config.yaml
+python blackbox_experiment.py --config my_config.yaml  # custom config
+python blackbox_experiment.py --config my_config.yaml --dry-run  # validate only
+python blackbox_experiment.py -v                       # verbose/debug logging
+```
+
+**Supported Models:**
+
+| Provider | Models | API Key Env Var |
+|----------|--------|-----------------|
+| OpenAI | o3, o4-mini, GPT-4o, etc. | `OPENAI_API_KEY` |
+| Google | Gemini 2.5 Pro, etc. | `GOOGLE_API_KEY` |
+| DeepSeek | DeepSeek R1, etc. | `DEEPSEEK_API_KEY` |
+
+**Configuration (`experiment_config.yaml`):**
+
+The experiment is configured via a YAML file that controls:
+- **Task mode**: `predict` (forward reasoning) or `play` (inverse reasoning)
+- **Prompt style**: `baseline` or `augmented`
+- **Visualization**: Include text board in prompts
+- **Thinking**: Enable provider-specific reasoning (reasoning_effort for OpenAI, thinking_config for Gemini)
+- **VoT prompts**: Grid state, ray trace, and hypothesis visualization additions
+- **Config indices**: Which of the 10 atom configurations to test (0-indexed)
+- **Models**: List of models with provider and ID
+- **Rate limiting**: Delay between calls, retry count, exponential backoff
+
+Results are saved to the `./results/` directory in the same JSON format as the React app's export, enabling unified analysis across all models.
+
+**Requirements:**
+```bash
+pip install openai google-genai pyyaml
+```
+
 ### Research Paper (`blackbox_llm_study.qmd`)
 
 Draft (currently incomplete) Quarto document containing the academic paper with methodology, results, and analysis. The rendered document is available at: https://tjohnson250.github.io/BBXReact/
@@ -88,7 +128,10 @@ The goal is to deduce atom locations from ray observations.
 
 ## Experiment Data
 
-The `Experiment 1/` directory contains JSON results from systematic experiments testing Claude models (Haiku, Sonnet, Opus) across prompt conditions.
+- The `Experiment 1/` directory contains JSON results from systematic experiments testing Claude models (Haiku, Sonnet, Opus) across prompt conditions via the React app.
+- The `results/` directory contains JSON results from the Python experiment runner testing non-Anthropic models (OpenAI, Google, DeepSeek).
+
+Both use the same JSON export format for unified analysis in the Quarto document.
 
 ## License
 

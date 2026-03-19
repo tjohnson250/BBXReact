@@ -59,3 +59,6 @@ wheels/
 .Rproj.user/
 
 .DS_Store
+
+/.quarto/
+**/*.quarto_ipynb

@@ -46,7 +46,7 @@ function configToAtomSet(config) {
 // BASELINE: Human-equivalent instructions (adapted from traditional Emacs Black Box rules)
 const BASELINE_PLAY_PROMPT = `You are playing Black Box, a game of hide and seek played on an 8 by 8 grid (the Black Box).
 
-Your opponent has hidden 4 balls within this box. By shooting rays into the box and observing where they emerge, it is possible to deduce the positions of the hidden balls.
+Your opponent has hidden 4 atoms within this box. By shooting rays into the box and observing where they emerge, it is possible to deduce the positions of the hidden atoms.
 
 GRID: 8x8, rows 1-8 (top to bottom), columns 1-8 (left to right).
 RAYS: Fire from edge positions - NORTH/SOUTH use columns 1-8, EAST/WEST use rows 1-8.
@@ -57,13 +57,13 @@ DETOUR: The ray is deflected and emerges somewhere other than where you sent it 
 
 REFLECTION (R): The ray is reflected and emerges in the same place it was sent in.
 
-HIT (H): The ray strikes a ball directly and is absorbed. It does not emerge from the box.
+HIT (H): The ray strikes an atom directly and is absorbed. It does not emerge from the box.
 
-The rules for how balls deflect rays are simple and are best shown by example.
+The rules for how atoms deflect rays are simple and are best shown by example.
 
-As a ray approaches a ball it is deflected ninety degrees. Rays can be deflected multiple times. In the diagrams below, the dashes represent empty box locations and the letter O represents a ball. The entrance and exit points of each ray are marked with numbers. Note that the entrance and exit points are always interchangeable. * denotes the path taken by the ray.
+As a ray approaches an atom it is deflected ninety degrees. Rays can be deflected multiple times. In the diagrams below, the dashes represent empty box locations and the letter O represents an atom. The entrance and exit points of each ray are marked with numbers. Note that the entrance and exit points are always interchangeable. * denotes the path taken by the ray.
 
-Note carefully the relative positions of the ball and the ninety degree deflection it causes.
+Note carefully the relative positions of the atom and the ninety degree deflection it causes.
 
     1                                            
   - * - - - - - -         - - - - - - - -         - - - - - - - -       
@@ -88,9 +88,9 @@ R * * * * - - - -         - - - * - - - -          O - - - - - - -
   - - - - - - - -       R * * * * - - - -          - - - - - - - -
   - - - - - - - -         - - - - O - - -          - - - - - - - -
 
-In the first example, the ray is deflected downwards by the upper ball, then left by the lower ball, and finally retraces its path to its point of origin. The second example is similar. The third example is a bit anomalous but can be rationalized by realizing the ray never gets a chance to get into the box. Alternatively, the ray can be thought of as being deflected downwards and immediately emerging from the box.
+In the first example, the ray is deflected downwards by the upper atom, then left by the lower atom, and finally retraces its path to its point of origin. The second example is similar. The third example is a bit anomalous but can be rationalized by realizing the ray never gets a chance to get into the box. Alternatively, the ray can be thought of as being deflected downwards and immediately emerging from the box.
 
-A hit occurs when a ray runs straight into a ball:
+A hit occurs when a ray runs straight into an atom:
 
   - - - - - - - -         - - - - - - - -          - - - - - - - -
   - - - - - - - -         - - - - - - - -          - - - - O - - -
@@ -103,7 +103,7 @@ H * * * O - - - -         - - - - - - - -          - - - - - - - -
 
 Be sure to compare the second example of a hit with the first example of a reflection.
 
-Important: A hit takes priority over a reflection. If a ball is in the entry cell, the ray is absorbed even if there are also balls diagonally adjacent that would otherwise cause a reflection:
+Important: A hit takes priority over a reflection. If an atom is in the entry cell, the ray is absorbed even if there are also atoms diagonally adjacent that would otherwise cause a reflection:
 
   O - - - - - - -
 H O - - - - - - -
@@ -114,7 +114,7 @@ H O - - - - - - -
   - - - - - - - -
   - - - - - - - -
 
-In this example, even though there is a ball at row 1 that would normally cause an edge reflection, the ball at row 2 absorbs the ray first.
+In this example, even though there is an atom at row 1 that would normally cause an edge reflection, the atom at row 2 absorbs the ray first.
 
 SCORING:
 Your goal is to minimize your score. Lower is better.
@@ -132,16 +132,16 @@ Respond with JSON only:
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
 {"action": "guess", "atoms": [[row,col], [row,col], [row,col], [row,col]], "reasoning": "..."}
 
-When you think you know where all 4 balls are, make your guess.`;
+When you think you know where all 4 atoms are, make your guess.`;
 
 const BASELINE_PREDICT_PROMPT = `Predict where a ray will exit in Black Box.
 
 GRID: 8x8, rows 1-8 (top to bottom), columns 1-8 (left to right).
 EDGES: NORTH/SOUTH use columns 1-8, EAST/WEST use rows 1-8.
 
-As a ray approaches a ball it is deflected ninety degrees. Rays can be deflected multiple times. In these diagrams, - is empty, O is a ball, * is the ray path.
+As a ray approaches an atom it is deflected ninety degrees. Rays can be deflected multiple times. In these diagrams, - is empty, O is an atom, * is the ray path.
 
-DEFLECTION examples (note carefully the relative position of ball and deflection):
+DEFLECTION examples (note carefully the relative position of atom and deflection):
 
     1                                            
   - * - - - - - -         - - - - - - - -         - - - - - - - -       
@@ -165,9 +165,9 @@ R * * * * - - - -         - - - * - - - -          O - - - - - - -
   - - - - - - - -       R * * * * - - - -          - - - - - - - -
   - - - - - - - -         - - - - O - - -          - - - - - - - -
 
-The third example: ray never enters because ball is adjacent to entry point.
+The third example: ray never enters because atom is adjacent to entry point.
 
-HIT (H) - ray absorbed when striking ball directly:
+HIT (H) - ray absorbed when striking an atom directly:
 
   - - - - - - - -         - - - - - - - -          - - - - - - - -
   - - - - - - - -         - - - - - - - -          - - - - O - - -
@@ -178,9 +178,9 @@ H * * * O - - - -         - - - - - - - -          - - - - - - - -
   - - - - - - - -         - - - - - - - -          - - - - - - - -
   - - - - - - - -         - - - - - - - -          - - - - - - - -
 
-Compare the second hit example (3 balls in column) with the first reflection example (2 balls).
+Compare the second hit example (3 atoms in column) with the first reflection example (2 atoms).
 
-Important: A hit takes priority over a reflection. If a ball is in the entry cell, it is absorbed even if diagonal balls would otherwise cause reflection:
+Important: A hit takes priority over a reflection. If an atom is in the entry cell, it is absorbed even if diagonal atoms would otherwise cause reflection:
 
   O - - - - - - -
 H O - - - - - - -
@@ -1433,7 +1433,7 @@ export default function BlackBoxGame() {
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
 {"action": "guess", "atoms": [[row,col], [row,col], [row,col], [row,col]], "reasoning": "..."}
 
-When you think you know where all 4 balls are, make your guess.`;
+When you think you know where all 4 atoms are, make your guess.`;
       
       const baselineNewSection = `Respond with JSON only:
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
@@ -3603,7 +3603,7 @@ ${stepsHtml}
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
 {"action": "guess", "atoms": [[row,col], [row,col], [row,col], [row,col]], "reasoning": "..."}
 
-When you think you know where all 4 balls are, make your guess.`;
+When you think you know where all 4 atoms are, make your guess.`;
       
       const baselineNewSection = `Respond with JSON only:
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
@@ -4129,7 +4129,7 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
 {"action": "guess", "atoms": [[row,col], [row,col], [row,col], [row,col]], "reasoning": "..."}
 
-When you think you know where all 4 balls are, make your guess.`;
+When you think you know where all 4 atoms are, make your guess.`;
                     
                     const baselineNewSection = `Respond with JSON only:
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
@@ -4460,7 +4460,7 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
 {"action": "guess", "atoms": [[row,col], [row,col], [row,col], [row,col]], "reasoning": "..."}
 
-When you think you know where all 4 balls are, make your guess.`;
+When you think you know where all 4 atoms are, make your guess.`;
                           
                           const baselineNewSection = `Respond with JSON only:
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
@@ -5283,7 +5283,7 @@ You must mark exactly 4 positions where you think the atoms are located. Use mar
               <section>
                 <h3 className="text-lg font-semibold text-blue-700 mb-2">🎯 Game Overview</h3>
                 <p className="text-sm text-gray-700">
-                  Black Box is a game of hide and seek played on an 8×8 grid. Four atoms (balls) are hidden inside the box. 
+                  Black Box is a game of hide and seek played on an 8×8 grid. Four atoms are hidden inside the box. 
                   Your goal is to deduce their positions by firing rays into the box and observing how they behave.
                 </p>
               </section>

@@ -541,7 +541,10 @@ def main():
                     "Predict mode is fully deterministic (no API key needed). "
                     "Play mode uses Claude as judge (API key required)."
     )
-    parser.add_argument("--api-key", help="Anthropic API key (required for Play mode)")
+    parser.add_argument("--api-key",
+                        default=os.environ.get("ANTHROPIC_API_KEY"),
+                        help="Anthropic API key (required for Play mode; "
+                             "defaults to ANTHROPIC_API_KEY env var)")
     parser.add_argument("--mode", choices=["predict", "play", "both"], default="both",
                         help="Which mode to classify (default: both)")
     parser.add_argument("--dry-run", action="store_true",
@@ -555,7 +558,8 @@ def main():
     args = parser.parse_args()
 
     if args.mode in ("play", "both") and not args.api_key and not args.dry_run:
-        parser.error("--api-key is required for Play mode classification")
+        parser.error("--api-key is required for Play mode classification "
+                     "(pass --api-key or set ANTHROPIC_API_KEY)")
 
     checkpoint = load_checkpoint() if args.resume else {
         "predict": [], "play": [], "play_gold": [],
