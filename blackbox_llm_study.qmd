@@ -1222,8 +1222,6 @@ Data loaded: `r nrow(predict_data)` predictions from `r length(predict_json_file
 - **Cells traveled range**: `r round(min(predict_data$cells_traveled, na.rm = TRUE), 2)`–`r round(max(predict_data$cells_traveled, na.rm = TRUE), 2)`
 - **Atoms affecting range**: `r min(predict_data$atoms_affecting, na.rm = TRUE)`–`r max(predict_data$atoms_affecting, na.rm = TRUE)`
 
-```
-
 ### Data Completeness Check
 
 **Note on sample size**: Fewer than 32 predictions per configuration is expected due to ray symmetry optimization. When a ray enters at position A and exits at B (detour), the experiment skips testing the reverse direction to avoid redundancy.
@@ -2402,8 +2400,6 @@ Data loaded: `r nrow(play_data)` experiment results from `r length(play_json_fil
 - **Mean cells per ray range**: `r round(min(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`
 
 `r if (nrow(hyp_check) > 0) paste0("**WARNING: ", nrow(hyp_check), " file(s) with allowHypotheses = false (", sum(hyp_check$n_false), " total configs):** ", paste(hyp_check$source_file, " (", hyp_check$n_false, " configs)", collapse = ", "))`
-
-```
 
 ### Data Completeness Check
 

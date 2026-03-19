@@ -199,34 +199,36 @@ window.Quarto = {
   <ul>
   <li><a href="#predict-mode-results" id="toc-predict-mode-results" class="nav-link" data-scroll-target="#predict-mode-results"><span class="header-section-number">4.1</span> Predict Mode Results</a>
   <ul class="collapse">
-  <li><a href="#predict-mode-leaderboard" id="toc-predict-mode-leaderboard" class="nav-link" data-scroll-target="#predict-mode-leaderboard"><span class="header-section-number">4.1.1</span> Predict Mode Leaderboard</a></li>
-  <li><a href="#forest-plot-all-configurations" id="toc-forest-plot-all-configurations" class="nav-link" data-scroll-target="#forest-plot-all-configurations"><span class="header-section-number">4.1.2</span> Forest Plot: All Configurations</a></li>
-  <li><a href="#factor-level-comparisons" id="toc-factor-level-comparisons" class="nav-link" data-scroll-target="#factor-level-comparisons"><span class="header-section-number">4.1.3</span> Factor-Level Comparisons</a></li>
-  <li><a href="#anova-prediction-accuracy" id="toc-anova-prediction-accuracy" class="nav-link" data-scroll-target="#anova-prediction-accuracy"><span class="header-section-number">4.1.4</span> ANOVA: Prediction Accuracy</a>
+  <li><a href="#data-completeness-check" id="toc-data-completeness-check" class="nav-link" data-scroll-target="#data-completeness-check"><span class="header-section-number">4.1.1</span> Data Completeness Check</a></li>
+  <li><a href="#predict-mode-leaderboard" id="toc-predict-mode-leaderboard" class="nav-link" data-scroll-target="#predict-mode-leaderboard"><span class="header-section-number">4.1.2</span> Predict Mode Leaderboard</a></li>
+  <li><a href="#forest-plot-all-configurations" id="toc-forest-plot-all-configurations" class="nav-link" data-scroll-target="#forest-plot-all-configurations"><span class="header-section-number">4.1.3</span> Forest Plot: All Configurations</a></li>
+  <li><a href="#factor-level-comparisons" id="toc-factor-level-comparisons" class="nav-link" data-scroll-target="#factor-level-comparisons"><span class="header-section-number">4.1.4</span> Factor-Level Comparisons</a></li>
+  <li><a href="#anova-prediction-accuracy" id="toc-anova-prediction-accuracy" class="nav-link" data-scroll-target="#anova-prediction-accuracy"><span class="header-section-number">4.1.5</span> ANOVA: Prediction Accuracy</a>
   <ul class="collapse">
-  <li><a href="#odds-ratios-with-95-confidence-intervals" id="toc-odds-ratios-with-95-confidence-intervals" class="nav-link" data-scroll-target="#odds-ratios-with-95-confidence-intervals"><span class="header-section-number">4.1.4.1</span> Odds Ratios with 95% Confidence Intervals</a></li>
-  <li><a href="#random-effects-variance-components" id="toc-random-effects-variance-components" class="nav-link" data-scroll-target="#random-effects-variance-components"><span class="header-section-number">4.1.4.2</span> Random Effects Variance Components</a></li>
-  <li><a href="#cramérs-v-effect-size-for-categorical-associations" id="toc-cramérs-v-effect-size-for-categorical-associations" class="nav-link" data-scroll-target="#cramérs-v-effect-size-for-categorical-associations"><span class="header-section-number">4.1.4.3</span> Cramér’s V (Effect Size for Categorical Associations)</a></li>
-  <li><a href="#regression-coefficients-for-main-effects" id="toc-regression-coefficients-for-main-effects" class="nav-link" data-scroll-target="#regression-coefficients-for-main-effects"><span class="header-section-number">4.1.4.4</span> Regression Coefficients for Main Effects</a></li>
+  <li><a href="#odds-ratios-with-95-confidence-intervals" id="toc-odds-ratios-with-95-confidence-intervals" class="nav-link" data-scroll-target="#odds-ratios-with-95-confidence-intervals"><span class="header-section-number">4.1.5.1</span> Odds Ratios with 95% Confidence Intervals</a></li>
+  <li><a href="#random-effects-variance-components" id="toc-random-effects-variance-components" class="nav-link" data-scroll-target="#random-effects-variance-components"><span class="header-section-number">4.1.5.2</span> Random Effects Variance Components</a></li>
+  <li><a href="#cramérs-v-effect-size-for-categorical-associations" id="toc-cramérs-v-effect-size-for-categorical-associations" class="nav-link" data-scroll-target="#cramérs-v-effect-size-for-categorical-associations"><span class="header-section-number">4.1.5.3</span> Cramér’s V (Effect Size for Categorical Associations)</a></li>
+  <li><a href="#regression-coefficients-for-main-effects" id="toc-regression-coefficients-for-main-effects" class="nav-link" data-scroll-target="#regression-coefficients-for-main-effects"><span class="header-section-number">4.1.5.4</span> Regression Coefficients for Main Effects</a></li>
   </ul></li>
-  <li><a href="#effect-modification-by-path-complexity" id="toc-effect-modification-by-path-complexity" class="nav-link" data-scroll-target="#effect-modification-by-path-complexity"><span class="header-section-number">4.1.5</span> Effect Modification by Path Complexity</a></li>
-  <li><a href="#effect-modification-by-atom-density" id="toc-effect-modification-by-atom-density" class="nav-link" data-scroll-target="#effect-modification-by-atom-density"><span class="header-section-number">4.1.6</span> Effect Modification by Atom Density</a></li>
-  <li><a href="#ray-path-complexity-analysis" id="toc-ray-path-complexity-analysis" class="nav-link" data-scroll-target="#ray-path-complexity-analysis"><span class="header-section-number">4.1.7</span> Ray Path Complexity Analysis</a></li>
-  <li><a href="#budget-tag-hallucination-artifact" id="toc-budget-tag-hallucination-artifact" class="nav-link" data-scroll-target="#budget-tag-hallucination-artifact"><span class="header-section-number">4.1.8</span> Budget Tag Hallucination Artifact</a></li>
+  <li><a href="#effect-modification-by-path-complexity" id="toc-effect-modification-by-path-complexity" class="nav-link" data-scroll-target="#effect-modification-by-path-complexity"><span class="header-section-number">4.1.6</span> Effect Modification by Path Complexity</a></li>
+  <li><a href="#effect-modification-by-atom-density" id="toc-effect-modification-by-atom-density" class="nav-link" data-scroll-target="#effect-modification-by-atom-density"><span class="header-section-number">4.1.7</span> Effect Modification by Atom Density</a></li>
+  <li><a href="#ray-path-complexity-analysis" id="toc-ray-path-complexity-analysis" class="nav-link" data-scroll-target="#ray-path-complexity-analysis"><span class="header-section-number">4.1.8</span> Ray Path Complexity Analysis</a></li>
+  <li><a href="#budget-tag-hallucination-artifact" id="toc-budget-tag-hallucination-artifact" class="nav-link" data-scroll-target="#budget-tag-hallucination-artifact"><span class="header-section-number">4.1.9</span> Budget Tag Hallucination Artifact</a></li>
   </ul></li>
   <li><a href="#play-mode-results" id="toc-play-mode-results" class="nav-link" data-scroll-target="#play-mode-results"><span class="header-section-number">4.2</span> Play Mode Results</a>
   <ul class="collapse">
-  <li><a href="#play-mode-leaderboard" id="toc-play-mode-leaderboard" class="nav-link" data-scroll-target="#play-mode-leaderboard"><span class="header-section-number">4.2.1</span> Play Mode Leaderboard</a></li>
-  <li><a href="#anova-play-mode-performance" id="toc-anova-play-mode-performance" class="nav-link" data-scroll-target="#anova-play-mode-performance"><span class="header-section-number">4.2.2</span> ANOVA: Play Mode Performance</a>
+  <li><a href="#data-completeness-check-1" id="toc-data-completeness-check-1" class="nav-link" data-scroll-target="#data-completeness-check-1"><span class="header-section-number">4.2.1</span> Data Completeness Check</a></li>
+  <li><a href="#play-mode-leaderboard" id="toc-play-mode-leaderboard" class="nav-link" data-scroll-target="#play-mode-leaderboard"><span class="header-section-number">4.2.2</span> Play Mode Leaderboard</a></li>
+  <li><a href="#anova-play-mode-performance" id="toc-anova-play-mode-performance" class="nav-link" data-scroll-target="#anova-play-mode-performance"><span class="header-section-number">4.2.3</span> ANOVA: Play Mode Performance</a>
   <ul class="collapse">
-  <li><a href="#model-1-atoms-correct-0-4" id="toc-model-1-atoms-correct-0-4" class="nav-link" data-scroll-target="#model-1-atoms-correct-0-4"><span class="header-section-number">4.2.2.1</span> Model 1: Atoms Correct (0-4)</a></li>
-  <li><a href="#model-2-score-lower-is-better" id="toc-model-2-score-lower-is-better" class="nav-link" data-scroll-target="#model-2-score-lower-is-better"><span class="header-section-number">4.2.2.2</span> Model 2: Score (Lower is Better)</a></li>
+  <li><a href="#model-1-atoms-correct-0-4" id="toc-model-1-atoms-correct-0-4" class="nav-link" data-scroll-target="#model-1-atoms-correct-0-4"><span class="header-section-number">4.2.3.1</span> Model 1: Atoms Correct (0-4)</a></li>
+  <li><a href="#model-2-score-lower-is-better" id="toc-model-2-score-lower-is-better" class="nav-link" data-scroll-target="#model-2-score-lower-is-better"><span class="header-section-number">4.2.3.2</span> Model 2: Score (Lower is Better)</a></li>
   </ul></li>
-  <li><a href="#regression-analysis-play-mode" id="toc-regression-analysis-play-mode" class="nav-link" data-scroll-target="#regression-analysis-play-mode"><span class="header-section-number">4.2.3</span> Regression Analysis: Play Mode</a>
+  <li><a href="#regression-analysis-play-mode" id="toc-regression-analysis-play-mode" class="nav-link" data-scroll-target="#regression-analysis-play-mode"><span class="header-section-number">4.2.4</span> Regression Analysis: Play Mode</a>
   <ul class="collapse">
-  <li><a href="#standardized-coefficients-beta-weights" id="toc-standardized-coefficients-beta-weights" class="nav-link" data-scroll-target="#standardized-coefficients-beta-weights"><span class="header-section-number">4.2.3.1</span> Standardized Coefficients (Beta Weights)</a></li>
+  <li><a href="#standardized-coefficients-beta-weights" id="toc-standardized-coefficients-beta-weights" class="nav-link" data-scroll-target="#standardized-coefficients-beta-weights"><span class="header-section-number">4.2.4.1</span> Standardized Coefficients (Beta Weights)</a></li>
   </ul></li>
-  <li><a href="#interpretation-why-configuration-random-effects" id="toc-interpretation-why-configuration-random-effects" class="nav-link" data-scroll-target="#interpretation-why-configuration-random-effects"><span class="header-section-number">4.2.4</span> Interpretation: Why Configuration Random Effects?</a></li>
+  <li><a href="#interpretation-why-configuration-random-effects" id="toc-interpretation-why-configuration-random-effects" class="nav-link" data-scroll-target="#interpretation-why-configuration-random-effects"><span class="header-section-number">4.2.5</span> Interpretation: Why Configuration Random Effects?</a></li>
   </ul></li>
   <li><a href="#predict-vs-play-cross-mode-comparison" id="toc-predict-vs-play-cross-mode-comparison" class="nav-link" data-scroll-target="#predict-vs-play-cross-mode-comparison"><span class="header-section-number">4.3</span> Predict vs Play: Cross-Mode Comparison</a>
   <ul class="collapse">
@@ -1432,38 +1434,36 @@ There are three possible outcomes for each ray you send into the box:
 <li><strong>Cells traveled range</strong>: 2–13</li>
 <li><strong>Atoms affecting range</strong>: 0–3</li>
 </ul>
-<pre><code>
-### Data Completeness Check
-
-**Note on sample size**: Fewer than 32 predictions per configuration is expected due to ray symmetry optimization. When a ray enters at position A and exits at B (detour), the experiment skips testing the reverse direction to avoid redundancy.
-
-
-::: {.cell}
-
-```{.r .cell-code}
-predictions_per_config &lt;- predict_data |&gt;
-  group_by(model_name, prompt_style, enable_thinking, vot_ray_trace, config_index) |&gt;
-  summarise(n_predictions = n(), .groups = "drop")
-
-# Create matrix: rows = experimental conditions, columns = configurations
-# Since all models should have same N per config, take first model's values
-predictions_matrix &lt;- predictions_per_config |&gt;
-  filter(model_name == first(model_name)) |&gt;
-  mutate(
-    condition = paste0(
-      substr(prompt_style, 1, 3), "_",
-      ifelse(enable_thinking, "think", "no"), "_",
-      ifelse(vot_ray_trace, "vot", "no")
-    )
-  ) |&gt;
-  select(condition, config_index, n_predictions) |&gt;
-  pivot_wider(names_from = config_index, values_from = n_predictions, names_prefix = "cfg_")
-
-kable(predictions_matrix,
-      caption = "Predictions per Configuration by Experimental Condition",
-      col.names = c("Condition", paste0("Config ", 0:9)))</code></pre>
+<section id="data-completeness-check" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="data-completeness-check"><span class="header-section-number">4.1.1</span> Data Completeness Check</h3>
+<p><strong>Note on sample size</strong>: Fewer than 32 predictions per configuration is expected due to ray symmetry optimization. When a ray enters at position A and exits at B (detour), the experiment skips testing the reverse direction to avoid redundancy.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>predictions_per_config <span class="ot">&lt;-</span> predict_data <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(model_name, prompt_style, enable_thinking, vot_ray_trace, config_index) <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n_predictions =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create matrix: rows = experimental conditions, columns = configurations</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Since all models should have same N per config, take first model's values</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>predictions_matrix <span class="ot">&lt;-</span> predictions_per_config <span class="sc">|&gt;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(model_name <span class="sc">==</span> <span class="fu">first</span>(model_name)) <span class="sc">|&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition =</span> <span class="fu">paste0</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">substr</span>(prompt_style, <span class="dv">1</span>, <span class="dv">3</span>), <span class="st">"_"</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(enable_thinking, <span class="st">"think"</span>, <span class="st">"no"</span>), <span class="st">"_"</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(vot_ray_trace, <span class="st">"vot"</span>, <span class="st">"no"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(condition, config_index, n_predictions) <span class="sc">|&gt;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> config_index, <span class="at">values_from =</span> n_predictions, <span class="at">names_prefix =</span> <span class="st">"cfg_"</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(predictions_matrix,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Predictions per Configuration by Experimental Condition"</span>,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Condition"</span>, <span class="fu">paste0</span>(<span class="st">"Config "</span>, <span class="dv">0</span><span class="sc">:</span><span class="dv">9</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output-display">
-<table class="caption-top table">
+<table class="caption-top table table-sm table-striped small">
 <caption>Predictions per Configuration by Experimental Condition</caption>
 <colgroup>
 <col style="width: 13%">
@@ -1618,7 +1618,7 @@ kable(predictions_matrix,
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(prompt_style, enable_thinking, vot_ray_trace, model_name, config_index) <span class="sc">|&gt;</span></span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n_runs =</span> <span class="fu">n_distinct</span>(source_file), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<p>:::</p>
+</div>
 <p><strong>Consistency</strong>: All models have consistent N per configuration within each condition.</p>
 <p><strong>Duplicate runs</strong>: Found duplicate runs in some conditions.</p>
 <div class="cell">
@@ -2200,8 +2200,9 @@ kable(predictions_matrix,
 </table>
 </div>
 </div>
-<section id="predict-mode-leaderboard" class="level3" data-number="4.1.1">
-<h3 data-number="4.1.1" class="anchored" data-anchor-id="predict-mode-leaderboard"><span class="header-section-number">4.1.1</span> Predict Mode Leaderboard</h3>
+</section>
+<section id="predict-mode-leaderboard" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="predict-mode-leaderboard"><span class="header-section-number">4.1.2</span> Predict Mode Leaderboard</h3>
 <p>Top 10 configurations by overall accuracy. Format matches typical LLM benchmark reporting for cross-study comparison.</p>
 <div class="cell">
 <details class="code-fold">
@@ -2331,8 +2332,8 @@ kable(predictions_matrix,
 </div>
 </div>
 </section>
-<section id="forest-plot-all-configurations" class="level3" data-number="4.1.2">
-<h3 data-number="4.1.2" class="anchored" data-anchor-id="forest-plot-all-configurations"><span class="header-section-number">4.1.2</span> Forest Plot: All Configurations</h3>
+<section id="forest-plot-all-configurations" class="level3" data-number="4.1.3">
+<h3 data-number="4.1.3" class="anchored" data-anchor-id="forest-plot-all-configurations"><span class="header-section-number">4.1.3</span> Forest Plot: All Configurations</h3>
 <p>Visual comparison of all experimental factor combinations. Non-overlapping confidence intervals suggest statistically significant differences.</p>
 <div class="cell">
 <details class="code-fold">
@@ -2404,8 +2405,8 @@ kable(predictions_matrix,
 </div>
 <p><strong>Total configurations</strong>: 40 <strong>Best performing</strong>: Sonnet 4.6 | Aug | Think | VoT <strong>Accuracy</strong>: 96.6% (95% CI: [94.3%, 98.9%])</p>
 </section>
-<section id="factor-level-comparisons" class="level3" data-number="4.1.3">
-<h3 data-number="4.1.3" class="anchored" data-anchor-id="factor-level-comparisons"><span class="header-section-number">4.1.3</span> Factor-Level Comparisons</h3>
+<section id="factor-level-comparisons" class="level3" data-number="4.1.4">
+<h3 data-number="4.1.4" class="anchored" data-anchor-id="factor-level-comparisons"><span class="header-section-number">4.1.4</span> Factor-Level Comparisons</h3>
 <p>Shows accuracy by individual factors, collapsing across other dimensions (marginal effects).</p>
 <div class="cell">
 <details class="code-fold">
@@ -2606,8 +2607,8 @@ kable(predictions_matrix,
 </div>
 </div>
 </section>
-<section id="anova-prediction-accuracy" class="level3" data-number="4.1.4">
-<h3 data-number="4.1.4" class="anchored" data-anchor-id="anova-prediction-accuracy"><span class="header-section-number">4.1.4</span> ANOVA: Prediction Accuracy</h3>
+<section id="anova-prediction-accuracy" class="level3" data-number="4.1.5">
+<h3 data-number="4.1.5" class="anchored" data-anchor-id="anova-prediction-accuracy"><span class="header-section-number">4.1.5</span> ANOVA: Prediction Accuracy</h3>
 <p>This analysis uses mixed-effects logistic regression to test whether experimental factors significantly affect prediction accuracy, while accounting for clustering within configurations and individual rays.</p>
 <p><strong>Model specification</strong>: - <strong>Outcome</strong>: Correct prediction (binary: 0/1) - <strong>Fixed effects</strong>: Model, prompt style, extended thinking, VoT ray trace, and their interactions - <strong>Covariates</strong>: cells_traveled (path length), atoms_affecting (atom density) - <strong>Random effects</strong>: Nested structure with config_index (configuration-level) and ray_id nested within config (ray-level)</p>
 <p><strong>Why nested random effects?</strong></p>
@@ -2686,8 +2687,8 @@ model_name:prompt_style:enable_thinking   6.8483  4   0.144128
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
-<section id="odds-ratios-with-95-confidence-intervals" class="level4" data-number="4.1.4.1">
-<h4 data-number="4.1.4.1" class="anchored" data-anchor-id="odds-ratios-with-95-confidence-intervals"><span class="header-section-number">4.1.4.1</span> Odds Ratios with 95% Confidence Intervals</h4>
+<section id="odds-ratios-with-95-confidence-intervals" class="level4" data-number="4.1.5.1">
+<h4 data-number="4.1.5.1" class="anchored" data-anchor-id="odds-ratios-with-95-confidence-intervals"><span class="header-section-number">4.1.5.1</span> Odds Ratios with 95% Confidence Intervals</h4>
 <p><strong>Interpretation</strong>: OR &gt; 1 means the factor increases odds of correct prediction; OR &lt; 1 means it decreases odds. These are conditional odds ratios (controlling for random effects).</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -2893,8 +2894,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </section>
-<section id="random-effects-variance-components" class="level4" data-number="4.1.4.2">
-<h4 data-number="4.1.4.2" class="anchored" data-anchor-id="random-effects-variance-components"><span class="header-section-number">4.1.4.2</span> Random Effects Variance Components</h4>
+<section id="random-effects-variance-components" class="level4" data-number="4.1.5.2">
+<h4 data-number="4.1.5.2" class="anchored" data-anchor-id="random-effects-variance-components"><span class="header-section-number">4.1.5.2</span> Random Effects Variance Components</h4>
 <p><strong>Configuration-level random effects</strong> (config_index): - Accounts for overall difficulty due to specific atom placements - Generalizes inference beyond these 10 configurations - Captures configuration-specific effects (e.g., dense vs sparse atom patterns)</p>
 <p><strong>Ray-level random effects</strong> (ray_id:config_index): - Accounts for individual ray difficulty within each configuration - Handles correlation: Same ray tested across multiple conditions - Allows each ray to have its own baseline difficulty - Essential when same rays appear in multiple experimental conditions</p>
 <div class="cell">
@@ -2907,8 +2908,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <p><strong>Intraclass Correlation Coefficient (ICC)</strong>: 0.66 — Proportion of variance due to clustering at both configuration and ray-within-config levels.</p>
 <p><strong>Model Fit</strong> (Pseudo R², Nakagawa &amp; Schielzeth): - <strong>Marginal R²</strong> (fixed effects only): 0.237 - <strong>Conditional R²</strong> (fixed + random effects): 0.741</p>
 </section>
-<section id="cramérs-v-effect-size-for-categorical-associations" class="level4" data-number="4.1.4.3">
-<h4 data-number="4.1.4.3" class="anchored" data-anchor-id="cramérs-v-effect-size-for-categorical-associations"><span class="header-section-number">4.1.4.3</span> Cramér’s V (Effect Size for Categorical Associations)</h4>
+<section id="cramérs-v-effect-size-for-categorical-associations" class="level4" data-number="4.1.5.3">
+<h4 data-number="4.1.5.3" class="anchored" data-anchor-id="cramérs-v-effect-size-for-categorical-associations"><span class="header-section-number">4.1.5.3</span> Cramér’s V (Effect Size for Categorical Associations)</h4>
 <p>Interpretation guidelines: 0.10=small, 0.30=medium, 0.50=large</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -2942,8 +2943,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </section>
-<section id="regression-coefficients-for-main-effects" class="level4" data-number="4.1.4.4">
-<h4 data-number="4.1.4.4" class="anchored" data-anchor-id="regression-coefficients-for-main-effects"><span class="header-section-number">4.1.4.4</span> Regression Coefficients for Main Effects</h4>
+<section id="regression-coefficients-for-main-effects" class="level4" data-number="4.1.5.4">
+<h4 data-number="4.1.5.4" class="anchored" data-anchor-id="regression-coefficients-for-main-effects"><span class="header-section-number">4.1.5.4</span> Regression Coefficients for Main Effects</h4>
 <p>Key findings from mixed-effects logistic regression (fixed effects only).</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -3046,8 +3047,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </section>
 </section>
-<section id="effect-modification-by-path-complexity" class="level3" data-number="4.1.5">
-<h3 data-number="4.1.5" class="anchored" data-anchor-id="effect-modification-by-path-complexity"><span class="header-section-number">4.1.5</span> Effect Modification by Path Complexity</h3>
+<section id="effect-modification-by-path-complexity" class="level3" data-number="4.1.6">
+<h3 data-number="4.1.6" class="anchored" data-anchor-id="effect-modification-by-path-complexity"><span class="header-section-number">4.1.6</span> Effect Modification by Path Complexity</h3>
 <p>Does path complexity (measured as total cells traveled: entry + internal + exit) moderate treatment effects? If treatment effects are constant across spatial complexity levels, limitations lie in inferential machinery rather than spatial processing. If effects are moderated by complexity, spatial reasoning contributes to observed failures.</p>
 <div class="cell">
 <details class="code-fold">
@@ -3207,8 +3208,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </tbody>
 </table>
 </section>
-<section id="effect-modification-by-atom-density" class="level3" data-number="4.1.6">
-<h3 data-number="4.1.6" class="anchored" data-anchor-id="effect-modification-by-atom-density"><span class="header-section-number">4.1.6</span> Effect Modification by Atom Density</h3>
+<section id="effect-modification-by-atom-density" class="level3" data-number="4.1.7">
+<h3 data-number="4.1.7" class="anchored" data-anchor-id="effect-modification-by-atom-density"><span class="header-section-number">4.1.7</span> Effect Modification by Atom Density</h3>
 <p>Does atom density (number of atoms adjacent to ray path) moderate treatment effects?</p>
 <div class="cell">
 <details class="code-fold">
@@ -3473,8 +3474,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </section>
-<section id="ray-path-complexity-analysis" class="level3" data-number="4.1.7">
-<h3 data-number="4.1.7" class="anchored" data-anchor-id="ray-path-complexity-analysis"><span class="header-section-number">4.1.7</span> Ray Path Complexity Analysis</h3>
+<section id="ray-path-complexity-analysis" class="level3" data-number="4.1.8">
+<h3 data-number="4.1.8" class="anchored" data-anchor-id="ray-path-complexity-analysis"><span class="header-section-number">4.1.8</span> Ray Path Complexity Analysis</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -3694,8 +3695,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </section>
-<section id="budget-tag-hallucination-artifact" class="level3" data-number="4.1.8">
-<h3 data-number="4.1.8" class="anchored" data-anchor-id="budget-tag-hallucination-artifact"><span class="header-section-number">4.1.8</span> Budget Tag Hallucination Artifact</h3>
+<section id="budget-tag-hallucination-artifact" class="level3" data-number="4.1.9">
+<h3 data-number="4.1.9" class="anchored" data-anchor-id="budget-tag-hallucination-artifact"><span class="header-section-number">4.1.9</span> Budget Tag Hallucination Artifact</h3>
 <p>During experiment runs, we observed that models occasionally hallucinate XML-like <code>&lt;budget:...&gt;</code> tags in their visible response text—fabricating token usage metadata that mimics internal API bookkeeping. These tags (e.g., <code>&lt;budget:used_tokens&gt;</code>, <code>&lt;budget:token_budget&gt;</code>, <code>&lt;budget:token_usage&gt;</code>) are not present in any prompt or API parameter passed to the model; they appear to be confabulated from the model’s awareness of its extended thinking budget context.</p>
 <p><strong>Prevalence</strong>: 29 of 10575 predictions (0.27%) contained hallucinated budget tags.</p>
 <p><strong>Key patterns</strong>:</p>
@@ -3877,85 +3878,84 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <li><strong>Mean atoms per ray range</strong>: 0–3</li>
 <li><strong>Mean cells per ray range</strong>: 2–10</li>
 </ul>
-<pre><code>
-### Data Completeness Check
-
-
-::: {.cell}
-
-```{.r .cell-code}
-# Define expected full factorial design
-expected_play_models &lt;- c("Haiku 4.5", "Sonnet 4.5", "Opus 4.5", "Sonnet 4.6", "Opus 4.6")
-expected_play_design &lt;- expand_grid(
-  model_name = expected_play_models,
-  prompt_style = c("baseline", "augmented"),
-  enable_thinking = c(FALSE, TRUE),
-  vot_condition = factor(
-    c("None", "A: Grid State", "B: Ray Trace", "C: Hypothesis"),
-    levels = c("None", "A: Grid State", "B: Ray Trace", "C: Hypothesis")
-  ),
-  config_index = 0:9
-)
-
-# What's actually present
-actual_play_conditions &lt;- play_data |&gt;
-  distinct(model_name, prompt_style, enable_thinking, vot_condition, config_index)
-
-# Find missing cells
-missing_play &lt;- anti_join(
-  expected_play_design, actual_play_conditions,
-  by = c("model_name", "prompt_style", "enable_thinking", "vot_condition", "config_index")
-)
-
-# Summarise missing by condition (collapse config indices)
-missing_play_summary &lt;- missing_play |&gt;
-  group_by(model_name, prompt_style, enable_thinking, vot_condition) |&gt;
-  summarise(
-    n_missing_configs = n(),
-    missing_configs = paste(config_index, collapse = ", "),
-    .groups = "drop"
-  ) |&gt;
-  arrange(model_name, prompt_style, enable_thinking, vot_condition)
-
-# Condition-level coverage matrix (how many of 10 configs present per condition)
-play_coverage &lt;- expected_play_design |&gt;
-  distinct(model_name, prompt_style, enable_thinking, vot_condition) |&gt;
-  left_join(
-    play_data |&gt;
-      group_by(model_name, prompt_style, enable_thinking, vot_condition) |&gt;
-      summarise(configs_present = n_distinct(config_index),
-                total_games = n(), .groups = "drop"),
-    by = c("model_name", "prompt_style", "enable_thinking", "vot_condition")
-  ) |&gt;
-  replace_na(list(configs_present = 0, total_games = 0)) |&gt;
-  mutate(
-    condition = paste0(
-      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
-      ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
-      vot_condition
-    )
-  )
-
-# Pivot to show models as columns
-play_coverage_matrix &lt;- play_coverage |&gt;
-  select(model_name, condition, configs_present) |&gt;
-  pivot_wider(names_from = model_name, values_from = configs_present) |&gt;
-  arrange(condition)
-
-if (nrow(missing_play) &gt; 0) {
-  cat("**Missing experimental runs detected.**\n\n")
-  kable(play_coverage_matrix,
-        caption = "Play Mode: Configurations Present (out of 10) by Model and Condition",
-        format = "pipe") |&gt; print()
-  cat("\n\n**Missing conditions detail:**\n\n")
-  kable(missing_play_summary,
-        col.names = c("Model", "Prompt", "Thinking", "VoT", "Missing (n)", "Config Indices"),
-        caption = "Play Mode: Missing Experimental Runs",
-        format = "pipe") |&gt; print()
-} else {
-  cat("All", nrow(expected_play_design), "expected play-mode cells are present",
-      "(5 models x 2 prompts x 2 thinking x 4 VoT x 10 configs).\n")
-}</code></pre>
+<section id="data-completeness-check-1" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="data-completeness-check-1"><span class="header-section-number">4.2.1</span> Data Completeness Check</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define expected full factorial design</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>expected_play_models <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Haiku 4.5"</span>, <span class="st">"Sonnet 4.5"</span>, <span class="st">"Opus 4.5"</span>, <span class="st">"Sonnet 4.6"</span>, <span class="st">"Opus 4.6"</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>expected_play_design <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_name =</span> expected_play_models,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prompt_style =</span> <span class="fu">c</span>(<span class="st">"baseline"</span>, <span class="st">"augmented"</span>),</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">enable_thinking =</span> <span class="fu">c</span>(<span class="cn">FALSE</span>, <span class="cn">TRUE</span>),</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">vot_condition =</span> <span class="fu">factor</span>(</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="st">"None"</span>, <span class="st">"A: Grid State"</span>, <span class="st">"B: Ray Trace"</span>, <span class="st">"C: Hypothesis"</span>),</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"None"</span>, <span class="st">"A: Grid State"</span>, <span class="st">"B: Ray Trace"</span>, <span class="st">"C: Hypothesis"</span>)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">config_index =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">9</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="co"># What's actually present</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>actual_play_conditions <span class="ot">&lt;-</span> play_data <span class="sc">|&gt;</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(model_name, prompt_style, enable_thinking, vot_condition, config_index)</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Find missing cells</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>missing_play <span class="ot">&lt;-</span> <span class="fu">anti_join</span>(</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>  expected_play_design, actual_play_conditions,</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"model_name"</span>, <span class="st">"prompt_style"</span>, <span class="st">"enable_thinking"</span>, <span class="st">"vot_condition"</span>, <span class="st">"config_index"</span>)</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarise missing by condition (collapse config indices)</span></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>missing_play_summary <span class="ot">&lt;-</span> missing_play <span class="sc">|&gt;</span></span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(model_name, prompt_style, enable_thinking, vot_condition) <span class="sc">|&gt;</span></span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_missing_configs =</span> <span class="fu">n</span>(),</span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_configs =</span> <span class="fu">paste</span>(config_index, <span class="at">collapse =</span> <span class="st">", "</span>),</span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(model_name, prompt_style, enable_thinking, vot_condition)</span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Condition-level coverage matrix (how many of 10 configs present per condition)</span></span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a>play_coverage <span class="ot">&lt;-</span> expected_play_design <span class="sc">|&gt;</span></span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(model_name, prompt_style, enable_thinking, vot_condition) <span class="sc">|&gt;</span></span>
+<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>    play_data <span class="sc">|&gt;</span></span>
+<span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(model_name, prompt_style, enable_thinking, vot_condition) <span class="sc">|&gt;</span></span>
+<span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarise</span>(<span class="at">configs_present =</span> <span class="fu">n_distinct</span>(config_index),</span>
+<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a>                <span class="at">total_games =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">"drop"</span>),</span>
+<span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"model_name"</span>, <span class="st">"prompt_style"</span>, <span class="st">"enable_thinking"</span>, <span class="st">"vot_condition"</span>)</span>
+<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replace_na</span>(<span class="fu">list</span>(<span class="at">configs_present =</span> <span class="dv">0</span>, <span class="at">total_games =</span> <span class="dv">0</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb28-45"><a href="#cb28-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition =</span> <span class="fu">paste0</span>(</span>
+<span id="cb28-47"><a href="#cb28-47" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(prompt_style <span class="sc">==</span> <span class="st">"augmented"</span>, <span class="st">"Aug"</span>, <span class="st">"Base"</span>), <span class="st">" | "</span>,</span>
+<span id="cb28-48"><a href="#cb28-48" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="fu">as.logical</span>(<span class="fu">as.character</span>(enable_thinking)), <span class="st">"Think"</span>, <span class="st">"No-Think"</span>), <span class="st">" | "</span>,</span>
+<span id="cb28-49"><a href="#cb28-49" aria-hidden="true" tabindex="-1"></a>      vot_condition</span>
+<span id="cb28-50"><a href="#cb28-50" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb28-51"><a href="#cb28-51" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb28-52"><a href="#cb28-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-53"><a href="#cb28-53" aria-hidden="true" tabindex="-1"></a><span class="co"># Pivot to show models as columns</span></span>
+<span id="cb28-54"><a href="#cb28-54" aria-hidden="true" tabindex="-1"></a>play_coverage_matrix <span class="ot">&lt;-</span> play_coverage <span class="sc">|&gt;</span></span>
+<span id="cb28-55"><a href="#cb28-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model_name, condition, configs_present) <span class="sc">|&gt;</span></span>
+<span id="cb28-56"><a href="#cb28-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> model_name, <span class="at">values_from =</span> configs_present) <span class="sc">|&gt;</span></span>
+<span id="cb28-57"><a href="#cb28-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(condition)</span>
+<span id="cb28-58"><a href="#cb28-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-59"><a href="#cb28-59" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(missing_play) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb28-60"><a href="#cb28-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"**Missing experimental runs detected.**</span><span class="sc">\n\n</span><span class="st">"</span>)</span>
+<span id="cb28-61"><a href="#cb28-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(play_coverage_matrix,</span>
+<span id="cb28-62"><a href="#cb28-62" aria-hidden="true" tabindex="-1"></a>        <span class="at">caption =</span> <span class="st">"Play Mode: Configurations Present (out of 10) by Model and Condition"</span>,</span>
+<span id="cb28-63"><a href="#cb28-63" aria-hidden="true" tabindex="-1"></a>        <span class="at">format =</span> <span class="st">"pipe"</span>) <span class="sc">|&gt;</span> <span class="fu">print</span>()</span>
+<span id="cb28-64"><a href="#cb28-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n\n</span><span class="st">**Missing conditions detail:**</span><span class="sc">\n\n</span><span class="st">"</span>)</span>
+<span id="cb28-65"><a href="#cb28-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(missing_play_summary,</span>
+<span id="cb28-66"><a href="#cb28-66" aria-hidden="true" tabindex="-1"></a>        <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model"</span>, <span class="st">"Prompt"</span>, <span class="st">"Thinking"</span>, <span class="st">"VoT"</span>, <span class="st">"Missing (n)"</span>, <span class="st">"Config Indices"</span>),</span>
+<span id="cb28-67"><a href="#cb28-67" aria-hidden="true" tabindex="-1"></a>        <span class="at">caption =</span> <span class="st">"Play Mode: Missing Experimental Runs"</span>,</span>
+<span id="cb28-68"><a href="#cb28-68" aria-hidden="true" tabindex="-1"></a>        <span class="at">format =</span> <span class="st">"pipe"</span>) <span class="sc">|&gt;</span> <span class="fu">print</span>()</span>
+<span id="cb28-69"><a href="#cb28-69" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb28-70"><a href="#cb28-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"All"</span>, <span class="fu">nrow</span>(expected_play_design), <span class="st">"expected play-mode cells are present"</span>,</span>
+<span id="cb28-71"><a href="#cb28-71" aria-hidden="true" tabindex="-1"></a>      <span class="st">"(5 models x 2 prompts x 2 thinking x 4 VoT x 10 configs).</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb28-72"><a href="#cb28-72" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>All 800 expected play-mode cells are present (5 models x 2 prompts x 2 thinking x 4 VoT x 10 configs).</code></pre>
 </div>
@@ -3979,7 +3979,7 @@ if (nrow(missing_play) &gt; 0) {
 <span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">format =</span> <span class="st">"pipe"</span>) <span class="sc">|&gt;</span> <span class="fu">print</span>()</span>
 <span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<p>:::</p>
+</div>
 <p>All expected play-mode experimental runs are present.</p>
 <div class="cell">
 <details class="code-fold">
@@ -5172,8 +5172,9 @@ if (nrow(missing_play) &gt; 0) {
 </table>
 </div>
 </div>
-<section id="play-mode-leaderboard" class="level3" data-number="4.2.1">
-<h3 data-number="4.2.1" class="anchored" data-anchor-id="play-mode-leaderboard"><span class="header-section-number">4.2.1</span> Play Mode Leaderboard</h3>
+</section>
+<section id="play-mode-leaderboard" class="level3" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="play-mode-leaderboard"><span class="header-section-number">4.2.2</span> Play Mode Leaderboard</h3>
 <p>Top 10 configurations by atoms correct. Format matches typical LLM benchmark reporting for cross-study comparison.</p>
 <div class="cell">
 <details class="code-fold">
@@ -5316,8 +5317,8 @@ if (nrow(missing_play) &gt; 0) {
 </div>
 </div>
 </section>
-<section id="anova-play-mode-performance" class="level3" data-number="4.2.2">
-<h3 data-number="4.2.2" class="anchored" data-anchor-id="anova-play-mode-performance"><span class="header-section-number">4.2.2</span> ANOVA: Play Mode Performance</h3>
+<section id="anova-play-mode-performance" class="level3" data-number="4.2.3">
+<h3 data-number="4.2.3" class="anchored" data-anchor-id="anova-play-mode-performance"><span class="header-section-number">4.2.3</span> ANOVA: Play Mode Performance</h3>
 <p>Full factorial ANOVA using mixed-effects models with configuration-level random effects. Covariates (mean_atoms_per_ray, mean_cells_per_ray) capture ray difficulty.</p>
 <div class="cell">
 <details class="code-fold">
@@ -5360,8 +5361,8 @@ if (nrow(missing_play) &gt; 0) {
 <span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>model_atoms <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">as.formula</span>(atoms_formula), <span class="at">data =</span> play_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<section id="model-1-atoms-correct-0-4" class="level4" data-number="4.2.2.1">
-<h4 data-number="4.2.2.1" class="anchored" data-anchor-id="model-1-atoms-correct-0-4"><span class="header-section-number">4.2.2.1</span> Model 1: Atoms Correct (0-4)</h4>
+<section id="model-1-atoms-correct-0-4" class="level4" data-number="4.2.3.1">
+<h4 data-number="4.2.3.1" class="anchored" data-anchor-id="model-1-atoms-correct-0-4"><span class="header-section-number">4.2.3.1</span> Model 1: Atoms Correct (0-4)</h4>
 <p>Testing which factors affect the number of atoms correctly identified.</p>
 <p><strong>Model formula</strong>: atoms_correct ~ model_name * prompt_style * enable_thinking + vot_condition + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)</p>
 <div class="cell">
@@ -5409,8 +5410,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </details>
 </div>
 </section>
-<section id="model-2-score-lower-is-better" class="level4" data-number="4.2.2.2">
-<h4 data-number="4.2.2.2" class="anchored" data-anchor-id="model-2-score-lower-is-better"><span class="header-section-number">4.2.2.2</span> Model 2: Score (Lower is Better)</h4>
+<section id="model-2-score-lower-is-better" class="level4" data-number="4.2.3.2">
+<h4 data-number="4.2.3.2" class="anchored" data-anchor-id="model-2-score-lower-is-better"><span class="header-section-number">4.2.3.2</span> Model 2: Score (Lower is Better)</h4>
 <p>Testing which factors affect game score.</p>
 <p><strong>Model formula</strong>: score ~ model_name * prompt_style * enable_thinking + vot_condition + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)</p>
 <div class="cell">
@@ -5515,8 +5516,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </section>
 </section>
-<section id="regression-analysis-play-mode" class="level3" data-number="4.2.3">
-<h3 data-number="4.2.3" class="anchored" data-anchor-id="regression-analysis-play-mode"><span class="header-section-number">4.2.3</span> Regression Analysis: Play Mode</h3>
+<section id="regression-analysis-play-mode" class="level3" data-number="4.2.4">
+<h3 data-number="4.2.4" class="anchored" data-anchor-id="regression-analysis-play-mode"><span class="header-section-number">4.2.4</span> Regression Analysis: Play Mode</h3>
 <p>Regression complements ANOVA by providing interpretable effect magnitudes. Coefficients show the expected change in outcome per unit change in predictor.</p>
 <div class="cell">
 <details class="code-fold">
@@ -5841,8 +5842,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <p><strong>Model Fit — Atoms Correct</strong>: - Marginal R²: 0.178 - Conditional R²: 0.544</p>
 <p><strong>Model Fit — Score</strong>: - Marginal R²: 0.187 - Conditional R²: 0.664</p>
-<section id="standardized-coefficients-beta-weights" class="level4" data-number="4.2.3.1">
-<h4 data-number="4.2.3.1" class="anchored" data-anchor-id="standardized-coefficients-beta-weights"><span class="header-section-number">4.2.3.1</span> Standardized Coefficients (Beta Weights)</h4>
+<section id="standardized-coefficients-beta-weights" class="level4" data-number="4.2.4.1">
+<h4 data-number="4.2.4.1" class="anchored" data-anchor-id="standardized-coefficients-beta-weights"><span class="header-section-number">4.2.4.1</span> Standardized Coefficients (Beta Weights)</h4>
 <p>Allows comparison of relative importance across fixed effects (based on fixed effects only).</p>
 <p><strong>Atoms Correct (Top 10)</strong>:</p>
 <div class="cell">
@@ -5884,8 +5885,8 @@ vot conditionB × Ray Trace  |      -0.02 | [-0.13,  0.10]</code></pre>
 </div>
 </section>
 </section>
-<section id="interpretation-why-configuration-random-effects" class="level3" data-number="4.2.4">
-<h3 data-number="4.2.4" class="anchored" data-anchor-id="interpretation-why-configuration-random-effects"><span class="header-section-number">4.2.4</span> Interpretation: Why Configuration Random Effects?</h3>
+<section id="interpretation-why-configuration-random-effects" class="level3" data-number="4.2.5">
+<h3 data-number="4.2.5" class="anchored" data-anchor-id="interpretation-why-configuration-random-effects"><span class="header-section-number">4.2.5</span> Interpretation: Why Configuration Random Effects?</h3>
 <p><strong>Play mode data structure</strong>: - Unit of analysis: Entire games (one game per config × condition) - LLM chooses which rays to fire (endogenous ray selection) - Different conditions may fire different rays - Multiple games per configuration (clustering)</p>
 <p><strong>Why config-level random effects?</strong></p>
 <ol type="1">
