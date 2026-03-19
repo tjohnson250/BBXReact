@@ -748,17 +748,17 @@ includes:
 
 Key excerpt:
 
-```         
-Your opponent has hidden 4 balls within this box. By shooting rays into
+```
+Your opponent has hidden 4 atoms within this box. By shooting rays into
 the box and observing where they emerge, it is possible to deduce the
-positions of the hidden balls.
+positions of the hidden atoms.
 
 There are three possible outcomes for each ray you send into the box:
 - DETOUR: The ray is deflected and emerges somewhere other than where
   you sent it in.
 - REFLECTION (R): The ray is reflected and emerges in the same place
   it was sent in.
-- HIT (H): The ray strikes a ball directly and is absorbed.
+- HIT (H): The ray strikes an atom directly and is absorbed.
 ```
 
 ### Augmented
@@ -4397,7 +4397,28 @@ kable(det_game_table,
 
 During post-hoc review of Experiment 1, we discovered that the baseline system prompt contained a terminology error: the word "ball" appeared in 6 places where "atom" was the correct term. This inconsistency meant that the system prompt used different terminology from both the user prompt and the game's own output, which always refer to hidden objects as "atoms."
 
-The corrected baseline prompt replaces all 6 instances of "ball" with "atom," producing a terminologically consistent prompt. This experiment tests whether fixing this inconsistency affects LLM prediction accuracy. If terminology consistency matters, we would expect improved performance under the corrected prompt — particularly for models that are sensitive to subtle prompt variations. If it does not matter, performance should be statistically equivalent, suggesting that LLMs are robust to minor terminological mismatches.
+The erroneous baseline play prompt opened with:
+
+```
+Your opponent has hidden 4 balls within this box. By shooting rays into
+the box and observing where they emerge, it is possible to deduce the
+positions of the hidden balls.
+```
+
+and described absorption as:
+
+```
+HIT (H): The ray strikes a ball directly and is absorbed.
+```
+
+The erroneous baseline predict prompt similarly used:
+
+```
+As a ray approaches a ball it is deflected ninety degrees. Rays can be
+deflected multiple times.
+```
+
+The corrected baseline prompt replaces all instances of "ball" with "atom," producing a terminologically consistent prompt. This experiment tests whether fixing this inconsistency affects LLM prediction accuracy. If terminology consistency matters, we would expect improved performance under the corrected prompt — particularly for models that are sensitive to subtle prompt variations. If it does not matter, performance should be statistically equivalent, suggesting that LLMs are robust to minor terminological mismatches.
 
 All other experimental parameters (visualization, thinking, VoT) remain identical to Experiment 1, enabling direct paired comparison of matched conditions.
 
@@ -5300,12 +5321,13 @@ diagnostic tasks\]
 
 ## Baseline Play Prompt
 
-```         
-You are playing Black Box, a game of hide and seek played on an 8 by 8 grid.
+```
+You are playing Black Box, a game of hide and seek played on an 8 by 8 grid
+(the Black Box).
 
-Your opponent has hidden 4 balls within this box. By shooting rays into the
+Your opponent has hidden 4 atoms within this box. By shooting rays into the
 box and observing where they emerge, it is possible to deduce the positions
-of the hidden balls.
+of the hidden atoms.
 
 GRID: 8x8, rows 1-8 (top to bottom), columns 1-8 (left to right).
 RAYS: Fire from edge positions - NORTH/SOUTH use columns 1-8, EAST/WEST use rows 1-8.
@@ -5317,15 +5339,19 @@ it in. Detours are denoted by matching pairs of numbers.
 
 REFLECTION (R): The ray is reflected and emerges in the same place it was sent in.
 
-HIT (H): The ray strikes a ball directly and is absorbed.
+HIT (H): The ray strikes an atom directly and is absorbed. It does not emerge
+from the box.
 
 [ASCII diagram examples showing deflection, reflection, and hit patterns...]
 
 SCORING:
 Your goal is to minimize your score. Lower is better.
 - Each ray entry point costs 1 point
-- Each ray exit point costs 1 point (detours cost 2 total, reflections cost 1)
+- Each ray exit point costs 1 point (detours cost 2 total, reflections cost 1,
+  absorptions cost 1)
 - Each missed atom costs 5 points
+
+Strategy: Use as few rays as possible while still finding all 4 atoms.
 
 RULES:
 - You cannot fire from positions already used as entry or exit points.
@@ -5334,20 +5360,27 @@ RULES:
 Respond with JSON only:
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
 {"action": "guess", "atoms": [[row,col], [row,col], [row,col], [row,col]], "reasoning": "..."}
+
+When you think you know where all 4 atoms are, make your guess.
 ```
 
 ## Baseline Predict Prompt
 
-```         
+```
 Predict where a ray will exit in Black Box.
 
 GRID: 8x8, rows 1-8 (top to bottom), columns 1-8 (left to right).
 EDGES: NORTH/SOUTH use columns 1-8, EAST/WEST use rows 1-8.
 
-As a ray approaches a ball it is deflected ninety degrees. Rays can be
-deflected multiple times.
+As a ray approaches an atom it is deflected ninety degrees. Rays can be
+deflected multiple times. In these diagrams, - is empty, O is an atom,
+* is the ray path.
 
 [ASCII diagram examples showing deflection, reflection, and hit patterns...]
+
+Important: A hit takes priority over a reflection. If an atom is in the
+entry cell, it is absorbed even if diagonal atoms would otherwise cause
+reflection.
 
 Respond with JSON only:
 {"exit_side": "north|south|east|west", "exit_position": 1-8, "reasoning": "..."}
