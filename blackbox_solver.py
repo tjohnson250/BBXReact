@@ -18,6 +18,7 @@ Usage:
     python blackbox_solver.py tree [DEPTH]     # Build decision tree to given depth
     python blackbox_solver.py benchmark        # Solve all 10 experiment configs
     python blackbox_solver.py analyze <file>   # Deterministic error analysis of LLM play
+                         [--workers N]
 """
 
 import sys
@@ -829,7 +830,8 @@ def json_outcome_to_tuple(ray_action):
     return ('X', exit_info['side'], exit_info['pos'])
 
 
-def analyze_game(configs, result, first_ray, first_partition):
+def analyze_game(configs, result, first_ray, first_partition,
+                  first_all_results=None):
     """Replay a single play-mode game through the candidate space.
 
     Args:
@@ -837,6 +839,8 @@ def analyze_game(configs, result, first_ray, first_partition):
         result: single experiment result dict from JSON
         first_ray: (side, pos) precomputed optimal first shot
         first_partition: precomputed partition for first shot
+        first_all_results: precomputed all_results for first shot (avoids
+            redundant find_best_ray on ray 1 across games)
 
     Returns:
         dict with ray_analysis, mark_analysis, guess_analysis, summary
@@ -898,27 +902,27 @@ def analyze_game(configs, result, first_ray, first_partition):
             if ray_number == 1 and first_ray and first_partition:
                 opt_side, opt_pos = first_ray
                 opt_score = score_partition(first_partition, len(candidates))
-                partition = first_partition
-                # Build all_results for ranking
-                _, _, _, all_results = find_best_ray(candidates, used_rays)
+                if first_all_results is not None:
+                    all_results = first_all_results
+                else:
+                    _, _, _, all_results = find_best_ray(candidates, used_rays)
             else:
-                (opt_side, opt_pos), opt_score, partition, all_results = \
+                (opt_side, opt_pos), opt_score, _, all_results = \
                     find_best_ray(candidates, used_rays)
 
-            # Find LLM's ray rank and score in the sorted results
-            llm_score = None
+            # Compute LLM's ray partition once (used for scoring and filtering)
+            ray_partition = partition_by_ray(candidates, side, pos)
+            llm_score = score_partition(ray_partition, len(candidates))
+
+            # Find LLM's ray rank in the sorted results
             llm_rank = None
             for rank, (s, p, sc, no, mg) in enumerate(all_results, 1):
                 if s == side and p == pos:
-                    llm_score = sc
                     llm_rank = rank
                     break
 
             # If LLM fired a ray already used (duplicate), it won't be in all_results
             if llm_rank is None:
-                # Compute score for this specific ray anyway
-                part = partition_by_ray(candidates, side, pos)
-                llm_score = score_partition(part, len(candidates))
                 llm_rank = len(all_results) + 1
 
             is_optimal = (llm_score is not None and abs(llm_score - opt_score) < 1e-9)
@@ -935,8 +939,7 @@ def analyze_game(configs, result, first_ray, first_partition):
                       f'solver={fmt_outcome(verified_outcome)}',
                       file=sys.stderr)
 
-            # Filter candidates using observed outcome
-            ray_partition = partition_by_ray(candidates, side, pos)
+            # Filter candidates using already-computed partition
             candidates = ray_partition.get(json_outcome, [])
             used_rays.add((side, pos))
 
@@ -1254,6 +1257,20 @@ def print_analysis_summary(all_analyses, optimal_data=None):
     print(f'{"=" * 70}\n')
 
 
+# Module-level state for multiprocessing workers (set before Pool creation,
+# inherited via fork — avoids pickling large objects).
+_mp_configs = None
+_mp_first_ray = None
+_mp_first_partition = None
+_mp_first_all_results = None
+
+
+def _mp_analyze_worker(result):
+    """Worker function for parallel analyze_game calls."""
+    return analyze_game(_mp_configs, result, _mp_first_ray,
+                        _mp_first_partition, _mp_first_all_results)
+
+
 def cmd_analyze(configs):
     """Analyze LLM play experiments for deterministic error categories.
 
@@ -1262,7 +1279,7 @@ def cmd_analyze(configs):
     """
     if len(sys.argv) < 3:
         print('Usage: python blackbox_solver.py analyze <experiment.json> '
-              '[--output analysis.json]')
+              '[--output analysis.json] [--workers N]')
         sys.exit(1)
 
     input_path = sys.argv[2]
@@ -1271,6 +1288,12 @@ def cmd_analyze(configs):
         idx = sys.argv.index('--output')
         if idx + 1 < len(sys.argv):
             output_path = sys.argv[idx + 1]
+
+    n_workers = 1
+    if '--workers' in sys.argv:
+        idx = sys.argv.index('--workers')
+        if idx + 1 < len(sys.argv):
+            n_workers = int(sys.argv[idx + 1])
 
     if not os.path.exists(input_path):
         print(f'Error: file not found: {input_path}', file=sys.stderr)
@@ -1291,7 +1314,7 @@ def cmd_analyze(configs):
     # Compute optimal first shot (reused across all games)
     print('Computing optimal first shot...', flush=True)
     t0 = time.time()
-    first_ray, first_score, first_partition, _ = find_best_ray(configs)
+    first_ray, first_score, first_partition, first_all_results = find_best_ray(configs)
     first_time = time.time() - t0
     first_side, first_pos = first_ray
     print(f'  Best first shot: {fmt_ray(first_side, first_pos)} '
@@ -1316,22 +1339,58 @@ def cmd_analyze(configs):
     all_analyses = []
     t_total = time.time()
 
-    for i, result in enumerate(play_results):
-        model_name = result.get('modelName', result.get('model', 'unknown'))
-        ci = result.get('configIndex', '?')
-        t_game = time.time()
+    # Auto-detect workers if not specified
+    if n_workers <= 0:
+        n_workers = os.cpu_count() or 1
+    n_workers = min(n_workers, len(play_results))
 
-        analysis = analyze_game(configs, result, first_ray, first_partition)
-        elapsed = time.time() - t_game
+    if n_workers > 1:
+        import multiprocessing as mp
+        try:
+            ctx = mp.get_context('fork')
+        except ValueError:
+            print('  Warning: fork not available, falling back to sequential')
+            n_workers = 1
 
-        s = analysis['summary']
-        print(f'  [{i+1}/{len(play_results)}] {model_name} config={ci}: '
-              f'{s["total_rays_fired"]} rays, '
-              f'{s["n_optimal_rays"]} optimal, '
-              f'{s["excess_rays"]} excess '
-              f'[{elapsed:.1f}s]')
+    if n_workers > 1:
+        print(f'  Using {n_workers} parallel workers')
+        # Set module-level state inherited by forked workers (no pickling)
+        global _mp_configs, _mp_first_ray, _mp_first_partition, _mp_first_all_results
+        _mp_configs = configs
+        _mp_first_ray = first_ray
+        _mp_first_partition = first_partition
+        _mp_first_all_results = first_all_results
 
-        all_analyses.append((result, analysis))
+        with ctx.Pool(n_workers) as pool:
+            for i, analysis in enumerate(
+                    pool.imap(_mp_analyze_worker, play_results)):
+                result = play_results[i]
+                model_name = result.get('modelName', result.get('model', 'unknown'))
+                ci = result.get('configIndex', '?')
+                s = analysis['summary']
+                print(f'  [{i+1}/{len(play_results)}] {model_name} config={ci}: '
+                      f'{s["total_rays_fired"]} rays, '
+                      f'{s["n_optimal_rays"]} optimal, '
+                      f'{s["excess_rays"]} excess')
+                all_analyses.append((result, analysis))
+    else:
+        for i, result in enumerate(play_results):
+            model_name = result.get('modelName', result.get('model', 'unknown'))
+            ci = result.get('configIndex', '?')
+            t_game = time.time()
+
+            analysis = analyze_game(configs, result, first_ray, first_partition,
+                                    first_all_results)
+            elapsed = time.time() - t_game
+
+            s = analysis['summary']
+            print(f'  [{i+1}/{len(play_results)}] {model_name} config={ci}: '
+                  f'{s["total_rays_fired"]} rays, '
+                  f'{s["n_optimal_rays"]} optimal, '
+                  f'{s["excess_rays"]} excess '
+                  f'[{elapsed:.1f}s]')
+
+            all_analyses.append((result, analysis))
 
     total_time = time.time() - t_total
 
@@ -1485,7 +1544,7 @@ def main():
         print('  python blackbox_solver.py tree [DEPTH]    Decision tree (default depth 2)')
         print('  python blackbox_solver.py benchmark       Solve all 10 experiment configs')
         print('  python blackbox_solver.py analyze <file>  Deterministic error analysis')
-        print('                           [--output out.json]')
+        print('                         [--output out.json] [--workers N]')
         sys.exit(0)
 
     mode = sys.argv[1].lower()

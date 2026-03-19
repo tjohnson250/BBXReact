@@ -200,11 +200,12 @@ def step_analyze_play():
         return
 
     print(f"[REBUILD] {output}")
+    n_workers = os.cpu_count() or 1
     run_command(
         [sys.executable, "blackbox_solver.py", "analyze", input_file,
-         "--output", output],
+         "--output", output, "--workers", str(n_workers)],
         "deterministic play analysis",
-        slow_warning="This may take 10-30+ minutes depending on game count",
+        slow_warning="This may take a few minutes depending on game count",
     )
 
 

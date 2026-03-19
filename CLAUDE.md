@@ -8,7 +8,8 @@ This is an LLM reasoning research project that uses the Black Box game as a diag
 
 1. **React Application** (`blackbox.jsx`) - A single-file React component implementing the Black Box game with multiple modes for human play and LLM experimentation
 2. **Optimal Solver** (`blackbox_solver.py`) - Python script computing information-theoretically optimal ray sequences over the full C(64,4) = 635,376 candidate space
-3. **Quarto Document** (`blackbox_llm_study.qmd`) - Academic paper documenting the research methodology and findings (R/tidyverse analysis)
+3. **Experiment Runner** (`blackbox_experiment.py`) - Python script for running experiments against non-Anthropic models (OpenAI, Google Gemini, DeepSeek) with YAML-based configuration
+4. **Quarto Document** (`blackbox_llm_study.qmd`) - Academic paper documenting the research methodology and findings (R/tidyverse analysis)
 
 ## Running the Application
 
@@ -73,7 +74,38 @@ python blackbox_solver.py tree [DEPTH]     # Decision tree (default depth 2)
 python blackbox_solver.py benchmark        # Solve all 10 experiment configs → optimal_solver_results.json
 python blackbox_solver.py analyze <file>   # Deterministic error analysis of LLM play
                          [--output out.json]
+                         [--workers N]       # parallel workers (default 1)
 ```
+
+### blackbox_experiment.py Structure (~1590 lines)
+
+**Game Logic (lines 34-560)** — Ports core game constants, ray tracing, board generation, and scoring from `blackbox.jsx`. The `trace_ray()`, `generate_text_board()`, and `calculate_score()` functions must stay in sync with their JSX counterparts.
+
+**Prompts (lines 55-404)** — Contains identical copies of the baseline and augmented prompts (play and predict) plus VoT prompt additions from the JSX. `PROMPT_STYLES` and `VOT_PROMPTS` dicts mirror the JS structure.
+
+**LLM Providers (lines 647-798)** — Abstraction layer for multi-provider support:
+- `OpenAIProvider` — Handles both standard and o-series (reasoning) models. o-series uses `developer` role and `reasoning_effort` instead of system messages.
+- `GoogleProvider` — Uses `google-genai` SDK with `thinking_config` for reasoning.
+- `DeepSeekProvider` — Uses OpenAI-compatible API with custom base URL. R1 exposes reasoning via `reasoning_content`.
+- `create_provider()` — Factory that resolves API keys from config or environment variables.
+
+**Response Parsing (lines 805-851)** — `parse_response()` and `parse_play_response()` extract JSON from LLM responses with fallback heuristics for malformed output.
+
+**Experiment Runners (lines 857-1410)**
+- `run_predict_experiment()` — Tests all 32 ray positions per config, skipping reverse-direction duplicates. Each ray is an independent API call.
+- `run_play_experiment()` — Multi-turn conversational game loop with the same action handling as the JSX (fire/mark/unmark/guess/check). Includes rate limit retry with exponential backoff.
+
+**Configuration** — Driven by `experiment_config.yaml` which controls task mode, prompt style, visualization, thinking, VoT options, config indices, model list, rate limiting, and output settings.
+
+**Running:**
+```bash
+python blackbox_experiment.py                          # uses experiment_config.yaml
+python blackbox_experiment.py --config my_config.yaml  # custom config file
+python blackbox_experiment.py --dry-run                # validate config and API keys only
+python blackbox_experiment.py -v                       # verbose debug logging
+```
+
+**Requirements:** `pip install openai google-genai pyyaml`
 
 ### Key Concepts
 
@@ -85,7 +117,7 @@ python blackbox_solver.py analyze <file>   # Deterministic error analysis of LLM
 - **Experiment**: Run systematic experiments across configurations
 
 **Experiment Factors**
-- Model: Haiku 4.5, Sonnet 4.5, Opus 4.5
+- Model: Haiku 4.5, Sonnet 4.5, Opus 4.5 (via React app); o3, o4-mini, Gemini 2.5 Pro, DeepSeek R1 (via Python runner)
 - Prompt Style: Baseline vs Augmented
 - Include Visualization: Text board in prompt
 - Allow Hypotheses: mark/unmark actions (Play mode)
