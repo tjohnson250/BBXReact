@@ -1,0 +1,1559 @@
+---
+title: "Black Box as a Diagnostic Reasoning Benchmark"
+subtitle: "Assessing LLM Capabilities in Hidden State Identification"
+author: "Todd R. Johnson"
+institute: "University of Texas Health Science Center at Houston"
+date: today
+format:
+  revealjs:
+    theme: simple
+    width: 1600
+    height: 900
+    slide-number: true
+    preview-links: auto
+    incremental: false
+    code-fold: true
+    fig-width: 14
+    fig-height: 7
+bibliography: references.bib
+execute:
+  echo: false
+  warning: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(jsonlite)
+library(knitr)
+library(kableExtra)
+library(scales)
+
+# Order model names by family (Haiku < Sonnet < Opus), then version
+order_model_names <- function(names) {
+  family_rank <- c("Haiku" = 1, "Sonnet" = 2, "Opus" = 3)
+  unique_names <- unique(na.omit(names))
+  parts <- strsplit(unique_names, " ")
+  families <- sapply(parts, `[`, 1)
+  versions <- as.numeric(sapply(parts, `[`, 2))
+  unique_names[order(family_rank[families], versions)]
+}
+
+# Presentation theme defaults
+theme_set(theme_minimal(base_size = 18))
+theme_update(
+  panel.grid.minor = element_blank(),
+  legend.position = "top",
+  plot.title = element_text(size = 22, face = "bold"),
+  plot.subtitle = element_text(size = 16, color = "grey40"),
+  strip.text = element_text(size = 16, face = "bold")
+)
+
+# Model color palette (5 models)
+model_colors <- c(
+  "Haiku 4.5" = "#e74c3c",
+  "Sonnet 4.5" = "#3498db",
+  "Sonnet 4.6" = "#2ecc71",
+  "Opus 4.5" = "#f39c12",
+  "Opus 4.6" = "#9b59b6"
+)
+```
+
+```{r}
+#| label: load-all-data
+#| include: false
+
+# ── Predict Data ──────────────────────────────────────────────
+predict_json_files <- list.files(
+  path = "Experiment 1/Predict",
+  pattern = "\\.json$",
+  full.names = TRUE
+)
+
+count_ray_cells <- function(rayResult) {
+  if (is.null(rayResult) || is.null(rayResult$path)) return(NA_real_)
+  path <- rayResult$path
+  if (!is.matrix(path) || nrow(path) == 0) return(NA_real_)
+  cells <- 1 + nrow(path)
+  if (!is.null(rayResult$absorbed) && !rayResult$absorbed) cells <- cells + 1
+  return(cells)
+}
+
+count_atoms_affecting <- function(path, atom_config) {
+  if (is.null(path) || length(path) == 0) return(0)
+  if (!is.matrix(path)) return(0)
+  affected <- 0
+  n_atoms <- nrow(atom_config)
+  n_cells <- nrow(path)
+  for (i in seq_len(n_atoms)) {
+    atom_row <- atom_config[i, 1]
+    atom_col <- atom_config[i, 2]
+    for (j in seq_len(n_cells)) {
+      cell_row <- path[j, 1]
+      cell_col <- path[j, 2]
+      if (abs(atom_row - cell_row) <= 1 && abs(atom_col - cell_col) <= 1) {
+        affected <- affected + 1
+        break
+      }
+    }
+  }
+  affected
+}
+
+extract_predict_results <- function(json_file) {
+  data <- jsonlite::fromJSON(json_file, simplifyDataFrame = FALSE)
+  results <- data$results
+  map_dfr(results, function(r) {
+    predictions <- r$predictions
+    if (is.null(predictions) || length(predictions) == 0) return(tibble())
+    map_dfr(predictions, function(p) {
+      cells_traveled <- count_ray_cells(p$rayResult)
+      atoms_affecting <- count_atoms_affecting(p$rayResult$path, r$atomConfig)
+      tibble(
+        model_name = r$modelName,
+        prompt_style = r$promptStyle,
+        config_index = r$configIndex,
+        enable_thinking = r$enableThinking,
+        vot_ray_trace = r$votRayTrace,
+        correct = p$correct,
+        cells_traveled = cells_traveled,
+        atoms_affecting = atoms_affecting
+      )
+    })
+  })
+}
+
+predict_data <- map_dfr(predict_json_files, extract_predict_results)
+
+# ── Play Data ─────────────────────────────────────────────────
+play_json_files <- list.files(
+  path = "Experiment 1/Play",
+  pattern = "\\.json$",
+  full.names = TRUE
+)
+
+extract_play_results <- function(json_file) {
+  data <- jsonlite::fromJSON(json_file, simplifyDataFrame = FALSE)
+  results <- data$results
+  map_dfr(results, function(r) {
+    ray_complexity <- lapply(r$raySequence, function(ray) {
+      if (!is.null(ray$action) && ray$action == "fire" &&
+          !is.null(ray$rayResult) && !is.null(ray$rayResult$path)) {
+        list(
+          atoms = count_atoms_affecting(ray$rayResult$path, r$atomConfig),
+          cells = count_ray_cells(ray$rayResult)
+        )
+      } else {
+        list(atoms = NA_real_, cells = NA_real_)
+      }
+    })
+    mean_atoms <- mean(sapply(ray_complexity, function(x) x$atoms), na.rm = TRUE)
+    mean_cells <- mean(sapply(ray_complexity, function(x) x$cells), na.rm = TRUE)
+    if (is.nan(mean_atoms)) mean_atoms <- NA_real_
+    if (is.nan(mean_cells)) mean_cells <- NA_real_
+
+    tibble(
+      model_name = r$modelName,
+      prompt_style = r$promptStyle,
+      config_index = r$configIndex,
+      enable_thinking = r$enableThinking,
+      vot_grid_state = r$votGridState,
+      vot_ray_trace = r$votRayTrace,
+      vot_hypothesis = r$votHypothesis,
+      rays_used = r$raysUsed,
+      atoms_correct = r$atomsCorrect,
+      score = r$score,
+      mean_atoms_per_ray = mean_atoms,
+      mean_cells_per_ray = mean_cells
+    )
+  })
+}
+
+play_data <- map_dfr(play_json_files, extract_play_results)
+
+play_data <- play_data |>
+  mutate(
+    vot_condition = case_when(
+      vot_grid_state ~ "A: Grid State",
+      vot_ray_trace ~ "B: Ray Trace",
+      vot_hypothesis ~ "C: Hypothesis",
+      TRUE ~ "None"
+    ),
+    vot_condition = factor(vot_condition, levels = c("None", "A: Grid State", "B: Ray Trace", "C: Hypothesis"))
+  )
+
+# ── Optimal Solver ────────────────────────────────────────────
+optimal_json_path <- "optimal_solver_results.json"
+has_optimal <- file.exists(optimal_json_path)
+
+if (has_optimal) {
+  optimal_raw <- fromJSON(optimal_json_path)
+  optimal_data <- tibble(
+    config_index = optimal_raw$configs$config_index,
+    optimal_rays = optimal_raw$configs$optimal_rays,
+    optimal_ray_points = optimal_raw$configs$score$ray_points,
+    optimal_score = optimal_raw$configs$score$total,
+    optimal_solved = optimal_raw$configs$solved
+  )
+}
+
+# ── Error Classifications ─────────────────────────────────────
+error_class_file <- "error_classifications.json"
+has_error_classifications <- file.exists(error_class_file)
+
+if (has_error_classifications) {
+  error_data <- jsonlite::fromJSON(error_class_file)
+
+  has_predict_errors <- !is.null(error_data$predict) && length(error_data$predict) > 0
+  if (has_predict_errors) {
+    predict_errors <- as_tibble(error_data$predict) |>
+      mutate(model_name = model)
+  }
+
+  has_play_errors <- !is.null(error_data$play) && length(error_data$play) > 0
+  if (has_play_errors) {
+    play_errors <- as_tibble(error_data$play) |>
+      mutate(
+        error_label = case_when(
+          primary_failure_mode == "ray_path_error" ~ "Ray path error",
+          primary_failure_mode == "deflection_geometry_error" ~ "Deflection geometry error",
+          primary_failure_mode == "constraint_tracking_error" ~ "Constraint tracking error",
+          primary_failure_mode == "experiment_design_error" ~ "Experiment design error",
+          primary_failure_mode == "belief_updating_error" ~ "Belief updating error",
+          primary_failure_mode == "premature_commitment" ~ "Premature commitment",
+          TRUE ~ primary_failure_mode
+        ),
+        error_domain = ifelse(is_spatial, "Spatial", "Non-spatial"),
+        model_name = model
+      )
+  }
+}
+
+# ── Deterministic Play Analysis ───────────────────────────────
+det_analysis_files <- if (file.exists("experiment1_play_combined_analysis.json")) {
+  "experiment1_play_combined_analysis.json"
+} else {
+  Sys.glob("*_analysis.json")
+}
+has_det_play <- length(det_analysis_files) > 0
+
+if (has_det_play) {
+  det_all_games <- list()
+  det_all_rays <- list()
+
+  for (f in det_analysis_files) {
+    raw <- jsonlite::fromJSON(f, simplifyDataFrame = FALSE)
+    for (game in raw$games) {
+      s <- game$summary
+      game_row <- tibble(
+        model_name = game$model_name %||% NA_character_,
+        config_index = game$config_index %||% NA_integer_,
+        prompt_style = game$prompt_style %||% NA_character_,
+        enable_thinking = game$enable_thinking %||% FALSE,
+        total_rays_fired = s$total_rays_fired %||% NA_integer_,
+        n_optimal_rays = s$n_optimal_rays %||% NA_integer_,
+        n_suboptimal_rays = s$n_suboptimal_rays %||% NA_integer_,
+        mean_ray_rank = s$mean_ray_rank %||% NA_real_,
+        uniquely_identified_at_ray = s$uniquely_identified_at_ray %||% NA_integer_,
+        excess_rays = s$excess_rays %||% NA_integer_,
+        n_marks = s$n_marks %||% NA_integer_,
+        n_inconsistent_marks = s$n_inconsistent_marks %||% NA_integer_,
+        guess_in_candidates = s$guess_in_candidates %||% NA,
+        atoms_correct = s$atoms_correct %||% NA_integer_,
+        game_score = s$game_score %||% NA_real_,
+        optimal_solver_rays = s$optimal_solver_rays %||% NA_integer_
+      )
+      det_all_games <- c(det_all_games, list(game_row))
+
+      game_id <- paste0(game$model_name, "_", game$config_index)
+      for (ray in game$ray_analysis) {
+        ray_row <- tibble(
+          game_id = game_id,
+          model_name = game$model_name %||% NA_character_,
+          ray_number = ray$ray_number,
+          is_excess = ray$is_excess,
+          llm_rank = ray$llm_rank %||% NA_integer_,
+          is_optimal = ray$is_optimal
+        )
+        det_all_rays <- c(det_all_rays, list(ray_row))
+      }
+    }
+  }
+
+  det_games <- bind_rows(det_all_games)
+  det_rays <- bind_rows(det_all_rays)
+}
+
+# ── Chance Baseline ───────────────────────────────────────────
+chance_pmf <- tibble(
+  k = 0:4,
+  prob = dhyper(k, 4, 60, 4),
+  missed = 4 - k,
+  score = 5 * missed
+)
+chance_EX <- sum(chance_pmf$k * chance_pmf$prob)
+chance_Escore <- sum(chance_pmf$score * chance_pmf$prob)
+```
+
+
+## The Deployment Reality {.smaller}
+
+::: {.columns}
+::: {.column width="55%"}
+
+LLMs are increasingly deployed for diagnostic tasks:
+
+- Medical question answering approaching expert level [@singhal2023medpalm2]
+- Conversational diagnostic agents outperforming clinicians in structured evaluations [@tu2024amie]
+- Broad adoption across clinical workflows reviewed in @thirunavukarasu2023llmmed
+
+**Deployment has outpaced evaluation.**
+
+:::
+::: {.column width="45%"}
+
+::: {.callout-warning}
+## The Core Question
+Does high benchmark performance reflect **diagnostic reasoning** — or **sophisticated pattern matching**?
+
+If LLMs achieve high scores through pattern matching rather than inference, benchmark performance provides **false assurance** about deployment readiness.
+:::
+
+:::
+:::
+
+::: {.notes}
+Open with the deployment reality. Med-PaLM 2 approached expert-level medical QA. Google's AMIE system outperformed primary care physicians in structured diagnostic conversations. The Nature Medicine review by Thirunavukarasu et al. documents the broad sweep of LLM clinical adoption. But we don't really know if they're reasoning or pattern matching. The stakes are high.
+:::
+
+
+## The Evaluation Crisis
+
+::: {.columns}
+::: {.column width="50%"}
+### Current Benchmarks
+
+- Static MCQA formats derived from board exams
+- @wen2025context: high scores reflect **"context matching"** not clinical reasoning — invalidates three key assumptions of MCQA-based assessment
+- @omar2025zebras: LLMs **chase zebras** — salient cues overrule base rates in clinical diagnosis
+- @shojaee2025illusion: reasoning models show an **"illusion of thinking"** — performance collapses at problem complexity thresholds
+
+:::
+::: {.column width="50%"}
+### What We Need
+
+- Tests of the **process** of diagnosis
+- Iterative evidence gathering
+- Hypothesis refinement
+- Out-of-distribution problems
+- Verifiable ground truth
+
+:::
+:::
+
+::: {.fragment}
+> We need benchmarks that test the *process* of diagnostic reasoning, not just its end product.
+:::
+
+::: {.notes}
+The evidence that current evaluation is inadequate. Wen et al. showed MCQA scores reflect context matching, not reasoning — models get the right answer for the wrong reason. Omar et al. found LLMs preferentially diagnose rare conditions over common ones when salient cues are present — base rate neglect. Shojaee et al. showed that reasoning models appear to think but performance collapses sharply at complexity thresholds. All of this suggests we're measuring the wrong things.
+:::
+
+
+## What IS Diagnostic Reasoning? {.smaller}
+
+::: {.columns}
+::: {.column width="50%"}
+
+| Component | Description |
+|-----------|-------------|
+| **Hypothesis generation** | Propose candidate explanations |
+| **Test selection** | Choose informative observations |
+| **Constraint tracking** | Maintain consistent evidence |
+| **Belief updating** | Revise hypotheses with new data |
+| **Spatial reasoning** | Navigate physical/conceptual spaces |
+| **Integration** | Combine all components iteratively |
+
+Diagnostic reasoning is **multicausal abductive inference** — reasoning from observed effects to hidden causes under uncertainty [@johnson2001abductive].
+
+:::
+::: {.column width="50%"}
+
+::: {.fragment}
+### What We Know from Cognitive Science
+
+- People use **current explanations** to guide hypothesis selection, but apply them inconsistently across contexts [@johnson2001abductive]
+- Memory demands alter reasoning **strategy** but not necessarily **accuracy** — people compensate by selectively prioritizing prior explanations [@klichowicz2021memory]
+- Abductive reasoning is fundamentally harder than deductive prediction [@liu2024incomplete]
+:::
+
+:::
+:::
+
+::: {.notes}
+Before we can test diagnostic reasoning, we need to define what it is. My prior work with Josef Krems established that diagnostic reasoning is multicausal abductive inference — reasoners must integrate multiple candidate explanations while accumulating evidence. The key finding: people use their current explanation to guide hypothesis selection, but inconsistently — sometimes anchoring when they shouldn't. Klichowicz and Krems later showed that memory demands change reasoning strategies without necessarily hurting accuracy — people compensate by prioritizing existing explanations. Both findings are directly relevant: LLMs face analogous challenges in maintaining working hypotheses across multi-turn diagnostic interactions.
+:::
+
+
+## We Need a Controlled Lab
+
+Four requirements for a diagnostic reasoning benchmark:
+
+::: {.columns}
+::: {.column width="25%"}
+::: {.fragment}
+### Out-of-Distribution
+Problems not in training data. No memorization shortcuts.
+:::
+:::
+::: {.column width="25%"}
+::: {.fragment}
+### Ground Truth
+Verifiable correct answers. No ambiguity.
+:::
+:::
+::: {.column width="25%"}
+::: {.fragment}
+### Decomposable
+Can isolate component processes. Pinpoint failures.
+:::
+:::
+::: {.column width="25%"}
+::: {.fragment}
+### Integrated
+Tests the full diagnostic loop, not just individual skills.
+:::
+:::
+:::
+
+::: {.notes}
+Here are the four properties we need. Out-of-distribution so we're not just testing memorization. Verifiable ground truth so we know when the model is right or wrong. Decomposable so we can identify which component is failing. And integrated so we test the full diagnostic loop, not just isolated skills.
+:::
+
+
+## Enter Black Box
+
+::: {.columns}
+::: {.column width="55%"}
+
+**Black Box** (Eric Solomon, 1978)
+
+- 8×8 grid with 4 hidden atoms
+- Fire rays from edges, observe outcomes
+- Deduce atom positions from ray behavior
+- Three ray outcomes: **Hit**, **Reflection**, **Detour**
+
+The game naturally requires:
+
+- Generating hypotheses about hidden states
+- Selecting informative tests (rays)
+- Tracking constraints as evidence accumulates
+- Updating beliefs when contradicted
+
+:::
+::: {.column width="45%"}
+
+![](ray_physics.png){fig-alt="Black Box game board showing ray physics: absorption, deflection, and reflection" width="100%"}
+
+*Screenshot placeholder — use React app Sandbox mode or hand-drawn diagram showing absorption, deflection, and reflection examples on an 8×8 grid.*
+
+:::
+:::
+
+::: {.notes}
+Black Box is a deduction game from 1978. You fire rays into an 8x8 grid and observe where they come out. From these observations, you deduce where 4 hidden atoms are located. The game is perfect for our purposes because it naturally requires all the component processes of diagnostic reasoning. It's essentially a miniature diagnostic problem with verifiable ground truth.
+:::
+
+
+## Black Box as Diagnostic Instrument
+
+::: {.columns}
+::: {.column width="50%"}
+
+### Diagnostic Process
+
+1. Generate differential diagnosis
+2. Select next diagnostic test
+3. Track ruled-out conditions
+4. Revise hypothesis with new results
+5. Interpret spatial relationships
+6. Integrate evidence iteratively
+
+:::
+::: {.column width="50%"}
+
+### Black Box Analog
+
+1. Hypothesize atom positions
+2. Choose which ray to fire
+3. Track eliminated positions
+4. Update hypothesis after ray result
+5. Trace ray paths through grid
+6. Combine ray evidence to final guess
+
+:::
+:::
+
+::: {.fragment}
+**Key advantage**: Every game instance is a unique, out-of-distribution problem with known ground truth and quantifiable optimal solutions.
+:::
+
+::: {.notes}
+This is the "aha" slide. Every step of diagnostic reasoning maps directly to a Black Box analog. The critical advantage is that unlike medical cases, every Black Box game has a mathematically optimal solution. We can compute exactly how well a perfect reasoner would do. And because there are 635,376 possible configurations, these problems are genuinely out-of-distribution — you can't memorize them.
+:::
+
+
+## Research Questions
+
+::: {.incremental}
+1. Can LLMs perform **forward reasoning** — predicting ray behavior from known atom positions?
+2. Can LLMs perform **inverse reasoning** — deducing hidden atoms from ray observations?
+3. How do **model scale**, **prompt engineering**, and **extended thinking** affect performance?
+4. Where in the performance corridor do LLMs fall — between **chance** and **optimal**?
+5. Which **component processes** of diagnostic reasoning fail?
+6. What does this imply for **diagnostic AI deployment**?
+:::
+
+::: {.notes}
+Six questions that structure the entire talk. We'll go through each of these systematically. The first two establish baseline capabilities. Question 3 tests our interventions. Question 4 puts results in context. Question 5 is the diagnostic contribution. And question 6 connects back to the clinical stakes.
+:::
+
+
+## Ray Physics {background-color="#f0f0f0"}
+
+::: {.columns}
+::: {.column width="33%"}
+### Absorption (Hit)
+Ray strikes an atom **directly** and is absorbed.
+
+No exit position recorded.
+:::
+::: {.column width="33%"}
+### Reflection
+Atom diagonally adjacent to **entry point** causes ray to reverse.
+
+Ray exits where it entered.
+:::
+::: {.column width="34%"}
+### Deflection (Detour)
+Single adjacent atom **deflects** ray 90° away from the atom.
+
+Multiple deflections possible.
+:::
+:::
+
+::: {.fragment}
+**Complexity**: Rays can interact with 0–4 atoms. Deflection chains create paths traversing many cells, making spatial tracking increasingly difficult.
+:::
+
+::: {.notes}
+Three types of ray interactions. Absorption is straightforward — the ray hits an atom head-on. Reflection is trickier — it happens when an atom is diagonally adjacent to where the ray enters the grid. Deflection is the most complex — atoms adjacent to the ray's path bend it 90 degrees, and multiple deflections create complex zigzag paths. This is where spatial reasoning really gets tested.
+:::
+
+
+## Two Modes: Partial Decomposition
+
+::: {.columns}
+::: {.column width="50%"}
+
+### Predict Mode (Forward)
+- Atoms are **visible**
+- Model predicts ray exit position
+- Tests **spatial reasoning** in isolation
+- "Given these atoms, what happens to this ray?"
+
+:::
+::: {.column width="50%"}
+
+### Play Mode (Inverse)
+- Atoms are **hidden**
+- Model fires rays, deduces positions
+- Tests **full diagnostic loop**
+- Hypothesis generation → test selection → constraint tracking → belief updating
+
+:::
+:::
+
+| Cross-Mode Pattern | Implication |
+|---|---|
+| Good Predict + Poor Play | Non-spatial limitations (abduction, constraints, test selection) |
+| Poor Predict + Poor Play | Spatial/world model partly responsible |
+| Performance delta | Isolates inferential machinery contribution |
+
+::: {.notes}
+We use two modes to partially decompose capabilities. Predict mode isolates spatial reasoning — the atoms are visible, just predict what happens to a ray. Play mode tests the full diagnostic loop — atoms are hidden, the model must fire rays and figure out where the atoms are. Comparing across modes lets us isolate which component processes are failing.
+:::
+
+
+---
+
+### Live Demo {background-color="#2C3E50" style="text-align: center; color: white;"}
+
+::: {style="font-size: 1.5em; margin-top: 2em;"}
+**Switch to React app in browser**
+:::
+
+::: {style="font-size: 1.2em; margin-top: 1em; color: #ecf0f1;"}
+1. **Sandbox Mode** — Learn the ray physics
+2. **Play Mode** — Try the reasoning yourself
+3. **LLM Mode** — Watch Claude play (optional)
+:::
+
+::: {.notes}
+DEMO TIME. ~4-5 minutes. Start in Sandbox mode where atoms are visible — fire a few rays to show absorption, reflection, and deflection. Then switch to Play mode — ask the audience to suggest rays and watch them try to reason about atom positions. This builds empathy for how hard the task actually is. Optionally show LLM mode briefly if time permits.
+:::
+
+
+## Experimental Design
+
+::: {.columns}
+::: {.column width="55%"}
+
+**Factorial Design**
+
+| Factor | Levels |
+|--------|--------|
+| **Model** | Haiku 4.5, Sonnet 4.5, Sonnet 4.6, Opus 4.5, Opus 4.6 |
+| **Prompt** | Baseline, Augmented |
+| **Thinking** | Standard, Extended |
+| **VoT** | None + 3 visualization prompts |
+| **Config** | 10 fixed atom configurations |
+
+:::
+::: {.column width="45%"}
+
+**Scale**
+
+- Predict: 40 conditions × ~24 rays × 10 configs
+- Play: 80 conditions × 10 configs = 800 games
+- ~1,200 unique experimental conditions total
+
+::: {.fragment}
+**VoT Conditions** (Play only):
+
+- A: Grid State visualization
+- B: Ray Trace visualization
+- C: Hypothesis visualization
+:::
+
+:::
+:::
+
+::: {.notes}
+The full experimental design. Five Claude models spanning the capability range. Two prompt styles — baseline gives human-equivalent instructions, augmented adds detailed strategy and worked examples. Extended thinking gives the model a scratchpad. VoT adds visualization-of-thought prompts. All tested across 10 fixed atom configurations for reproducibility. This gives us about 1,200 unique experimental conditions.
+:::
+
+
+## The Optimal Solver
+
+::: {.columns}
+::: {.column width="55%"}
+
+**Information-theoretic strategy**:
+
+- Enumerate all C(64,4) = **635,376** candidate configurations
+- Each ray partitions candidates by outcome
+- Select ray minimizing E[remaining candidates]
+- Greedy strategy: best ray at each step
+
+:::
+::: {.column width="45%"}
+
+::: {.callout-note}
+## Optimal Solver Results
+
+```{r}
+if (has_optimal) {
+  cat(paste0(
+    "Mean rays to solve: ", round(mean(optimal_data$optimal_rays), 1), "\n",
+    "Range: ", min(optimal_data$optimal_rays), "–", max(optimal_data$optimal_rays), "\n",
+    "Mean score: ", round(mean(optimal_data$optimal_score), 1), "\n",
+    "All 10 configs solved: ", all(optimal_data$optimal_solved)
+  ))
+}
+```
+:::
+
+:::
+:::
+
+::: {.fragment}
+This establishes the **ceiling** of the performance corridor — the best any agent can achieve with perfect rationality and unlimited computation.
+:::
+
+::: {.notes}
+The optimal solver gives us the upper bound on performance. It searches all 635,376 possible configurations, picks the ray that eliminates the most candidates on average, and repeats. It solves all 10 configurations in about 7 rays on average. This is the ceiling — no agent, human or AI, can do better. Note this is a greedy strategy, which is itself a lower bound on optimal — true optimal via full lookahead would be even better, but greedy is already very strong.
+:::
+
+
+## Chance Baseline
+
+::: {.columns}
+::: {.column width="55%"}
+
+**Random guessing** (fire zero rays, guess 4 positions):
+
+$$X \sim \text{Hypergeometric}(N=64,\; K=4,\; n=4)$$
+
+- E[atoms correct] = **0.25** out of 4
+- E[score] = **18.75** (5 × 3.75 missed atoms)
+
+```{r}
+#| fig-height: 4.5
+#| fig-width: 7
+
+ggplot(chance_pmf, aes(x = factor(k), y = prob)) +
+  geom_col(fill = "#e74c3c", width = 0.6, alpha = 0.8) +
+  geom_text(aes(label = sprintf("%.1f%%", prob * 100)), vjust = -0.5, size = 5) +
+  scale_y_continuous(labels = percent_format(), limits = c(0, 1)) +
+  labs(x = "Atoms Correct", y = "Probability",
+       title = "Chance: Random Guessing Distribution") +
+  theme_minimal(base_size = 16)
+```
+
+:::
+::: {.column width="45%"}
+
+### Performance Corridor
+
+| Agent | E[Atoms] | E[Score] |
+|-------|----------|----------|
+| **Chance** | 0.25 | 18.75 |
+| **LLMs** | ? | ? |
+| **Optimal** | 4.00 | `r if(has_optimal) round(mean(optimal_data$optimal_score), 1)` |
+
+::: {.fragment}
+Any agent that extracts meaningful signal from ray observations should **substantially exceed** the chance baseline.
+:::
+
+:::
+:::
+
+::: {.notes}
+The floor of the performance corridor. If you just guess randomly without firing any rays, you get 0.25 atoms correct on average and a score of 18.75. The vast majority of the time — 77% — you get zero atoms right. We now have our corridor: chance at 0.25 atoms, optimal at 4.0 atoms. Where do LLMs fall?
+:::
+
+
+## Predict: Leaderboard & Forest Plot {.smaller}
+
+```{r}
+#| label: predict-forest
+#| fig-height: 8.5
+
+# Calculate accuracy and 95% CI for all configurations
+forest_data <- predict_data |>
+  mutate(
+    config_label = paste0(
+      model_name, " | ",
+      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+      ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
+      ifelse(vot_ray_trace, "VoT", "No-VoT")
+    )
+  ) |>
+  group_by(config_label, model_name) |>
+  summarise(
+    n = n(),
+    accuracy = mean(correct),
+    ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+    ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+    .groups = "drop"
+  ) |>
+  arrange(desc(accuracy)) |>
+  mutate(config_label = factor(config_label, levels = config_label))
+
+ggplot(forest_data, aes(x = accuracy, y = config_label)) +
+  geom_point(aes(color = model_name), size = 3.5) +
+  geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper, color = model_name),
+                 height = 0.3, linewidth = 0.9) +
+  geom_vline(xintercept = 0.5, linetype = "dashed", color = "gray50", alpha = 0.5) +
+  geom_text(aes(label = paste0(round(accuracy * 100, 1), "%")),
+            hjust = -0.3, size = 4) +
+  scale_color_manual(values = model_colors) +
+  scale_x_continuous(limits = c(0, 1), labels = percent, breaks = seq(0, 1, 0.1)) +
+  labs(x = "Accuracy", y = NULL, color = "Model",
+       title = "Predict Mode: All Conditions Ranked by Accuracy") +
+  theme(
+    axis.text.y = element_text(size = 10, family = "mono"),
+    panel.grid.major.y = element_blank()
+  )
+```
+
+::: {.notes}
+Here's the full predict mode leaderboard as a forest plot. Each row is a unique experimental condition, ranked by accuracy. Note the model clustering — Opus models tend to cluster at top, Haiku at bottom. The best conditions achieve around 80% accuracy. This is forward reasoning only — given atoms, predict ray behavior. Already we see substantial error rates.
+:::
+
+
+## Predict: Factor Effects
+
+```{r}
+#| label: predict-factors
+
+factor_data <- list(
+  Model = predict_data |>
+    group_by(model_name) |>
+    summarise(n = n(), accuracy = mean(correct),
+              ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+              ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n)) |>
+    mutate(factor = "Model", level = model_name),
+  Prompt = predict_data |>
+    group_by(prompt_style) |>
+    summarise(n = n(), accuracy = mean(correct),
+              ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+              ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n)) |>
+    mutate(factor = "Prompt", level = prompt_style),
+  Thinking = predict_data |>
+    group_by(enable_thinking) |>
+    summarise(n = n(), accuracy = mean(correct),
+              ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+              ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n)) |>
+    mutate(factor = "Extended Thinking", level = ifelse(enable_thinking, "Enabled", "Disabled")),
+  VoT = predict_data |>
+    group_by(vot_ray_trace) |>
+    summarise(n = n(), accuracy = mean(correct),
+              ci_lower = accuracy - 1.96 * sqrt(accuracy * (1 - accuracy) / n),
+              ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n)) |>
+    mutate(factor = "VoT Ray Trace", level = ifelse(vot_ray_trace, "Enabled", "Disabled"))
+) |>
+  bind_rows() |>
+  mutate(factor = factor(factor, levels = c("Model", "Prompt", "Extended Thinking", "VoT Ray Trace")))
+
+ggplot(factor_data, aes(x = accuracy, y = level)) +
+  geom_point(size = 5, color = "#2C3E50") +
+  geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper),
+                 height = 0.2, linewidth = 1.2, color = "#2C3E50") +
+  geom_text(aes(label = paste0(round(accuracy * 100, 1), "%")),
+            hjust = -0.3, size = 5) +
+  facet_wrap(~factor, ncol = 1, scales = "free_y") +
+  scale_x_continuous(limits = c(0, 1), labels = percent, breaks = seq(0, 1, 0.1)) +
+  labs(x = "Accuracy", y = NULL,
+       title = "Predict Mode: Marginal Accuracy by Factor")
+```
+
+::: {.notes}
+Marginal effects for each factor. Model matters most — clear separation between Haiku and Opus. Extended thinking and augmented prompts both help, but the gains are modest. VoT has minimal effect in predict mode. Key takeaway: model scale is the dominant factor for forward spatial reasoning.
+:::
+
+
+## The Complexity Cliff
+
+```{r}
+#| label: complexity-plots
+
+p1 <- ggplot(predict_data, aes(x = cells_traveled, y = as.numeric(correct), color = model_name)) +
+  geom_jitter(height = 0.05, alpha = 0.15, size = 1.5) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1.2) +
+  scale_color_manual(values = model_colors) +
+  scale_y_continuous(labels = percent) +
+  labs(x = "Cells Traveled (path complexity)", y = "Accuracy",
+       color = "Model",
+       title = "Accuracy Collapses with Path Complexity",
+       subtitle = "Performance drops sharply as ray paths involve more cells")
+
+p2 <- ggplot(predict_data, aes(x = factor(atoms_affecting), y = as.numeric(correct), fill = model_name)) +
+  stat_summary(fun = mean, geom = "col", position = position_dodge(width = 0.7), width = 0.6) +
+  scale_fill_manual(values = model_colors) +
+  scale_y_continuous(labels = percent) +
+  labs(x = "Atoms Affecting Ray", y = "Accuracy",
+       fill = "Model",
+       title = "Accuracy by Atom Density",
+       subtitle = "More atom interactions = more spatial reasoning errors")
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+::: {.notes}
+Two views of the complexity cliff. Left: as path length increases (more cells traveled), accuracy drops sharply. All models show this drop, but weaker models collapse faster. Right: as more atoms interact with a ray (higher atom density), accuracy decreases. This is direct evidence that spatial reasoning degrades with complexity. The models can handle simple, short paths but struggle with the complex deflection chains that require tracking multiple interactions.
+:::
+
+
+## Play: Leaderboard & Forest Plot {.smaller}
+
+```{r}
+#| label: play-forest
+#| fig-height: 8.5
+
+play_forest_data <- play_data |>
+  mutate(
+    config_label = paste0(
+      model_name, " | ",
+      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+      ifelse(as.logical(enable_thinking), "Think", "No-Think"), " | ",
+      gsub("^[A-C]: ", "", as.character(vot_condition))
+    )
+  ) |>
+  group_by(config_label, model_name) |>
+  summarise(
+    n = n(),
+    mean_correct = mean(atoms_correct),
+    se = sd(atoms_correct) / sqrt(n()),
+    ci_lower = mean_correct - 1.96 * se,
+    ci_upper = mean_correct + 1.96 * se,
+    .groups = "drop"
+  ) |>
+  arrange(desc(mean_correct)) |>
+  mutate(config_label = factor(config_label, levels = config_label))
+
+ggplot(play_forest_data, aes(x = mean_correct, y = config_label)) +
+  geom_point(aes(color = model_name), size = 3.5) +
+  geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper, color = model_name),
+                 height = 0.3, linewidth = 0.9) +
+  geom_vline(xintercept = 0.25, linetype = "dotted", color = "red", alpha = 0.7) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "gray50", alpha = 0.5) +
+  geom_text(aes(label = sprintf("%.2f", mean_correct)),
+            hjust = -0.3, size = 3.5) +
+  scale_color_manual(values = model_colors) +
+  scale_x_continuous(limits = c(0, 4), breaks = seq(0, 4, 0.5)) +
+  labs(x = "Mean Atoms Correct", y = NULL, color = "Model",
+       title = "Play Mode: All Conditions Ranked by Atoms Correct",
+       subtitle = "Red dotted = chance (0.25). Gray dashed = 1 atom.") +
+  theme(
+    axis.text.y = element_text(size = 9, family = "mono"),
+    panel.grid.major.y = element_blank()
+  )
+```
+
+::: {.notes}
+Play mode forest plot — the full diagnostic reasoning task. Much lower performance than predict mode, as expected. The best conditions find about 2-3 atoms out of 4. Note that the chance baseline is 0.25 — all conditions beat chance, confirming LLMs extract some signal. But no condition gets close to 4.0 (optimal). Also notice the wider confidence intervals — play mode has higher variance across games.
+:::
+
+
+## Play: Factor Effects
+
+```{r}
+#| label: play-factors
+
+play_factor_data <- list(
+  Model = play_data |>
+    group_by(model_name) |>
+    summarise(n = n(), mean_val = mean(atoms_correct),
+              se = sd(atoms_correct) / sqrt(n()),
+              ci_lower = mean_val - 1.96 * se,
+              ci_upper = mean_val + 1.96 * se) |>
+    mutate(factor = "Model", level = model_name),
+  Prompt = play_data |>
+    group_by(prompt_style) |>
+    summarise(n = n(), mean_val = mean(atoms_correct),
+              se = sd(atoms_correct) / sqrt(n()),
+              ci_lower = mean_val - 1.96 * se,
+              ci_upper = mean_val + 1.96 * se) |>
+    mutate(factor = "Prompt", level = prompt_style),
+  Thinking = play_data |>
+    group_by(enable_thinking) |>
+    summarise(n = n(), mean_val = mean(atoms_correct),
+              se = sd(atoms_correct) / sqrt(n()),
+              ci_lower = mean_val - 1.96 * se,
+              ci_upper = mean_val + 1.96 * se) |>
+    mutate(factor = "Extended Thinking",
+           level = ifelse(enable_thinking, "Enabled", "Disabled")),
+  VoT = play_data |>
+    group_by(vot_condition) |>
+    summarise(n = n(), mean_val = mean(atoms_correct),
+              se = sd(atoms_correct) / sqrt(n()),
+              ci_lower = mean_val - 1.96 * se,
+              ci_upper = mean_val + 1.96 * se) |>
+    mutate(factor = "VoT Condition", level = as.character(vot_condition))
+) |>
+  bind_rows() |>
+  mutate(factor = factor(factor, levels = c("Model", "Prompt", "Extended Thinking", "VoT Condition")))
+
+ggplot(play_factor_data, aes(x = mean_val, y = level)) +
+  geom_point(size = 5, color = "#2C3E50") +
+  geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper),
+                 height = 0.2, linewidth = 1.2, color = "#2C3E50") +
+  geom_text(aes(label = sprintf("%.2f", mean_val)),
+            hjust = -0.3, size = 5) +
+  facet_wrap(~factor, ncol = 1, scales = "free_y") +
+  scale_x_continuous(limits = c(0, 4), breaks = seq(0, 4, 0.5)) +
+  labs(x = "Mean Atoms Correct", y = NULL,
+       title = "Play Mode: Marginal Effects by Factor")
+```
+
+::: {.notes}
+Play mode factor effects. Model still matters most, but the pattern is interesting — extended thinking sometimes helps, sometimes doesn't, depending on the model. Augmented prompts show a clearer benefit in play mode than predict mode, probably because the game is more complex and benefits from strategic guidance. VoT conditions show mixed results — some visualization prompts actually hurt performance.
+:::
+
+
+## The Performance Corridor {background-color="#f8f9fa"}
+
+```{r}
+#| label: performance-corridor
+#| fig-height: 6
+
+# Build corridor data
+corridor_data <- play_data |>
+  group_by(model_name) |>
+  summarise(
+    mean_atoms = mean(atoms_correct),
+    mean_score = mean(score),
+    se_atoms = sd(atoms_correct) / sqrt(n()),
+    .groups = "drop"
+  ) |>
+  mutate(model_name = factor(as.character(model_name),
+                             levels = order_model_names(as.character(model_name))))
+
+# Create corridor visualization
+ggplot() +
+  # Chance zone
+  annotate("rect", xmin = -Inf, xmax = Inf, ymin = -0.1, ymax = chance_EX + 0.1,
+           fill = "#ffebee", alpha = 0.5) +
+  annotate("text", x = 0.5, y = chance_EX, label = paste0("Chance (", chance_EX, ")"),
+           hjust = 0, size = 6, color = "#c62828", fontface = "bold") +
+  # Optimal zone
+  annotate("rect", xmin = -Inf, xmax = Inf, ymin = 3.9, ymax = 4.1,
+           fill = "#e8f5e9", alpha = 0.5) +
+  annotate("text", x = 0.5, y = 4.0, label = "Optimal (4.0)",
+           hjust = 0, size = 6, color = "#2e7d32", fontface = "bold") +
+  # LLM performance
+  geom_point(data = corridor_data, aes(x = model_name, y = mean_atoms, color = model_name),
+             size = 6) +
+  geom_errorbar(data = corridor_data,
+                aes(x = model_name, ymin = mean_atoms - 1.96 * se_atoms,
+                    ymax = mean_atoms + 1.96 * se_atoms, color = model_name),
+                width = 0.2, linewidth = 1.2) +
+  geom_text(data = corridor_data,
+            aes(x = model_name, y = mean_atoms, label = sprintf("%.2f", mean_atoms)),
+            vjust = -1.5, size = 5.5, fontface = "bold") +
+  scale_color_manual(values = model_colors) +
+  scale_y_continuous(limits = c(0, 4.2), breaks = seq(0, 4, 0.5)) +
+  labs(x = NULL, y = "Mean Atoms Correct",
+       title = "The Performance Corridor: Chance < LLM < Optimal",
+       subtitle = "All models significantly above chance, but far below optimal") +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 16, angle = 30, hjust = 1)) +
+  scale_x_discrete()
+```
+
+::: {.notes}
+KEY SLIDE. The performance corridor. Chance at 0.25, optimal at 4.0, and LLMs in between. The crucial observation: all models are significantly above chance — they DO extract signal from ray observations. But they're also far below optimal — there's a massive gap to perfect performance. Even the best model is closer to chance than to optimal on an absolute scale. This gap represents the diagnostic reasoning deficit.
+:::
+
+
+## LLM vs Optimal: Rays Used
+
+```{r}
+#| label: optimal-rays
+#| eval: !expr has_optimal
+
+# Best condition identification
+best_condition_lookup <- play_data |>
+  mutate(condition = paste0(model_name, " | ",
+    ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+    ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
+    case_when(vot_grid_state ~ "A: Grid State", vot_ray_trace ~ "B: Ray Trace",
+              vot_hypothesis ~ "C: Hypothesis", TRUE ~ "None"))) |>
+  group_by(condition, model_name) |>
+  summarise(score_mean = mean(score), .groups = "drop") |>
+  arrange(score_mean) |> slice(1)
+best_short_label <- paste0("Best (", best_condition_lookup$model_name, ")")
+
+best_config_agg <- play_data |>
+  mutate(condition = paste0(model_name, " | ",
+    ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+    ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
+    case_when(vot_grid_state ~ "A: Grid State", vot_ray_trace ~ "B: Ray Trace",
+              vot_hypothesis ~ "C: Hypothesis", TRUE ~ "None"))) |>
+  filter(condition == best_condition_lookup$condition) |>
+  group_by(config_index) |>
+  summarise(best_rays_mean = mean(rays_used), best_score_mean = mean(score), .groups = "drop")
+
+play_config_agg <- play_data |>
+  group_by(config_index) |>
+  summarise(llm_rays_mean = mean(rays_used), llm_score_mean = mean(score), .groups = "drop")
+
+comparison <- inner_join(play_config_agg, optimal_data, by = "config_index") |>
+  left_join(best_config_agg, by = "config_index")
+
+rays_long <- comparison |>
+  select(config_index, optimal_rays, best_rays_mean, llm_rays_mean) |>
+  pivot_longer(cols = c(optimal_rays, best_rays_mean, llm_rays_mean),
+               names_to = "agent", values_to = "rays") |>
+  mutate(agent = case_when(
+    agent == "optimal_rays" ~ "Optimal Solver",
+    agent == "best_rays_mean" ~ best_short_label,
+    TRUE ~ "LLM (Mean)")) |>
+  mutate(agent = factor(agent, levels = c("Optimal Solver", best_short_label, "LLM (Mean)")))
+
+ggplot(rays_long, aes(x = config_index, y = rays, color = agent, group = agent)) +
+  geom_line(linewidth = 1.5) +
+  geom_point(size = 4) +
+  scale_color_manual(values = setNames(c("#2196F3", "#4CAF50", "#FF9800"),
+    c("Optimal Solver", best_short_label, "LLM (Mean)"))) +
+  scale_x_continuous(breaks = 0:9) +
+  labs(x = "Configuration", y = "Rays Used", color = NULL,
+       title = "Rays Used: Optimal vs Best Condition vs LLM Mean",
+       subtitle = "LLMs consistently use more rays — poor test selection efficiency")
+```
+
+::: {.notes}
+Configuration-by-configuration comparison of rays used. Blue is the optimal solver, green is the best LLM condition, orange is the overall LLM mean. LLMs consistently use 2-3× as many rays as optimal. This is the test selection problem — LLMs are not choosing informative rays. They fire redundant rays that don't narrow the candidate space efficiently. Direct analog to ordering redundant lab tests.
+:::
+
+
+## LLM vs Optimal: Score
+
+```{r}
+#| label: optimal-score
+#| eval: !expr has_optimal
+
+score_long <- comparison |>
+  select(config_index, optimal_score, best_score_mean, llm_score_mean) |>
+  pivot_longer(cols = c(optimal_score, best_score_mean, llm_score_mean),
+               names_to = "agent", values_to = "score_val") |>
+  mutate(agent = case_when(
+    agent == "optimal_score" ~ "Optimal Solver",
+    agent == "best_score_mean" ~ best_short_label,
+    TRUE ~ "LLM (Mean)")) |>
+  mutate(agent = factor(agent, levels = c("Optimal Solver", best_short_label, "LLM (Mean)")))
+
+ggplot(score_long, aes(x = config_index, y = score_val, color = agent, group = agent)) +
+  geom_hline(yintercept = 18.75, linetype = "dotted", color = "red", linewidth = 0.8) +
+  annotate("text", x = 9.5, y = 18.75, label = "Chance (18.75)",
+           hjust = 1, vjust = -0.5, size = 5, color = "red") +
+  geom_line(linewidth = 1.5) +
+  geom_point(size = 4) +
+  scale_color_manual(values = setNames(c("#2196F3", "#4CAF50", "#FF9800"),
+    c("Optimal Solver", best_short_label, "LLM (Mean)"))) +
+  scale_x_continuous(breaks = 0:9) +
+  labs(x = "Configuration", y = "Score (lower is better)", color = NULL,
+       title = "Score: Optimal vs Best Condition vs LLM Mean",
+       subtitle = "Score combines ray cost + missed atom penalty. Chance dotted red line.")
+```
+
+::: {.notes}
+Same comparison but for total score — which combines ray costs AND missed atom penalties. The gap is even larger here because LLMs both use more rays AND miss more atoms. The chance baseline at 18.75 shows that LLMs are well above chance, but the gap to optimal is substantial. Some configurations are much harder than others — note how the lines diverge on harder configs.
+:::
+
+
+## Cross-Mode Comparison
+
+```{r}
+#| label: cross-mode
+
+predict_model_agg <- predict_data |>
+  group_by(model_name) |>
+  summarise(predict_accuracy = mean(correct),
+            predict_se = sqrt(predict_accuracy * (1 - predict_accuracy) / n()),
+            .groups = "drop")
+
+play_model_agg <- play_data |>
+  group_by(model_name) |>
+  summarise(play_atoms_pct = mean(atoms_correct) / 4,
+            play_atoms_se = sd(atoms_correct) / (4 * sqrt(n())),
+            .groups = "drop")
+
+model_comparison <- inner_join(predict_model_agg, play_model_agg, by = "model_name") |>
+  pivot_longer(cols = c(predict_accuracy, play_atoms_pct),
+               names_to = "mode", values_to = "performance") |>
+  mutate(
+    se = ifelse(mode == "predict_accuracy", predict_se, play_atoms_se),
+    mode = ifelse(mode == "predict_accuracy", "Predict (Accuracy)", "Play (Atoms Correct %)")
+  )
+
+ggplot(model_comparison, aes(x = model_name, y = performance, fill = mode)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  geom_errorbar(aes(ymin = performance - 1.96 * se, ymax = performance + 1.96 * se),
+                position = position_dodge(width = 0.7), width = 0.2) +
+  scale_y_continuous(labels = percent, limits = c(0, 1)) +
+  scale_fill_manual(values = c("Predict (Accuracy)" = "#3498db", "Play (Atoms Correct %)" = "#e74c3c")) +
+  labs(x = NULL, y = "Performance", fill = "Mode",
+       title = "Forward vs Inverse Reasoning by Model",
+       subtitle = "All models show a gap: forward reasoning (predict) outperforms inverse reasoning (play)") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+::: {.notes}
+Head-to-head comparison. Blue is predict mode — forward reasoning. Red is play mode — full diagnostic loop. The gap is consistent across all models: forward reasoning is easier than inverse reasoning. This makes theoretical sense — prediction is deductive, diagnosis is abductive. But the gap also reveals that the inferential machinery (hypothesis generation, test selection, constraint tracking) adds substantial difficulty beyond just spatial reasoning.
+:::
+
+
+## Error Analysis: Predict Mode
+
+```{r}
+#| label: predict-errors
+#| eval: !expr has_error_classifications && has_predict_errors
+
+cat_order <- c("Missed reflection", "Off-by-one path error",
+               "Deflection direction error", "Missed absorption",
+               "False absorption", "Large path tracking error",
+               "False reflection")
+
+error_by_model <- predict_errors |>
+  count(model_name, error_label) |>
+  group_by(model_name) |>
+  mutate(pct = n / sum(n) * 100) |>
+  ungroup()
+
+error_by_model$error_label <- factor(error_by_model$error_label, levels = cat_order)
+
+ggplot(error_by_model, aes(x = model_name, y = pct, fill = error_label)) +
+  geom_col(position = "stack", width = 0.7) +
+  scale_fill_manual(values = c(
+    "Missed reflection" = "#e74c3c",
+    "Off-by-one path error" = "#3498db",
+    "Deflection direction error" = "#2ecc71",
+    "Missed absorption" = "#e67e22",
+    "False absorption" = "#9b59b6",
+    "Large path tracking error" = "#1abc9c",
+    "False reflection" = "#95a5a6"
+  )) +
+  labs(x = NULL, y = "Percentage of Errors", fill = "Error Category",
+       title = "Predict Mode: Which Ray Physics Rules Break?",
+       subtitle = "Deterministic classification — comparing predicted vs actual outcome types") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+::: {.notes}
+What kinds of errors do models make in predict mode? Deterministic classification — we compare what the model predicted versus what actually happens. Missed reflections are the most common error across all models — the reflection rule is the hardest physics to apply correctly. Off-by-one path errors indicate cell-by-cell tracking failures. The error profiles are surprisingly similar across models, suggesting these are fundamental difficulties with the ray physics rather than model-specific weaknesses.
+:::
+
+
+## Error Analysis: Play Mode
+
+::: {.columns}
+::: {.column width="50%"}
+
+```{r}
+#| label: play-errors-spatial
+#| eval: !expr has_error_classifications && has_play_errors
+#| fig-height: 5.5
+#| fig-width: 7
+
+play_spatial_by_model <- play_errors |>
+  count(model_name, error_domain) |>
+  group_by(model_name) |>
+  mutate(pct = n / sum(n) * 100) |>
+  ungroup()
+
+ggplot(play_spatial_by_model,
+       aes(x = model_name, y = pct, fill = error_domain)) +
+  geom_col(position = "stack", width = 0.6) +
+  geom_text(aes(label = paste0(round(pct, 0), "%")),
+            position = position_stack(vjust = 0.5), size = 5) +
+  scale_fill_manual(values = c("Spatial" = "#e74c3c", "Non-spatial" = "#3498db")) +
+  labs(x = NULL, y = "Percentage", fill = "Error Domain",
+       title = "Spatial vs Non-Spatial Failures",
+       subtitle = "LLM-as-judge classification") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+:::
+::: {.column width="50%"}
+
+```{r}
+#| label: play-errors-det
+#| eval: !expr has_det_play
+#| fig-height: 5.5
+#| fig-width: 7
+
+det_ray_summary <- det_games |>
+  group_by(model_name) |>
+  summarise(
+    pct_optimal = round(sum(n_optimal_rays) / sum(total_rays_fired) * 100, 1),
+    mean_rank = round(mean(mean_ray_rank, na.rm = TRUE), 2),
+    mean_excess = round(mean(excess_rays, na.rm = TRUE), 1),
+    .groups = "drop"
+  )
+
+det_summary_long <- det_ray_summary |>
+  pivot_longer(cols = c(pct_optimal, mean_rank, mean_excess),
+               names_to = "metric", values_to = "value") |>
+  mutate(metric = case_when(
+    metric == "pct_optimal" ~ "% Optimal Rays",
+    metric == "mean_rank" ~ "Mean Ray Rank",
+    metric == "mean_excess" ~ "Mean Excess Rays"
+  ))
+
+ggplot(det_summary_long, aes(x = model_name, y = value, fill = model_name)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = round(value, 1)), vjust = -0.3, size = 4.5) +
+  facet_wrap(~metric, scales = "free_y", ncol = 1) +
+  scale_fill_manual(values = model_colors) +
+  labs(x = NULL, y = NULL,
+       title = "Deterministic Analysis",
+       subtitle = "Ray quality, ranking, and excess") +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+:::
+:::
+
+::: {.notes}
+Two complementary views of play mode errors. Left: LLM-as-judge classification into spatial versus non-spatial failures. Non-spatial errors — experiment design, constraint tracking, belief updating — dominate across all models. Right: deterministic analysis. Models pick optimal rays only a fraction of the time, with typical ray ranks around 5-10 out of 32 possible rays. They also fire excess rays after the solution is already determinable — they don't know when to stop.
+:::
+
+
+## Scaling Effects
+
+```{r}
+#| label: scaling
+
+# Model-level summary across both modes
+scaling_data <- bind_rows(
+  predict_data |>
+    group_by(model_name) |>
+    summarise(value = mean(correct), .groups = "drop") |>
+    mutate(metric = "Predict Accuracy"),
+  play_data |>
+    group_by(model_name) |>
+    summarise(value = mean(atoms_correct) / 4, .groups = "drop") |>
+    mutate(metric = "Play Atoms Correct (%)")
+) |>
+  mutate(
+    model_name = factor(as.character(model_name),
+                        levels = order_model_names(as.character(model_name))),
+    metric = factor(metric, levels = c("Predict Accuracy", "Play Atoms Correct (%)"))
+  )
+
+ggplot(scaling_data, aes(x = model_name, y = value, fill = metric)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  geom_text(aes(label = paste0(round(value * 100, 1), "%")),
+            position = position_dodge(width = 0.7), vjust = -0.3, size = 5) +
+  scale_y_continuous(labels = percent, limits = c(0, 1)) +
+  scale_fill_manual(values = c("Predict Accuracy" = "#3498db",
+                                "Play Atoms Correct (%)" = "#e74c3c")) +
+  labs(x = NULL, y = "Performance", fill = "Mode",
+       title = "Scaling: Haiku → Sonnet → Opus",
+       subtitle = "Larger models improve in both modes, but the predict-play gap persists") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+::: {.notes}
+Scaling from Haiku to Opus. Both modes improve with model size, but the gap between predict and play performance persists. Larger models are better at spatial reasoning AND at the full diagnostic loop, but they don't close the gap between the two. This suggests the diagnostic reasoning deficit isn't just a matter of scale — it's a qualitative limitation in how these models integrate component processes.
+:::
+
+
+## Factor Summary
+
+| Factor | Predict | Play | Interpretation |
+|--------|:-------:|:----:|----------------|
+| **Model scale** | ↑↑ | ↑↑ | Dominant factor in both modes |
+| **Augmented prompt** | ↑ | ↑ | Consistent but modest benefit |
+| **Extended thinking** | ↑ | — / ↑ | Helps predict; mixed in play |
+| **VoT: Grid State** | — | — | Minimal effect |
+| **VoT: Ray Trace** | — | — / ↓ | No help; sometimes hurts |
+| **VoT: Hypothesis** | — | — | No consistent effect |
+
+::: {.fragment}
+**Key finding**: No prompt intervention closes the gap to optimal. The limitations are architectural, not instructional.
+:::
+
+::: {.notes}
+Summary table. Model scale is the only factor with consistent, large effects. Everything else is marginal. The sobering conclusion: you can't prompt your way to diagnostic reasoning. Extended thinking helps with forward spatial reasoning but has mixed effects on the full diagnostic loop. VoT prompts — which add explicit visualization instructions — don't reliably help and sometimes hurt. The limitations appear to be in the model's ability to maintain and manipulate internal state, not in the instructions it receives.
+:::
+
+
+## Benchmark Context
+
+How does Black Box compare to other reasoning benchmarks?
+
+| Benchmark | Task Type | OOD? | Ceiling? | Decomposable? | Process? |
+|-----------|-----------|:----:|:--------:|:-------------:|:--------:|
+| ZebraLogic | Constraint satisfaction | Partial | No | No | No |
+| ConstraintBench | Constraint satisfaction | Yes | No | No | No |
+| BALROG | Game playing | Yes | No | Partial | Yes |
+| PuzzlePlex | Puzzle solving | Yes | No | No | No |
+| **Black Box** | **Diagnostic reasoning** | **Yes** | **Yes** | **Yes** | **Yes** |
+
+::: {.fragment}
+Black Box is unique in providing an **information-theoretic ceiling** and **partial decomposition** into component processes via the two-mode design.
+:::
+
+::: {.notes}
+How Black Box compares to other reasoning benchmarks. Most benchmarks test constraint satisfaction or puzzle solving but lack key properties. Black Box is the only one that provides an information-theoretic ceiling — we can compute exactly how well a perfect agent would do. And it's the only one that partially decomposes into component processes through the predict/play design. The ceiling is critical because it lets us measure not just whether models succeed or fail, but how far they are from optimal.
+:::
+
+
+## What This Means for Diagnostic AI {background-color="#f8f9fa"}
+
+::: {.columns}
+::: {.column width="50%"}
+
+### Constraint Tracking
+Models fail to maintain consistent evidence sets. **Clinical risk**: Contradicted diagnoses remain in differential.
+
+### Test Selection
+Models fire redundant/uninformative rays. **Clinical risk**: Unnecessary tests, delayed diagnosis.
+
+:::
+::: {.column width="50%"}
+
+### Scaling Limits
+Larger models help but don't solve the problem. **Clinical risk**: Upgrading models doesn't fix reasoning gaps.
+
+### Forward ≠ Inverse
+Good at prediction, poor at diagnosis. **Clinical risk**: Can explain findings but not generate differential.
+
+:::
+:::
+
+::: {.notes}
+Four clinical implications. First, constraint tracking failures — models don't maintain consistent evidence sets, so they'd fail to rule out conditions even when evidence is clear. Second, test selection — models choose uninformative tests, analogous to ordering redundant labs. Third, scaling doesn't fix this — you can't just use a bigger model. Fourth, the forward-inverse gap means models might be good at explaining test results but bad at generating the differential diagnosis in the first place.
+:::
+
+
+## The Test Selection Problem
+
+```{r}
+#| label: ray-rank-histogram
+#| eval: !expr has_det_play
+#| fig-height: 5.5
+
+non_excess_rays <- det_rays |> filter(!is_excess)
+
+ggplot(non_excess_rays, aes(x = llm_rank)) +
+  geom_histogram(binwidth = 1, fill = "#3498db", color = "white", alpha = 0.8) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "#e74c3c", linewidth = 1) +
+  facet_wrap(~model_name, scales = "free_y") +
+  labs(x = "LLM Ray Rank (competition ranking, among 32 possible rays)", y = "Count",
+       title = "Distribution of Ray Selection Rank by Model",
+       subtitle = "Rank 1 = information-theoretically optimal (ties share rank). Dashed red = optimal.") +
+  theme(strip.text = element_text(size = 14))
+```
+
+::: {.fragment}
+**Clinical analog**: Choosing which diagnostic test to order next. Models rarely pick the most informative option — analogous to ordering a comprehensive metabolic panel when a single targeted test would be more informative.
+:::
+
+::: {.notes}
+The test selection problem visualized. For each ray the model fires, we rank it among all 32 possible rays by information content. Rank 1 is the information-theoretically optimal choice. The distributions show that models rarely pick the optimal ray — they're spread across the ranking, with many choosing rays ranked 5-15 out of 32. This is the clinical analog of choosing which test to order next. An optimal diagnostician picks the test that rules out the most conditions. LLMs pick tests somewhat informatively but far from optimal. In clinical practice, this manifests as redundant testing and delayed diagnosis.
+:::
+
+
+## Can Tools Fix This?
+
+::: {.columns}
+::: {.column width="50%"}
+
+### Tools CAN Help
+- **Verification**: Check if guess is consistent with constraints
+- **Computation**: Enumerate candidate space
+- **Memory**: Track accumulated evidence
+- **Visualization**: Display board state
+
+LLM-Modulo architecture: use tools for verification, not generation.
+
+:::
+::: {.column width="50%"}
+
+### Tools CAN'T Help
+- **Hypothesis generation**: Must come from the model
+- **Test selection strategy**: Model decides what to test
+- **Abductive inference**: Reasoning from effects to causes
+- **Integration**: Combining evidence across modalities
+
+The hardest parts of diagnosis are **generative**, not computational.
+
+:::
+:::
+
+::: {.notes}
+A question from the field: can we just give LLMs tools to compensate? Partially. Tools can help with constraint checking — verifying whether a hypothesis is consistent with evidence. They can help with memory and computation. But the hard parts of diagnosis — generating hypotheses, choosing what to test, reasoning from effects to causes — are generative processes that must come from the model. No amount of tooling fixes poor abductive inference.
+:::
+
+
+## What Good Benchmarks Need
+
+::: {.incremental}
+1. **Out-of-distribution problems** — Not solvable by pattern matching to training data
+2. **Information-theoretic ceiling** — Know the best possible performance, not just pass/fail
+3. **Decomposable** — Isolate which component processes fail, not just overall accuracy
+4. **Process-oriented** — Test the reasoning process, not just the final answer
+:::
+
+::: {.fragment}
+### A challenge to the field
+
+Most AI evaluation asks "**can it get the right answer?**"
+
+We should be asking "**does it reason correctly to get there?**"
+:::
+
+::: {.notes}
+Four properties that good diagnostic reasoning benchmarks should have. Most current benchmarks only satisfy one or two of these. Black Box satisfies all four, which is why it's useful despite being a game rather than a clinical task. The broader challenge: the field focuses too much on outcome accuracy and not enough on process quality. A model that gets the right answer for the wrong reason is dangerous in clinical settings.
+:::
+
+
+## Limitations & Future Work
+
+::: {.columns}
+::: {.column width="50%"}
+
+### Limitations
+
+- Black Box is spatial; not all diagnosis is
+- 2D grid; clinical reasoning is higher-dimensional
+- Fixed action space (32 rays); clinical tests are open-ended
+- Single-player; real diagnosis involves consultation
+- Currently only Claude models tested in React app
+
+:::
+::: {.column width="50%"}
+
+### Future Directions
+
+- Test more model families (GPT, Gemini, open-source)
+- Larger grids, more atoms
+- Multi-agent collaborative diagnosis
+- Transfer analysis: BB performance → clinical task performance
+- Agentic architectures with tool access
+
+:::
+:::
+
+::: {.notes}
+Honest limitations. Black Box is a spatial game, and not all diagnostic reasoning is spatial. The action space is constrained — in real medicine, you choose from thousands of possible tests. And we've only tested Claude models. Future work should test more models, explore multi-agent settings, and — most importantly — test whether Black Box performance predicts performance on actual clinical diagnostic tasks. That transfer analysis would validate the benchmark.
+:::
+
+
+## Key Takeaways
+
+::: {.incremental}
+1. **LLMs perform above chance but far below optimal** on diagnostic reasoning — extracting signal but failing at systematic evidence integration
+
+2. **The failures are in the process, not the knowledge** — models know ray physics but can't select informative tests, track constraints, or recognize when evidence is sufficient
+
+3. **Scaling and prompting help modestly** — the diagnostic reasoning gap appears to be an architectural limitation, not an instructional one
+:::
+
+::: {.fragment}
+::: {.callout-important}
+## Bottom Line
+Before deploying LLMs for diagnostic tasks, we need benchmarks that test **reasoning process**, not just **answer accuracy**. Black Box demonstrates that the gap between "knows the domain" and "reasons within the domain" is substantial and persistent.
+:::
+:::
+
+::: {.notes}
+Three takeaways to leave up during Q&A. First, LLMs are somewhere between random and optimal — they're not useless, but they're far from reliable. Second, the problem isn't knowledge but process — models know the rules, they just can't apply them systematically over multiple steps. Third, bigger models and better prompts help a bit, but they don't solve the fundamental problem. The bottom line for clinical deployment: we need much better evaluation before we trust LLMs with diagnostic reasoning.
+:::
+
+
+## Questions? {background-color="#2C3E50" style="color: white; text-align: center;"}
+
+::: {style="font-size: 1.3em; margin-top: 1em;"}
+**Todd R. Johnson**
+
+todd.r.johnson@uth.tmc.edu
+
+University of Texas Health Science Center at Houston
+:::
+
+::: {style="font-size: 1.1em; margin-top: 2em; color: #bdc3c7;"}
+Paper & Demo: [github.com/toddjohnson/BBXReact](https://github.com/toddjohnson/BBXReact)
+:::
+
+::: {style="margin-top: 2em;"}
+*Happy to run additional live demos during Q&A*
+:::
+
+::: {.notes}
+Open it up for questions. Offer to do more live demos if people want to see specific aspects of the game or the LLM's behavior. The React app is running in another tab.
+:::
+
+
+## References {.smaller}
+
+::: {#refs}
+:::

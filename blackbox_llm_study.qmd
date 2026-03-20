@@ -4196,8 +4196,8 @@ p_rank_hist <- ggplot(non_excess_rays, aes(x = llm_rank)) +
   facet_wrap(~model_name, scales = "free_y") +
   labs(
     title = "Distribution of Ray Selection Rank by Model",
-    subtitle = "Rank 1 = information-theoretically optimal; dashed line marks optimal",
-    x = "LLM Ray Rank (among 32 possible rays)",
+    subtitle = "Rank 1 = information-theoretically optimal (competition ranking: ties share rank); dashed line marks optimal",
+    x = "LLM Ray Rank (competition ranking, among 32 possible rays)",
     y = "Count"
   ) +
   theme_minimal() +

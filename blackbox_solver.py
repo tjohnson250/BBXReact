@@ -914,12 +914,15 @@ def analyze_game(configs, result, first_ray, first_partition,
             ray_partition = partition_by_ray(candidates, side, pos)
             llm_score = score_partition(ray_partition, len(candidates))
 
-            # Find LLM's ray rank in the sorted results
+            # Find LLM's ray rank using min-rank (competition ranking):
+            # all tied scores share the same rank (e.g., 5 rays tied for
+            # best all get rank 1, next distinct score gets rank 6).
             llm_rank = None
-            for rank, (s, p, sc, no, mg) in enumerate(all_results, 1):
-                if s == side and p == pos:
-                    llm_rank = rank
-                    break
+            if llm_score is not None:
+                # Count how many rays have a strictly better score
+                n_better = sum(1 for (_, _, sc, _, _) in all_results
+                               if sc < llm_score - 1e-9)
+                llm_rank = n_better + 1
 
             # If LLM fired a ray already used (duplicate), it won't be in all_results
             if llm_rank is None:
