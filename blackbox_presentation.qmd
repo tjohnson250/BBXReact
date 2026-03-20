@@ -298,67 +298,123 @@ chance_Escore <- sum(chance_pmf$score * chance_pmf$prob)
 ```
 
 
-## The Deployment Reality {.smaller}
+## AI in Clinical Diagnosis Today {.smaller}
 
 ::: {.columns}
 ::: {.column width="55%"}
 
-LLMs are increasingly deployed for diagnostic tasks:
+LLMs are now embedded across clinical workflows:
 
-- Medical question answering approaching expert level [@singhal2023medpalm2]
-- Conversational diagnostic agents outperforming clinicians in structured evaluations [@tu2024amie]
-- Broad adoption across clinical workflows reviewed in @thirunavukarasu2023llmmed
+- **31.5%** of US hospitals deployed generative AI in clinical workflows by 2024, with another 24.7% planning near-term implementation
+- Publications on LLMs in medical diagnostics surged from 160 (2023) to **557** (2024)
+- Primary applications: triage, differential diagnosis, clinical note drafting, referral recommendations
+- Emergency medicine and radiology lead direct diagnostic use
 
-**Deployment has outpaced evaluation.**
+@thirunavukarasu2023llmmed reviewed the initial wave in 2023; the field has since accelerated dramatically.
 
 :::
 ::: {.column width="45%"}
 
-::: {.callout-warning}
-## The Core Question
-Does high benchmark performance reflect **diagnostic reasoning** — or **sophisticated pattern matching**?
+### Milestone Results
 
-If LLMs achieve high scores through pattern matching rather than inference, benchmark performance provides **false assurance** about deployment readiness.
+- **Med-PaLM 2**: Expert-level medical question answering [@singhal2023medpalm2]
+- **AMIE**: Outperformed primary care physicians in structured diagnostic conversations [@tu2024amie]
+- **Swedish MASAI trial**: AI-assisted mammography detected **20% more cancers** while cutting radiologist workload in half (80,000+ women)
+
+:::
+:::
+
+::: {.notes}
+Set the stage with concrete adoption numbers. A third of US hospitals are already using generative AI clinically. The research literature has exploded — over 500 papers in 2024 alone. Thirunavukarasu's 2023 Nature Medicine review captured the first wave, but the pace has intensified since then. Med-PaLM 2 matched experts on medical QA. Google's AMIE beat primary care physicians in structured diagnostic conversations. The Swedish MASAI trial — over 80,000 women — found AI-assisted mammography identified 20% more cancers while halving radiologist workload. These results are driving clinical adoption.
+:::
+
+
+## The Case for Adoption: AI Outperforming Clinicians {.smaller}
+
+::: {.columns}
+::: {.column width="50%"}
+
+A growing body of evidence shows LLMs exceeding physician performance on diagnostic tasks [@goh2024llmdiagnosis]:
+
+| | Accuracy |
+|---|---|
+| **LLM alone** | **92%** |
+| Physicians + LLM | 76% |
+| Physicians alone | 74% |
+
+: Diagnostic reasoning scores across six clinical cases (50 physicians, JAMA Network Open)
+
+- Danish chest X-ray screening: AI reliably filtered **~50%** of normal scans, freeing radiologists for complex cases
+- MIT–Harvard study: Radiologists shown AI predictions systematically **undervalued** the AI input relative to their own judgment
+
+:::
+::: {.column width="50%"}
+
+::: {.callout-important}
+### The Paradox
+
+Physicians with AI barely outperform physicians without AI — but **AI alone** dramatically outperforms both.
+
+This "automation neglect" pattern appears consistently across imaging, clinical reasoning, and diagnostic accuracy studies.
+:::
+
+::: {.fragment}
+If AI is this capable on benchmarks and structured evaluations, shouldn't we deploy it widely?
 :::
 
 :::
 :::
 
 ::: {.notes}
-Open with the deployment reality. Med-PaLM 2 approached expert-level medical QA. Google's AMIE system outperformed primary care physicians in structured diagnostic conversations. The Nature Medicine review by Thirunavukarasu et al. documents the broad sweep of LLM clinical adoption. But we don't really know if they're reasoning or pattern matching. The stakes are high.
+Now why is adoption accelerating so fast? Because the results are remarkable. Goh et al. in JAMA Network Open ran a randomized clinical trial with 50 physicians: the LLM alone scored 92% on diagnostic reasoning, physicians with LLM access scored 76%, and physicians without AI scored 74%. The combined human-AI approach barely beat unaided physicians. A Danish study found AI could reliably filter about half of all normal chest X-rays, freeing radiologists for the hard cases. The MIT-Harvard study showed that even when the AI was right, radiologists systematically underweighted its input. Topol and Rajpurkar reviewed this pattern across multiple studies — it's consistent. So the enthusiasm is understandable. But should we trust these results?
 :::
 
 
-## The Evaluation Crisis
+## The Evaluation Crisis {.smaller}
 
 ::: {.columns}
 ::: {.column width="50%"}
-### Current Benchmarks
 
-- Static MCQA formats derived from board exams
-- @wen2025context: high scores reflect **"context matching"** not clinical reasoning — invalidates three key assumptions of MCQA-based assessment
-- @omar2025zebras: LLMs **chase zebras** — salient cues overrule base rates in clinical diagnosis
-- @shojaee2025illusion: reasoning models show an **"illusion of thinking"** — performance collapses at problem complexity thresholds
+### The Deployment Gap
+
+LLMs tested in isolation vs. deployed with real users [@bean2026reliability]:
+
+| | Condition identified |
+|---|---|
+| **LLM alone** | **94.9%** |
+| Real users + LLM | 34.5% |
+| Control (Google) | ~34% |
+
+: Randomized trial, 1,298 participants, 10 medical scenarios (Nature Medicine)
+
+Real users with the *same* LLMs performed **no better than Googling it**.
+
+In one case, two users describing identical subarachnoid hemorrhage symptoms received opposite advice — one told to "lie down in a dark room," the other correctly referred to emergency care.
 
 :::
 ::: {.column width="50%"}
-### What We Need
 
-- Tests of the **process** of diagnosis
-- Iterative evidence gathering
-- Hypothesis refinement
-- Out-of-distribution problems
-- Verifiable ground truth
+### Why Benchmarks Fail
+
+**"Context matching," not reasoning** [@wen2025context]: Models match keywords in the question to answer choices. Rephrase the same clinical question with synonymous terms → different (wrong) answer. When *no* answer choice is correct, models confidently pick one anyway.
+
+**"Chasing zebras"** [@omar2025zebras]: Add "recently returned from Southeast Asia" to a fever-and-cough vignette → LLMs shift to malaria or dengue, even when community-acquired pneumonia remains far more likely. Tested across 300 vignettes and 20 models — base rate neglect is systematic.
+
+**"Illusion of thinking"** [@shojaee2025illusion]: Reasoning models appear to deliberate but performance **collapses** at problem complexity thresholds.
 
 :::
 :::
 
 ::: {.fragment}
-> We need benchmarks that test the *process* of diagnostic reasoning, not just its end product.
+> **Core question**: Does high benchmark performance reflect diagnostic reasoning — or sophisticated pattern matching?
 :::
 
 ::: {.notes}
-The evidence that current evaluation is inadequate. Wen et al. showed MCQA scores reflect context matching, not reasoning — models get the right answer for the wrong reason. Omar et al. found LLMs preferentially diagnose rare conditions over common ones when salient cues are present — base rate neglect. Shojaee et al. showed that reasoning models appear to think but performance collapses sharply at complexity thresholds. All of this suggests we're measuring the wrong things.
+But here's the problem. Bean et al. in Nature Medicine ran a randomized trial with 1,298 participants: LLMs scored 94.9% on medical scenarios when tested alone, but when real people used the same LLMs, accuracy dropped to 34.5% — no better than just Googling it. In one case, two users described the same subarachnoid hemorrhage symptoms and got opposite advice. One was told to lie down in a dark room, the other to go to the ER. That's a catastrophic failure mode.
+
+Then the deeper benchmarking problems. Wen et al. showed that high MCQA scores reflect context matching, not reasoning. What does that mean concretely? If you rephrase a clinical question using synonymous terms — same clinical scenario, different wording — models give different, wrong answers. And when you present a scenario where none of the answer choices are correct, models confidently pick one anyway. They're matching surface patterns, not reasoning about the clinical situation.
+
+Omar et al. found what they call "chasing zebras." Add an incidental mention of travel to a clinical vignette — say, a patient with fever and cough who recently returned from Southeast Asia — and LLMs shift to rare tropical diagnoses like malaria or dengue even when community-acquired pneumonia is far more probable. This was tested across 300 vignettes and 20 different models. Base rate neglect is systematic. And Shojaee et al. showed that even reasoning models that appear to think through problems experience sharp performance collapses at complexity thresholds. All of this means: we may be measuring the wrong things.
 :::
 
 
