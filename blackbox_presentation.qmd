@@ -305,8 +305,8 @@ chance_Escore <- sum(chance_pmf$score * chance_pmf$prob)
 
 LLMs are now embedded across clinical workflows:
 
-- **31.5%** of US hospitals deployed generative AI in clinical workflows by 2024, with another 24.7% planning near-term implementation
-- Publications on LLMs in medical diagnostics surged from 160 (2023) to **557** (2024)
+- **31.5%** of US hospitals deployed generative AI in clinical workflows by 2024, with another 24.7% planning near-term implementation [@everson2025genai]
+- Publications on LLMs in medical diagnostics surged from 160 (2023) to **557** (2024) [@shool2025systematic]
 - Primary applications: triage, differential diagnosis, clinical note drafting, referral recommendations
 - Emergency medicine and radiology lead direct diagnostic use
 
@@ -319,7 +319,7 @@ LLMs are now embedded across clinical workflows:
 
 - **Med-PaLM 2**: Expert-level medical question answering [@singhal2023medpalm2]
 - **AMIE**: Outperformed primary care physicians in structured diagnostic conversations [@tu2024amie]
-- **Swedish MASAI trial**: AI-assisted mammography detected **20% more cancers** while cutting radiologist workload in half (80,000+ women)
+- **Swedish MASAI trial**: AI-assisted mammography detected **20% more cancers** while cutting radiologist workload in half (80,000+ women) [@lang2023masai]
 
 :::
 :::
@@ -344,8 +344,8 @@ A growing body of evidence shows LLMs exceeding physician performance on diagnos
 
 : Diagnostic reasoning scores across six clinical cases (50 physicians, JAMA Network Open)
 
-- Danish chest X-ray screening: AI reliably filtered **~50%** of normal scans, freeing radiologists for complex cases
-- MIT–Harvard study: Radiologists shown AI predictions systematically **undervalued** the AI input relative to their own judgment
+- Danish chest X-ray screening: AI reliably filtered **~50%** of normal scans, freeing radiologists for complex cases [@plesner2024chestxray]
+- MIT–Harvard study: Radiologists shown AI predictions systematically **undervalued** the AI input relative to their own judgment [@yu2024radiologist]
 
 :::
 ::: {.column width="50%"}
