@@ -1,9 +1,9 @@
 ---
 title: "Black Box as a Diagnostic Reasoning Benchmark"
-subtitle: "Assessing LLM Capabilities in Hidden State Identification"
+subtitle: "Assessing LLM Capabilities in Hidden State Identification<br><span style='font-size: 0.6em; color: #888;'>Slides last updated March 19, 2026</span>"
 author: "Todd R. Johnson"
 institute: "University of Texas Health Science Center at Houston"
-date: today
+date: "BMI Seminar — March 25, 2026"
 format:
   revealjs:
     theme: simple
