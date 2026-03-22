@@ -10,7 +10,7 @@ format:
   html:
     toc: true
     toc-depth: 4
-    toc-expand: 1
+    toc-expand: 2
     number-sections: true
     code-fold: true
     theme: cosmo
@@ -136,7 +136,7 @@ identifying *which* specific state from a known set is present.
 **Component processes of diagnostic reasoning:**
 
 | Process | Description |
-|----|----|
+|------------------------------------|------------------------------------|
 | **Hypothesis Generation** | Generate candidate hidden states that could explain observations |
 | **Forward Reasoning** | Predict what observations would occur under each hypothesis |
 | **Test Selection** | Choose which observation to gather next to best discriminate among hypotheses |
@@ -163,7 +163,7 @@ realization of diagnostic reasoning*—requiring all six component
 processes in an integrated task:
 
 | Diagnostic Process | Black Box Analog |
-|----|----|
+|------------------------------------|------------------------------------|
 | **Hypothesis Generation** | Consider which atom configurations could explain observations |
 | **Forward Reasoning** | Predict ray behavior under a hypothesized configuration |
 | **Test Selection** | Choose which ray to fire next to discriminate among hypotheses |
@@ -749,7 +749,7 @@ includes:
 
 Key excerpt:
 
-```
+```         
 Your opponent has hidden 4 atoms within this box. By shooting rays into
 the box and observing where they emerge, it is possible to deduce the
 positions of the hidden atoms.
@@ -834,7 +834,7 @@ kable(predict_design, format = "pipe")
 ```
 
 | Model | Prompt | Extended Thinking | Vot (None, B Ray Trace) |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **10K** | **None** |
@@ -849,7 +849,7 @@ kable(predict_design, format = "pipe")
 Play Mode Experiment Log
 
 | Model | Prompt | Extended Thinking | VoT (None, A, B, or C) |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT A Grid State Tracking** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
@@ -1024,7 +1024,7 @@ Following Cohen (1988), we interpret effect sizes using conventional
 benchmarks:
 
 | Measure | Small | Medium | Large | Notes |
-|----|----|----|----|----|
+|---------------|---------------|---------------|---------------|---------------|
 | η² (Eta-squared) | 0.01 | 0.06 | 0.14 | Total variance explained |
 | η²p (Partial eta-squared) | 0.01 | 0.06 | 0.14 | Variance explained controlling for other factors |
 | ω² (Omega-squared) | 0.01 | 0.06 | 0.14 | Unbiased estimate (preferred over η²) |
@@ -1084,7 +1084,7 @@ style, extended thinking) interact with spatial complexity:
 We classify errors from extended thinking traces into categories:
 
 | Error Type | Spatial? | Description |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Ray path error | Yes | Path traced incorrectly through grid |
 | Deflection geometry error | Yes | Misunderstood deflection rules |
 | Constraint tracking error | No | Failed to update ruled-out positions |
@@ -1213,19 +1213,30 @@ extract_predict_results <- function(json_file) {
 predict_data <- map_dfr(predict_json_files, extract_predict_results)
 ```
 
-Data loaded: `r nrow(predict_data)` predictions from `r length(predict_json_files)` JSON files.
+Data loaded: `r nrow(predict_data)` predictions from
+`r length(predict_json_files)` JSON files.
 
-- **Models**: `r paste(unique(predict_data$model_name), collapse = ", ")`
-- **Prompt styles**: `r paste(unique(predict_data$prompt_style), collapse = ", ")`
-- **Extended thinking**: `r paste(unique(predict_data$enable_thinking), collapse = ", ")`
-- **VoT ray trace**: `r paste(unique(predict_data$vot_ray_trace), collapse = ", ")`
-- **Configurations tested**: `r length(unique(predict_data$config_index))`
-- **Cells traveled range**: `r round(min(predict_data$cells_traveled, na.rm = TRUE), 2)`–`r round(max(predict_data$cells_traveled, na.rm = TRUE), 2)`
-- **Atoms affecting range**: `r min(predict_data$atoms_affecting, na.rm = TRUE)`–`r max(predict_data$atoms_affecting, na.rm = TRUE)`
+-   **Models**:
+    `r paste(unique(predict_data$model_name), collapse = ", ")`
+-   **Prompt styles**:
+    `r paste(unique(predict_data$prompt_style), collapse = ", ")`
+-   **Extended thinking**:
+    `r paste(unique(predict_data$enable_thinking), collapse = ", ")`
+-   **VoT ray trace**:
+    `r paste(unique(predict_data$vot_ray_trace), collapse = ", ")`
+-   **Configurations tested**:
+    `r length(unique(predict_data$config_index))`
+-   **Cells traveled range**:
+    `r round(min(predict_data$cells_traveled, na.rm = TRUE), 2)`–`r round(max(predict_data$cells_traveled, na.rm = TRUE), 2)`
+-   **Atoms affecting range**:
+    `r min(predict_data$atoms_affecting, na.rm = TRUE)`–`r max(predict_data$atoms_affecting, na.rm = TRUE)`
 
 ### Data Completeness Check
 
-**Note on sample size**: Fewer than 32 predictions per configuration is expected due to ray symmetry optimization. When a ray enters at position A and exits at B (detour), the experiment skips testing the reverse direction to avoid redundancy.
+**Note on sample size**: Fewer than 32 predictions per configuration is
+expected due to ray symmetry optimization. When a ray enters at position
+A and exits at B (detour), the experiment skips testing the reverse
+direction to avoid redundancy.
 
 ```{r}
 #| label: predict-data-completeness
@@ -1268,9 +1279,11 @@ runs_per_condition <- predict_data |>
   summarise(n_runs = n_distinct(source_file), .groups = "drop")
 ```
 
-**Consistency**: `r if(all(consistency$n_unique == 1)) "All models have consistent N per configuration within each condition." else "Inconsistent N detected across models."`
+**Consistency**:
+`r if(all(consistency$n_unique == 1)) "All models have consistent N per configuration within each condition." else "Inconsistent N detected across models."`
 
-**Duplicate runs**: `r if(any(runs_per_condition$n_runs > 1)) "Found duplicate runs in some conditions." else "No duplicate runs detected."`
+**Duplicate runs**:
+`r if(any(runs_per_condition$n_runs > 1)) "Found duplicate runs in some conditions." else "No duplicate runs detected."`
 
 ```{r}
 #| label: predict-missing-conditions
@@ -1378,7 +1391,8 @@ kable(predict_summary,
 
 ### Predict Mode Leaderboard
 
-Top 10 configurations by overall accuracy. Format matches typical LLM benchmark reporting for cross-study comparison.
+Top 10 configurations by overall accuracy. Format matches typical LLM
+benchmark reporting for cross-study comparison.
 
 ```{r}
 #| label: predict-leaderboard
@@ -1416,7 +1430,9 @@ kable(leaderboard_predict,
 
 ### Forest Plot: All Configurations
 
-Visual comparison of all experimental factor combinations. Non-overlapping confidence intervals suggest statistically significant differences.
+Visual comparison of all experimental factor combinations.
+Non-overlapping confidence intervals suggest statistically significant
+differences.
 
 ```{r}
 #| label: predict-forest-plot
@@ -1481,13 +1497,16 @@ p_forest <- ggplot(forest_data, aes(x = accuracy, y = config_label)) +
 print(p_forest)
 ```
 
-**Total configurations**: `r nrow(forest_data)`
-**Best performing**: `r as.character(forest_data$config_label[1])`
-**Accuracy**: `r round(forest_data$accuracy[1] * 100, 1)`% (95% CI: [`r round(forest_data$ci_lower[1] * 100, 1)`%, `r round(forest_data$ci_upper[1] * 100, 1)`%])
+**Total configurations**: `r nrow(forest_data)` **Best performing**:
+`r as.character(forest_data$config_label[1])` **Accuracy**:
+`r round(forest_data$accuracy[1] * 100, 1)`% (95% CI:
+\[`r round(forest_data$ci_lower[1] * 100, 1)`%,
+`r round(forest_data$ci_upper[1] * 100, 1)`%\])
 
 ### Factor-Level Comparisons
 
-Shows accuracy by individual factors, collapsing across other dimensions (marginal effects).
+Shows accuracy by individual factors, collapsing across other dimensions
+(marginal effects).
 
 ```{r}
 #| label: predict-factor-comparisons
@@ -1587,21 +1606,32 @@ kable(predict_by_config,
 
 ### ANOVA: Prediction Accuracy
 
-This analysis uses mixed-effects logistic regression to test whether experimental factors significantly affect prediction accuracy, while accounting for clustering within configurations and individual rays.
+This analysis uses mixed-effects logistic regression to test whether
+experimental factors significantly affect prediction accuracy, while
+accounting for clustering within configurations and individual rays.
 
-**Model specification**:
-- **Outcome**: Correct prediction (binary: 0/1)
-- **Fixed effects**: Model, prompt style, extended thinking, VoT ray trace, and their interactions
-- **Covariates**: cells_traveled (path length), atoms_affecting (atom density)
-- **Random effects**: Nested structure with config_index (configuration-level) and ray_id nested within config (ray-level)
+**Model specification**: - **Outcome**: Correct prediction (binary:
+0/1) - **Fixed effects**: Model, prompt style, extended thinking, VoT
+ray trace, and their interactions - **Covariates**: cells_traveled (path
+length), atoms_affecting (atom density) - **Random effects**: Nested
+structure with config_index (configuration-level) and ray_id nested
+within config (ray-level)
 
 **Why nested random effects?**
 
-- **Configuration-level (config_index)**: Accounts for overall difficulty due to specific atom placements; allows generalization beyond these 10 configurations
-- **Ray-level (ray_id:config_index)**: Accounts for individual ray difficulty; handles correlation when the same ray is tested across multiple experimental conditions
-- **Why nested?**: ray_id "NORTH_3" represents different physical rays across configurations (different atom placements), so must be nested, not crossed
+-   **Configuration-level (config_index)**: Accounts for overall
+    difficulty due to specific atom placements; allows generalization
+    beyond these 10 configurations
+-   **Ray-level (ray_id:config_index)**: Accounts for individual ray
+    difficulty; handles correlation when the same ray is tested across
+    multiple experimental conditions
+-   **Why nested?**: ray_id "NORTH_3" represents different physical rays
+    across configurations (different atom placements), so must be
+    nested, not crossed
 
-**Covariates** (cells_traveled, atoms_affecting) are **NOT confounders** (same rays tested across all conditions) but **ARE precision variables** that explain variance and improve statistical power.
+**Covariates** (cells_traveled, atoms_affecting) are **NOT confounders**
+(same rays tested across all conditions) but **ARE precision variables**
+that explain variance and improve statistical power.
 
 ```{r}
 #| label: predict-anova
@@ -1661,7 +1691,9 @@ print(Anova(model_predict, type = 3))
 
 #### Odds Ratios with 95% Confidence Intervals
 
-**Interpretation**: OR > 1 means the factor increases odds of correct prediction; OR < 1 means it decreases odds. These are conditional odds ratios (controlling for random effects).
+**Interpretation**: OR \> 1 means the factor increases odds of correct
+prediction; OR \< 1 means it decreases odds. These are conditional odds
+ratios (controlling for random effects).
 
 ```{r}
 #| label: predict-odds-ratios
@@ -1707,16 +1739,16 @@ kable(or_df_display,
 
 #### Random Effects Variance Components
 
-**Configuration-level random effects** (config_index):
-- Accounts for overall difficulty due to specific atom placements
-- Generalizes inference beyond these 10 configurations
-- Captures configuration-specific effects (e.g., dense vs sparse atom patterns)
+**Configuration-level random effects** (config_index): - Accounts for
+overall difficulty due to specific atom placements - Generalizes
+inference beyond these 10 configurations - Captures
+configuration-specific effects (e.g., dense vs sparse atom patterns)
 
-**Ray-level random effects** (ray_id:config_index):
-- Accounts for individual ray difficulty within each configuration
-- Handles correlation: Same ray tested across multiple conditions
-- Allows each ray to have its own baseline difficulty
-- Essential when same rays appear in multiple experimental conditions
+**Ray-level random effects** (ray_id:config_index): - Accounts for
+individual ray difficulty within each configuration - Handles
+correlation: Same ray tested across multiple conditions - Allows each
+ray to have its own baseline difficulty - Essential when same rays
+appear in multiple experimental conditions
 
 ```{r}
 #| label: predict-random-effects
@@ -1727,7 +1759,9 @@ print(VarCorr(model_predict))
 icc_value <- performance::icc(model_predict)
 ```
 
-**Intraclass Correlation Coefficient (ICC)**: `r round(icc_value$ICC_adjusted, 3)` — Proportion of variance due to clustering at both configuration and ray-within-config levels.
+**Intraclass Correlation Coefficient (ICC)**:
+`r round(icc_value$ICC_adjusted, 3)` — Proportion of variance due to
+clustering at both configuration and ray-within-config levels.
 
 ```{r}
 #| label: predict-model-fit
@@ -1736,9 +1770,10 @@ icc_value <- performance::icc(model_predict)
 r2_result <- performance::r2_nakagawa(model_predict)
 ```
 
-**Model Fit** (Pseudo R², Nakagawa & Schielzeth):
-- **Marginal R²** (fixed effects only): `r round(r2_result$R2_marginal, 3)`
-- **Conditional R²** (fixed + random effects): `r round(r2_result$R2_conditional, 3)`
+**Model Fit** (Pseudo R², Nakagawa & Schielzeth): - **Marginal R²**
+(fixed effects only): `r round(r2_result$R2_marginal, 3)` -
+**Conditional R²** (fixed + random effects):
+`r round(r2_result$R2_conditional, 3)`
 
 #### Cramér's V (Effect Size for Categorical Associations)
 
@@ -1776,7 +1811,8 @@ if (nrow(cramers_results) > 0) {
 
 #### Regression Coefficients for Main Effects
 
-Key findings from mixed-effects logistic regression (fixed effects only).
+Key findings from mixed-effects logistic regression (fixed effects
+only).
 
 ```{r}
 #| label: predict-regression-coefs
@@ -1801,7 +1837,12 @@ kable(tidy_results,
 
 ### Effect Modification by Path Complexity
 
-Does path complexity (measured as total cells traveled: entry + internal + exit) moderate treatment effects? If treatment effects are constant across spatial complexity levels, limitations lie in inferential machinery rather than spatial processing. If effects are moderated by complexity, spatial reasoning contributes to observed failures.
+Does path complexity (measured as total cells traveled: entry +
+internal + exit) moderate treatment effects? If treatment effects are
+constant across spatial complexity levels, limitations lie in
+inferential machinery rather than spatial processing. If effects are
+moderated by complexity, spatial reasoning contributes to observed
+failures.
 
 ```{r}
 #| label: predict-effect-modification
@@ -1837,10 +1878,11 @@ if (run_effect_mod) {
 print(Anova(model_predict_mod, type = 3))
 ```
 
-**Interpretation of interactions**:
-- **No interaction**: Treatment effect is constant across simple and complex paths
-- **Positive interaction**: Treatment effect increases with path complexity
-- **Negative interaction**: Treatment effect decreases with path complexity
+**Interpretation of interactions**: - **No interaction**: Treatment
+effect is constant across simple and complex paths - **Positive
+interaction**: Treatment effect increases with path complexity -
+**Negative interaction**: Treatment effect decreases with path
+complexity
 
 ```{r}
 #| label: predict-effect-modification-coefs
@@ -1881,15 +1923,15 @@ cells_summary <- predict_data |>
 
 **Path Complexity Distribution** (cells traveled):
 
-| Statistic | Value |
-|-----------|-------|
-| Min | `r if(exists("cells_summary")) cells_summary$min_cells` |
-| Q1 | `r if(exists("cells_summary")) cells_summary$q25_cells` |
-| Median | `r if(exists("cells_summary")) cells_summary$median_cells` |
-| Q3 | `r if(exists("cells_summary")) cells_summary$q75_cells` |
-| Max | `r if(exists("cells_summary")) cells_summary$max_cells` |
-| Mean | `r if(exists("cells_summary")) cells_summary$mean_cells` |
-| SD | `r if(exists("cells_summary")) cells_summary$sd_cells` |
+| Statistic | Value                                                      |
+|-----------|------------------------------------------------------------|
+| Min       | `r if(exists("cells_summary")) cells_summary$min_cells`    |
+| Q1        | `r if(exists("cells_summary")) cells_summary$q25_cells`    |
+| Median    | `r if(exists("cells_summary")) cells_summary$median_cells` |
+| Q3        | `r if(exists("cells_summary")) cells_summary$q75_cells`    |
+| Max       | `r if(exists("cells_summary")) cells_summary$max_cells`    |
+| Mean      | `r if(exists("cells_summary")) cells_summary$mean_cells`   |
+| SD        | `r if(exists("cells_summary")) cells_summary$sd_cells`     |
 
 ```{r}
 #| echo: false
@@ -1901,7 +1943,8 @@ if (!run_effect_mod) {
 
 ### Effect Modification by Atom Density
 
-Does atom density (number of atoms adjacent to ray path) moderate treatment effects?
+Does atom density (number of atoms adjacent to ray path) moderate
+treatment effects?
 
 ```{r}
 #| label: predict-effect-modification-atoms
@@ -1925,9 +1968,11 @@ if (run_effect_mod_atoms) {
 }
 ```
 
-**Model formula**: `r if(exists("pred_mod_formula_atoms")) pred_mod_formula_atoms`
+**Model formula**:
+`r if(exists("pred_mod_formula_atoms")) pred_mod_formula_atoms`
 
-Mixed-effects logistic regression tests whether treatment effects vary with atom density.
+Mixed-effects logistic regression tests whether treatment effects vary
+with atom density.
 
 ```{r}
 #| label: predict-atom-density-anova
@@ -1938,10 +1983,11 @@ Mixed-effects logistic regression tests whether treatment effects vary with atom
 print(Anova(model_predict_mod_atoms, type = 3))
 ```
 
-**Interpretation of interactions**:
-- **No interaction**: Treatment effect is constant across low and high atom density
-- **Positive interaction**: Treatment effect increases with more atoms affecting path
-- **Negative interaction**: Treatment effect decreases with more atoms affecting path
+**Interpretation of interactions**: - **No interaction**: Treatment
+effect is constant across low and high atom density - **Positive
+interaction**: Treatment effect increases with more atoms affecting
+path - **Negative interaction**: Treatment effect decreases with more
+atoms affecting path
 
 ```{r}
 #| label: predict-atom-density-coefs
@@ -1982,15 +2028,15 @@ atoms_summary <- predict_data |>
 
 **Atom Density Distribution**:
 
-| Statistic | Value |
-|-----------|-------|
-| Min | `r if(exists("atoms_summary")) atoms_summary$min_atoms` |
-| Q1 | `r if(exists("atoms_summary")) atoms_summary$q25_atoms` |
-| Median | `r if(exists("atoms_summary")) atoms_summary$median_atoms` |
-| Q3 | `r if(exists("atoms_summary")) atoms_summary$q75_atoms` |
-| Max | `r if(exists("atoms_summary")) atoms_summary$max_atoms` |
-| Mean | `r if(exists("atoms_summary")) atoms_summary$mean_atoms` |
-| SD | `r if(exists("atoms_summary")) atoms_summary$sd_atoms` |
+| Statistic | Value                                                      |
+|-----------|------------------------------------------------------------|
+| Min       | `r if(exists("atoms_summary")) atoms_summary$min_atoms`    |
+| Q1        | `r if(exists("atoms_summary")) atoms_summary$q25_atoms`    |
+| Median    | `r if(exists("atoms_summary")) atoms_summary$median_atoms` |
+| Q3        | `r if(exists("atoms_summary")) atoms_summary$q75_atoms`    |
+| Max       | `r if(exists("atoms_summary")) atoms_summary$max_atoms`    |
+| Mean      | `r if(exists("atoms_summary")) atoms_summary$mean_atoms`   |
+| SD        | `r if(exists("atoms_summary")) atoms_summary$sd_atoms`     |
 
 ```{r}
 #| echo: false
@@ -2085,7 +2131,8 @@ complexity_cor <- cor(predict_data$cells_traveled, predict_data$atoms_affecting,
                       use = "complete.obs")
 ```
 
-**Correlation** between cells_traveled and atoms_affecting: **`r round(complexity_cor, 3)`**
+**Correlation** between cells_traveled and atoms_affecting:
+**`r round(complexity_cor, 3)`**
 
 ```{r}
 #| label: predict-complexity-plots
@@ -2216,14 +2263,13 @@ error_by_model |>
 
 ### Budget Tag Hallucination Artifact
 
-During experiment runs, we observed that models occasionally
-hallucinate XML-like `<budget:...>` tags in their visible response
-text—fabricating token usage metadata that mimics internal API
-bookkeeping. These tags (e.g., `<budget:used_tokens>`,
-`<budget:token_budget>`, `<budget:token_usage>`) are not present in
-any prompt or API parameter passed to the model; they appear to be
-confabulated from the model's awareness of its extended thinking
-budget context.
+During experiment runs, we observed that models occasionally hallucinate
+XML-like `<budget:...>` tags in their visible response text—fabricating
+token usage metadata that mimics internal API bookkeeping. These tags
+(e.g., `<budget:used_tokens>`, `<budget:token_budget>`,
+`<budget:token_usage>`) are not present in any prompt or API parameter
+passed to the model; they appear to be confabulated from the model's
+awareness of its extended thinking budget context.
 
 ```{r}
 #| label: predict-budget-hallucination
@@ -2253,8 +2299,7 @@ budget_by_factor <- budget_hallucinations |>
 
 **Prevalence**: `r budget_summary$n_with_tag` of
 `r budget_summary$total_predictions` predictions
-(`r budget_summary$pct_with_tag`%) contained hallucinated budget
-tags.
+(`r budget_summary$pct_with_tag`%) contained hallucinated budget tags.
 
 **Key patterns**:
 
@@ -2281,13 +2326,12 @@ if (nrow(budget_by_factor) > 0) {
 ```
 
 The perfect correlation with incorrect predictions suggests these
-hallucinations are a signal of reasoning process failure: when the
-model generates metadata artifacts instead of reasoning about ray
-physics, it invariably produces an incorrect prediction. While the
-overall prevalence is low (`r budget_summary$pct_with_tag`%), this
-artifact represents a qualitatively distinct failure mode—the model
-confabulating system-level metadata rather than engaging with the
-task.
+hallucinations are a signal of reasoning process failure: when the model
+generates metadata artifacts instead of reasoning about ray physics, it
+invariably produces an incorrect prediction. While the overall
+prevalence is low (`r budget_summary$pct_with_tag`%), this artifact
+represents a qualitatively distinct failure mode—the model confabulating
+system-level metadata rather than engaging with the task.
 
 ## Play Mode Results
 
@@ -2445,15 +2489,21 @@ if (length(replication_json_files) > 0) {
 }
 ```
 
-Data loaded: `r nrow(play_data_original)` original experiment results from `r length(play_json_files)` JSON files.
+Data loaded: `r nrow(play_data_original)` original experiment results
+from `r length(play_json_files)` JSON files.
 `r if (n_replication_runs > 0) paste0("**Replication data**: ", n_replication_games, " additional games from ", n_replication_runs, " replication runs across ", replicated_configs, " model configuration(s). **Pooled total**: ", nrow(play_data), " games.")`
 
-- **Models**: `r paste(unique(play_data$model_name), collapse = ", ")`
-- **Prompt styles**: `r paste(unique(play_data$prompt_style), collapse = ", ")`
-- **VoT conditions**: `r paste(levels(play_data$vot_condition)[levels(play_data$vot_condition) %in% unique(as.character(play_data$vot_condition))], collapse = ", ")`
-- **Configurations tested**: `r length(unique(play_data$config_index))`
-- **Mean atoms per ray range**: `r round(min(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`
-- **Mean cells per ray range**: `r round(min(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`
+-   **Models**: `r paste(unique(play_data$model_name), collapse = ", ")`
+-   **Prompt styles**:
+    `r paste(unique(play_data$prompt_style), collapse = ", ")`
+-   **VoT conditions**:
+    `r paste(levels(play_data$vot_condition)[levels(play_data$vot_condition) %in% unique(as.character(play_data$vot_condition))], collapse = ", ")`
+-   **Configurations tested**:
+    `r length(unique(play_data$config_index))`
+-   **Mean atoms per ray range**:
+    `r round(min(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`
+-   **Mean cells per ray range**:
+    `r round(min(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`
 
 `r if (nrow(hyp_check) > 0) paste0("**WARNING: ", nrow(hyp_check), " file(s) with allowHypotheses = false (", sum(hyp_check$n_false), " total configs):** ", paste(hyp_check$source_file, " (", hyp_check$n_false, " configs)", collapse = ", "))`
 
@@ -2607,7 +2657,8 @@ kable(play_summary_vot,
 
 ### Play Mode Leaderboard
 
-Top 10 configurations by atoms correct. Format matches typical LLM benchmark reporting for cross-study comparison.
+Top 10 configurations by atoms correct. Format matches typical LLM
+benchmark reporting for cross-study comparison.
 
 ```{r}
 #| label: play-leaderboard
@@ -2646,7 +2697,13 @@ kable(leaderboard_play,
 
 ### Play Mode: Replication and Performance Variance
 
-The initial leaderboard above was computed from 10 games per configuration. To assess the reliability of these rankings, the top-performing model configurations were replicated across `r n_replication_runs` additional runs on the same 10 game boards. This replication revealed substantial performance variance and regression to the mean, with important implications for interpreting Play mode results.
+The initial leaderboard above was computed from 10 games per
+configuration. To assess the reliability of these rankings, the
+top-performing model configurations were replicated across
+`r n_replication_runs` additional runs on the same 10 game boards. This
+replication revealed substantial performance variance and regression to
+the mean, with important implications for interpreting Play mode
+results.
 
 ```{r}
 #| label: replication-analysis
@@ -3066,13 +3123,29 @@ if (n_replication_runs > 0) {
 
 `r if (n_replication_runs > 0) { paste0("The replication reveals that Play mode performance is *highly stochastic* at the individual game level. The original n = 10 results placed the top configuration at ", round(test_results$orig_mean[1], 2), " atoms correct. ", n_replication_runs, " additional runs of the same configuration on the same 10 game boards produced a replication mean of ", round(test_results$repl_mean[1], 2), " (pooled: ", round(pooled_leaderboard$atoms_correct_mean[pooled_leaderboard$model_name == test_results$model[1] & pooled_leaderboard$replicated][1], 2), "). The original result, while within the plausible range, sat at the ", round((1 - test_results$p_lucky_draw[1]) * 100, 0), "th percentile of the replication distribution.") }`
 
-This variance is itself diagnostic. The heatmap above shows that some configurations (notably 2 and 6) are solved perfectly across every run — the models have reliable access to whatever reasoning these boards require. Other configurations swing between 0/4 and 4/4 across runs, suggesting the models either find a productive reasoning path or do not, with little middle ground. This bimodal pattern is more consistent with *stochastic access to a reasoning strategy* than *consistent partial competence*.
+This variance is itself diagnostic. The heatmap above shows that some
+configurations (notably 2 and 6) are solved perfectly across every run —
+the models have reliable access to whatever reasoning these boards
+require. Other configurations swing between 0/4 and 4/4 across runs,
+suggesting the models either find a productive reasoning path or do not,
+with little middle ground. This bimodal pattern is more consistent with
+*stochastic access to a reasoning strategy* than *consistent partial
+competence*.
 
-The practical implication: at n = 10 per configuration, statistical power is only `r if (n_replication_runs > 0) paste0(round(pnorm(1.0 / (typical_sd * sqrt(2/10)) - qnorm(1 - 0.05/2)) * 100, 0))` % to detect a 1-atom difference between conditions. Factor-level conclusions (model, prompt style, thinking) — which aggregate over 40–80+ games — remain robust. Configuration-level rankings should be interpreted with the wide confidence intervals shown in the pooled leaderboard above.
+The practical implication: at n = 10 per configuration, statistical
+power is only
+`r if (n_replication_runs > 0) paste0(round(pnorm(1.0 / (typical_sd * sqrt(2/10)) - qnorm(1 - 0.05/2)) * 100, 0))`
+% to detect a 1-atom difference between conditions. Factor-level
+conclusions (model, prompt style, thinking) — which aggregate over
+40–80+ games — remain robust. Configuration-level rankings should be
+interpreted with the wide confidence intervals shown in the pooled
+leaderboard above.
 
 ### ANOVA: Play Mode Performance
 
-Full factorial ANOVA using mixed-effects models with configuration-level random effects. Covariates (mean_atoms_per_ray, mean_cells_per_ray) capture ray difficulty.
+Full factorial ANOVA using mixed-effects models with configuration-level
+random effects. Covariates (mean_atoms_per_ray, mean_cells_per_ray)
+capture ray difficulty.
 
 ```{r}
 #| label: play-anova-analysis
@@ -3134,13 +3207,16 @@ icc_value <- performance::icc(model_atoms)
 r2_result <- performance::r2_nakagawa(model_atoms)
 ```
 
-**Random Effects** — Configuration (config_index) variance accounts for config-level difficulty and allows generalization beyond these 10 configurations.
+**Random Effects** — Configuration (config_index) variance accounts for
+config-level difficulty and allows generalization beyond these 10
+configurations.
 
-**ICC**: `r round(icc_value$ICC_adjusted, 3)` — Proportion of variance due to configuration clustering
+**ICC**: `r round(icc_value$ICC_adjusted, 3)` — Proportion of variance
+due to configuration clustering
 
-**Model Fit**:
-- **Marginal R²** (fixed effects only): `r round(r2_result$R2_marginal, 3)`
-- **Conditional R²** (fixed + random effects): `r round(r2_result$R2_conditional, 3)`
+**Model Fit**: - **Marginal R²** (fixed effects only):
+`r round(r2_result$R2_marginal, 3)` - **Conditional R²** (fixed + random
+effects): `r round(r2_result$R2_conditional, 3)`
 
 ```{r}
 #| label: play-score-model
@@ -3178,9 +3254,8 @@ r2_score <- performance::r2_nakagawa(model_score)
 
 **ICC**: `r round(icc_score$ICC_adjusted, 3)`
 
-**Model Fit**:
-- **Marginal R²**: `r round(r2_score$R2_marginal, 3)`
-- **Conditional R²**: `r round(r2_score$R2_conditional, 3)`
+**Model Fit**: - **Marginal R²**: `r round(r2_score$R2_marginal, 3)` -
+**Conditional R²**: `r round(r2_score$R2_conditional, 3)`
 
 ```
 
@@ -3213,7 +3288,8 @@ if (run_play_effect_mod) {
 }
 ```
 
-**Atoms Correct Model**: `r if(exists("atoms_mod_formula")) atoms_mod_formula`
+**Atoms Correct Model**:
+`r if(exists("atoms_mod_formula")) atoms_mod_formula`
 
 ```{r}
 #| label: play-effect-mod-atoms
@@ -3243,7 +3319,9 @@ if (!run_play_effect_mod) {
 
 ### Regression Analysis: Play Mode
 
-Regression complements ANOVA by providing interpretable effect magnitudes. Coefficients show the expected change in outcome per unit change in predictor.
+Regression complements ANOVA by providing interpretable effect
+magnitudes. Coefficients show the expected change in outcome per unit
+change in predictor.
 
 ```{r}
 #| label: play-regression-analysis
@@ -3292,17 +3370,18 @@ std_coef_atoms <- standardize_parameters(lmer_atoms, method = "refit")
 std_coef_score <- standardize_parameters(lmer_score, method = "refit")
 ```
 
-**Model Fit — Atoms Correct**:
-- Marginal R²: `r round(r2_atoms_reg$R2_marginal, 3)`
-- Conditional R²: `r round(r2_atoms_reg$R2_conditional, 3)`
+**Model Fit — Atoms Correct**: - Marginal R²:
+`r round(r2_atoms_reg$R2_marginal, 3)` - Conditional R²:
+`r round(r2_atoms_reg$R2_conditional, 3)`
 
-**Model Fit — Score**:
-- Marginal R²: `r round(r2_score_reg$R2_marginal, 3)`
-- Conditional R²: `r round(r2_score_reg$R2_conditional, 3)`
+**Model Fit — Score**: - Marginal R²:
+`r round(r2_score_reg$R2_marginal, 3)` - Conditional R²:
+`r round(r2_score_reg$R2_conditional, 3)`
 
 #### Standardized Coefficients (Beta Weights)
 
-Allows comparison of relative importance across fixed effects (based on fixed effects only).
+Allows comparison of relative importance across fixed effects (based on
+fixed effects only).
 
 **Atoms Correct (Top 10)**:
 
@@ -3330,35 +3409,33 @@ print(std_coef_score |>
 
 ### Interpretation: Why Configuration Random Effects?
 
-**Play mode data structure**:
-- Unit of analysis: Entire games (one game per config × condition)
-- LLM chooses which rays to fire (endogenous ray selection)
-- Different conditions may fire different rays
-- Multiple games per configuration (clustering)
+**Play mode data structure**: - Unit of analysis: Entire games (one game
+per config × condition) - LLM chooses which rays to fire (endogenous ray
+selection) - Different conditions may fire different rays - Multiple
+games per configuration (clustering)
 
 **Why config-level random effects?**
 
-1. Games within same config share atom placement
-2. Some configs are inherently harder/easier (random variation)
-3. Generalizes inference beyond these 10 specific configurations
-4. Accounts for correlation among games within same config
+1.  Games within same config share atom placement
+2.  Some configs are inherently harder/easier (random variation)
+3.  Generalizes inference beyond these 10 specific configurations
+4.  Accounts for correlation among games within same config
 
 **Why NOT ray-level random effects (unlike Predict mode)?**
 
-1. Rays are not predetermined—LLM chooses them
-2. Different conditions may fire different rays
-3. Ray selection is part of the strategy (endogenous)
-4. No repeated measures at individual ray level
+1.  Rays are not predetermined—LLM chooses them
+2.  Different conditions may fire different rays
+3.  Ray selection is part of the strategy (endogenous)
+4.  No repeated measures at individual ray level
 
-**Covariates** (mean_cells_per_ray, mean_atoms_per_ray):
-- **NOT confounders**: Ray choice is endogenous to experimental condition
-- **ARE precision variables**: Describe difficulty of rays LLM chose to fire
-- **Improve model fit**: Explain variance, increase power
+**Covariates** (mean_cells_per_ray, mean_atoms_per_ray): - **NOT
+confounders**: Ray choice is endogenous to experimental condition -
+**ARE precision variables**: Describe difficulty of rays LLM chose to
+fire - **Improve model fit**: Explain variance, increase power
 
-**Impact of ignoring config-level clustering**:
-- Underestimates standard errors
-- Inflates Type I error (false positives)
-- Invalid inference (cannot generalize beyond these 10 configs)
+**Impact of ignoring config-level clustering**: - Underestimates
+standard errors - Inflates Type I error (false positives) - Invalid
+inference (cannot generalize beyond these 10 configs)
 
 ```
 
@@ -3423,8 +3500,9 @@ p_play_forest <- ggplot(play_forest_data, aes(x = mean_correct, y = config_label
 print(p_play_forest)
 ```
 
-**Total configurations**: `r nrow(play_forest_data)`
-**Best performing**: `r as.character(play_forest_data$config_label[1])` (mean = `r round(play_forest_data$mean_correct[1], 2)` atoms correct)
+**Total configurations**: `r nrow(play_forest_data)` **Best
+performing**: `r as.character(play_forest_data$config_label[1])` (mean =
+`r round(play_forest_data$mean_correct[1], 2)` atoms correct)
 
 ```{r}
 #| label: play-visualizations
@@ -3492,7 +3570,13 @@ print(p6)
 
 ## Predict vs Play: Cross-Mode Comparison
 
-This section examines whether configuration difficulty and model performance are consistent across the two reasoning modes. Predict mode tests **forward reasoning** (given atoms, predict ray behavior), while Play mode tests **inverse reasoning** (observe ray behavior, infer atom locations). If forward and inverse reasoning rely on shared spatial representations, we expect configuration difficulty and model rankings to correlate across modes.
+This section examines whether configuration difficulty and model
+performance are consistent across the two reasoning modes. Predict mode
+tests **forward reasoning** (given atoms, predict ray behavior), while
+Play mode tests **inverse reasoning** (observe ray behavior, infer atom
+locations). If forward and inverse reasoning rely on shared spatial
+representations, we expect configuration difficulty and model rankings
+to correlate across modes.
 
 ```{r}
 #| label: cross-mode-config-profiles
@@ -3713,19 +3797,31 @@ kable(gap_data |>
 
 ## Chance Performance Baseline
 
-To interpret LLM performance meaningfully, we need a lower bound: what would happen if an agent simply guessed 4 atom positions at random with no information? This chance baseline establishes the floor of the performance corridor. Any agent that extracts meaningful signal from ray observations should substantially exceed this level.
+To interpret LLM performance meaningfully, we need a lower bound: what
+would happen if an agent simply guessed 4 atom positions at random with
+no information? This chance baseline establishes the floor of the
+performance corridor. Any agent that extracts meaningful signal from ray
+observations should substantially exceed this level.
 
 ### Hypergeometric Derivation
 
-An agent guessing 4 positions uniformly at random from the 64-cell grid, with 4 true atoms hidden, follows a hypergeometric distribution:
+An agent guessing 4 positions uniformly at random from the 64-cell grid,
+with 4 true atoms hidden, follows a hypergeometric distribution:
 
 $$X \sim \text{Hypergeometric}(N=64,\; K=4,\; n=4)$$
 
-where $X$ counts the number of correctly guessed atoms. The probability mass function is:
+where $X$ counts the number of correctly guessed atoms. The probability
+mass function is:
 
 $$P(X = k) = \frac{\binom{4}{k}\binom{60}{4-k}}{\binom{64}{4}}, \quad k = 0, 1, 2, 3, 4$$
 
-The expected value is $E[X] = nK/N = 4 \times 4 / 64 = 0.25$ atoms correct. Since the scoring formula is $\text{score} = \text{rays\_used} + 5 \times \text{atoms\_missed}$, a random guesser who fires zero rays achieves an expected score of $E[\text{score}] = 5 \times (4 - 0.25) = 18.75$. This represents a theoretical ceiling on bad performance—any rational agent should score *below* 18.75 on average.
+The expected value is $E[X] = nK/N = 4 \times 4 / 64 = 0.25$ atoms
+correct. Since the scoring formula is
+$\text{score} = \text{rays\_used} + 5 \times \text{atoms\_missed}$, a
+random guesser who fires zero rays achieves an expected score of
+$E[\text{score}] = 5 \times (4 - 0.25) = 18.75$. This represents a
+theoretical ceiling on bad performance—any rational agent should score
+*below* 18.75 on average.
 
 ```{r}
 #| label: chance-baseline-pmf
@@ -3755,7 +3851,14 @@ kable(chance_pmf |>
   kable_styling(full_width = FALSE)
 ```
 
-A random guesser finds zero atoms `r sprintf("%.1f%%", chance_pmf$prob[1] * 100)` of the time, exactly one atom `r sprintf("%.1f%%", chance_pmf$prob[2] * 100)` of the time, and two or more atoms only `r sprintf("%.1f%%", sum(chance_pmf$prob[3:5]) * 100)` of the time. The expected number of correct atoms is `r sprintf("%.2f", chance_EX)` (SD = `r sprintf("%.2f", chance_SD)`), yielding an expected score of `r sprintf("%.2f", chance_Escore)`.
+A random guesser finds zero atoms
+`r sprintf("%.1f%%", chance_pmf$prob[1] * 100)` of the time, exactly one
+atom `r sprintf("%.1f%%", chance_pmf$prob[2] * 100)` of the time, and
+two or more atoms only
+`r sprintf("%.1f%%", sum(chance_pmf$prob[3:5]) * 100)` of the time. The
+expected number of correct atoms is `r sprintf("%.2f", chance_EX)` (SD =
+`r sprintf("%.2f", chance_SD)`), yielding an expected score of
+`r sprintf("%.2f", chance_Escore)`.
 
 ### LLM Performance Above Chance
 
@@ -3873,11 +3976,17 @@ ggplot(model_score_summary, aes(x = model_name, y = mean_score)) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1))
 ```
 
-The optimal solver benchmark in the next section completes the performance corridor, providing the lower bound (best achievable score) against which both chance and LLM performance can be measured.
+The optimal solver benchmark in the next section completes the
+performance corridor, providing the lower bound (best achievable score)
+against which both chance and LLM performance can be measured.
 
 ## Optimal Solver Benchmark
 
-The greedy optimal solver uses an information-theoretic strategy that minimizes expected remaining candidates at each step over the full C(64,4) = 635,376 candidate space. This provides a principled upper bound on play performance: the fewest rays and lowest score achievable by a perfectly rational agent with unlimited computation.
+The greedy optimal solver uses an information-theoretic strategy that
+minimizes expected remaining candidates at each step over the full
+C(64,4) = 635,376 candidate space. This provides a principled upper
+bound on play performance: the fewest rays and lowest score achievable
+by a perfectly rational agent with unlimited computation.
 
 ```{r}
 #| label: optimal-load
@@ -4160,11 +4269,27 @@ ggplot(play_model_config, aes(x = optimal_rays, y = llm_atoms_mean, color = mode
 
 ## Error Analysis
 
-To move beyond the outcome-level confusion matrix above, we classify *which specific ray physics rule broke down* for each incorrect prediction. Since Predict mode is inherently spatial (given atoms, predict ray outcome), all errors are spatial — the interesting question is which rule the model failed to apply correctly.
+To move beyond the outcome-level confusion matrix above, we classify
+*which specific ray physics rule broke down* for each incorrect
+prediction. Since Predict mode is inherently spatial (given atoms,
+predict ray outcome), all errors are spatial — the interesting question
+is which rule the model failed to apply correctly.
 
-We use a **deterministic classification** approach: comparing the predicted and actual outcome types (absorbed/reflected/detour) and exit positions to identify the specific failure mechanism. This requires no LLM judge and is 100% reproducible. The classification script (`classify_errors.py --mode predict`) processes all incorrect predictions.
+We use a **deterministic classification** approach: comparing the
+predicted and actual outcome types (absorbed/reflected/detour) and exit
+positions to identify the specific failure mechanism. This requires no
+LLM judge and is 100% reproducible. The classification script
+(`classify_errors.py --mode predict`) processes all incorrect
+predictions.
 
-For Play mode, where errors span both spatial and non-spatial domains (experiment design, constraint tracking, belief updating), we use an LLM-as-judge approach with optional gold-standard validation (`classify_errors.py --mode play --api-key KEY --gold-standard`). We additionally provide a **deterministic** analysis that replays each LLM's ray sequence through the solver's candidate space to quantify suboptimal ray selection, constraint violations, and excess rays (`blackbox_solver.py analyze`).
+For Play mode, where errors span both spatial and non-spatial domains
+(experiment design, constraint tracking, belief updating), we use an
+LLM-as-judge approach with optional gold-standard validation
+(`classify_errors.py --mode play --api-key KEY --gold-standard`). We
+additionally provide a **deterministic** analysis that replays each
+LLM's ray sequence through the solver's candidate space to quantify
+suboptimal ray selection, constraint violations, and excess rays
+(`blackbox_solver.py analyze`).
 
 ```{r}
 #| label: load-error-classifications
@@ -4228,12 +4353,15 @@ if (has_error_classifications) {
 
 ### Predict Mode: Ray Physics Rule Failures
 
-In Predict mode, all errors are spatial by definition — the task is purely spatial reasoning. The deterministic classifier identifies which specific ray physics rule the model failed to apply, based on comparing the predicted vs. actual outcome types and exit positions.
+In Predict mode, all errors are spatial by definition — the task is
+purely spatial reasoning. The deterministic classifier identifies which
+specific ray physics rule the model failed to apply, based on comparing
+the predicted vs. actual outcome types and exit positions.
 
 **Error taxonomy:**
 
 | Error Category | Pattern | Description |
-|---|---|---|
+|------------------------|------------------------|------------------------|
 | Missed absorption | pred: detour/reflected → actual: absorbed | Failed to check for atom directly in ray's path before checking diagonals |
 | Missed reflection | pred: detour/absorbed → actual: reflected | Failed to recognize reflection condition at entry point |
 | False absorption | pred: absorbed → actual: detour/reflected | Incorrectly identified absorption; confused diagonal atom with forward atom |
@@ -4296,7 +4424,9 @@ print(p_cats)
 
 ### Prompt Effect on Error Patterns
 
-The augmented prompt includes explicit coordinate system explanation, detailed deflection geometry with worked examples, and common error warnings. How does this change the error distribution?
+The augmented prompt includes explicit coordinate system explanation,
+detailed deflection geometry with worked examples, and common error
+warnings. How does this change the error distribution?
 
 ```{r}
 #| label: predict-error-by-prompt
@@ -4433,7 +4563,16 @@ p_entry <- ggplot(entry_side, aes(x = entry_side, y = rate, fill = error_label))
 print(p_entry)
 ```
 
-**Limitation:** In predict mode, rays are tested in a fixed order (North 1–8, South 1–8, East 1–8, West 1–8), and rays whose entry point was already observed as an exit point of a prior ray are skipped. This means later sides (East, West) are tested on fewer rays — and specifically on the subset of positions that were *not* exit points for earlier rays. The table above normalizes error counts by the number of trials actually conducted per side. However, the non-random subsetting means the tested positions for later sides may be systematically different in difficulty. A stronger design would test all 32 entry points independently, regardless of prior exits.
+**Limitation:** In predict mode, rays are tested in a fixed order (North
+1–8, South 1–8, East 1–8, West 1–8), and rays whose entry point was
+already observed as an exit point of a prior ray are skipped. This means
+later sides (East, West) are tested on fewer rays — and specifically on
+the subset of positions that were *not* exit points for earlier rays.
+The table above normalizes error counts by the number of trials actually
+conducted per side. However, the non-random subsetting means the tested
+positions for later sides may be systematically different in difficulty.
+A stronger design would test all 32 entry points independently,
+regardless of prior exits.
 
 ### Play Mode: Spatial vs. Non-Spatial Failure Modes
 
@@ -4525,11 +4664,20 @@ cat(paste0("Spatial/non-spatial domain agreement: ", round(domain_agree_rate, 1)
 
 ### Play Mode: Deterministic Error Analysis
 
-Where the LLM-as-judge classification above assigns categorical labels to whole-game failures, this section uses a complementary **deterministic** approach: replaying each LLM's ray sequence through the solver's full C(64,4) = 635,376 candidate space. This produces three quantitative error metrics without any subjective judgment:
+Where the LLM-as-judge classification above assigns categorical labels
+to whole-game failures, this section uses a complementary
+**deterministic** approach: replaying each LLM's ray sequence through
+the solver's full C(64,4) = 635,376 candidate space. This produces three
+quantitative error metrics without any subjective judgment:
 
-1. **Suboptimal ray selection** — For each ray fired, the solver computes the information-theoretically optimal ray and ranks the LLM's choice among all 32 options.
-2. **Constraint violations** — Hypothesis marks and final guesses are checked against the set of candidate configurations consistent with all observed ray outcomes.
-3. **Excess rays** — Rays fired after the candidate set has already been narrowed to a unique solution.
+1.  **Suboptimal ray selection** — For each ray fired, the solver
+    computes the information-theoretically optimal ray and ranks the
+    LLM's choice among all 32 options.
+2.  **Constraint violations** — Hypothesis marks and final guesses are
+    checked against the set of candidate configurations consistent with
+    all observed ray outcomes.
+3.  **Excess rays** — Rays fired after the candidate set has already
+    been narrowed to a unique solution.
 
 Generated by: `python blackbox_solver.py analyze <experiment.json>`
 
@@ -4877,11 +5025,16 @@ kable(det_game_table,
 
 ## Background
 
-During post-hoc review of Experiment 1, we discovered that the baseline system prompt contained a terminology error: the word "ball" appeared in 6 places where "atom" was the correct term. This inconsistency meant that the system prompt used different terminology from both the user prompt and the game's own output, which always refer to hidden objects as "atoms."
+During post-hoc review of Experiment 1, we discovered that the baseline
+system prompt contained a terminology error: the word "ball" appeared in
+6 places where "atom" was the correct term. This inconsistency meant
+that the system prompt used different terminology from both the user
+prompt and the game's own output, which always refer to hidden objects
+as "atoms."
 
 The erroneous baseline play prompt opened with:
 
-```
+```         
 Your opponent has hidden 4 balls within this box. By shooting rays into
 the box and observing where they emerge, it is possible to deduce the
 positions of the hidden balls.
@@ -4889,20 +5042,29 @@ positions of the hidden balls.
 
 and described absorption as:
 
-```
+```         
 HIT (H): The ray strikes a ball directly and is absorbed.
 ```
 
 The erroneous baseline predict prompt similarly used:
 
-```
+```         
 As a ray approaches a ball it is deflected ninety degrees. Rays can be
 deflected multiple times.
 ```
 
-The corrected baseline prompt replaces all instances of "ball" with "atom," producing a terminologically consistent prompt. This experiment tests whether fixing this inconsistency affects LLM prediction accuracy. If terminology consistency matters, we would expect improved performance under the corrected prompt — particularly for models that are sensitive to subtle prompt variations. If it does not matter, performance should be statistically equivalent, suggesting that LLMs are robust to minor terminological mismatches.
+The corrected baseline prompt replaces all instances of "ball" with
+"atom," producing a terminologically consistent prompt. This experiment
+tests whether fixing this inconsistency affects LLM prediction accuracy.
+If terminology consistency matters, we would expect improved performance
+under the corrected prompt — particularly for models that are sensitive
+to subtle prompt variations. If it does not matter, performance should
+be statistically equivalent, suggesting that LLMs are robust to minor
+terminological mismatches.
 
-All other experimental parameters (visualization, thinking, VoT) remain identical to Experiment 1, enabling direct paired comparison of matched conditions.
+All other experimental parameters (visualization, thinking, VoT) remain
+identical to Experiment 1, enabling direct paired comparison of matched
+conditions.
 
 ## Predict Mode Comparison
 
@@ -4952,10 +5114,15 @@ e2_predict_data <- bind_rows(e2_predict_original, e2_predict_corrected) |>
   )
 ```
 
-Data loaded: `r nrow(e2_predict_data)` total predictions (`r sum(e2_predict_data$prompt_version == "Original")` Original, `r sum(e2_predict_data$prompt_version == "Corrected")` Corrected) across `r n_distinct(e2_predict_data$model_name)` models.
+Data loaded: `r nrow(e2_predict_data)` total predictions
+(`r sum(e2_predict_data$prompt_version == "Original")` Original,
+`r sum(e2_predict_data$prompt_version == "Corrected")` Corrected) across
+`r n_distinct(e2_predict_data$model_name)` models.
 
-- **Original models**: `r paste(unique(e2_predict_data$model_name[e2_predict_data$prompt_version == "Original"]), collapse = ", ")`
-- **Corrected models**: `r paste(unique(e2_predict_data$model_name[e2_predict_data$prompt_version == "Corrected"]), collapse = ", ")`
+-   **Original models**:
+    `r paste(unique(e2_predict_data$model_name[e2_predict_data$prompt_version == "Original"]), collapse = ", ")`
+-   **Corrected models**:
+    `r paste(unique(e2_predict_data$model_name[e2_predict_data$prompt_version == "Corrected"]), collapse = ", ")`
 
 ### Data Completeness
 
@@ -5045,7 +5212,8 @@ kable(e2_predict_summary,
 
 ### Leaderboard
 
-Top 10 configurations by overall accuracy, including prompt version as a distinguishing factor.
+Top 10 configurations by overall accuracy, including prompt version as a
+distinguishing factor.
 
 ```{r}
 #| label: e2-predict-leaderboard
@@ -5083,7 +5251,9 @@ kable(e2_leaderboard,
 
 ### Forest Plot: Paired Comparison
 
-All configurations ranked by accuracy, colored by prompt version and shaped by model, enabling visual comparison of matched Original vs Corrected conditions.
+All configurations ranked by accuracy, colored by prompt version and
+shaped by model, enabling visual comparison of matched Original vs
+Corrected conditions.
 
 ```{r}
 #| label: e2-predict-forest
@@ -5145,7 +5315,10 @@ print(p_e2_forest)
 
 ### Accuracy Delta Plot
 
-For each matched condition (model x thinking x VoT), the accuracy difference (Corrected minus Original) with 95% confidence interval for the difference. Positive values indicate the corrected prompt improved accuracy.
+For each matched condition (model x thinking x VoT), the accuracy
+difference (Corrected minus Original) with 95% confidence interval for
+the difference. Positive values indicate the corrected prompt improved
+accuracy.
 
 ```{r}
 #| label: e2-predict-delta
@@ -5208,14 +5381,18 @@ print(p_e2_delta)
 
 ### ANOVA: Prompt Version Effect
 
-Mixed-effects logistic regression testing whether the corrected prompt significantly affects prediction accuracy, controlling for model, thinking, VoT, and ray complexity.
+Mixed-effects logistic regression testing whether the corrected prompt
+significantly affects prediction accuracy, controlling for model,
+thinking, VoT, and ray complexity.
 
 **Model specification**:
 
-- **Outcome**: Correct prediction (binary: 0/1)
-- **Fixed effects**: `prompt_version * model_name + enable_thinking + vot_ray_trace + cells_traveled + atoms_affecting`
-- **Random effects**: `(1 | config_index/ray_id)` — nested configuration and ray-level intercepts
-- **Key factor**: `prompt_version` (Original vs Corrected)
+-   **Outcome**: Correct prediction (binary: 0/1)
+-   **Fixed effects**:
+    `prompt_version * model_name + enable_thinking + vot_ray_trace + cells_traveled + atoms_affecting`
+-   **Random effects**: `(1 | config_index/ray_id)` — nested
+    configuration and ray-level intercepts
+-   **Key factor**: `prompt_version` (Original vs Corrected)
 
 ```{r}
 #| label: e2-predict-anova
@@ -5254,7 +5431,8 @@ print(Anova(e2_model, type = 3))
 
 #### Odds Ratios with 95% Confidence Intervals
 
-**Interpretation**: OR > 1 means the factor increases odds of correct prediction; OR < 1 means it decreases odds.
+**Interpretation**: OR \> 1 means the factor increases odds of correct
+prediction; OR \< 1 means it decreases odds.
 
 ```{r}
 #| label: e2-predict-odds-ratios
@@ -5302,7 +5480,8 @@ print(VarCorr(e2_model))
 e2_icc <- performance::icc(e2_model)
 ```
 
-**ICC**: `r round(e2_icc$ICC_adjusted, 3)` — Proportion of variance due to clustering at configuration and ray-within-config levels.
+**ICC**: `r round(e2_icc$ICC_adjusted, 3)` — Proportion of variance due
+to clustering at configuration and ray-within-config levels.
 
 ```{r}
 #| label: e2-predict-model-fit
@@ -5313,8 +5492,10 @@ e2_r2 <- performance::r2_nakagawa(e2_model)
 
 **Model Fit** (Pseudo R², Nakagawa & Schielzeth):
 
-- **Marginal R²** (fixed effects only): `r round(e2_r2$R2_marginal, 3)`
-- **Conditional R²** (fixed + random effects): `r round(e2_r2$R2_conditional, 3)`
+-   **Marginal R²** (fixed effects only):
+    `r round(e2_r2$R2_marginal, 3)`
+-   **Conditional R²** (fixed + random effects):
+    `r round(e2_r2$R2_conditional, 3)`
 
 #### Effect Size
 
@@ -5325,11 +5506,15 @@ e2_r2 <- performance::r2_nakagawa(e2_model)
 e2_cramers <- cramers_v(table(e2_predict_matched$prompt_version, e2_predict_matched$correct))
 ```
 
-**Cramér's V** (prompt version × accuracy): `r round(e2_cramers$Cramers_v, 3)` — Interpretation: 0.10 = small, 0.30 = medium, 0.50 = large.
+**Cramér's V** (prompt version × accuracy):
+`r round(e2_cramers$Cramers_v, 3)` — Interpretation: 0.10 = small, 0.30
+= medium, 0.50 = large.
 
 ### Effect Modification by Path Complexity
 
-Does the prompt correction effect vary with ray complexity? If the corrected prompt helps more on complex rays, the terminology fix may reduce cognitive load for the model on harder spatial reasoning tasks.
+Does the prompt correction effect vary with ray complexity? If the
+corrected prompt helps more on complex rays, the terminology fix may
+reduce cognitive load for the model on harder spatial reasoning tasks.
 
 ```{r}
 #| label: e2-predict-effect-mod
@@ -5370,11 +5555,17 @@ if (nrow(e2_mod_coefs) > 0) {
 }
 ```
 
-**Interpretation**: A significant interaction would indicate that the prompt correction effect differs across ray complexity levels. A non-significant interaction suggests the effect (or lack thereof) of prompt correction is constant regardless of spatial complexity.
+**Interpretation**: A significant interaction would indicate that the
+prompt correction effect differs across ray complexity levels. A
+non-significant interaction suggests the effect (or lack thereof) of
+prompt correction is constant regardless of spatial complexity.
 
 ### Error Pattern Comparison
 
-Do the types of errors differ between the original and corrected prompt? If terminology correction changes *which* errors models make (not just *how many*), it suggests the prompt wording shapes the model's reasoning strategy.
+Do the types of errors differ between the original and corrected prompt?
+If terminology correction changes *which* errors models make (not just
+*how many*), it suggests the prompt wording shapes the model's reasoning
+strategy.
 
 ```{r}
 #| label: e2-predict-error-patterns
@@ -5703,7 +5894,16 @@ findings\]
 
 ## Benchmark Comparison
 
-No single existing benchmark tests the full diagnostic reasoning pipeline that Black Box requires. Established benchmarks typically isolate spatial reasoning, constraint satisfaction, or game-playing individually, whereas Black Box demands all three capabilities operate simultaneously---spatial ray tracing, constraint propagation from accumulated evidence, and abductive inference about hidden state. This section contextualizes Claude's Black Box performance against its published results on benchmarks targeting each component capability. We restrict comparison to benchmarks where Claude-specific performance data is available, avoiding extrapolation from other model families.
+No single existing benchmark tests the full diagnostic reasoning
+pipeline that Black Box requires. Established benchmarks typically
+isolate spatial reasoning, constraint satisfaction, or game-playing
+individually, whereas Black Box demands all three capabilities operate
+simultaneously---spatial ray tracing, constraint propagation from
+accumulated evidence, and abductive inference about hidden state. This
+section contextualizes Claude's Black Box performance against its
+published results on benchmarks targeting each component capability. We
+restrict comparison to benchmarks where Claude-specific performance data
+is available, avoiding extrapolation from other model families.
 
 ```{r}
 #| label: tbl-benchmark-comparison
@@ -5732,15 +5932,57 @@ kable(benchmark_comparison,
 
 ### Consistent Constraint Satisfaction Weakness
 
-Claude's performance on constraint satisfaction benchmarks reveals a systematic limitation that Black Box corroborates. On ZebraLogic, Claude Sonnet 3.5 achieves 33.4% overall accuracy that drops to 12.4% on hard puzzles [@lin2024zebralogic]; on LogicGame, the same model reaches only 19.15% [@gui2024logicgame]; and on CrossWordBench, Claude Sonnet 3.7 achieves a word completion rate of 0.482 [@wang2025crosswordbench]. ConstraintBench further confirms this pattern, with Claude Opus models achieving only 49--51% feasibility on constraint satisfaction problems, identifying constraint satisfaction---not objective optimization---as the primary bottleneck [@tso2026constraintbench]. Black Box's constraint tracking task (ruling out candidate cells based on accumulated ray evidence) is fundamentally a constraint satisfaction problem, and the approximately 2$\times$ gap between LLM and optimal solver performance is consistent with these benchmark results. The pattern across benchmarks is clear: performance degrades sharply as constraint complexity increases.
+Claude's performance on constraint satisfaction benchmarks reveals a
+systematic limitation that Black Box corroborates. On ZebraLogic, Claude
+Sonnet 3.5 achieves 33.4% overall accuracy that drops to 12.4% on hard
+puzzles [@lin2024zebralogic]; on LogicGame, the same model reaches only
+19.15% [@gui2024logicgame]; and on CrossWordBench, Claude Sonnet 3.7
+achieves a word completion rate of 0.482 [@wang2025crosswordbench].
+ConstraintBench further confirms this pattern, with Claude Opus models
+achieving only 49--51% feasibility on constraint satisfaction problems,
+identifying constraint satisfaction---not objective optimization---as
+the primary bottleneck [@tso2026constraintbench]. Black Box's constraint
+tracking task (ruling out candidate cells based on accumulated ray
+evidence) is fundamentally a constraint satisfaction problem, and the
+approximately 2$\times$ gap between LLM and optimal solver performance
+is consistent with these benchmark results. The pattern across
+benchmarks is clear: performance degrades sharply as constraint
+complexity increases.
 
 ### Performance Collapse at Complexity Thresholds
 
-BALROG demonstrates that Claude achieves partial success on simple game environments but fails on complex ones [@paglieri2024balrog]. PuzzlePlex confirms that LLMs perform below simple heuristics on multi-turn puzzles [@puzzleplex2025]. lmgame-Bench shows Claude Sonnet 3.7 performing in the top tier among non-reasoning models but still far below optimal play on structured games like Sokoban [@hu2025lmgamebench]. Black Box exhibits the same pattern: the optimal solver requires 5--9 rays depending on configuration difficulty, LLMs use approximately twice as many, and the gap widens on harder configurations. This aligns with @shojaee2025illusion's observation of "accuracy collapse" at complexity thresholds, where reasoning model performance deteriorates abruptly rather than gradually as problem difficulty increases.
+BALROG demonstrates that Claude achieves partial success on simple game
+environments but fails on complex ones [@paglieri2024balrog]. PuzzlePlex
+confirms that LLMs perform below simple heuristics on multi-turn puzzles
+[@puzzleplex2025]. lmgame-Bench shows Claude Sonnet 3.7 performing in
+the top tier among non-reasoning models but still far below optimal play
+on structured games like Sokoban [@hu2025lmgamebench]. Black Box
+exhibits the same pattern: the optimal solver requires 5--9 rays
+depending on configuration difficulty, LLMs use approximately twice as
+many, and the gap widens on harder configurations. This aligns with
+@shojaee2025illusion's observation of "accuracy collapse" at complexity
+thresholds, where reasoning model performance deteriorates abruptly
+rather than gradually as problem difficulty increases.
 
 ### What Black Box Uniquely Reveals
 
-The benchmarks reviewed above each test isolated capabilities---constraint satisfaction, spatial reasoning, or game-playing---in separate task environments. Black Box's contribution is testing the *intersection* of spatial reasoning, constraint satisfaction, abductive inference, active test selection, and sequential belief updating within a single unified task. Its two-mode design (Predict and Play) enables decomposition of the forward--inverse reasoning asymmetry: Predict isolates spatial simulation (given atoms, predict ray behavior), while Play requires the full diagnostic pipeline (observe rays, infer hidden atoms). This decomposition, absent from existing benchmarks, reveals whether failures stem from inability to simulate the physics or from inability to reason backward from observations. Furthermore, the optimal solver provides an information-theoretic performance ceiling, enabling rationality ratio analysis (LLM rays / optimal rays) rather than simple accuracy reporting---a quantitative measure of reasoning efficiency that most benchmarks lack.
+The benchmarks reviewed above each test isolated
+capabilities---constraint satisfaction, spatial reasoning, or
+game-playing---in separate task environments. Black Box's contribution
+is testing the *intersection* of spatial reasoning, constraint
+satisfaction, abductive inference, active test selection, and sequential
+belief updating within a single unified task. Its two-mode design
+(Predict and Play) enables decomposition of the forward--inverse
+reasoning asymmetry: Predict isolates spatial simulation (given atoms,
+predict ray behavior), while Play requires the full diagnostic pipeline
+(observe rays, infer hidden atoms). This decomposition, absent from
+existing benchmarks, reveals whether failures stem from inability to
+simulate the physics or from inability to reason backward from
+observations. Furthermore, the optimal solver provides an
+information-theoretic performance ceiling, enabling rationality ratio
+analysis (LLM rays / optimal rays) rather than simple accuracy
+reporting---a quantitative measure of reasoning efficiency that most
+benchmarks lack.
 
 ## Implications
 
@@ -5803,7 +6045,7 @@ diagnostic tasks\]
 
 ## Baseline Play Prompt
 
-```
+```         
 You are playing Black Box, a game of hide and seek played on an 8 by 8 grid
 (the Black Box).
 
@@ -5848,7 +6090,7 @@ When you think you know where all 4 atoms are, make your guess.
 
 ## Baseline Predict Prompt
 
-```
+```         
 Predict where a ray will exit in Black Box.
 
 GRID: 8x8, rows 1-8 (top to bottom), columns 1-8 (left to right).
