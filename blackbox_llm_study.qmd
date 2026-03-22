@@ -2389,9 +2389,64 @@ play_data <- play_data |>
     ),
     vot_condition = factor(vot_condition, levels = c("None", "A: Grid State", "B: Ray Trace", "C: Hypothesis"))
   )
+
+# Tag original data
+play_data <- play_data |>
+  mutate(source = "original", run_id = "original")
 ```
 
-Data loaded: `r nrow(play_data)` experiment results from `r length(play_json_files)` JSON files.
+```{r}
+#| label: load-replication-data
+
+# Load replication runs from Experiment 3 (dynamically picks up new files)
+replication_dir <- "Experiment 3 Multiple Runs Top Leaders"
+replication_json_files <- if (dir.exists(replication_dir)) {
+  list.files(path = replication_dir, pattern = "\\.json$", full.names = TRUE)
+} else {
+  character(0)
+}
+
+if (length(replication_json_files) > 0) {
+  replication_data <- map_dfr(replication_json_files, function(f) {
+    run_id <- stringr::str_extract(basename(f), "\\d{4}-\\d{2}-\\d{2}T\\d{2}-\\d{2}-\\d{2}")
+    extract_play_results(f) |>
+      mutate(source = "replication", run_id = run_id)
+  })
+
+  # Apply same VoT condition factor
+  replication_data <- replication_data |>
+    mutate(
+      vot_condition = case_when(
+        vot_grid_state ~ "A: Grid State",
+        vot_ray_trace ~ "B: Ray Trace",
+        vot_hypothesis ~ "C: Hypothesis",
+        TRUE ~ "None"
+      ),
+      vot_condition = factor(vot_condition, levels = c("None", "A: Grid State", "B: Ray Trace", "C: Hypothesis"))
+    )
+
+  # Save original-only data for the initial leaderboard
+  play_data_original <- play_data
+
+  # Merge: pooled data includes both original and replication
+  play_data <- bind_rows(play_data, replication_data)
+
+  n_replication_runs <- length(replication_json_files)
+  n_replication_games <- nrow(replication_data)
+  replicated_configs <- replication_data |>
+    distinct(model_name, prompt_style, enable_thinking, vot_grid_state, vot_ray_trace, vot_hypothesis) |>
+    nrow()
+} else {
+  play_data_original <- play_data
+  n_replication_runs <- 0
+  n_replication_games <- 0
+  replicated_configs <- 0
+  replicated_conditions <- tibble()
+}
+```
+
+Data loaded: `r nrow(play_data_original)` original experiment results from `r length(play_json_files)` JSON files.
+`r if (n_replication_runs > 0) paste0("**Replication data**: ", n_replication_games, " additional games from ", n_replication_runs, " replication runs across ", replicated_configs, " model configuration(s). **Pooled total**: ", nrow(play_data), " games.")`
 
 - **Models**: `r paste(unique(play_data$model_name), collapse = ", ")`
 - **Prompt styles**: `r paste(unique(play_data$prompt_style), collapse = ", ")`
@@ -2557,7 +2612,7 @@ Top 10 configurations by atoms correct. Format matches typical LLM benchmark rep
 ```{r}
 #| label: play-leaderboard
 
-leaderboard_play <- play_data |>
+leaderboard_play <- play_data_original |>
   mutate(
     condition = paste0(
       model_name, " | ",
@@ -2586,8 +2641,434 @@ leaderboard_play <- play_data |>
 
 kable(leaderboard_play,
       col.names = c("Rank", "Configuration", "Atoms Correct (M ± SE)", "Score (M)", "Perfect Games", "N"),
-      caption = "Play Mode Leaderboard (Top 10 Configurations)")
+      caption = "Play Mode Leaderboard — Initial Results (Top 10 Configurations, n = 10 per condition)")
 ```
+
+### Play Mode: Replication and Performance Variance
+
+The initial leaderboard above was computed from 10 games per configuration. To assess the reliability of these rankings, the top-performing model configurations were replicated across `r n_replication_runs` additional runs on the same 10 game boards. This replication revealed substantial performance variance and regression to the mean, with important implications for interpreting Play mode results.
+
+```{r}
+#| label: replication-analysis
+#| fig-width: 10
+#| fig-height: 8
+
+if (n_replication_runs > 0) {
+
+  # Identify which configs were replicated
+  replicated_conditions <- replication_data |>
+    distinct(model_name, prompt_style, enable_thinking, vot_grid_state, vot_ray_trace, vot_hypothesis)
+
+  # Build pooled leaderboard with CI overlap tiers
+  pooled_leaderboard <- play_data |>
+    mutate(
+      condition = paste0(
+        model_name, " | ",
+        ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+        ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
+        vot_condition
+      )
+    ) |>
+    group_by(condition, model_name, prompt_style, enable_thinking,
+             vot_grid_state, vot_ray_trace, vot_hypothesis, vot_condition) |>
+    summarise(
+      n = n(),
+      atoms_correct_mean = mean(atoms_correct),
+      atoms_correct_se = sd(atoms_correct) / sqrt(n),
+      atoms_correct_sd = sd(atoms_correct),
+      ci_lower = atoms_correct_mean - 1.96 * atoms_correct_se,
+      ci_upper = atoms_correct_mean + 1.96 * atoms_correct_se,
+      score_mean = mean(score),
+      perfect_games = sum(atoms_correct == 4),
+      .groups = "drop"
+    ) |>
+    arrange(desc(atoms_correct_mean), score_mean) |>
+    mutate(rank = row_number())
+
+  # Assign CI overlap tiers: configs whose CIs overlap share a tier
+  # Greedy algorithm: start from the top, extend tier while CIs overlap
+  pooled_leaderboard <- pooled_leaderboard |> arrange(desc(atoms_correct_mean))
+  tiers <- character(nrow(pooled_leaderboard))
+  current_tier <- 1
+  tier_upper <- pooled_leaderboard$ci_upper[1]
+  tier_lower <- pooled_leaderboard$ci_lower[1]
+
+  for (i in seq_len(nrow(pooled_leaderboard))) {
+    if (pooled_leaderboard$ci_lower[i] <= tier_upper &&
+        pooled_leaderboard$ci_upper[i] >= tier_lower) {
+      # Overlaps with current tier — narrow the overlap band
+      tier_lower <- max(tier_lower, pooled_leaderboard$ci_lower[i])
+      tier_upper <- min(tier_upper, pooled_leaderboard$ci_upper[i])
+    } else {
+      # Start new tier
+      current_tier <- current_tier + 1
+      tier_upper <- pooled_leaderboard$ci_upper[i]
+      tier_lower <- pooled_leaderboard$ci_lower[i]
+    }
+    tiers[i] <- LETTERS[min(current_tier, 26)]
+  }
+  pooled_leaderboard$tier <- tiers
+
+  # Check if config was replicated
+  pooled_leaderboard <- pooled_leaderboard |>
+    mutate(
+      replicated = pmap_lgl(list(model_name, prompt_style, enable_thinking,
+                                  vot_grid_state, vot_ray_trace, vot_hypothesis),
+        function(mn, ps, et, vgs, vrt, vh) {
+          any(replicated_conditions$model_name == mn &
+              replicated_conditions$prompt_style == ps &
+              replicated_conditions$enable_thinking == et &
+              replicated_conditions$vot_grid_state == vgs &
+              replicated_conditions$vot_ray_trace == vrt &
+              replicated_conditions$vot_hypothesis == vh)
+        })
+    )
+
+  # Display top 15 with tier and n
+  pooled_top <- pooled_leaderboard |>
+    mutate(
+      atoms_ci = paste0(round(atoms_correct_mean, 2), " ± ", round(atoms_correct_se, 2)),
+      ci_range = paste0("[", round(ci_lower, 2), ", ", round(ci_upper, 2), "]"),
+      perfect_pct = paste0(round(perfect_games / n * 100, 1), "%"),
+      condition_display = ifelse(replicated, paste0(condition, " *"), condition)
+    ) |>
+    select(rank, tier, condition_display, n, atoms_ci, ci_range, score_mean, perfect_pct) |>
+    head(15)
+
+  kable(pooled_top,
+        col.names = c("Rank", "Tier", "Configuration", "N", "Atoms (M ± SE)",
+                       "95% CI", "Score (M)", "Perfect"),
+        caption = "Play Mode Leaderboard — Pooled Results (including replication data). Configurations marked with * were replicated. Tier letters group configurations with overlapping 95% CIs.")
+}
+```
+
+```{r}
+#| label: replication-before-after
+#| fig-width: 10
+#| fig-height: 5
+
+if (n_replication_runs > 0) {
+
+  # Before/after comparison for replicated configs
+  original_means <- play_data_original |>
+    semi_join(replicated_conditions,
+              by = c("model_name", "prompt_style", "enable_thinking",
+                     "vot_grid_state", "vot_ray_trace", "vot_hypothesis")) |>
+    group_by(model_name) |>
+    summarise(
+      source = "Original (n = 10)",
+      n = n(),
+      mean_correct = mean(atoms_correct),
+      se = sd(atoms_correct) / sqrt(n()),
+      ci_lower = mean_correct - 1.96 * se,
+      ci_upper = mean_correct + 1.96 * se,
+      score_mean = mean(score),
+      perfect_pct = sum(atoms_correct == 4) / n(),
+      .groups = "drop"
+    )
+
+  replication_means <- replication_data |>
+    group_by(model_name) |>
+    summarise(
+      source = paste0("Replication (n = ", n(), ")"),
+      n = n(),
+      mean_correct = mean(atoms_correct),
+      se = sd(atoms_correct) / sqrt(n()),
+      ci_lower = mean_correct - 1.96 * se,
+      ci_upper = mean_correct + 1.96 * se,
+      score_mean = mean(score),
+      perfect_pct = sum(atoms_correct == 4) / n(),
+      .groups = "drop"
+    )
+
+  pooled_means <- play_data |>
+    semi_join(replicated_conditions,
+              by = c("model_name", "prompt_style", "enable_thinking",
+                     "vot_grid_state", "vot_ray_trace", "vot_hypothesis")) |>
+    group_by(model_name) |>
+    summarise(
+      source = paste0("Pooled (n = ", n(), ")"),
+      n = n(),
+      mean_correct = mean(atoms_correct),
+      se = sd(atoms_correct) / sqrt(n()),
+      ci_lower = mean_correct - 1.96 * se,
+      ci_upper = mean_correct + 1.96 * se,
+      score_mean = mean(score),
+      perfect_pct = sum(atoms_correct == 4) / n(),
+      .groups = "drop"
+    )
+
+  comparison_data <- bind_rows(original_means, replication_means, pooled_means) |>
+    mutate(source = factor(source, levels = unique(source)))
+
+  # Table
+  comparison_table <- comparison_data |>
+    mutate(
+      atoms_ci = paste0(round(mean_correct, 2), " ± ", round(se, 2)),
+      ci_range = paste0("[", round(ci_lower, 2), ", ", round(ci_upper, 2), "]"),
+      perfect_display = paste0(round(perfect_pct * 100, 1), "%")
+    ) |>
+    select(model_name, source, n, atoms_ci, ci_range, score_mean, perfect_display)
+
+  kable(comparison_table,
+        col.names = c("Model", "Source", "N", "Atoms (M ± SE)", "95% CI", "Score (M)", "Perfect"),
+        caption = "Before and after: original results vs. replication runs for top-performing configurations.")
+
+  # Visualization: original vs pooled means with CIs
+  p_before_after <- ggplot(comparison_data, aes(x = source, y = mean_correct, color = model_name)) +
+    geom_point(size = 4, position = position_dodge(width = 0.4)) +
+    geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper),
+                  width = 0.2, linewidth = 1, position = position_dodge(width = 0.4)) +
+    geom_text(aes(label = sprintf("%.2f", mean_correct)),
+              vjust = -1.2, size = 4, position = position_dodge(width = 0.4)) +
+    scale_y_continuous(limits = c(0, 4), breaks = seq(0, 4, 0.5)) +
+    labs(
+      title = "Regression to the Mean: Original vs. Replication Performance",
+      subtitle = "Top two configurations replicated across additional runs",
+      x = NULL, y = "Mean Atoms Correct", color = "Model"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(axis.text.x = element_text(size = 11))
+
+  print(p_before_after)
+}
+```
+
+```{r}
+#| label: replication-per-run
+#| fig-width: 10
+#| fig-height: 5
+
+if (n_replication_runs > 0) {
+
+  # Per-run breakdown
+  per_run <- play_data |>
+    semi_join(replicated_conditions,
+              by = c("model_name", "prompt_style", "enable_thinking",
+                     "vot_grid_state", "vot_ray_trace", "vot_hypothesis")) |>
+    mutate(run_label = ifelse(source == "original", "Original",
+                              paste0("Run ", as.integer(factor(run_id))))) |>
+    group_by(model_name, run_label) |>
+    summarise(
+      n = n(),
+      mean_correct = mean(atoms_correct),
+      se = sd(atoms_correct) / sqrt(n()),
+      .groups = "drop"
+    ) |>
+    mutate(run_label = factor(run_label, levels = c("Original", paste0("Run ", 1:20))))
+
+  p_per_run <- ggplot(per_run, aes(x = run_label, y = mean_correct, fill = model_name)) +
+    geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+    geom_errorbar(aes(ymin = mean_correct - 1.96 * se,
+                      ymax = pmin(mean_correct + 1.96 * se, 4)),
+                  position = position_dodge(width = 0.7), width = 0.2) +
+    geom_text(aes(label = sprintf("%.2f", mean_correct)),
+              vjust = -0.5, size = 3.5, position = position_dodge(width = 0.7)) +
+    scale_y_continuous(limits = c(0, 4.2), breaks = seq(0, 4, 0.5)) +
+    labs(
+      title = "Performance Across Runs",
+      subtitle = "Same 10 game boards, identical model configuration — each bar is one complete run",
+      x = NULL, y = "Mean Atoms Correct", fill = "Model"
+    ) +
+    theme_minimal(base_size = 12)
+
+  print(p_per_run)
+}
+```
+
+#### Variance Analysis
+
+```{r}
+#| label: replication-variance
+#| fig-width: 10
+#| fig-height: 8
+
+if (n_replication_runs > 0) {
+
+  # Per-config reliability across runs
+  config_reliability <- play_data |>
+    semi_join(replicated_conditions,
+              by = c("model_name", "prompt_style", "enable_thinking",
+                     "vot_grid_state", "vot_ray_trace", "vot_hypothesis")) |>
+    group_by(model_name, config_index) |>
+    summarise(
+      n_games = n(),
+      mean_correct = mean(atoms_correct),
+      sd_correct = sd(atoms_correct),
+      min_correct = min(atoms_correct),
+      max_correct = max(atoms_correct),
+      always_perfect = all(atoms_correct == 4),
+      ever_zero = any(atoms_correct == 0),
+      .groups = "drop"
+    )
+
+  # Heatmap: config × run, colored by atoms correct
+  heatmap_data <- play_data |>
+    semi_join(replicated_conditions,
+              by = c("model_name", "prompt_style", "enable_thinking",
+                     "vot_grid_state", "vot_ray_trace", "vot_hypothesis")) |>
+    mutate(run_label = ifelse(source == "original", "Original",
+                              paste0("Run ", as.integer(factor(run_id)))))
+
+  p_heatmap <- ggplot(heatmap_data,
+                      aes(x = run_label, y = factor(config_index), fill = atoms_correct)) +
+    geom_tile(color = "white", linewidth = 0.5) +
+    geom_text(aes(label = atoms_correct), size = 4, fontface = "bold") +
+    scale_fill_gradient2(low = "#c62828", mid = "#fff176", high = "#2e7d32",
+                         midpoint = 2, limits = c(0, 4),
+                         name = "Atoms\nCorrect") +
+    facet_wrap(~model_name, ncol = 2) +
+    labs(
+      title = "Per-Configuration Reliability Across Runs",
+      subtitle = "Some configurations are reliably solved (all green), others swing between failure and success",
+      x = NULL, y = "Game Configuration"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+  print(p_heatmap)
+
+  # Distribution: histogram of atoms correct for replicated configs
+  p_dist <- ggplot(heatmap_data, aes(x = atoms_correct, fill = source)) +
+    geom_histogram(binwidth = 1, position = "dodge", color = "white") +
+    facet_wrap(~model_name) +
+    scale_x_continuous(breaks = 0:4) +
+    scale_fill_manual(values = c("original" = "#3498db", "replication" = "#e74c3c"),
+                      labels = c("original" = "Original", "replication" = "Replication")) +
+    labs(
+      title = "Distribution of Atoms Correct: Original vs. Replication",
+      subtitle = "Bimodal pattern: models either solve the configuration fully or fail substantially",
+      x = "Atoms Correct", y = "Count", fill = "Source"
+    ) +
+    theme_minimal(base_size = 12)
+
+  print(p_dist)
+}
+```
+
+#### Statistical Tests
+
+```{r}
+#| label: replication-statistics
+
+if (n_replication_runs > 0) {
+
+  # Run tests for each replicated model config
+  test_results <- replicated_conditions |>
+    pmap_dfr(function(model_name, prompt_style, enable_thinking,
+                      vot_grid_state, vot_ray_trace, vot_hypothesis) {
+      orig <- play_data_original |>
+        filter(model_name == !!model_name, prompt_style == !!prompt_style,
+               enable_thinking == !!enable_thinking,
+               vot_grid_state == !!vot_grid_state,
+               vot_ray_trace == !!vot_ray_trace,
+               vot_hypothesis == !!vot_hypothesis) |>
+        pull(atoms_correct)
+
+      repl <- replication_data |>
+        filter(model_name == !!model_name, prompt_style == !!prompt_style,
+               enable_thinking == !!enable_thinking,
+               vot_grid_state == !!vot_grid_state,
+               vot_ray_trace == !!vot_ray_trace,
+               vot_hypothesis == !!vot_hypothesis) |>
+        pull(atoms_correct)
+
+      if (length(orig) < 2 || length(repl) < 2) return(NULL)
+
+      # Welch's t-test
+      t_res <- t.test(orig, repl)
+
+      # Mann-Whitney U
+      w_res <- wilcox.test(orig, repl, conf.int = TRUE)
+
+      # Bootstrap: P(sample of n_orig from replication >= observed original mean)
+      set.seed(42)
+      orig_mean <- mean(orig)
+      n_boot <- 100000
+      boot_means <- replicate(n_boot, mean(sample(repl, length(orig), replace = TRUE)))
+      p_lucky <- mean(boot_means >= orig_mean)
+
+      tibble(
+        model = model_name,
+        n_orig = length(orig),
+        n_repl = length(repl),
+        orig_mean = mean(orig),
+        repl_mean = mean(repl),
+        delta = mean(orig) - mean(repl),
+        t_stat = t_res$statistic,
+        t_p = t_res$p.value,
+        w_p = w_res$p.value,
+        boot_ci_lower = quantile(boot_means - orig_mean, 0.025) + orig_mean,
+        boot_ci_upper = quantile(boot_means - orig_mean, 0.975) + orig_mean,
+        p_lucky_draw = p_lucky
+      )
+    })
+
+  if (nrow(test_results) > 0) {
+    test_display <- test_results |>
+      mutate(
+        across(c(orig_mean, repl_mean, delta), ~round(., 2)),
+        t_stat = round(t_stat, 3),
+        t_p = format.pval(t_p, digits = 3, eps = 0.001),
+        w_p = format.pval(w_p, digits = 3, eps = 0.001),
+        p_lucky_draw = paste0(round(p_lucky_draw * 100, 1), "%")
+      ) |>
+      select(model, n_orig, n_repl, orig_mean, repl_mean, delta, t_p, w_p, p_lucky_draw)
+
+    kable(test_display,
+          col.names = c("Model", "n (orig)", "n (repl)", "M (orig)", "M (repl)",
+                         "Δ", "Welch p", "Mann-Whitney p", "P(lucky draw)"),
+          caption = "Statistical tests comparing original vs. replication performance. P(lucky draw) = probability of observing the original mean or higher by sampling from the replication distribution.")
+  }
+}
+```
+
+#### Power Analysis
+
+```{r}
+#| label: replication-power
+
+if (n_replication_runs > 0) {
+
+  # Compute typical SD from pooled data
+  typical_sd <- play_data |>
+    semi_join(replicated_conditions,
+              by = c("model_name", "prompt_style", "enable_thinking",
+                     "vot_grid_state", "vot_ray_trace", "vot_hypothesis")) |>
+    pull(atoms_correct) |>
+    sd()
+
+  power_table <- expand.grid(
+    delta = c(0.25, 0.50, 0.75, 1.00, 1.50),
+    target_power = c(0.80, 0.90)
+  ) |>
+    mutate(
+      n_needed = ceiling(2 * (qnorm(1 - 0.05/2) + qnorm(target_power))^2 * typical_sd^2 / delta^2),
+      power_at_10 = pnorm(delta / (typical_sd * sqrt(2/10)) - qnorm(1 - 0.05/2))
+    )
+
+  power_display <- power_table |>
+    mutate(
+      power_at_10 = paste0(round(power_at_10 * 100, 1), "%"),
+      target_power = paste0(target_power * 100, "%")
+    ) |>
+    select(delta, target_power, n_needed, power_at_10)
+
+  kable(power_display,
+        col.names = c("Effect Size (Δ atoms)", "Target Power", "n Needed (per group)", "Power at n = 10"),
+        caption = paste0("Power analysis for detecting differences in atoms correct (SD = ",
+                         round(typical_sd, 2),
+                         "). At n = 10, only large effects (Δ ≥ 1.5 atoms) are reliably detectable."))
+}
+```
+
+#### Interpretation
+
+`r if (n_replication_runs > 0) { paste0("The replication reveals that Play mode performance is *highly stochastic* at the individual game level. The original n = 10 results placed the top configuration at ", round(test_results$orig_mean[1], 2), " atoms correct. ", n_replication_runs, " additional runs of the same configuration on the same 10 game boards produced a replication mean of ", round(test_results$repl_mean[1], 2), " (pooled: ", round(pooled_leaderboard$atoms_correct_mean[pooled_leaderboard$model_name == test_results$model[1] & pooled_leaderboard$replicated][1], 2), "). The original result, while within the plausible range, sat at the ", round((1 - test_results$p_lucky_draw[1]) * 100, 0), "th percentile of the replication distribution.") }`
+
+This variance is itself diagnostic. The heatmap above shows that some configurations (notably 2 and 6) are solved perfectly across every run — the models have reliable access to whatever reasoning these boards require. Other configurations swing between 0/4 and 4/4 across runs, suggesting the models either find a productive reasoning path or do not, with little middle ground. This bimodal pattern is more consistent with *stochastic access to a reasoning strategy* than *consistent partial competence*.
+
+The practical implication: at n = 10 per configuration, statistical power is only `r if (n_replication_runs > 0) paste0(round(pnorm(1.0 / (typical_sd * sqrt(2/10)) - qnorm(1 - 0.05/2)) * 100, 0))` % to detect a 1-atom difference between conditions. Factor-level conclusions (model, prompt style, thinking) — which aggregate over 40–80+ games — remain robust. Configuration-level rankings should be interpreted with the wide confidence intervals shown in the pooled leaderboard above.
 
 ### ANOVA: Play Mode Performance
 

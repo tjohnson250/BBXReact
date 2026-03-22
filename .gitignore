@@ -62,3 +62,6 @@ wheels/
 
 /.quarto/
 **/*.quarto_ipynb
+
+# Experiment file finder cache
+.find_experiment_cache.json
