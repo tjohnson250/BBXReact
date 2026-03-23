@@ -1,0 +1,179 @@
+---
+title: "Black Box as a Diagnostic Reasoning Benchmark"
+subtitle: "Assessing LLM Capabilities in Hidden State Identification"
+author: "Todd R. Johnson"
+institute: "University of Texas Health Science Center at Houston"
+date: 2026-03-25
+format:
+  revealjs:
+    theme: default
+    slide-number: true
+    hash-type: number
+    center: false
+    transition: fade
+    width: 1280
+    height: 720
+    margin: 0.1
+    css: |
+      .reveal .slide-background-content {
+        background-color: #fafafa;
+      }
+      .reveal h2 {
+        color: #1B4F72;
+      }
+      .reveal h3 {
+        color: #2E75B6;
+      }
+      .conflict-thesis {
+        font-size: 1.15em;
+        font-weight: bold;
+        color: #1B4F72;
+        border-left: 4px solid #c0392b;
+        padding-left: 0.6em;
+        margin: 0.8em 0;
+      }
+      .evidence-block {
+        background: #f0f4f8;
+        border-radius: 6px;
+        padding: 0.5em 0.8em;
+        margin: 0.4em 0;
+      }
+      .evidence-num {
+        font-weight: bold;
+        color: #c0392b;
+      }
+bibliography: references.bib
+---
+
+## Clinical Reasoning at Scale
+
+LLMs are being deployed across clinical reasoning tasks at unprecedented speed.
+
+| | |
+|---|---|
+| **31.5%** of US hospitals deployed generative AI in clinical workflows by 2024; another 24.7% planned near-term adoption | (Everson, Nong & Richwine 2025) |
+| **All 67** health systems surveyed reported active AI adoption in clinical documentation | (Poon et al. 2025) |
+| Publications on LLMs in clinical medicine: 160 (2023) → **557** (2024) | (Shool et al. 2025) |
+
+<br>
+
+**Scope of deployment:**
+Triage · Differential diagnosis · Clinical documentation · Test ordering · Referral decisions · Prior authorization · Coding · Treatment planning
+
+::: {.notes}
+I want to start with the scope of what's happening. A third of US hospitals are already running generative AI in clinical workflows. A national survey of leading health systems found universal adoption activity. The research literature has more than tripled in a single year. And the applications span the full range of clinical cognitive work — not just documentation, which is relatively low-risk, but diagnosis, triage, test ordering, treatment planning. Tasks that require clinical reasoning. The question is: what's the evidentiary basis for this deployment?
+:::
+
+## The Case for Deployment
+
+:::: {.columns}
+
+::: {.column width="48%"}
+### Benchmark Milestones
+
+- **Med-PaLM 2**: Expert-level medical question answering (Singhal et al. 2023)
+
+- **GPT-4**: ~86% on USMLE-style questions, exceeding passing threshold by 20+ points
+
+- **AMIE**: Outperformed primary care physicians in structured diagnostic conversations (Tu et al. 2024)
+:::
+
+::: {.column width="4%"}
+:::
+
+::: {.column width="48%"}
+### Clinical Evidence
+
+- **LLM alone: 92%** diagnostic accuracy vs. 74% for physicians (Goh et al. 2024, JAMA Network Open)
+
+- **MASAI trial**: AI-assisted mammography detected 20% more cancers, halved radiologist workload (Lång et al. 2023)
+
+- **Danish screening**: AI reliably filtered ~50% of normal chest X-rays (Plesner et al. 2024)
+:::
+
+::::
+
+<br>
+
+If you're a health system CEO looking at these numbers, deployment seems like an obvious decision.
+
+::: {.notes}
+And the evidence looks compelling. On the benchmark side, Med-PaLM 2 reached expert-level performance on medical question answering. GPT-4 crushed the USMLE by twenty points. Google's AMIE outperformed primary care physicians in structured diagnostic conversations. On the clinical side, Goh et al. ran a randomized trial where the LLM alone scored 92% on diagnostic reasoning — physicians scored 74%. The MASAI trial found AI-assisted mammography caught 20% more cancers while halving radiologist workload. If you're a health system CEO looking at these numbers, deployment seems like an obvious decision. But there's a problem.
+:::
+
+## Pattern Recognition ≠ Clinical Reasoning {background-color="#1a1a2e"}
+
+::: {.conflict-thesis}
+Healthcare is adopting LLMs for tasks that require clinical reasoning, based on benchmark evidence that measures something other than clinical reasoning.
+:::
+
+Three independent lines of evidence:
+
+::: {.evidence-block}
+[**1.**]{.evidence-num} **Context matching, not reasoning** (Wen et al. 2025, *npj Digital Medicine*)
+
+Rephrase a clinical question with synonymous terms → different (wrong) answer. Present a scenario where no answer is correct → models confidently pick one. Tested across 8 models: assumptions underlying MCQA validity **globally invalidated**.
+:::
+
+::: {.evidence-block}
+[**2.**]{.evidence-num} **Base rate neglect is systematic** (Omar et al. 2025)
+
+Add "recently returned from Southeast Asia" to a fever-and-cough vignette → LLMs shift to malaria/dengue even when pneumonia remains far more likely. **300 vignettes, 20 models** — salient cue overrides base rate every time.
+:::
+
+::: {.evidence-block}
+[**3.**]{.evidence-num} **Reasoning traces don't reflect actual computation**
+
+Models given incorrect hints construct elaborate justifications without acknowledging the hint (Anthropic faithfulness study; Matton et al. 2025). Models trained on *wrong* intermediate steps paired with correct answers still improve (Kambhampati et al. 2025). Reasoning models show sharp performance collapse at complexity thresholds (Shojaee et al. 2025).
+:::
+
+::: {.notes}
+Here's the core problem. Three independent research programs converge on the same conclusion.
+
+First, Wen and colleagues at Mayo tested whether LLM performance on medical board-style questions reflects applied knowledge or pattern matching. They rephrased clinical questions using synonymous terms — same clinical scenario, different surface features — and got different, wrong answers. When they presented scenarios with no correct answer choice, models confidently selected one anyway. They tested eight models and globally invalidated the assumptions underlying these benchmarks.
+
+Second, Omar and colleagues found what they call "chasing zebras." Add a single salient cue — recent travel to Southeast Asia — to a routine fever-and-cough vignette, and LLMs shift to rare tropical diagnoses even when community-acquired pneumonia remains far more probable. Three hundred vignettes, twenty models, completely systematic.
+
+Third — and this is the deepest problem — even the reasoning traces that models produce may not reflect their actual computation. Anthropic's own research found that models given incorrect hints will use the hint to get the right answer but then write an explanation that pretends they solved it independently. Kambhampati's group showed that models trained on deliberately wrong reasoning steps still improve, as long as the final answer is correct. The trace isn't reasoning — it's a learned navigation pattern through latent space. And Shojaee and colleagues showed that reasoning models experience sharp performance collapse once problems exceed certain complexity thresholds.
+
+Now — some of Shojaee's specific findings have been contested on methodological grounds, and the debate is ongoing. But that's actually the point. If the field can't agree on whether these models are truly reasoning even on puzzle tasks, we certainly shouldn't assume they're reasoning on clinical problems.
+:::
+
+## What's Needed
+
+If clinical reasoning deployment is outrunning our ability to evaluate clinical reasoning, we need benchmarks that:
+
+:::: {.columns}
+
+::: {.column width="48%"}
+
+### Out-of-Distribution
+Problems not solvable by pattern matching to training data. No memorization shortcuts.
+
+### Computable Optimality Ceiling
+Know how far from perfect a model is — not just pass/fail.
+:::
+
+::: {.column width="4%"}
+:::
+
+::: {.column width="48%"}
+
+### Decomposable
+Isolate which component processes fail. Pinpoint the source of reasoning breakdown.
+
+### Process-Oriented
+Evaluate *how* the model reasons, not just whether it gets the right answer.
+:::
+
+::::
+
+<br>
+
+**Diagnostic reasoning** is the best-characterized component of clinical reasoning — multicausal abductive inference with identifiable component processes (Johnson & Krems 2001). I have a task that tests all of them.
+
+::: {.notes}
+So what do we do? We need evaluation that actually tests reasoning. Four properties. Out-of-distribution, so we're not measuring memorization. An optimality ceiling, so we know how far from perfect a model is, not just whether it passes some threshold. Decomposable, so we can identify which component process is failing. And process-oriented, so we're evaluating how the model reasons, not just whether it gets the right answer.
+
+Now, the problem I've described is broad — it applies to clinical reasoning generally. But I'm going to study it through diagnostic reasoning specifically, for two reasons. First, diagnostic reasoning is the most cognitively well-characterized form of clinical reasoning. My work with Josef Krems established that it's multicausal abductive inference — reasoning from observed effects to hidden causes under uncertainty — with identifiable component processes: hypothesis generation, test selection, constraint tracking, belief updating. Second, I have a task environment that lets me test all of these components, with ground truth and a computable optimality ceiling. Let me show you.
+:::
