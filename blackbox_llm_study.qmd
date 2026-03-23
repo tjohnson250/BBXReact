@@ -749,7 +749,7 @@ includes:
 
 Key excerpt:
 
-```         
+```
 Your opponent has hidden 4 atoms within this box. By shooting rays into
 the box and observing where they emerge, it is possible to deduce the
 positions of the hidden atoms.
@@ -5034,7 +5034,7 @@ as "atoms."
 
 The erroneous baseline play prompt opened with:
 
-```         
+```
 Your opponent has hidden 4 balls within this box. By shooting rays into
 the box and observing where they emerge, it is possible to deduce the
 positions of the hidden balls.
@@ -5042,13 +5042,13 @@ positions of the hidden balls.
 
 and described absorption as:
 
-```         
+```
 HIT (H): The ray strikes a ball directly and is absorbed.
 ```
 
 The erroneous baseline predict prompt similarly used:
 
-```         
+```
 As a ray approaches a ball it is deflected ninety degrees. Rays can be
 deflected multiple times.
 ```
@@ -6045,7 +6045,7 @@ diagnostic tasks\]
 
 ## Baseline Play Prompt
 
-```         
+```
 You are playing Black Box, a game of hide and seek played on an 8 by 8 grid
 (the Black Box).
 
@@ -6090,7 +6090,7 @@ When you think you know where all 4 atoms are, make your guess.
 
 ## Baseline Predict Prompt
 
-```         
+```
 Predict where a ray will exit in Black Box.
 
 GRID: 8x8, rows 1-8 (top to bottom), columns 1-8 (left to right).
@@ -6120,7 +6120,7 @@ OR for reflection: {"reflected": true, "reasoning": "..."}
 
 When hypotheses are enabled, the response format is extended:
 
-```         
+```
 Respond with JSON only:
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
 {"action": "mark", "row": 1-8, "col": 1-8, "reasoning": "..."} - mark suspected atom
