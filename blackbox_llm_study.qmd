@@ -3257,8 +3257,6 @@ r2_score <- performance::r2_nakagawa(model_score)
 **Model Fit**: - **Marginal R²**: `r round(r2_score$R2_marginal, 3)` -
 **Conditional R²**: `r round(r2_score$R2_conditional, 3)`
 
-```
-
 ### Effect Modification by Ray Complexity (Play Mode)
 
 Does ray complexity (mean atoms per ray) moderate treatment effects?
@@ -3436,8 +3434,6 @@ fire - **Improve model fit**: Explain variance, increase power
 **Impact of ignoring config-level clustering**: - Underestimates
 standard errors - Inflates Type I error (false positives) - Invalid
 inference (cannot generalize beyond these 10 configs)
-
-```
 
 ```{r}
 #| label: play-forest-plot

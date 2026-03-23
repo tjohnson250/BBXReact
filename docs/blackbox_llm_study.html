@@ -231,11 +231,12 @@ window.Quarto = {
   <li><a href="#model-1-atoms-correct-0-4" id="toc-model-1-atoms-correct-0-4" class="nav-link" data-scroll-target="#model-1-atoms-correct-0-4"><span class="header-section-number">4.2.4.1</span> Model 1: Atoms Correct (0-4)</a></li>
   <li><a href="#model-2-score-lower-is-better" id="toc-model-2-score-lower-is-better" class="nav-link" data-scroll-target="#model-2-score-lower-is-better"><span class="header-section-number">4.2.4.2</span> Model 2: Score (Lower is Better)</a></li>
   </ul></li>
-  <li><a href="#regression-analysis-play-mode" id="toc-regression-analysis-play-mode" class="nav-link" data-scroll-target="#regression-analysis-play-mode"><span class="header-section-number">4.2.5</span> Regression Analysis: Play Mode</a>
+  <li><a href="#effect-modification-by-ray-complexity-play-mode" id="toc-effect-modification-by-ray-complexity-play-mode" class="nav-link" data-scroll-target="#effect-modification-by-ray-complexity-play-mode"><span class="header-section-number">4.2.5</span> Effect Modification by Ray Complexity (Play Mode)</a></li>
+  <li><a href="#regression-analysis-play-mode" id="toc-regression-analysis-play-mode" class="nav-link" data-scroll-target="#regression-analysis-play-mode"><span class="header-section-number">4.2.6</span> Regression Analysis: Play Mode</a>
   <ul class="collapse">
-  <li><a href="#standardized-coefficients-beta-weights" id="toc-standardized-coefficients-beta-weights" class="nav-link" data-scroll-target="#standardized-coefficients-beta-weights"><span class="header-section-number">4.2.5.1</span> Standardized Coefficients (Beta Weights)</a></li>
+  <li><a href="#standardized-coefficients-beta-weights" id="toc-standardized-coefficients-beta-weights" class="nav-link" data-scroll-target="#standardized-coefficients-beta-weights"><span class="header-section-number">4.2.6.1</span> Standardized Coefficients (Beta Weights)</a></li>
   </ul></li>
-  <li><a href="#interpretation-why-configuration-random-effects" id="toc-interpretation-why-configuration-random-effects" class="nav-link" data-scroll-target="#interpretation-why-configuration-random-effects"><span class="header-section-number">4.2.6</span> Interpretation: Why Configuration Random Effects?</a></li>
+  <li><a href="#interpretation-why-configuration-random-effects" id="toc-interpretation-why-configuration-random-effects" class="nav-link" data-scroll-target="#interpretation-why-configuration-random-effects"><span class="header-section-number">4.2.7</span> Interpretation: Why Configuration Random Effects?</a></li>
   </ul></li>
   <li><a href="#predict-vs-play-cross-mode-comparison" id="toc-predict-vs-play-cross-mode-comparison" class="nav-link" data-scroll-target="#predict-vs-play-cross-mode-comparison"><span class="header-section-number">4.3</span> Predict vs Play: Cross-Mode Comparison</a>
   <ul class="collapse">
@@ -6299,36 +6300,36 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <p><strong>ICC</strong>: 0.558</p>
 <p><strong>Model Fit</strong>: - <strong>Marginal R²</strong>: 0.239 - <strong>Conditional R²</strong>: 0.664</p>
-<pre><code>
-### Effect Modification by Ray Complexity (Play Mode)
-
-Does ray complexity (mean atoms per ray) moderate treatment effects?
-
-
-::: {.cell}
-
-```{.r .cell-code}
-run_play_effect_mod &lt;- has_model_var || has_prompt_var || has_thinking_var || has_vot_var
-
-if (run_play_effect_mod) {
-  # Build interaction formula with random effect
-  interaction_parts &lt;- c()
-  if (has_model_var) interaction_parts &lt;- c(interaction_parts, "model_name * mean_atoms_per_ray")
-  if (has_prompt_var) interaction_parts &lt;- c(interaction_parts, "prompt_style * mean_atoms_per_ray")
-  if (has_thinking_var) interaction_parts &lt;- c(interaction_parts, "enable_thinking * mean_atoms_per_ray")
-  if (has_vot_var) interaction_parts &lt;- c(interaction_parts, "vot_condition * mean_atoms_per_ray")
-
-  atoms_mod_formula &lt;- paste0("atoms_correct ~ ",
-                              paste(interaction_parts, collapse = " + "),
-                              " + (1 | config_index)")
-  score_mod_formula &lt;- paste0("score ~ ",
-                              paste(interaction_parts, collapse = " + "),
-                              " + (1 | config_index)")
-
-  model_atoms_mod &lt;- lmer(as.formula(atoms_mod_formula), data = play_data)
-  model_score_mod &lt;- lmer(as.formula(score_mod_formula), data = play_data)
-}</code></pre>
-<p>:::</p>
+</section>
+</section>
+<section id="effect-modification-by-ray-complexity-play-mode" class="level3" data-number="4.2.5">
+<h3 data-number="4.2.5" class="anchored" data-anchor-id="effect-modification-by-ray-complexity-play-mode"><span class="header-section-number">4.2.5</span> Effect Modification by Ray Complexity (Play Mode)</h3>
+<p>Does ray complexity (mean atoms per ray) moderate treatment effects?</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>run_play_effect_mod <span class="ot">&lt;-</span> has_model_var <span class="sc">||</span> has_prompt_var <span class="sc">||</span> has_thinking_var <span class="sc">||</span> has_vot_var</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (run_play_effect_mod) {</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Build interaction formula with random effect</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  interaction_parts <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (has_model_var) interaction_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(interaction_parts, <span class="st">"model_name * mean_atoms_per_ray"</span>)</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (has_prompt_var) interaction_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(interaction_parts, <span class="st">"prompt_style * mean_atoms_per_ray"</span>)</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (has_thinking_var) interaction_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(interaction_parts, <span class="st">"enable_thinking * mean_atoms_per_ray"</span>)</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (has_vot_var) interaction_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(interaction_parts, <span class="st">"vot_condition * mean_atoms_per_ray"</span>)</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>  atoms_mod_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"atoms_correct ~ "</span>,</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">paste</span>(interaction_parts, <span class="at">collapse =</span> <span class="st">" + "</span>),</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>                              <span class="st">" + (1 | config_index)"</span>)</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>  score_mod_formula <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"score ~ "</span>,</span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">paste</span>(interaction_parts, <span class="at">collapse =</span> <span class="st">" + "</span>),</span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>                              <span class="st">" + (1 | config_index)"</span>)</span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a>  model_atoms_mod <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">as.formula</span>(atoms_mod_formula), <span class="at">data =</span> play_data)</span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a>  model_score_mod <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">as.formula</span>(score_mod_formula), <span class="at">data =</span> play_data)</span>
+<span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
 <p><strong>Atoms Correct Model</strong>: atoms_correct ~ model_name * mean_atoms_per_ray + prompt_style * mean_atoms_per_ray + enable_thinking * mean_atoms_per_ray + vot_condition * mean_atoms_per_ray + (1 | config_index)</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
@@ -6372,9 +6373,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </section>
-</section>
-<section id="regression-analysis-play-mode" class="level3" data-number="4.2.5">
-<h3 data-number="4.2.5" class="anchored" data-anchor-id="regression-analysis-play-mode"><span class="header-section-number">4.2.5</span> Regression Analysis: Play Mode</h3>
+<section id="regression-analysis-play-mode" class="level3" data-number="4.2.6">
+<h3 data-number="4.2.6" class="anchored" data-anchor-id="regression-analysis-play-mode"><span class="header-section-number">4.2.6</span> Regression Analysis: Play Mode</h3>
 <p>Regression complements ANOVA by providing interpretable effect magnitudes. Coefficients show the expected change in outcome per unit change in predictor.</p>
 <div class="cell">
 <details class="code-fold">
@@ -6699,8 +6699,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <p><strong>Model Fit — Atoms Correct</strong>: - Marginal R²: 0.25 - Conditional R²: 0.548</p>
 <p><strong>Model Fit — Score</strong>: - Marginal R²: 0.216 - Conditional R²: 0.649</p>
-<section id="standardized-coefficients-beta-weights" class="level4" data-number="4.2.5.1">
-<h4 data-number="4.2.5.1" class="anchored" data-anchor-id="standardized-coefficients-beta-weights"><span class="header-section-number">4.2.5.1</span> Standardized Coefficients (Beta Weights)</h4>
+<section id="standardized-coefficients-beta-weights" class="level4" data-number="4.2.6.1">
+<h4 data-number="4.2.6.1" class="anchored" data-anchor-id="standardized-coefficients-beta-weights"><span class="header-section-number">4.2.6.1</span> Standardized Coefficients (Beta Weights)</h4>
 <p>Allows comparison of relative importance across fixed effects (based on fixed effects only).</p>
 <p><strong>Atoms Correct (Top 10)</strong>:</p>
 <div class="cell">
@@ -6742,8 +6742,8 @@ model name [Opus 4.6]       |      -0.02 | [-0.14,  0.10]</code></pre>
 </div>
 </section>
 </section>
-<section id="interpretation-why-configuration-random-effects" class="level3" data-number="4.2.6">
-<h3 data-number="4.2.6" class="anchored" data-anchor-id="interpretation-why-configuration-random-effects"><span class="header-section-number">4.2.6</span> Interpretation: Why Configuration Random Effects?</h3>
+<section id="interpretation-why-configuration-random-effects" class="level3" data-number="4.2.7">
+<h3 data-number="4.2.7" class="anchored" data-anchor-id="interpretation-why-configuration-random-effects"><span class="header-section-number">4.2.7</span> Interpretation: Why Configuration Random Effects?</h3>
 <p><strong>Play mode data structure</strong>: - Unit of analysis: Entire games (one game per config × condition) - LLM chooses which rays to fire (endogenous ray selection) - Different conditions may fire different rays - Multiple games per configuration (clustering)</p>
 <p><strong>Why config-level random effects?</strong></p>
 <ol type="1">
@@ -6761,65 +6761,64 @@ model name [Opus 4.6]       |      -0.02 | [-0.14,  0.10]</code></pre>
 </ol>
 <p><strong>Covariates</strong> (mean_cells_per_ray, mean_atoms_per_ray): - <strong>NOT confounders</strong>: Ray choice is endogenous to experimental condition - <strong>ARE precision variables</strong>: Describe difficulty of rays LLM chose to fire - <strong>Improve model fit</strong>: Explain variance, increase power</p>
 <p><strong>Impact of ignoring config-level clustering</strong>: - Underestimates standard errors - Inflates Type I error (false positives) - Invalid inference (cannot generalize beyond these 10 configs)</p>
-<pre><code>
-
-::: {.cell}
-
-```{.r .cell-code}
-# Calculate mean atoms correct and 95% CI for all configurations
-play_forest_data &lt;- play_data |&gt;
-  mutate(
-    # Create readable configuration labels
-    config_label = paste0(
-      model_name, " | ",
-      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
-      ifelse(as.logical(enable_thinking), "Think", "No-Think"), " | ",
-      gsub("^[A-C]: ", "", as.character(vot_condition))
-    )
-  ) |&gt;
-  group_by(config_label, model_name, prompt_style, enable_thinking, vot_condition) |&gt;
-  summarise(
-    n = n(),
-    mean_correct = mean(atoms_correct),
-    se = sd(atoms_correct) / sqrt(n()),
-    ci_lower = mean_correct - 1.96 * se,
-    ci_upper = mean_correct + 1.96 * se,
-    .groups = "drop"
-  ) |&gt;
-  arrange(desc(mean_correct)) |&gt;
-  mutate(
-    config_label = factor(config_label, levels = config_label)
-  )
-
-# Forest plot
-p_play_forest &lt;- ggplot(play_forest_data, aes(x = mean_correct, y = config_label)) +
-  geom_point(aes(color = model_name), size = 3) +
-  geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper, color = model_name),
-                 height = 0.3, linewidth = 0.8) +
-  geom_vline(xintercept = 0.25, linetype = "dotted", color = "red", alpha = 0.7) +
-  geom_vline(xintercept = 1, linetype = "dashed", color = "gray50", alpha = 0.5) +
-  geom_text(aes(label = sprintf("%.2f", mean_correct)),
-            hjust = -0.3, size = 3) +
-  labs(
-    title = "Play Mode: All Configurations Ranked by Atoms Correct",
-    subtitle = "Dotted red line = chance (E[X] = 0.25). Dashed gray line = 1 atom.",
-    x = "Mean Atoms Correct",
-    y = "Configuration",
-    color = "Model"
-  ) +
-  scale_x_continuous(
-    limits = c(0, 4),
-    breaks = seq(0, 4, 0.5)
-  ) +
-  theme_minimal(base_size = 11) +
-  theme(
-    axis.text.y = element_text(size = 9, family = "mono"),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank(),
-    legend.position = "top"
-  )
-
-print(p_play_forest)</code></pre>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate mean atoms correct and 95% CI for all configurations</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>play_forest_data <span class="ot">&lt;-</span> play_data <span class="sc">|&gt;</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create readable configuration labels</span></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">config_label =</span> <span class="fu">paste0</span>(</span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>      model_name, <span class="st">" | "</span>,</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(prompt_style <span class="sc">==</span> <span class="st">"augmented"</span>, <span class="st">"Aug"</span>, <span class="st">"Base"</span>), <span class="st">" | "</span>,</span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="fu">as.logical</span>(enable_thinking), <span class="st">"Think"</span>, <span class="st">"No-Think"</span>), <span class="st">" | "</span>,</span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">gsub</span>(<span class="st">"^[A-C]: "</span>, <span class="st">""</span>, <span class="fu">as.character</span>(vot_condition))</span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(config_label, model_name, prompt_style, enable_thinking, vot_condition) <span class="sc">|&gt;</span></span>
+<span id="cb56-13"><a href="#cb56-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb56-14"><a href="#cb56-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb56-15"><a href="#cb56-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_correct =</span> <span class="fu">mean</span>(atoms_correct),</span>
+<span id="cb56-16"><a href="#cb56-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">se =</span> <span class="fu">sd</span>(atoms_correct) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">n</span>()),</span>
+<span id="cb56-17"><a href="#cb56-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_lower =</span> mean_correct <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se,</span>
+<span id="cb56-18"><a href="#cb56-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_upper =</span> mean_correct <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se,</span>
+<span id="cb56-19"><a href="#cb56-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb56-20"><a href="#cb56-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb56-21"><a href="#cb56-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(mean_correct)) <span class="sc">|&gt;</span></span>
+<span id="cb56-22"><a href="#cb56-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb56-23"><a href="#cb56-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">config_label =</span> <span class="fu">factor</span>(config_label, <span class="at">levels =</span> config_label)</span>
+<span id="cb56-24"><a href="#cb56-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb56-25"><a href="#cb56-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-26"><a href="#cb56-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Forest plot</span></span>
+<span id="cb56-27"><a href="#cb56-27" aria-hidden="true" tabindex="-1"></a>p_play_forest <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(play_forest_data, <span class="fu">aes</span>(<span class="at">x =</span> mean_correct, <span class="at">y =</span> config_label)) <span class="sc">+</span></span>
+<span id="cb56-28"><a href="#cb56-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> model_name), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb56-29"><a href="#cb56-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> ci_lower, <span class="at">xmax =</span> ci_upper, <span class="at">color =</span> model_name),</span>
+<span id="cb56-30"><a href="#cb56-30" aria-hidden="true" tabindex="-1"></a>                 <span class="at">height =</span> <span class="fl">0.3</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb56-31"><a href="#cb56-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fl">0.25</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb56-32"><a href="#cb56-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb56-33"><a href="#cb56-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, mean_correct)),</span>
+<span id="cb56-34"><a href="#cb56-34" aria-hidden="true" tabindex="-1"></a>            <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb56-35"><a href="#cb56-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb56-36"><a href="#cb56-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Play Mode: All Configurations Ranked by Atoms Correct"</span>,</span>
+<span id="cb56-37"><a href="#cb56-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Dotted red line = chance (E[X] = 0.25). Dashed gray line = 1 atom."</span>,</span>
+<span id="cb56-38"><a href="#cb56-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Mean Atoms Correct"</span>,</span>
+<span id="cb56-39"><a href="#cb56-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Configuration"</span>,</span>
+<span id="cb56-40"><a href="#cb56-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Model"</span></span>
+<span id="cb56-41"><a href="#cb56-41" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb56-42"><a href="#cb56-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(</span>
+<span id="cb56-43"><a href="#cb56-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb56-44"><a href="#cb56-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">4</span>, <span class="fl">0.5</span>)</span>
+<span id="cb56-45"><a href="#cb56-45" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb56-46"><a href="#cb56-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
+<span id="cb56-47"><a href="#cb56-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb56-48"><a href="#cb56-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>, <span class="at">family =</span> <span class="st">"mono"</span>),</span>
+<span id="cb56-49"><a href="#cb56-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb56-50"><a href="#cb56-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb56-51"><a href="#cb56-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"top"</span></span>
+<span id="cb56-52"><a href="#cb56-52" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb56-53"><a href="#cb56-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-54"><a href="#cb56-54" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p_play_forest)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -6827,7 +6826,7 @@ print(p_play_forest)</code></pre>
 </figure>
 </div>
 </div>
-<p>:::</p>
+</div>
 <p><strong>Total configurations</strong>: 80 <strong>Best performing</strong>: Sonnet 4.6 | Aug | Think | Ray Trace (mean = 2.79 atoms correct)</p>
 <div class="cell">
 <details class="code-fold">
