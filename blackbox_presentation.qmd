@@ -72,30 +72,94 @@ predict_json_files <- list.files(
   full.names = TRUE
 )
 
-count_ray_cells <- function(rayResult) {
-  if (is.null(rayResult) || is.null(rayResult$path)) return(NA_real_)
-  path <- rayResult$path
-  if (!is.matrix(path) || nrow(path) == 0) return(NA_real_)
-  cells <- 1 + nrow(path)
-  if (!is.null(rayResult$absorbed) && !rayResult$absorbed) cells <- cells + 1
-  return(cells)
+# R port of traceRay() from blackbox.jsx — computes the full ray path
+trace_ray_r <- function(atom_config, entry_side, entry_pos) {
+  GRID_SIZE <- 8
+  atom_set <- paste(atom_config[, 1], atom_config[, 2], sep = ",")
+  has_atom <- function(r, c) paste(r, c, sep = ",") %in% atom_set
+
+  if (entry_side == "north") { row <- 0; col <- entry_pos; dr <- 1;  dc <- 0  }
+  else if (entry_side == "south") { row <- 9; col <- entry_pos; dr <- -1; dc <- 0  }
+  else if (entry_side == "west")  { row <- entry_pos; col <- 0; dr <- 0;  dc <- 1  }
+  else { row <- entry_pos; col <- 9; dr <- 0; dc <- -1 }
+
+  entry_row <- row + dr
+  entry_col <- col + dc
+
+  get_diags <- function(r, c, vr, vc) {
+    if (vr ==  1) list(left = c(r+1, c+1), right = c(r+1, c-1))
+    else if (vr == -1) list(left = c(r-1, c-1), right = c(r-1, c+1))
+    else if (vc ==  1) list(left = c(r-1, c+1), right = c(r+1, c+1))
+    else                list(left = c(r+1, c-1), right = c(r-1, c-1))
+  }
+
+  if (has_atom(entry_row, entry_col)) {
+    return(list(path = matrix(c(entry_row, entry_col), ncol = 2),
+                absorbed = TRUE, reflected = FALSE))
+  }
+  init_diags <- get_diags(row, col, dr, dc)
+  if (has_atom(init_diags$left[1], init_diags$left[2]) ||
+      has_atom(init_diags$right[1], init_diags$right[2])) {
+    return(list(path = matrix(nrow = 0, ncol = 2),
+                entry_cell = c(entry_row, entry_col),
+                absorbed = FALSE, reflected = TRUE))
+  }
+
+  path_rows <- integer(0); path_cols <- integer(0)
+  for (step in seq_len(100)) {
+    row <- row + dr; col <- col + dc
+    if (row < 1 || row > GRID_SIZE || col < 1 || col > GRID_SIZE) {
+      path_mat <- if (length(path_rows) > 0) matrix(c(path_rows, path_cols), ncol = 2)
+                  else matrix(nrow = 0, ncol = 2)
+      if (row < 1) { exit_side <- "north"; exit_pos <- col }
+      else if (row > GRID_SIZE) { exit_side <- "south"; exit_pos <- col }
+      else if (col < 1) { exit_side <- "west"; exit_pos <- row }
+      else { exit_side <- "east"; exit_pos <- row }
+      is_reflect <- (exit_side == entry_side && exit_pos == entry_pos)
+      return(list(path = path_mat, absorbed = FALSE, reflected = is_reflect))
+    }
+    path_rows <- c(path_rows, row); path_cols <- c(path_cols, col)
+    if (has_atom(row, col))
+      return(list(path = matrix(c(path_rows, path_cols), ncol = 2),
+                  absorbed = TRUE, reflected = FALSE))
+    ahead_r <- row + dr; ahead_c <- col + dc
+    if (!has_atom(ahead_r, ahead_c)) {
+      diags <- get_diags(row, col, dr, dc)
+      left_atom  <- has_atom(diags$left[1], diags$left[2])
+      right_atom <- has_atom(diags$right[1], diags$right[2])
+      if (left_atom && right_atom) { dr <- -dr; dc <- -dc }
+      else if (left_atom) { tmp <- dr; dr <- dc; dc <- -tmp }
+      else if (right_atom) { tmp <- dr; dr <- -dc; dc <- tmp }
+    }
+  }
+  path_mat <- if (length(path_rows) > 0) matrix(c(path_rows, path_cols), ncol = 2)
+              else matrix(nrow = 0, ncol = 2)
+  list(path = path_mat, absorbed = TRUE, reflected = FALSE)
 }
 
-count_atoms_affecting <- function(path, atom_config) {
-  if (is.null(path) || length(path) == 0) return(0)
-  if (!is.matrix(path)) return(0)
-  affected <- 0
-  n_atoms <- nrow(atom_config)
-  n_cells <- nrow(path)
-  for (i in seq_len(n_atoms)) {
-    atom_row <- atom_config[i, 1]
-    atom_col <- atom_config[i, 2]
-    for (j in seq_len(n_cells)) {
-      cell_row <- path[j, 1]
-      cell_col <- path[j, 2]
-      if (abs(atom_row - cell_row) <= 1 && abs(atom_col - cell_col) <= 1) {
-        affected <- affected + 1
-        break
+count_ray_cells <- function(atom_config, entry_side, entry_pos) {
+  nrow(trace_ray_r(atom_config, entry_side, entry_pos)$path)
+}
+
+count_atoms_affecting <- function(atom_config, entry_side, entry_pos) {
+  result <- trace_ray_r(atom_config, entry_side, entry_pos)
+  path <- result$path
+  if (nrow(path) == 0 && !is.null(result$entry_cell)) {
+    ec <- result$entry_cell
+    affected <- 0L
+    for (i in seq_len(nrow(atom_config))) {
+      if (abs(atom_config[i, 1] - ec[1]) <= 1 &&
+          abs(atom_config[i, 2] - ec[2]) <= 1) affected <- affected + 1L
+    }
+    return(affected)
+  }
+  if (nrow(path) == 0) return(0L)
+  affected <- 0L
+  for (i in seq_len(nrow(atom_config))) {
+    atom_row <- atom_config[i, 1]; atom_col <- atom_config[i, 2]
+    for (j in seq_len(nrow(path))) {
+      if (abs(atom_row - path[j, 1]) <= 1 && abs(atom_col - path[j, 2]) <= 1) {
+        affected <- affected + 1L; break
       }
     }
   }
@@ -109,8 +173,8 @@ extract_predict_results <- function(json_file) {
     predictions <- r$predictions
     if (is.null(predictions) || length(predictions) == 0) return(tibble())
     map_dfr(predictions, function(p) {
-      cells_traveled <- count_ray_cells(p$rayResult)
-      atoms_affecting <- count_atoms_affecting(p$rayResult$path, r$atomConfig)
+      cells_traveled <- count_ray_cells(r$atomConfig, p$rayEntry$side, p$rayEntry$pos)
+      atoms_affecting <- count_atoms_affecting(r$atomConfig, p$rayEntry$side, p$rayEntry$pos)
       tibble(
         model_name = r$modelName,
         prompt_style = r$promptStyle,
@@ -140,10 +204,10 @@ extract_play_results <- function(json_file) {
   map_dfr(results, function(r) {
     ray_complexity <- lapply(r$raySequence, function(ray) {
       if (!is.null(ray$action) && ray$action == "fire" &&
-          !is.null(ray$rayResult) && !is.null(ray$rayResult$path)) {
+          !is.null(ray$rayEntry)) {
         list(
-          atoms = count_atoms_affecting(ray$rayResult$path, r$atomConfig),
-          cells = count_ray_cells(ray$rayResult)
+          atoms = count_atoms_affecting(r$atomConfig, ray$rayEntry$side, ray$rayEntry$pos),
+          cells = count_ray_cells(r$atomConfig, ray$rayEntry$side, ray$rayEntry$pos)
         )
       } else {
         list(atoms = NA_real_, cells = NA_real_)

@@ -10,13 +10,14 @@ format:
   html:
     toc: true
     toc-depth: 4
-    toc-expand: 2
+    toc-expand: 1
     number-sections: true
     code-fold: true
     theme: cosmo
   pdf:
     toc: true
     toc-depth: 4
+    toc-expand: 1
     number-sections: true
     colorlinks: true
 bibliography: references.bib
@@ -136,7 +137,7 @@ identifying *which* specific state from a known set is present.
 **Component processes of diagnostic reasoning:**
 
 | Process | Description |
-|----|----|
+|------------------------------------|------------------------------------|
 | **Hypothesis Generation** | Generate candidate hidden states that could explain observations |
 | **Forward Reasoning** | Predict what observations would occur under each hypothesis |
 | **Test Selection** | Choose which observation to gather next to best discriminate among hypotheses |
@@ -163,7 +164,7 @@ realization of diagnostic reasoning*—requiring all six component
 processes in an integrated task:
 
 | Diagnostic Process | Black Box Analog |
-|----|----|
+|------------------------------------|------------------------------------|
 | **Hypothesis Generation** | Consider which atom configurations could explain observations |
 | **Forward Reasoning** | Predict ray behavior under a hypothesized configuration |
 | **Test Selection** | Choose which ray to fire next to discriminate among hypotheses |
@@ -716,8 +717,8 @@ Anthropic API. The implementation follows standard Black Box rules:
 ### Predict Mode (Forward Reasoning)
 
 In Predict mode, the LLM is shown the 8×8 grid with atom positions
-marked and a ray entry point (e.g., "NORTH-4"). Each ray is presented
-as an **independent API call** with a fresh context window — the model
+marked and a ray entry point (e.g., "NORTH-4"). Each ray is presented as
+an **independent API call** with a fresh context window — the model
 receives the atom positions and a single ray to trace, with no knowledge
 of its predictions on other rays.
 
@@ -842,7 +843,7 @@ kable(predict_design, format = "pipe")
 ```
 
 | Model | Prompt | Extended Thinking | Vot (None, B Ray Trace) |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **10K** | **None** |
@@ -857,7 +858,7 @@ kable(predict_design, format = "pipe")
 Play Mode Experiment Log
 
 | Model | Prompt | Extended Thinking | VoT (None, A, B, or C) |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT A Grid State Tracking** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
@@ -938,8 +939,8 @@ Each ray prediction is a **single, independent API call** with no
 conversation history. The model receives:
 
 -   A **system prompt** describing Black Box ray physics, example
-    diagrams, and the expected JSON response format (identical across all
-    rays in a condition)
+    diagrams, and the expected JSON response format (identical across
+    all rays in a condition)
 -   A **user message** containing: the explicit atom positions (e.g.,
     "Atoms are located at: (2,3), (3,6), (6,2), (7,7)"), an optional
     ASCII board visualization, and one ray entry point to trace
@@ -965,9 +966,8 @@ thinking × VoT):
 Each game is a **single, multi-turn conversation** in which context
 accumulates. The model receives:
 
--   A **system prompt** describing the complete game rules, scoring,
-    ray physics, and available actions (held constant throughout the
-    game)
+-   A **system prompt** describing the complete game rules, scoring, ray
+    physics, and available actions (held constant throughout the game)
 -   On each turn, a **user message** listing: all previous ray results
     (cumulative), available and unavailable entry/exit positions, an
     optional updated ASCII board, and (if hypotheses enabled) current
@@ -1070,7 +1070,7 @@ Following Cohen (1988), we interpret effect sizes using conventional
 benchmarks:
 
 | Measure | Small | Medium | Large | Notes |
-|----|----|----|----|----|
+|---------------|---------------|---------------|---------------|---------------|
 | η² (Eta-squared) | 0.01 | 0.06 | 0.14 | Total variance explained |
 | η²p (Partial eta-squared) | 0.01 | 0.06 | 0.14 | Variance explained controlling for other factors |
 | ω² (Omega-squared) | 0.01 | 0.06 | 0.14 | Unbiased estimate (preferred over η²) |
@@ -1110,12 +1110,26 @@ Comparing Predict mode (forward reasoning, heavily spatial) to Play mode
 
 We use two complementary measures of spatial complexity:
 
--   **Predict mode**: *Cells traveled*—the total number of cells a ray
-    traverses (entry cell + internal path + exit cell). This measures
-    path length complexity.
--   **Play mode**: *Mean atoms per ray*—the average number of atoms
-    affecting each ray's path in a game. This measures interaction
-    complexity.
+-   **Predict mode**: *Cells traveled*—the number of internal grid
+    cells a ray visits. A ray that passes straight through the grid
+    without interaction traverses 8 cells; absorption shortens the
+    path (the absorbing cell is the last cell counted); deflections
+    lengthen it by adding turns. Edge reflections—where an atom
+    diagonally adjacent to the entry point bounces the ray before it
+    enters the grid—yield 0 cells. Loop-back reflections, where the
+    ray enters the grid, reverses via a pair of flanking atoms, and
+    exits at its entry point, include all internal cells visited
+    (typically 1–7).
+-   **Atoms affecting**—the number of distinct atoms within Chebyshev
+    distance 1 of any cell the ray visits (or, for edge reflections,
+    within distance 1 of the entry cell). This counts atoms that
+    directly interact with the ray (absorbing, reflecting, or
+    deflecting) as well as atoms adjacent to the path that do not
+    alter it. Values range from 0 (a straight-through detour with no
+    nearby atoms) to 4.
+-   **Play mode**: *Mean atoms per ray*—the per-game average of atoms
+    affecting, computed over all rays fired in a game. This measures
+    interaction complexity.
 
 Moderation analysis tests whether treatment effects (model, prompt
 style, extended thinking) interact with spatial complexity:
@@ -1130,7 +1144,7 @@ style, extended thinking) interact with spatial complexity:
 We classify errors from extended thinking traces into categories:
 
 | Error Type | Spatial? | Description |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Ray path error | Yes | Path traced incorrectly through grid |
 | Deflection geometry error | Yes | Misunderstood deflection rules |
 | Constraint tracking error | No | Failed to update ruled-out positions |
@@ -1155,50 +1169,147 @@ predict_json_files <- list.files(
   full.names = TRUE
 )
 
-# Helper function to count cells traveled by a ray
-# Entry cell (outside box) + internal path cells + exit cell (outside box)
-count_ray_cells <- function(rayResult) {
-  if (is.null(rayResult) || is.null(rayResult$path)) {
-    return(NA_real_)
+# R port of traceRay() from blackbox.jsx — computes the full ray path
+# including entry-point reflection checks that the JSON path field omits.
+# Returns list(path = Nx2 matrix of cells visited, absorbed = logical,
+#              reflected = logical)
+trace_ray_r <- function(atom_config, entry_side, entry_pos) {
+  GRID_SIZE <- 8
+  # atom_config is a 4x2 matrix; convert to a set of "row,col" strings
+  atom_set <- paste(atom_config[, 1], atom_config[, 2], sep = ",")
+
+  has_atom <- function(r, c) paste(r, c, sep = ",") %in% atom_set
+
+  # Entry boundary position (outside the grid)
+  if (entry_side == "north") { row <- 0; col <- entry_pos; dr <- 1;  dc <- 0  }
+  else if (entry_side == "south") { row <- 9; col <- entry_pos; dr <- -1; dc <- 0  }
+  else if (entry_side == "west")  { row <- entry_pos; col <- 0; dr <- 0;  dc <- 1  }
+  else { row <- entry_pos; col <- 9; dr <- 0; dc <- -1 }
+
+  entry_row <- row + dr
+  entry_col <- col + dc
+
+  # Rule 1: atom in entry cell → absorbed (priority over reflection)
+  if (has_atom(entry_row, entry_col)) {
+    return(list(path = matrix(c(entry_row, entry_col), ncol = 2),
+                absorbed = TRUE, reflected = FALSE))
   }
 
-  path <- rayResult$path
-  if (!is.matrix(path) || nrow(path) == 0) {
-    return(NA_real_)
+  # Rule 2: flanking atoms at entry → reflected
+  # getDiagonalsAhead for the boundary cell looking inward
+  get_diags <- function(r, c, vr, vc) {
+    if (vr ==  1) list(left = c(r+1, c+1), right = c(r+1, c-1))
+    else if (vr == -1) list(left = c(r-1, c-1), right = c(r-1, c+1))
+    else if (vc ==  1) list(left = c(r-1, c+1), right = c(r+1, c+1))
+    else                list(left = c(r+1, c-1), right = c(r-1, c-1))
+  }
+  init_diags <- get_diags(row, col, dr, dc)
+  if (has_atom(init_diags$left[1], init_diags$left[2]) ||
+      has_atom(init_diags$right[1], init_diags$right[2])) {
+    # Edge reflection — ray never enters the grid (0 cells traveled).
+    # Return entry_cell so atoms_affecting can check the neighborhood.
+    return(list(path = matrix(nrow = 0, ncol = 2),
+                entry_cell = c(entry_row, entry_col),
+                absorbed = FALSE, reflected = TRUE))
   }
 
-  # Start with entry cell (outside box) + all internal path cells
-  cells <- 1 + nrow(path)
+  # Interior traversal
+  path_rows <- integer(0)
+  path_cols <- integer(0)
 
-  # Add exit cell (outside box) for rays that exit (not absorbed)
-  # Absorbed rays have absorbed=TRUE and no exit field
-  # Deflected/reflected rays have absorbed=FALSE and an exit field
-  if (!is.null(rayResult$absorbed) && !rayResult$absorbed) {
-    cells <- cells + 1
+  for (step in seq_len(100)) {
+    row <- row + dr
+    col <- col + dc
+
+    # Boundary exit?
+    if (row < 1 || row > GRID_SIZE || col < 1 || col > GRID_SIZE) {
+      path_mat <- if (length(path_rows) > 0) {
+        matrix(c(path_rows, path_cols), ncol = 2)
+      } else {
+        matrix(nrow = 0, ncol = 2)
+      }
+      # Check if exit equals entry (loop-back reflection)
+      if (row < 1) { exit_side <- "north"; exit_pos <- col }
+      else if (row > GRID_SIZE) { exit_side <- "south"; exit_pos <- col }
+      else if (col < 1) { exit_side <- "west"; exit_pos <- row }
+      else { exit_side <- "east"; exit_pos <- row }
+      is_reflect <- (exit_side == entry_side && exit_pos == entry_pos)
+      return(list(path = path_mat, absorbed = FALSE, reflected = is_reflect))
+    }
+
+    path_rows <- c(path_rows, row)
+    path_cols <- c(path_cols, col)
+
+    # Absorption: ray enters a cell containing an atom
+    if (has_atom(row, col)) {
+      return(list(path = matrix(c(path_rows, path_cols), ncol = 2),
+                  absorbed = TRUE, reflected = FALSE))
+    }
+
+    # Deflection: check cell ahead and its flanks
+    ahead_r <- row + dr
+    ahead_c <- col + dc
+    if (!has_atom(ahead_r, ahead_c)) {
+      diags <- get_diags(row, col, dr, dc)
+      left_atom  <- has_atom(diags$left[1], diags$left[2])
+      right_atom <- has_atom(diags$right[1], diags$right[2])
+
+      if (left_atom && right_atom) {
+        dr <- -dr; dc <- -dc
+      } else if (left_atom) {
+        tmp <- dr; dr <- dc; dc <- -tmp
+      } else if (right_atom) {
+        tmp <- dr; dr <- -dc; dc <- tmp
+      }
+    }
   }
 
-  return(cells)
+  # Safety fallback
+  path_mat <- if (length(path_rows) > 0) {
+    matrix(c(path_rows, path_cols), ncol = 2)
+  } else {
+    matrix(nrow = 0, ncol = 2)
+  }
+  list(path = path_mat, absorbed = TRUE, reflected = FALSE)
 }
 
-# Helper function: count atoms adjacent (within 1 cell) to any cell in ray path
-# Note: jsonlite parses arrays as matrices, so atom_config is 4x2 and path is Nx2
-count_atoms_affecting <- function(path, atom_config) {
-  if (is.null(path) || length(path) == 0) return(0)
-  if (!is.matrix(path)) return(0)
+# Count cells traveled by a ray using full retrace
+# Includes all internal grid cells the ray visits (not entry/exit boundary cells)
+count_ray_cells <- function(atom_config, entry_side, entry_pos) {
+  result <- trace_ray_r(atom_config, entry_side, entry_pos)
+  nrow(result$path)
+}
 
-  affected <- 0
-  n_atoms <- nrow(atom_config)
-  n_cells <- nrow(path)
+# Count atoms within Chebyshev distance 1 of any cell in the full ray path.
+# For edge reflections (0-cell path), checks the entry cell neighborhood
+# since the reflecting atoms are diagonally adjacent to it.
+count_atoms_affecting <- function(atom_config, entry_side, entry_pos) {
+  result <- trace_ray_r(atom_config, entry_side, entry_pos)
+  path <- result$path
 
-  for (i in seq_len(n_atoms)) {
+  # For edge reflections, the ray doesn't enter the grid but atoms adjacent
+  # to the entry cell caused the reflection — check that neighborhood
+  if (nrow(path) == 0 && !is.null(result$entry_cell)) {
+    ec <- result$entry_cell
+    affected <- 0L
+    for (i in seq_len(nrow(atom_config))) {
+      if (abs(atom_config[i, 1] - ec[1]) <= 1 &&
+          abs(atom_config[i, 2] - ec[2]) <= 1) {
+        affected <- affected + 1L
+      }
+    }
+    return(affected)
+  }
+  if (nrow(path) == 0) return(0L)
+
+  affected <- 0L
+  for (i in seq_len(nrow(atom_config))) {
     atom_row <- atom_config[i, 1]
     atom_col <- atom_config[i, 2]
-    for (j in seq_len(n_cells)) {
-      cell_row <- path[j, 1]
-      cell_col <- path[j, 2]
-      if (abs(atom_row - cell_row) <= 1 && abs(atom_col - cell_col) <= 1) {
-        affected <- affected + 1
-        break  # Count each atom only once per ray
+    for (j in seq_len(nrow(path))) {
+      if (abs(atom_row - path[j, 1]) <= 1 && abs(atom_col - path[j, 2]) <= 1) {
+        affected <- affected + 1L
+        break
       }
     }
   }
@@ -1223,9 +1334,9 @@ extract_predict_results <- function(json_file) {
 
     # Extract each prediction
     map_dfr(predictions, function(p) {
-      # Calculate path complexity metrics
-      cells_traveled <- count_ray_cells(p$rayResult)
-      atoms_affecting <- count_atoms_affecting(p$rayResult$path, r$atomConfig)
+      # Calculate path complexity metrics via full ray retrace
+      cells_traveled <- count_ray_cells(r$atomConfig, p$rayEntry$side, p$rayEntry$pos)
+      atoms_affecting <- count_atoms_affecting(r$atomConfig, p$rayEntry$side, p$rayEntry$pos)
 
       tibble(
         experiment_id = r$experimentId,
@@ -1802,11 +1913,18 @@ appear in multiple experimental conditions
 
 print(VarCorr(model_predict))
 
-icc_value <- performance::icc(model_predict)
+icc_value <- tryCatch(performance::icc(model_predict), error = function(e) NULL)
+icc_display <- if (!is.null(icc_value) && is.data.frame(icc_value)) {
+  round(icc_value$ICC_adjusted, 3)
+} else if (!is.null(icc_value) && is.numeric(icc_value)) {
+  round(icc_value, 3)
+} else {
+  "not estimable for this model"
+}
 ```
 
 **Intraclass Correlation Coefficient (ICC)**:
-`r round(icc_value$ICC_adjusted, 3)` — Proportion of variance due to
+`r icc_display` — Proportion of variance due to
 clustering at both configuration and ray-within-config levels.
 
 ```{r}
@@ -2403,10 +2521,10 @@ extract_play_results <- function(json_file) {
     # Calculate mean complexity measures for each ray fired
     ray_complexity <- lapply(r$raySequence, function(ray) {
       if (!is.null(ray$action) && ray$action == "fire" &&
-          !is.null(ray$rayResult) && !is.null(ray$rayResult$path)) {
+          !is.null(ray$rayEntry)) {
         list(
-          atoms = count_atoms_affecting(ray$rayResult$path, r$atomConfig),
-          cells = count_ray_cells(ray$rayResult)
+          atoms = count_atoms_affecting(r$atomConfig, ray$rayEntry$side, ray$rayEntry$pos),
+          cells = count_ray_cells(r$atomConfig, ray$rayEntry$side, ray$rayEntry$pos)
         )
       } else {
         list(atoms = NA_real_, cells = NA_real_)
@@ -3249,7 +3367,14 @@ print(Anova(model_atoms, type = 3))
 # Random effects variance
 print(VarCorr(model_atoms))
 
-icc_value <- performance::icc(model_atoms)
+icc_value <- tryCatch(performance::icc(model_atoms), error = function(e) NULL)
+icc_display <- if (!is.null(icc_value) && is.data.frame(icc_value)) {
+  round(icc_value$ICC_adjusted, 3)
+} else if (!is.null(icc_value) && is.numeric(icc_value)) {
+  round(icc_value, 3)
+} else {
+  "not estimable for this model"
+}
 r2_result <- performance::r2_nakagawa(model_atoms)
 ```
 
@@ -3257,7 +3382,7 @@ r2_result <- performance::r2_nakagawa(model_atoms)
 config-level difficulty and allows generalization beyond these 10
 configurations.
 
-**ICC**: `r round(icc_value$ICC_adjusted, 3)` — Proportion of variance
+**ICC**: `r icc_display` — Proportion of variance
 due to configuration clustering
 
 **Model Fit**: - **Marginal R²** (fixed effects only):
@@ -3294,11 +3419,18 @@ print(Anova(model_score, type = 3))
 # Random effects
 print(VarCorr(model_score))
 
-icc_score <- performance::icc(model_score)
+icc_score <- tryCatch(performance::icc(model_score), error = function(e) NULL)
+icc_score_display <- if (!is.null(icc_score) && is.data.frame(icc_score)) {
+  round(icc_score$ICC_adjusted, 3)
+} else if (!is.null(icc_score) && is.numeric(icc_score)) {
+  round(icc_score, 3)
+} else {
+  "not estimable for this model"
+}
 r2_score <- performance::r2_nakagawa(model_score)
 ```
 
-**ICC**: `r round(icc_score$ICC_adjusted, 3)`
+**ICC**: `r icc_score_display`
 
 **Model Fit**: - **Marginal R²**: `r round(r2_score$R2_marginal, 3)` -
 **Conditional R²**: `r round(r2_score$R2_conditional, 3)`
@@ -4403,7 +4535,7 @@ the predicted vs. actual outcome types and exit positions.
 **Error taxonomy:**
 
 | Error Category | Pattern | Description |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Missed absorption | pred: detour/reflected → actual: absorbed | Failed to check for atom directly in ray's path before checking diagonals |
 | Missed reflection | pred: detour/absorbed → actual: reflected | Failed to recognize reflection condition at entry point |
 | False absorption | pred: absorbed → actual: detour/reflected | Incorrectly identified absorption; confused diagonal atom with forward atom |
@@ -5519,10 +5651,17 @@ kable(e2_or_display,
 
 print(VarCorr(e2_model))
 
-e2_icc <- performance::icc(e2_model)
+e2_icc <- tryCatch(performance::icc(e2_model), error = function(e) NULL)
+e2_icc_display <- if (!is.null(e2_icc) && is.data.frame(e2_icc)) {
+  round(e2_icc$ICC_adjusted, 3)
+} else if (!is.null(e2_icc) && is.numeric(e2_icc)) {
+  round(e2_icc, 3)
+} else {
+  "not estimable for this model"
+}
 ```
 
-**ICC**: `r round(e2_icc$ICC_adjusted, 3)` — Proportion of variance due
+**ICC**: `r e2_icc_display` — Proportion of variance due
 to clustering at configuration and ray-within-config levels.
 
 ```{r}
