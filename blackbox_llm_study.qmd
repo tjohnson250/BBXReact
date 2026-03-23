@@ -136,7 +136,7 @@ identifying *which* specific state from a known set is present.
 **Component processes of diagnostic reasoning:**
 
 | Process | Description |
-|------------------------------------|------------------------------------|
+|----|----|
 | **Hypothesis Generation** | Generate candidate hidden states that could explain observations |
 | **Forward Reasoning** | Predict what observations would occur under each hypothesis |
 | **Test Selection** | Choose which observation to gather next to best discriminate among hypotheses |
@@ -163,7 +163,7 @@ realization of diagnostic reasoning*—requiring all six component
 processes in an integrated task:
 
 | Diagnostic Process | Black Box Analog |
-|------------------------------------|------------------------------------|
+|----|----|
 | **Hypothesis Generation** | Consider which atom configurations could explain observations |
 | **Forward Reasoning** | Predict ray behavior under a hypothesized configuration |
 | **Test Selection** | Choose which ray to fire next to discriminate among hypotheses |
@@ -715,21 +715,29 @@ Anthropic API. The implementation follows standard Black Box rules:
 
 ### Predict Mode (Forward Reasoning)
 
-In Predict mode, the LLM is shown: - The 8×8 grid with atom positions
-marked - A ray entry point (e.g., "NORTH-4")
+In Predict mode, the LLM is shown the 8×8 grid with atom positions
+marked and a ray entry point (e.g., "NORTH-4"). Each ray is presented
+as an **independent API call** with a fresh context window — the model
+receives the atom positions and a single ray to trace, with no knowledge
+of its predictions on other rays.
 
 The LLM must predict the ray's outcome: exit position, absorption, or
-reflection. This tests world model accuracy—can the LLM correctly
+reflection. This tests world model accuracy — can the LLM correctly
 simulate ray physics?
 
 ### Play Mode (Inverse Reasoning)
 
-In Play mode, the LLM: - Receives the game rules - Chooses which rays to
-fire (up to 20) - Receives feedback after each ray (exit position,
-absorption, or reflection) - Must guess all 4 atom positions
+In Play mode, the LLM receives the game rules and plays a complete game
+as a **multi-turn conversation** within a single context window. On each
+turn, the model chooses an action (fire a ray, mark/unmark a hypothesis,
+or guess), receives outcome feedback, and the full conversation history
+accumulates — every prior user message and model response is included
+with each subsequent API call. The model can fire up to 20 rays and must
+guess all 4 atom positions.
 
 This tests the full reasoning pipeline: experiment design, observation
-integration, constraint tracking, and abductive inference.
+integration, constraint tracking across an increasingly long context,
+and abductive inference.
 
 ## Prompt Conditions
 
@@ -749,7 +757,7 @@ includes:
 
 Key excerpt:
 
-```
+```         
 Your opponent has hidden 4 atoms within this box. By shooting rays into
 the box and observing where they emerge, it is possible to deduce the
 positions of the hidden atoms.
@@ -834,7 +842,7 @@ kable(predict_design, format = "pipe")
 ```
 
 | Model | Prompt | Extended Thinking | Vot (None, B Ray Trace) |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **10K** | **None** |
@@ -849,7 +857,7 @@ kable(predict_design, format = "pipe")
 Play Mode Experiment Log
 
 | Model | Prompt | Extended Thinking | VoT (None, A, B, or C) |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT A Grid State Tracking** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
@@ -926,12 +934,26 @@ kable(configs, format = "pipe")
 
 ### Predict Mode Procedure
 
+Each ray prediction is a **single, independent API call** with no
+conversation history. The model receives:
+
+-   A **system prompt** describing Black Box ray physics, example
+    diagrams, and the expected JSON response format (identical across all
+    rays in a condition)
+-   A **user message** containing: the explicit atom positions (e.g.,
+    "Atoms are located at: (2,3), (3,6), (6,2), (7,7)"), an optional
+    ASCII board visualization, and one ray entry point to trace
+
+Because each ray uses a fresh context window, the model has no knowledge
+of its predictions on other rays — every prediction is made in
+isolation.
+
 For each experimental condition (model × prompt style × visualization ×
 thinking × VoT):
 
 1.  For each of the 10 fixed atom configurations:
     a.  For each of 32 possible ray entry points:
-        -   Present atom positions and ray entry to LLM
+        -   Present atom positions and ray entry to LLM (fresh API call)
         -   Record predicted outcome (exit position, absorption, or
             reflection)
         -   Compare to ground-truth ray trace
@@ -940,13 +962,37 @@ thinking × VoT):
 
 ### Play Mode Procedure
 
+Each game is a **single, multi-turn conversation** in which context
+accumulates. The model receives:
+
+-   A **system prompt** describing the complete game rules, scoring,
+    ray physics, and available actions (held constant throughout the
+    game)
+-   On each turn, a **user message** listing: all previous ray results
+    (cumulative), available and unavailable entry/exit positions, an
+    optional updated ASCII board, and (if hypotheses enabled) current
+    marked positions
+-   The **full conversation history** — every prior user message and
+    model response is included with each API call, so the model can
+    reference its own prior reasoning and the outcomes of all previous
+    shots
+
+This design means the model's context window grows with each turn: a
+game using 10 rays produces approximately 20 conversational turns (10
+user messages + 10 model responses) plus the system prompt. The
+accumulating context allows the model to cross-reference ray results and
+refine hypotheses, but also demands sustained constraint tracking across
+an increasingly long context.
+
 For each experimental condition (model × prompt style × visualization ×
 thinking × hypotheses × VoT options):
 
 1.  For each of the 10 fixed atom configurations:
     a.  Initialize game with hidden atom positions
-    b.  LLM selects rays iteratively (max 20)
-    c.  After each ray, provide outcome feedback
+    b.  LLM selects rays iteratively (max 20) in a multi-turn
+        conversation
+    c.  After each ray, append outcome to conversation history and
+        provide updated game state
     d.  If hypotheses enabled, LLM can mark/unmark suspected positions
     e.  LLM submits final guess of 4 atom positions (via guess or check
         action)
@@ -1024,7 +1070,7 @@ Following Cohen (1988), we interpret effect sizes using conventional
 benchmarks:
 
 | Measure | Small | Medium | Large | Notes |
-|---------------|---------------|---------------|---------------|---------------|
+|----|----|----|----|----|
 | η² (Eta-squared) | 0.01 | 0.06 | 0.14 | Total variance explained |
 | η²p (Partial eta-squared) | 0.01 | 0.06 | 0.14 | Variance explained controlling for other factors |
 | ω² (Omega-squared) | 0.01 | 0.06 | 0.14 | Unbiased estimate (preferred over η²) |
@@ -1084,7 +1130,7 @@ style, extended thinking) interact with spatial complexity:
 We classify errors from extended thinking traces into categories:
 
 | Error Type | Spatial? | Description |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Ray path error | Yes | Path traced incorrectly through grid |
 | Deflection geometry error | Yes | Misunderstood deflection rules |
 | Constraint tracking error | No | Failed to update ruled-out positions |
@@ -4357,7 +4403,7 @@ the predicted vs. actual outcome types and exit positions.
 **Error taxonomy:**
 
 | Error Category | Pattern | Description |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Missed absorption | pred: detour/reflected → actual: absorbed | Failed to check for atom directly in ray's path before checking diagonals |
 | Missed reflection | pred: detour/absorbed → actual: reflected | Failed to recognize reflection condition at entry point |
 | False absorption | pred: absorbed → actual: detour/reflected | Incorrectly identified absorption; confused diagonal atom with forward atom |
@@ -5030,7 +5076,7 @@ as "atoms."
 
 The erroneous baseline play prompt opened with:
 
-```
+```         
 Your opponent has hidden 4 balls within this box. By shooting rays into
 the box and observing where they emerge, it is possible to deduce the
 positions of the hidden balls.
@@ -5038,13 +5084,13 @@ positions of the hidden balls.
 
 and described absorption as:
 
-```
+```         
 HIT (H): The ray strikes a ball directly and is absorbed.
 ```
 
 The erroneous baseline predict prompt similarly used:
 
-```
+```         
 As a ray approaches a ball it is deflected ninety degrees. Rays can be
 deflected multiple times.
 ```
@@ -6041,7 +6087,7 @@ diagnostic tasks\]
 
 ## Baseline Play Prompt
 
-```
+```         
 You are playing Black Box, a game of hide and seek played on an 8 by 8 grid
 (the Black Box).
 
@@ -6086,7 +6132,7 @@ When you think you know where all 4 atoms are, make your guess.
 
 ## Baseline Predict Prompt
 
-```
+```         
 Predict where a ray will exit in Black Box.
 
 GRID: 8x8, rows 1-8 (top to bottom), columns 1-8 (left to right).
@@ -6116,7 +6162,7 @@ OR for reflection: {"reflected": true, "reasoning": "..."}
 
 When hypotheses are enabled, the response format is extended:
 
-```
+```         
 Respond with JSON only:
 {"action": "fire", "side": "north|south|east|west", "position": 1-8, "reasoning": "..."}
 {"action": "mark", "row": 1-8, "col": 1-8, "reasoning": "..."} - mark suspected atom

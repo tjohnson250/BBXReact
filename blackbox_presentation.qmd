@@ -775,6 +775,7 @@ Three types of ray interactions. Absorption is straightforward — the ray hits 
 -   Atoms are **visible**
 -   Model predicts ray exit position
 -   Tests **spatial reasoning** in isolation
+-   Each ray = **independent API call** (fresh context)
 -   "Given these atoms, what happens to this ray?"
 :::
 
@@ -784,6 +785,7 @@ Three types of ray interactions. Absorption is straightforward — the ray hits 
 -   Atoms are **hidden**
 -   Model fires rays, deduces positions
 -   Tests **full diagnostic loop**
+-   Each game = **multi-turn conversation** (accumulating context)
 -   Hypothesis generation → test selection → constraint tracking → belief updating
 :::
 :::::
@@ -795,7 +797,7 @@ Three types of ray interactions. Absorption is straightforward — the ray hits 
 | Performance delta | Isolates inferential machinery contribution |
 
 ::: notes
-We use two modes to partially decompose capabilities. Predict mode isolates spatial reasoning — the atoms are visible, just predict what happens to a ray. Play mode tests the full diagnostic loop — atoms are hidden, the model must fire rays and figure out where the atoms are. Comparing across modes lets us isolate which component processes are failing.
+We use two modes to partially decompose capabilities. Predict mode isolates spatial reasoning — the atoms are visible, just predict what happens to a ray. Each ray is its own API call with a fresh context window — the model never sees its predictions on other rays. Play mode tests the full diagnostic loop — atoms are hidden, the model must fire rays and figure out where the atoms are. Each game is a single multi-turn conversation: the full history of prior shots, results, and model responses accumulates in the context window. So the model can cross-reference earlier results, but must also track constraints across an increasingly long context.
 :::
 
 ------------------------------------------------------------------------
