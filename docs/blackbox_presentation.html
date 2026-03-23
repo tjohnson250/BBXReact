@@ -1013,11 +1013,45 @@ All 10 configs solved: TRUE</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="play-leaderboard-forest-plot" class="slide level2 smaller">
-<h2>Play: Leaderboard &amp; Forest Plot</h2>
+<section id="play-initial-results-n-10-per-condition" class="slide level2 smaller">
+<h2>Play: Initial Results (n = 10 per condition)</h2>
 
-<img data-src="blackbox_presentation_files/figure-revealjs/play-forest-1.png" width="1344" class="r-stretch"><aside class="notes">
-<p>Play mode forest plot — the full diagnostic reasoning task. Much lower performance than predict mode, as expected. The best conditions find about 2-3 atoms out of 4. Note that the chance baseline is 0.25 — all conditions beat chance, confirming LLMs extract some signal. But no condition gets close to 4.0 (optimal). Also notice the wider confidence intervals — play mode has higher variance across games.</p>
+<img data-src="blackbox_presentation_files/figure-revealjs/play-forest-initial-1.png" width="1344" class="r-stretch"><aside class="notes">
+<p>Play mode forest plot — the full diagnostic reasoning task. Much lower performance than predict mode, as expected. The best conditions find about 2-3 atoms out of 4. All conditions beat chance. But notice the wide confidence intervals — at n=10, these CIs span nearly half the 0-4 range. As we’ll see next, when we replicated the top performers, the rankings shifted substantially.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="replication-what-happens-with-more-data" class="slide level2 smaller">
+<h2>Replication: What Happens With More Data?</h2>
+
+<img data-src="blackbox_presentation_files/figure-revealjs/play-replication-slide-1.png" width="1344" class="r-stretch"><aside class="notes">
+<p>When we replicated the top two configurations 4 additional times on the same game boards, both regressed toward the mean. The hollow circles show where they originally ranked; the filled triangles show the pooled result. The original n=10 was a lucky draw — both top configs sat at the upper tail of their actual performance distributions. This is classic winner’s curse: select the best from 80 noisy estimates, and you’ve selected noise along with signal.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="performance-variance-as-a-finding" class="slide level2 smaller">
+<h2>Performance Variance as a Finding</h2>
+
+<img data-src="blackbox_presentation_files/figure-revealjs/play-variance-slide-1.png" width="1344" class="r-stretch"><aside class="notes">
+<p>This heatmap is the key finding. Each row is a game board, each column is a run. Green means all 4 atoms found, red means failure. Look at boards 2 and 6 — reliably solved every single time, both models. These are configurations where the model has stable access to the reasoning needed. But other boards (like 4 and 5) swing between 0 and 4 across runs. This is not consistent partial competence — it’s stochastic access to a reasoning strategy. The model either finds the right approach or doesn’t, with little middle ground. This bimodal pattern is itself diagnostic of how LLMs reason about constraint satisfaction.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1034,7 +1068,7 @@ All 10 configs solved: TRUE</code></pre>
 <h2>Play: Factor Effects</h2>
 
 <img data-src="blackbox_presentation_files/figure-revealjs/play-factors-1.png" width="1344" class="r-stretch"><aside class="notes">
-<p>Play mode factor effects. Model still matters most, but the pattern is interesting — extended thinking sometimes helps, sometimes doesn’t, depending on the model. Augmented prompts show a clearer benefit in play mode than predict mode, probably because the game is more complex and benefits from strategic guidance. VoT conditions show mixed results — some visualization prompts actually hurt performance.</p>
+<p>Play mode factor effects (using pooled data including replication runs). These factor-level aggregations are robust because they average over many games. Model still matters most. Extended thinking shows a clearer benefit with pooled data. Augmented prompts help in play mode more than predict mode — the game is complex enough to benefit from strategic guidance. VoT conditions show mixed results.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
