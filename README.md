@@ -18,7 +18,7 @@ Unlike medical benchmarks that may reward pattern matching to training data, Bla
 ### React Application (`blackbox.jsx`)
 
 To run as a Claude Artifact with your Claude.ai account visit:
-https://claude.ai/public/artifacts/31d93658-cd9d-4ad4-ade0-060a2d96b87d
+https://claude.ai/public/artifacts/2f54d70b-2267-4973-95c6-f7b8140e1a41
 
 A browser-based implementation of Black Box with multiple modes:
 
@@ -103,9 +103,13 @@ Results are saved to the `./results/` directory in the same JSON format as the R
 pip install openai google-genai pyyaml
 ```
 
+### Presentation (`blackbox_presentation.qmd`)
+
+RevealJS slide deck summarizing the research. The rendered presentation is available at: https://tjohnson250.github.io/BBXReact/blackbox_presentation.html
+
 ### Research Paper (`blackbox_llm_study.qmd`)
 
-Draft (currently incomplete) Quarto document containing the academic paper with methodology, results, and analysis. The rendered document is available at: https://tjohnson250.github.io/BBXReact/
+Draft (currently incomplete) Quarto document containing the academic paper with methodology, results, and analysis. The rendered document is available at: https://tjohnson250.github.io/BBXReact/blackbox_llm_study.html
 
 **Rendering:**
 ```bash
