@@ -914,10 +914,53 @@ Ten fixed atom configurations are used for reproducible experiments:
 #| label: config-table
 #| echo: false
 
+config_positions <- list(
+  matrix(c(2,3, 3,6, 6,2, 7,7), ncol = 2, byrow = TRUE),
+  matrix(c(1,1, 1,3, 2,2, 5,6), ncol = 2, byrow = TRUE),
+  matrix(c(2,2, 4,4, 6,6, 8,8), ncol = 2, byrow = TRUE),
+  matrix(c(1,4, 4,8, 8,5, 5,1), ncol = 2, byrow = TRUE),
+  matrix(c(3,4, 4,3, 4,5, 5,4), ncol = 2, byrow = TRUE),
+  matrix(c(2,2, 2,3, 2,4, 4,2), ncol = 2, byrow = TRUE),
+  matrix(c(1,1, 1,8, 8,1, 8,8), ncol = 2, byrow = TRUE),
+  matrix(c(2,7, 3,2, 6,5, 7,3), ncol = 2, byrow = TRUE),
+  matrix(c(4,2, 4,4, 4,6, 4,8), ncol = 2, byrow = TRUE),
+  matrix(c(1,5, 3,3, 5,7, 8,2), ncol = 2, byrow = TRUE)
+)
+
+# Generate small grid images for each configuration
+dir.create("config_grids", showWarnings = FALSE)
+grid_bg <- expand.grid(row = 1:8, col = 1:8)
+image_paths <- character(10)
+
+for (i in seq_along(config_positions)) {
+  pos <- config_positions[[i]]
+  atoms <- data.frame(row = pos[, 1], col = pos[, 2])
+
+  p <- ggplot() +
+    geom_tile(data = grid_bg, aes(x = col, y = row),
+              fill = "#f0f0f0", color = "grey60", linewidth = 0.25) +
+    geom_point(data = atoms, aes(x = col, y = row),
+               size = 4, color = "black") +
+    scale_x_continuous(breaks = 1:8, limits = c(0.5, 8.5),
+                       expand = c(0, 0)) +
+    scale_y_reverse(breaks = 1:8, limits = c(8.5, 0.5),
+                    expand = c(0, 0)) +
+    coord_equal() +
+    theme_void() +
+    theme(plot.margin = margin(1, 1, 1, 1))
+
+  path <- sprintf("config_grids/config_%02d.png", i)
+  ggsave(path, p, width = 0.9, height = 0.9, dpi = 150, bg = "white")
+  image_paths[i] <- path
+}
+
 configs <- tibble(
   Config = 1:10,
-  Pattern = c('Spread', 'Cluster in corner', 'Diagonal', 'Edge-heavy', 'Central cluster',
-              'L-shape', 'Corners', 'Asymmetric', 'Row cluster', 'Mixed'),
+  Grid = "",
+  Pattern = c('Spread', 'Cluster in corner', 'Diagonal',
+              'Edge-heavy', 'Central cluster',
+              'L-shape', 'Corners', 'Asymmetric',
+              'Row cluster', 'Mixed'),
   Positions = c('(2,3), (3,6), (6,2), (7,7)',
                 '(1,1), (1,3), (2,2), (5,6)',
                 '(2,2), (4,4), (6,6), (8,8)',
@@ -930,7 +973,12 @@ configs <- tibble(
                 '(1,5), (3,3), (5,7), (8,2)')
 )
 
-kable(configs, format = "pipe")
+kable(configs,
+      col.names = c("Config", "Grid", "Pattern", "Positions"),
+      caption = "Ten fixed atom configurations used across all experiments") |>
+  kable_styling(bootstrap_options = c("striped", "condensed"),
+                full_width = FALSE) |>
+  column_spec(2, image = spec_image(image_paths, 80, 80))
 ```
 
 ### Predict Mode Procedure

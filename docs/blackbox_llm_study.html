@@ -1010,62 +1010,74 @@ There are three possible outcomes for each ray you send into the box:
 <p>Ten fixed atom configurations are used for reproducible experiments:</p>
 <div class="cell">
 <div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
+<table class="table table-striped table-condensed caption-top table-sm small">
+<caption>Ten fixed atom configurations used across all experiments</caption>
 <thead>
 <tr class="header">
-<th style="text-align: right;">Config</th>
-<th style="text-align: left;">Pattern</th>
-<th style="text-align: left;">Positions</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Config</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Grid</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Pattern</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Positions</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
+<td style="text-align: left;"><img src="config_grids/config_01.png" width="25" height="25"></td>
 <td style="text-align: left;">Spread</td>
 <td style="text-align: left;">(2,3), (3,6), (6,2), (7,7)</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
+<td style="text-align: left;"><img src="config_grids/config_02.png" width="25" height="25"></td>
 <td style="text-align: left;">Cluster in corner</td>
 <td style="text-align: left;">(1,1), (1,3), (2,2), (5,6)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
+<td style="text-align: left;"><img src="config_grids/config_03.png" width="25" height="25"></td>
 <td style="text-align: left;">Diagonal</td>
 <td style="text-align: left;">(2,2), (4,4), (6,6), (8,8)</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
+<td style="text-align: left;"><img src="config_grids/config_04.png" width="25" height="25"></td>
 <td style="text-align: left;">Edge-heavy</td>
 <td style="text-align: left;">(1,4), (4,8), (8,5), (5,1)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
+<td style="text-align: left;"><img src="config_grids/config_05.png" width="25" height="25"></td>
 <td style="text-align: left;">Central cluster</td>
 <td style="text-align: left;">(3,4), (4,3), (4,5), (5,4)</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
+<td style="text-align: left;"><img src="config_grids/config_06.png" width="25" height="25"></td>
 <td style="text-align: left;">L-shape</td>
 <td style="text-align: left;">(2,2), (2,3), (2,4), (4,2)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
+<td style="text-align: left;"><img src="config_grids/config_07.png" width="25" height="25"></td>
 <td style="text-align: left;">Corners</td>
 <td style="text-align: left;">(1,1), (1,8), (8,1), (8,8)</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
+<td style="text-align: left;"><img src="config_grids/config_08.png" width="25" height="25"></td>
 <td style="text-align: left;">Asymmetric</td>
 <td style="text-align: left;">(2,7), (3,2), (6,5), (7,3)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
+<td style="text-align: left;"><img src="config_grids/config_09.png" width="25" height="25"></td>
 <td style="text-align: left;">Row cluster</td>
 <td style="text-align: left;">(4,2), (4,4), (4,6), (4,8)</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
+<td style="text-align: left;"><img src="config_grids/config_10.png" width="25" height="25"></td>
 <td style="text-align: left;">Mixed</td>
 <td style="text-align: left;">(1,5), (3,3), (5,7), (8,2)</td>
 </tr>
@@ -4055,7 +4067,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Data loaded: 800 original experiment results from 28 JSON files. <strong>Replication data</strong>: 180 additional games from 9 replication runs across 2 model configuration(s). <strong>Pooled total</strong>: 980 games.</p>
+<p>Data loaded: 800 original experiment results from 28 JSON files. <strong>Replication data</strong>: 220 additional games from 11 replication runs across 2 model configuration(s). <strong>Pooled total</strong>: 1020 games.</p>
 <ul>
 <li><strong>Models</strong>: Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6</li>
 <li><strong>Prompt styles</strong>: augmented, baseline</li>
@@ -4172,26 +4184,26 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 
 |Model      |Prompt    |Thinking |VoT          | Config| Runs|
 |:----------|:---------|:--------|:------------|------:|----:|
-|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      0|   10|
-|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      1|   10|
-|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      2|   10|
-|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      3|   10|
-|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      4|   10|
-|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      5|   10|
-|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      6|   10|
-|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      7|   10|
-|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      8|   10|
-|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      9|   10|
-|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      0|   10|
-|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      1|   10|
-|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      2|   10|
-|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      3|   10|
-|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      4|   10|
-|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      5|   10|
-|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      6|   10|
-|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      7|   10|
-|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      8|   10|
-|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      9|   10|</code></pre>
+|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      0|   12|
+|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      1|   12|
+|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      2|   12|
+|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      3|   12|
+|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      4|   12|
+|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      5|   12|
+|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      6|   12|
+|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      7|   12|
+|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      8|   12|
+|Opus 4.6   |augmented |TRUE     |B: Ray Trace |      9|   12|
+|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      0|   12|
+|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      1|   12|
+|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      2|   12|
+|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      3|   12|
+|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      4|   12|
+|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      5|   12|
+|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      6|   12|
+|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      7|   12|
+|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      8|   12|
+|Sonnet 4.6 |augmented |TRUE     |B: Ray Trace |      9|   12|</code></pre>
 </div>
 </div>
 <p>All expected play-mode experimental runs are present.</p>
@@ -4749,13 +4761,13 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">B: Ray Trace</td>
-<td style="text-align: right;">100</td>
-<td style="text-align: right;">2.64</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: right;">2.63</td>
 <td style="text-align: right;">1.28</td>
-<td style="text-align: right;">23.91</td>
-<td style="text-align: right;">9.26</td>
+<td style="text-align: right;">23.92</td>
+<td style="text-align: right;">9.40</td>
 <td style="text-align: right;">1.12</td>
-<td style="text-align: right;">12.43</td>
+<td style="text-align: right;">12.37</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Opus 4.6</td>
@@ -5165,13 +5177,13 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: left;">augmented</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">B: Ray Trace</td>
-<td style="text-align: right;">100</td>
+<td style="text-align: right;">120</td>
 <td style="text-align: right;">2.79</td>
+<td style="text-align: right;">1.14</td>
+<td style="text-align: right;">22.77</td>
+<td style="text-align: right;">8.66</td>
 <td style="text-align: right;">1.13</td>
-<td style="text-align: right;">22.76</td>
-<td style="text-align: right;">8.57</td>
-<td style="text-align: right;">1.13</td>
-<td style="text-align: right;">11.96</td>
+<td style="text-align: right;">11.97</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Sonnet 4.6</td>
@@ -5364,12 +5376,12 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">B: Ray Trace</td>
-<td style="text-align: right;">380</td>
-<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">420</td>
+<td style="text-align: right;">2.07</td>
 <td style="text-align: right;">1.47</td>
-<td style="text-align: right;">26.28</td>
-<td style="text-align: right;">9.53</td>
-<td style="text-align: right;">11.71</td>
+<td style="text-align: right;">26.01</td>
+<td style="text-align: right;">9.57</td>
+<td style="text-align: right;">11.74</td>
 <td style="text-align: right;">1.13</td>
 </tr>
 <tr class="even">
@@ -5533,7 +5545,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </section>
 <section id="play-mode-replication-and-performance-variance" class="level3" data-number="4.2.3">
 <h3 data-number="4.2.3" class="anchored" data-anchor-id="play-mode-replication-and-performance-variance"><span class="header-section-number">4.2.3</span> Play Mode: Replication and Performance Variance</h3>
-<p>The initial leaderboard above was computed from 10 games per configuration. To assess the reliability of these rankings, the top-performing model configurations were replicated across 9 additional runs on the same 10 game boards. This replication revealed substantial performance variance and regression to the mean, with important implications for interpreting Play mode results.</p>
+<p>The initial leaderboard above was computed from 10 games per configuration. To assess the reliability of these rankings, the top-performing model configurations were replicated across 11 additional runs on the same 10 game boards. This replication revealed substantial performance variance and regression to the mean, with important implications for interpreting Play mode results.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -5655,21 +5667,21 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">A</td>
 <td style="text-align: left;">Sonnet 4.6 | Aug | Think | B: Ray Trace *</td>
-<td style="text-align: right;">100</td>
-<td style="text-align: left;">2.79 ± 0.11</td>
-<td style="text-align: left;">[2.57, 3.01]</td>
-<td style="text-align: right;">22.76</td>
-<td style="text-align: left;">33%</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: left;">2.79 ± 0.1</td>
+<td style="text-align: left;">[2.59, 3]</td>
+<td style="text-align: right;">22.77500</td>
+<td style="text-align: left;">33.3%</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">A</td>
 <td style="text-align: left;">Opus 4.6 | Aug | Think | B: Ray Trace *</td>
-<td style="text-align: right;">100</td>
-<td style="text-align: left;">2.64 ± 0.13</td>
-<td style="text-align: left;">[2.39, 2.89]</td>
-<td style="text-align: right;">23.91</td>
-<td style="text-align: left;">37%</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: left;">2.63 ± 0.12</td>
+<td style="text-align: left;">[2.4, 2.86]</td>
+<td style="text-align: right;">23.91667</td>
+<td style="text-align: left;">36.7%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
@@ -5678,7 +5690,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">2.6 ± 0.4</td>
 <td style="text-align: left;">[1.82, 3.38]</td>
-<td style="text-align: right;">24.50</td>
+<td style="text-align: right;">24.50000</td>
 <td style="text-align: left;">30%</td>
 </tr>
 <tr class="even">
@@ -5688,7 +5700,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">2.5 ± 0.4</td>
 <td style="text-align: left;">[1.71, 3.29]</td>
-<td style="text-align: right;">25.50</td>
+<td style="text-align: right;">25.50000</td>
 <td style="text-align: left;">30%</td>
 </tr>
 <tr class="odd">
@@ -5698,7 +5710,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">2.4 ± 0.43</td>
 <td style="text-align: left;">[1.56, 3.24]</td>
-<td style="text-align: right;">23.30</td>
+<td style="text-align: right;">23.30000</td>
 <td style="text-align: left;">30%</td>
 </tr>
 <tr class="even">
@@ -5708,7 +5720,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">2.4 ± 0.37</td>
 <td style="text-align: left;">[1.67, 3.13]</td>
-<td style="text-align: right;">24.30</td>
+<td style="text-align: right;">24.30000</td>
 <td style="text-align: left;">30%</td>
 </tr>
 <tr class="odd">
@@ -5718,7 +5730,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">2.4 ± 0.54</td>
 <td style="text-align: left;">[1.34, 3.46]</td>
-<td style="text-align: right;">27.90</td>
+<td style="text-align: right;">27.90000</td>
 <td style="text-align: left;">40%</td>
 </tr>
 <tr class="even">
@@ -5728,7 +5740,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">2.3 ± 0.5</td>
 <td style="text-align: left;">[1.33, 3.27]</td>
-<td style="text-align: right;">20.50</td>
+<td style="text-align: right;">20.50000</td>
 <td style="text-align: left;">30%</td>
 </tr>
 <tr class="odd">
@@ -5738,7 +5750,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">2.2 ± 0.51</td>
 <td style="text-align: left;">[1.2, 3.2]</td>
-<td style="text-align: right;">23.50</td>
+<td style="text-align: right;">23.50000</td>
 <td style="text-align: left;">30%</td>
 </tr>
 <tr class="even">
@@ -5748,7 +5760,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">2 ± 0.49</td>
 <td style="text-align: left;">[1.03, 2.97]</td>
-<td style="text-align: right;">24.20</td>
+<td style="text-align: right;">24.20000</td>
 <td style="text-align: left;">20%</td>
 </tr>
 <tr class="odd">
@@ -5758,7 +5770,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">2 ± 0.37</td>
 <td style="text-align: left;">[1.28, 2.72]</td>
-<td style="text-align: right;">24.60</td>
+<td style="text-align: right;">24.60000</td>
 <td style="text-align: left;">10%</td>
 </tr>
 <tr class="even">
@@ -5768,7 +5780,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">1.9 ± 0.48</td>
 <td style="text-align: left;">[0.96, 2.84]</td>
-<td style="text-align: right;">23.50</td>
+<td style="text-align: right;">23.50000</td>
 <td style="text-align: left;">20%</td>
 </tr>
 <tr class="odd">
@@ -5778,7 +5790,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">1.9 ± 0.48</td>
 <td style="text-align: left;">[0.96, 2.84]</td>
-<td style="text-align: right;">25.40</td>
+<td style="text-align: right;">25.40000</td>
 <td style="text-align: left;">20%</td>
 </tr>
 <tr class="even">
@@ -5788,7 +5800,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">1.9 ± 0.55</td>
 <td style="text-align: left;">[0.83, 2.97]</td>
-<td style="text-align: right;">26.40</td>
+<td style="text-align: right;">26.40000</td>
 <td style="text-align: left;">30%</td>
 </tr>
 <tr class="odd">
@@ -5798,7 +5810,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">1.9 ± 0.55</td>
 <td style="text-align: left;">[0.83, 2.97]</td>
-<td style="text-align: right;">30.10</td>
+<td style="text-align: right;">30.10000</td>
 <td style="text-align: left;">30%</td>
 </tr>
 </tbody>
@@ -6139,24 +6151,24 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: right;">10</td>
-<td style="text-align: right;">90</td>
+<td style="text-align: right;">110</td>
 <td style="text-align: right;">3.1</td>
 <td style="text-align: right;">2.59</td>
 <td style="text-align: right;">0.51</td>
-<td style="text-align: left;">0.078</td>
-<td style="text-align: left;">0.319</td>
+<td style="text-align: left;">0.0738</td>
+<td style="text-align: left;">0.302</td>
 <td style="text-align: left;">13.4%</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: right;">10</td>
-<td style="text-align: right;">90</td>
+<td style="text-align: right;">110</td>
 <td style="text-align: right;">3.0</td>
 <td style="text-align: right;">2.77</td>
 <td style="text-align: right;">0.23</td>
-<td style="text-align: left;">0.482</td>
-<td style="text-align: left;">0.632</td>
-<td style="text-align: left;">31.5%</td>
+<td style="text-align: left;">0.4890</td>
+<td style="text-align: left;">0.660</td>
+<td style="text-align: left;">32.6%</td>
 </tr>
 </tbody>
 </table>
@@ -6222,62 +6234,62 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tr class="odd">
 <td style="text-align: right;">0.25</td>
 <td style="text-align: left;">80%</td>
-<td style="text-align: right;">367</td>
+<td style="text-align: right;">370</td>
 <td style="text-align: left;">6.7%</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">0.50</td>
 <td style="text-align: left;">80%</td>
-<td style="text-align: right;">92</td>
+<td style="text-align: right;">93</td>
 <td style="text-align: left;">15%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">0.75</td>
 <td style="text-align: left;">80%</td>
-<td style="text-align: right;">41</td>
-<td style="text-align: left;">28.3%</td>
+<td style="text-align: right;">42</td>
+<td style="text-align: left;">28.2%</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1.00</td>
 <td style="text-align: left;">80%</td>
-<td style="text-align: right;">23</td>
-<td style="text-align: left;">45.6%</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: left;">45.4%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1.50</td>
 <td style="text-align: left;">80%</td>
 <td style="text-align: right;">11</td>
-<td style="text-align: left;">79.2%</td>
+<td style="text-align: left;">79%</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">0.25</td>
 <td style="text-align: left;">90%</td>
-<td style="text-align: right;">492</td>
+<td style="text-align: right;">495</td>
 <td style="text-align: left;">6.7%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">0.50</td>
 <td style="text-align: left;">90%</td>
-<td style="text-align: right;">123</td>
+<td style="text-align: right;">124</td>
 <td style="text-align: left;">15%</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">0.75</td>
 <td style="text-align: left;">90%</td>
 <td style="text-align: right;">55</td>
-<td style="text-align: left;">28.3%</td>
+<td style="text-align: left;">28.2%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1.00</td>
 <td style="text-align: left;">90%</td>
 <td style="text-align: right;">31</td>
-<td style="text-align: left;">45.6%</td>
+<td style="text-align: left;">45.4%</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1.50</td>
 <td style="text-align: left;">90%</td>
 <td style="text-align: right;">14</td>
-<td style="text-align: left;">79.2%</td>
+<td style="text-align: left;">79%</td>
 </tr>
 </tbody>
 </table>
@@ -6286,9 +6298,9 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </section>
 <section id="interpretation" class="level4" data-number="4.2.3.4">
 <h4 data-number="4.2.3.4" class="anchored" data-anchor-id="interpretation"><span class="header-section-number">4.2.3.4</span> Interpretation</h4>
-<p>The replication reveals that Play mode performance is <em>highly stochastic</em> at the individual game level. The original n = 10 results placed the top configuration at 3.1 atoms correct. 9 additional runs of the same configuration on the same 10 game boards produced a replication mean of 2.59 (pooled: 2.64). The original result, while within the plausible range, sat at the 87th percentile of the replication distribution.</p>
+<p>The replication reveals that Play mode performance is <em>highly stochastic</em> at the individual game level. The original n = 10 results placed the top configuration at 3.1 atoms correct. 11 additional runs of the same configuration on the same 10 game boards produced a replication mean of 2.59 (pooled: 2.63). The original result, while within the plausible range, sat at the 87th percentile of the replication distribution.</p>
 <p>This variance is itself diagnostic. The heatmap above shows that some configurations (notably 2 and 6) are solved perfectly across every run — the models have reliable access to whatever reasoning these boards require. Other configurations swing between 0/4 and 4/4 across runs, suggesting the models either find a productive reasoning path or do not, with little middle ground. This bimodal pattern is more consistent with <em>stochastic access to a reasoning strategy</em> than <em>consistent partial competence</em>.</p>
-<p>The practical implication: at n = 10 per configuration, statistical power is only 46 % to detect a 1-atom difference between conditions. Factor-level conclusions (model, prompt style, thinking) — which aggregate over 40–80+ games — remain robust. Configuration-level rankings should be interpreted with the wide confidence intervals shown in the pooled leaderboard above.</p>
+<p>The practical implication: at n = 10 per configuration, statistical power is only 45 % to detect a 1-atom difference between conditions. Factor-level conclusions (model, prompt style, thinking) — which aggregate over 40–80+ games — remain robust. Configuration-level rankings should be interpreted with the wide confidence intervals shown in the pooled leaderboard above.</p>
 </section>
 </section>
 <section id="anova-play-mode-performance" class="level3" data-number="4.2.4">
@@ -6345,29 +6357,29 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 
 Response: atoms_correct
                                           Chisq Df Pr(&gt;Chisq)    
-(Intercept)                             46.9944  1  7.119e-12 ***
-model_name                               2.0558  4    0.72550    
-prompt_style                             0.1442  1    0.70418    
-enable_thinking                          0.9677  1    0.32526    
-vot_condition                            3.2572  3    0.35364    
-mean_cells_per_ray                      29.8976  1  4.555e-08 ***
-mean_atoms_per_ray                      15.6487  1  7.627e-05 ***
-model_name:prompt_style                  5.8764  4    0.20857    
-model_name:enable_thinking              10.9383  4    0.02727 *  
-prompt_style:enable_thinking             4.8530  1    0.02760 *  
-model_name:prompt_style:enable_thinking  8.9610  4    0.06208 .  
+(Intercept)                             51.5683  1  6.915e-13 ***
+model_name                               2.0216  4    0.73178    
+prompt_style                             0.1462  1    0.70217    
+enable_thinking                          0.9405  1    0.33214    
+vot_condition                            3.2854  3    0.34968    
+mean_cells_per_ray                      34.4668  1  4.336e-09 ***
+mean_atoms_per_ray                      16.8180  1  4.114e-05 ***
+model_name:prompt_style                  5.8431  4    0.21118    
+model_name:enable_thinking              10.7953  4    0.02896 *  
+prompt_style:enable_thinking             4.7470  1    0.02935 *  
+model_name:prompt_style:enable_thinking  8.9973  4    0.06117 .  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code> Groups       Name        Std.Dev.
- config_index (Intercept) 0.73488 
- Residual                 0.89589 </code></pre>
+ config_index (Intercept) 0.71002 
+ Residual                 0.90281 </code></pre>
 </div>
 </div>
 <p><strong>Random Effects</strong> — Configuration (config_index) variance accounts for config-level difficulty and allows generalization beyond these 10 configurations.</p>
-<p><strong>ICC</strong>: 0.402 — Proportion of variance due to configuration clustering</p>
-<p><strong>Model Fit</strong>: - <strong>Marginal R²</strong> (fixed effects only): 0.292 - <strong>Conditional R²</strong> (fixed + random effects): 0.577</p>
+<p><strong>ICC</strong>: 0.382 — Proportion of variance due to configuration clustering</p>
+<p><strong>Model Fit</strong>: - <strong>Marginal R²</strong> (fixed effects only): 0.31 - <strong>Conditional R²</strong> (fixed + random effects): 0.573</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -6394,28 +6406,28 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 
 Response: score
                                            Chisq Df Pr(&gt;Chisq)    
-(Intercept)                              73.5499  1  &lt; 2.2e-16 ***
-model_name                                0.5627  4    0.96712    
-prompt_style                              2.1118  1    0.14616    
-enable_thinking                          16.8008  1  4.152e-05 ***
-vot_condition                            29.9358  3  1.424e-06 ***
-mean_cells_per_ray                      101.8120  1  &lt; 2.2e-16 ***
-mean_atoms_per_ray                       10.4605  1    0.00122 ** 
-model_name:prompt_style                  12.2852  4    0.01535 *  
-model_name:enable_thinking                5.5266  4    0.23740    
-prompt_style:enable_thinking              0.0299  1    0.86267    
-model_name:prompt_style:enable_thinking   9.8210  4    0.04355 *  
+(Intercept)                              74.1708  1  &lt; 2.2e-16 ***
+model_name                                0.5554  4   0.967887    
+prompt_style                              2.0786  1   0.149378    
+enable_thinking                          16.5442  1  4.753e-05 ***
+vot_condition                            29.8500  3  1.484e-06 ***
+mean_cells_per_ray                      106.3788  1  &lt; 2.2e-16 ***
+mean_atoms_per_ray                       10.6893  1   0.001078 ** 
+model_name:prompt_style                  12.1000  4   0.016623 *  
+model_name:enable_thinking                5.4447  4   0.244637    
+prompt_style:enable_thinking              0.0297  1   0.863108    
+model_name:prompt_style:enable_thinking   9.8668  4   0.042733 *  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code> Groups       Name        Std.Dev.
- config_index (Intercept) 5.6136  
- Residual                 5.6201  </code></pre>
+ config_index (Intercept) 5.6062  
+ Residual                 5.6623  </code></pre>
 </div>
 </div>
-<p><strong>ICC</strong>: 0.499</p>
-<p><strong>Model Fit</strong>: - <strong>Marginal R²</strong>: 0.276 - <strong>Conditional R²</strong>: 0.638</p>
+<p><strong>ICC</strong>: 0.495</p>
+<p><strong>Model Fit</strong>: - <strong>Marginal R²</strong>: 0.278 - <strong>Conditional R²</strong>: 0.636</p>
 </section>
 </section>
 <section id="effect-modification-by-ray-complexity-play-mode" class="level3" data-number="4.2.5">
@@ -6453,16 +6465,16 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 
 Response: atoms_correct
                                      Chisq Df Pr(&gt;Chisq)    
-(Intercept)                         2.3477  1   0.125471    
-model_name                          1.4720  4   0.831586    
-mean_atoms_per_ray                  0.5011  1   0.479015    
-prompt_style                       10.1150  1   0.001471 ** 
-enable_thinking                    16.7205  1  4.331e-05 ***
-vot_condition                       3.7414  3   0.290782    
-model_name:mean_atoms_per_ray       0.7510  4   0.944891    
-mean_atoms_per_ray:prompt_style     2.4077  1   0.120736    
-mean_atoms_per_ray:enable_thinking  3.1563  1   0.075636 .  
-mean_atoms_per_ray:vot_condition    4.9694  3   0.174050    
+(Intercept)                         2.4081  1   0.120713    
+model_name                          1.5323  4   0.820906    
+mean_atoms_per_ray                  0.5565  1   0.455693    
+prompt_style                       10.3506  1   0.001294 ** 
+enable_thinking                    16.1813  1  5.756e-05 ***
+vot_condition                       3.6823  3   0.297877    
+model_name:mean_atoms_per_ray       0.7616  4   0.943524    
+mean_atoms_per_ray:prompt_style     2.4611  1   0.116701    
+mean_atoms_per_ray:enable_thinking  2.8941  1   0.088904 .  
+mean_atoms_per_ray:vot_condition    5.0669  3   0.166961    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -6474,16 +6486,16 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 
 Response: score
                                       Chisq Df Pr(&gt;Chisq)    
-(Intercept)                        120.3294  1  &lt; 2.2e-16 ***
-model_name                           1.1540  4  0.8856113    
-mean_atoms_per_ray                  13.0914  1  0.0002967 ***
-prompt_style                         7.5367  1  0.0060454 ** 
-enable_thinking                     14.9967  1  0.0001077 ***
-vot_condition                        2.0821  3  0.5555343    
-model_name:mean_atoms_per_ray        1.4105  4  0.8423623    
-mean_atoms_per_ray:prompt_style      3.9226  1  0.0476398 *  
-mean_atoms_per_ray:enable_thinking   0.3875  1  0.5336214    
-mean_atoms_per_ray:vot_condition     4.2248  3  0.2381912    
+(Intercept)                        121.0420  1  &lt; 2.2e-16 ***
+model_name                           1.0828  4  0.8969947    
+mean_atoms_per_ray                  13.3723  1  0.0002554 ***
+prompt_style                         7.9746  1  0.0047438 ** 
+enable_thinking                     14.7712  1  0.0001214 ***
+vot_condition                        2.0586  3  0.5603354    
+model_name:mean_atoms_per_ray        1.3319  4  0.8559322    
+mean_atoms_per_ray:prompt_style      4.2027  1  0.0403605 *  
+mean_atoms_per_ray:enable_thinking   0.3567  1  0.5503521    
+mean_atoms_per_ray:vot_condition     4.2165  3  0.2390164    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -6541,111 +6553,111 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">(Intercept)</td>
-<td style="text-align: right;">2.489</td>
-<td style="text-align: right;">0.4151297</td>
-<td style="text-align: right;">5.996</td>
+<td style="text-align: right;">2.563</td>
+<td style="text-align: right;">0.4069640</td>
+<td style="text-align: right;">6.298</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">1.661</td>
-<td style="text-align: right;">3.317</td>
+<td style="text-align: right;">1.752</td>
+<td style="text-align: right;">3.374</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.5</td>
-<td style="text-align: right;">0.141</td>
-<td style="text-align: right;">0.1030248</td>
-<td style="text-align: right;">1.371</td>
-<td style="text-align: left;">0.171</td>
-<td style="text-align: right;">-0.061</td>
-<td style="text-align: right;">0.343</td>
+<td style="text-align: right;">0.142</td>
+<td style="text-align: right;">0.1037552</td>
+<td style="text-align: right;">1.368</td>
+<td style="text-align: left;">0.1718</td>
+<td style="text-align: right;">-0.062</td>
+<td style="text-align: right;">0.345</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.6</td>
-<td style="text-align: right;">0.583</td>
-<td style="text-align: right;">0.0953765</td>
-<td style="text-align: right;">6.112</td>
+<td style="text-align: right;">0.596</td>
+<td style="text-align: right;">0.0951752</td>
+<td style="text-align: right;">6.258</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">0.396</td>
-<td style="text-align: right;">0.770</td>
+<td style="text-align: right;">0.409</td>
+<td style="text-align: right;">0.782</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameOpus 4.5</td>
 <td style="text-align: right;">0.130</td>
-<td style="text-align: right;">0.1030101</td>
-<td style="text-align: right;">1.266</td>
-<td style="text-align: left;">0.206</td>
-<td style="text-align: right;">-0.072</td>
-<td style="text-align: right;">0.333</td>
+<td style="text-align: right;">0.1037412</td>
+<td style="text-align: right;">1.255</td>
+<td style="text-align: left;">0.2099</td>
+<td style="text-align: right;">-0.073</td>
+<td style="text-align: right;">0.334</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.6</td>
-<td style="text-align: right;">0.469</td>
-<td style="text-align: right;">0.0954198</td>
-<td style="text-align: right;">4.912</td>
+<td style="text-align: right;">0.475</td>
+<td style="text-align: right;">0.0952098</td>
+<td style="text-align: right;">4.989</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">0.281</td>
-<td style="text-align: right;">0.656</td>
+<td style="text-align: right;">0.288</td>
+<td style="text-align: right;">0.662</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">prompt_styleaugmented</td>
-<td style="text-align: right;">0.500</td>
-<td style="text-align: right;">0.0625103</td>
-<td style="text-align: right;">8.001</td>
+<td style="text-align: right;">0.506</td>
+<td style="text-align: right;">0.0627418</td>
+<td style="text-align: right;">8.072</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">0.377</td>
-<td style="text-align: right;">0.623</td>
+<td style="text-align: right;">0.383</td>
+<td style="text-align: right;">0.630</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">enable_thinkingTRUE</td>
-<td style="text-align: right;">0.747</td>
-<td style="text-align: right;">0.0625226</td>
-<td style="text-align: right;">11.948</td>
+<td style="text-align: right;">0.753</td>
+<td style="text-align: right;">0.0627481</td>
+<td style="text-align: right;">12.001</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">0.624</td>
-<td style="text-align: right;">0.870</td>
+<td style="text-align: right;">0.630</td>
+<td style="text-align: right;">0.876</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">vot_conditionA: Grid State</td>
-<td style="text-align: right;">0.003</td>
-<td style="text-align: right;">0.0922370</td>
-<td style="text-align: right;">0.034</td>
-<td style="text-align: left;">0.973</td>
+<td style="text-align: right;">0.004</td>
+<td style="text-align: right;">0.0928885</td>
+<td style="text-align: right;">0.041</td>
+<td style="text-align: left;">0.9669</td>
 <td style="text-align: right;">-0.178</td>
-<td style="text-align: right;">0.184</td>
+<td style="text-align: right;">0.186</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">vot_conditionB: Ray Trace</td>
-<td style="text-align: right;">0.133</td>
-<td style="text-align: right;">0.0841194</td>
-<td style="text-align: right;">1.578</td>
-<td style="text-align: left;">0.115</td>
-<td style="text-align: right;">-0.032</td>
-<td style="text-align: right;">0.298</td>
+<td style="text-align: right;">0.148</td>
+<td style="text-align: right;">0.0841015</td>
+<td style="text-align: right;">1.754</td>
+<td style="text-align: left;">0.0797</td>
+<td style="text-align: right;">-0.018</td>
+<td style="text-align: right;">0.313</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">vot_conditionC: Hypothesis</td>
 <td style="text-align: right;">-0.134</td>
-<td style="text-align: right;">0.0925963</td>
-<td style="text-align: right;">-1.443</td>
-<td style="text-align: left;">0.149</td>
-<td style="text-align: right;">-0.315</td>
-<td style="text-align: right;">0.048</td>
+<td style="text-align: right;">0.0932408</td>
+<td style="text-align: right;">-1.438</td>
+<td style="text-align: left;">0.1507</td>
+<td style="text-align: right;">-0.317</td>
+<td style="text-align: right;">0.049</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">mean_atoms_per_ray</td>
-<td style="text-align: right;">-0.748</td>
-<td style="text-align: right;">0.1993846</td>
-<td style="text-align: right;">-3.751</td>
+<td style="text-align: right;">-0.771</td>
+<td style="text-align: right;">0.1976867</td>
+<td style="text-align: right;">-3.901</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">-1.139</td>
-<td style="text-align: right;">-0.357</td>
+<td style="text-align: right;">-1.159</td>
+<td style="text-align: right;">-0.383</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">mean_cells_per_ray</td>
-<td style="text-align: right;">-0.256</td>
-<td style="text-align: right;">0.0467412</td>
-<td style="text-align: right;">-5.477</td>
+<td style="text-align: right;">-0.270</td>
+<td style="text-align: right;">0.0459899</td>
+<td style="text-align: right;">-5.862</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">-0.348</td>
-<td style="text-align: right;">-0.164</td>
+<td style="text-align: right;">-0.360</td>
+<td style="text-align: right;">-0.179</td>
 </tr>
 </tbody>
 </table>
@@ -6695,111 +6707,111 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">(Intercept)</td>
-<td style="text-align: right;">25.865</td>
-<td style="text-align: right;">2.8007430</td>
-<td style="text-align: right;">9.235</td>
+<td style="text-align: right;">25.827</td>
+<td style="text-align: right;">2.7782244</td>
+<td style="text-align: right;">9.296</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">20.228</td>
-<td style="text-align: right;">31.503</td>
+<td style="text-align: right;">20.232</td>
+<td style="text-align: right;">31.422</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameSonnet 4.5</td>
-<td style="text-align: right;">-0.071</td>
-<td style="text-align: right;">0.6393799</td>
-<td style="text-align: right;">-0.111</td>
-<td style="text-align: left;">0.911</td>
-<td style="text-align: right;">-1.326</td>
-<td style="text-align: right;">1.183</td>
+<td style="text-align: right;">-0.073</td>
+<td style="text-align: right;">0.6437300</td>
+<td style="text-align: right;">-0.113</td>
+<td style="text-align: left;">0.910</td>
+<td style="text-align: right;">-1.336</td>
+<td style="text-align: right;">1.191</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameSonnet 4.6</td>
-<td style="text-align: right;">-0.430</td>
-<td style="text-align: right;">0.5919142</td>
-<td style="text-align: right;">-0.727</td>
-<td style="text-align: left;">0.467</td>
-<td style="text-align: right;">-1.592</td>
-<td style="text-align: right;">0.731</td>
+<td style="text-align: right;">-0.492</td>
+<td style="text-align: right;">0.5904965</td>
+<td style="text-align: right;">-0.833</td>
+<td style="text-align: left;">0.405</td>
+<td style="text-align: right;">-1.651</td>
+<td style="text-align: right;">0.667</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">model_nameOpus 4.5</td>
 <td style="text-align: right;">-0.523</td>
-<td style="text-align: right;">0.6392885</td>
-<td style="text-align: right;">-0.819</td>
-<td style="text-align: left;">0.413</td>
-<td style="text-align: right;">-1.778</td>
-<td style="text-align: right;">0.731</td>
+<td style="text-align: right;">0.6436427</td>
+<td style="text-align: right;">-0.812</td>
+<td style="text-align: left;">0.417</td>
+<td style="text-align: right;">-1.786</td>
+<td style="text-align: right;">0.740</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">model_nameOpus 4.6</td>
-<td style="text-align: right;">-0.303</td>
-<td style="text-align: right;">0.5921865</td>
-<td style="text-align: right;">-0.511</td>
-<td style="text-align: left;">0.609</td>
-<td style="text-align: right;">-1.465</td>
-<td style="text-align: right;">0.860</td>
+<td style="text-align: right;">-0.301</td>
+<td style="text-align: right;">0.5907149</td>
+<td style="text-align: right;">-0.510</td>
+<td style="text-align: left;">0.610</td>
+<td style="text-align: right;">-1.460</td>
+<td style="text-align: right;">0.858</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">prompt_styleaugmented</td>
-<td style="text-align: right;">-1.419</td>
-<td style="text-align: right;">0.3879588</td>
-<td style="text-align: right;">-3.658</td>
+<td style="text-align: right;">-1.442</td>
+<td style="text-align: right;">0.3892865</td>
+<td style="text-align: right;">-3.705</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">-2.181</td>
-<td style="text-align: right;">-0.658</td>
+<td style="text-align: right;">-2.206</td>
+<td style="text-align: right;">-0.679</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">enable_thinkingTRUE</td>
-<td style="text-align: right;">-6.600</td>
-<td style="text-align: right;">0.3880271</td>
+<td style="text-align: right;">-6.622</td>
+<td style="text-align: right;">0.3893165</td>
 <td style="text-align: right;">-17.009</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">-7.361</td>
-<td style="text-align: right;">-5.838</td>
+<td style="text-align: right;">-7.386</td>
+<td style="text-align: right;">-5.858</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">vot_conditionA: Grid State</td>
-<td style="text-align: right;">0.666</td>
-<td style="text-align: right;">0.5724305</td>
-<td style="text-align: right;">1.163</td>
-<td style="text-align: left;">0.245</td>
-<td style="text-align: right;">-0.458</td>
-<td style="text-align: right;">1.789</td>
+<td style="text-align: right;">0.664</td>
+<td style="text-align: right;">0.5763097</td>
+<td style="text-align: right;">1.152</td>
+<td style="text-align: left;">0.249</td>
+<td style="text-align: right;">-0.467</td>
+<td style="text-align: right;">1.795</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">vot_conditionB: Ray Trace</td>
-<td style="text-align: right;">-0.658</td>
-<td style="text-align: right;">0.5220529</td>
-<td style="text-align: right;">-1.261</td>
-<td style="text-align: left;">0.208</td>
-<td style="text-align: right;">-1.683</td>
-<td style="text-align: right;">0.366</td>
+<td style="text-align: right;">-0.707</td>
+<td style="text-align: right;">0.5217937</td>
+<td style="text-align: right;">-1.355</td>
+<td style="text-align: left;">0.176</td>
+<td style="text-align: right;">-1.731</td>
+<td style="text-align: right;">0.317</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">vot_conditionC: Hypothesis</td>
-<td style="text-align: right;">2.389</td>
-<td style="text-align: right;">0.5746796</td>
-<td style="text-align: right;">4.157</td>
+<td style="text-align: right;">2.388</td>
+<td style="text-align: right;">0.5785173</td>
+<td style="text-align: right;">4.127</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">1.261</td>
-<td style="text-align: right;">3.517</td>
+<td style="text-align: right;">1.253</td>
+<td style="text-align: right;">3.523</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">mean_atoms_per_ray</td>
-<td style="text-align: right;">-4.357</td>
-<td style="text-align: right;">1.2435605</td>
-<td style="text-align: right;">-3.504</td>
+<td style="text-align: right;">-4.363</td>
+<td style="text-align: right;">1.2335488</td>
+<td style="text-align: right;">-3.537</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">-6.797</td>
-<td style="text-align: right;">-1.916</td>
+<td style="text-align: right;">-6.784</td>
+<td style="text-align: right;">-1.943</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">mean_cells_per_ray</td>
-<td style="text-align: right;">2.896</td>
-<td style="text-align: right;">0.2913136</td>
-<td style="text-align: right;">9.942</td>
+<td style="text-align: right;">2.915</td>
+<td style="text-align: right;">0.2867347</td>
+<td style="text-align: right;">10.167</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: right;">2.324</td>
-<td style="text-align: right;">3.468</td>
+<td style="text-align: right;">2.353</td>
+<td style="text-align: right;">3.478</td>
 </tr>
 </tbody>
 </table>
@@ -6813,8 +6825,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>std_coef_score <span class="ot">&lt;-</span> <span class="fu">standardize_parameters</span>(lmer_score, <span class="at">method =</span> <span class="st">"refit"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p><strong>Model Fit — Atoms Correct</strong>: - Marginal R²: 0.265 - Conditional R²: 0.551</p>
-<p><strong>Model Fit — Score</strong>: - Marginal R²: 0.257 - Conditional R²: 0.626</p>
+<p><strong>Model Fit — Atoms Correct</strong>: - Marginal R²: 0.282 - Conditional R²: 0.547</p>
+<p><strong>Model Fit — Score</strong>: - Marginal R²: 0.26 - Conditional R²: 0.624</p>
 <section id="standardized-coefficients-beta-weights" class="level4" data-number="4.2.6.1">
 <h4 data-number="4.2.6.1" class="anchored" data-anchor-id="standardized-coefficients-beta-weights"><span class="header-section-number">4.2.6.1</span> Standardized Coefficients (Beta Weights)</h4>
 <p>Allows comparison of relative importance across fixed effects (based on fixed effects only).</p>
@@ -6826,14 +6838,14 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 Parameter                   | Std. Coef. |         95% CI
 ---------------------------------------------------------
 enable thinking [TRUE]      |       0.52 | [ 0.43,  0.60]
-model name [Sonnet 4.6]     |       0.40 | [ 0.27,  0.53]
+model name [Sonnet 4.6]     |       0.41 | [ 0.28,  0.54]
 prompt style [augmented]    |       0.35 | [ 0.26,  0.43]
-model name [Opus 4.6]       |       0.32 | [ 0.19,  0.45]
-mean cells per ray          |      -0.16 | [-0.22, -0.11]
+model name [Opus 4.6]       |       0.33 | [ 0.20,  0.45]
+mean cells per ray          |      -0.17 | [-0.23, -0.11]
 mean atoms per ray          |      -0.12 | [-0.18, -0.06]
+vot conditionB × Ray Trace  |       0.10 | [-0.01,  0.21]
 model name [Sonnet 4.5]     |       0.10 | [-0.04,  0.24]
 vot conditionC × Hypothesis |      -0.09 | [-0.22,  0.03]
-vot conditionB × Ray Trace  |       0.09 | [-0.02,  0.21]
 model name [Opus 4.5]       |       0.09 | [-0.05,  0.23]</code></pre>
 </div>
 </div>
@@ -6849,10 +6861,10 @@ mean cells per ray          |       0.28 | [ 0.22,  0.33]
 vot conditionC × Hypothesis |       0.25 | [ 0.13,  0.36]
 prompt style [augmented]    |      -0.15 | [-0.23, -0.07]
 mean atoms per ray          |      -0.10 | [-0.16, -0.05]
+vot conditionB × Ray Trace  |      -0.07 | [-0.18,  0.03]
 vot conditionA × Grid State |       0.07 | [-0.05,  0.18]
-vot conditionB × Ray Trace  |      -0.07 | [-0.17,  0.04]
 model name [Opus 4.5]       |      -0.05 | [-0.18,  0.08]
-model name [Sonnet 4.6]     |      -0.04 | [-0.16,  0.08]
+model name [Sonnet 4.6]     |      -0.05 | [-0.17,  0.07]
 model name [Opus 4.6]       |      -0.03 | [-0.15,  0.09]</code></pre>
 </div>
 </div>
@@ -7134,99 +7146,99 @@ model name [Opus 4.6]       |      -0.03 | [-0.15,  0.09]</code></pre>
 <td style="text-align: right;">1035</td>
 <td style="text-align: right;">0.671</td>
 <td style="text-align: right;">0.015</td>
-<td style="text-align: right;">98</td>
-<td style="text-align: right;">2.194</td>
-<td style="text-align: right;">0.916</td>
-<td style="text-align: right;">26.827</td>
-<td style="text-align: right;">6.585</td>
+<td style="text-align: right;">102</td>
+<td style="text-align: right;">2.206</td>
+<td style="text-align: right;">0.926</td>
+<td style="text-align: right;">26.794</td>
+<td style="text-align: right;">6.531</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">990</td>
 <td style="text-align: right;">0.794</td>
 <td style="text-align: right;">0.013</td>
-<td style="text-align: right;">98</td>
-<td style="text-align: right;">2.418</td>
-<td style="text-align: right;">1.579</td>
-<td style="text-align: right;">22.735</td>
-<td style="text-align: right;">7.809</td>
+<td style="text-align: right;">102</td>
+<td style="text-align: right;">2.451</td>
+<td style="text-align: right;">1.565</td>
+<td style="text-align: right;">22.539</td>
+<td style="text-align: right;">7.775</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">1125</td>
 <td style="text-align: right;">0.780</td>
 <td style="text-align: right;">0.012</td>
-<td style="text-align: right;">98</td>
-<td style="text-align: right;">1.612</td>
-<td style="text-align: right;">1.273</td>
-<td style="text-align: right;">26.082</td>
-<td style="text-align: right;">7.837</td>
+<td style="text-align: right;">102</td>
+<td style="text-align: right;">1.667</td>
+<td style="text-align: right;">1.285</td>
+<td style="text-align: right;">25.814</td>
+<td style="text-align: right;">7.843</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">1260</td>
 <td style="text-align: right;">0.717</td>
 <td style="text-align: right;">0.013</td>
-<td style="text-align: right;">98</td>
+<td style="text-align: right;">102</td>
 <td style="text-align: right;">0.480</td>
-<td style="text-align: right;">0.852</td>
-<td style="text-align: right;">40.041</td>
-<td style="text-align: right;">7.418</td>
+<td style="text-align: right;">0.841</td>
+<td style="text-align: right;">40.216</td>
+<td style="text-align: right;">7.352</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">810</td>
 <td style="text-align: right;">0.799</td>
 <td style="text-align: right;">0.014</td>
-<td style="text-align: right;">98</td>
-<td style="text-align: right;">0.990</td>
-<td style="text-align: right;">0.990</td>
-<td style="text-align: right;">34.439</td>
-<td style="text-align: right;">6.757</td>
+<td style="text-align: right;">102</td>
+<td style="text-align: right;">1.049</td>
+<td style="text-align: right;">1.018</td>
+<td style="text-align: right;">34.078</td>
+<td style="text-align: right;">6.938</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
 <td style="text-align: right;">945</td>
 <td style="text-align: right;">0.820</td>
 <td style="text-align: right;">0.012</td>
-<td style="text-align: right;">98</td>
-<td style="text-align: right;">3.827</td>
-<td style="text-align: right;">0.538</td>
-<td style="text-align: right;">15.327</td>
-<td style="text-align: right;">5.224</td>
+<td style="text-align: right;">102</td>
+<td style="text-align: right;">3.833</td>
+<td style="text-align: right;">0.528</td>
+<td style="text-align: right;">15.225</td>
+<td style="text-align: right;">5.147</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
 <td style="text-align: right;">1080</td>
 <td style="text-align: right;">0.829</td>
 <td style="text-align: right;">0.011</td>
-<td style="text-align: right;">98</td>
-<td style="text-align: right;">0.929</td>
-<td style="text-align: right;">1.310</td>
-<td style="text-align: right;">32.663</td>
-<td style="text-align: right;">8.992</td>
+<td style="text-align: right;">102</td>
+<td style="text-align: right;">1.029</td>
+<td style="text-align: right;">1.382</td>
+<td style="text-align: right;">32.078</td>
+<td style="text-align: right;">9.301</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">1035</td>
 <td style="text-align: right;">0.682</td>
 <td style="text-align: right;">0.014</td>
-<td style="text-align: right;">98</td>
-<td style="text-align: right;">1.337</td>
-<td style="text-align: right;">1.139</td>
-<td style="text-align: right;">29.929</td>
-<td style="text-align: right;">6.967</td>
+<td style="text-align: right;">102</td>
+<td style="text-align: right;">1.382</td>
+<td style="text-align: right;">1.178</td>
+<td style="text-align: right;">29.716</td>
+<td style="text-align: right;">7.024</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">1125</td>
 <td style="text-align: right;">0.808</td>
 <td style="text-align: right;">0.012</td>
-<td style="text-align: right;">98</td>
-<td style="text-align: right;">1.551</td>
-<td style="text-align: right;">1.027</td>
-<td style="text-align: right;">26.776</td>
-<td style="text-align: right;">5.878</td>
+<td style="text-align: right;">102</td>
+<td style="text-align: right;">1.608</td>
+<td style="text-align: right;">1.055</td>
+<td style="text-align: right;">26.529</td>
+<td style="text-align: right;">5.973</td>
 </tr>
 </tbody>
 </table>
@@ -7373,7 +7385,7 @@ model name [Opus 4.6]       |      -0.03 | [-0.15,  0.09]</code></pre>
 <tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">0.165</td>
+<td style="text-align: right;">0.194</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Opus 4.5</td>
@@ -7383,7 +7395,7 @@ model name [Opus 4.6]       |      -0.03 | [-0.15,  0.09]</code></pre>
 <tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">0.288</td>
+<td style="text-align: right;">0.319</td>
 </tr>
 </tbody>
 </table>
@@ -7495,9 +7507,9 @@ model name [Opus 4.6]       |      -0.03 | [-0.15,  0.09]</code></pre>
 <tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
 <td style="text-align: right;">0.749</td>
-<td style="text-align: right;">0.510</td>
-<td style="text-align: right;">0.239</td>
-<td style="text-align: left;">23.9 pp</td>
+<td style="text-align: right;">0.524</td>
+<td style="text-align: right;">0.225</td>
+<td style="text-align: left;">22.5 pp</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Opus 4.5</td>
@@ -7509,9 +7521,9 @@ model name [Opus 4.6]       |      -0.03 | [-0.15,  0.09]</code></pre>
 <tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
 <td style="text-align: right;">0.760</td>
-<td style="text-align: right;">0.479</td>
-<td style="text-align: right;">0.281</td>
-<td style="text-align: left;">28.1 pp</td>
+<td style="text-align: right;">0.492</td>
+<td style="text-align: right;">0.268</td>
+<td style="text-align: left;">26.8 pp</td>
 </tr>
 </tbody>
 </table>
@@ -7692,14 +7704,14 @@ model name [Opus 4.6]       |      -0.03 | [-0.15,  0.09]</code></pre>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Sonnet 4.6</td>
-<td style="text-align: center;">250</td>
-<td style="text-align: center;">2.04</td>
+<td style="text-align: center;">270</td>
+<td style="text-align: center;">2.10</td>
 <td style="text-align: center;">1.46</td>
-<td style="text-align: center;">27.5</td>
-<td style="text-align: center;">1.79</td>
-<td style="text-align: center;">1.22</td>
+<td style="text-align: center;">27.1</td>
+<td style="text-align: center;">1.85</td>
+<td style="text-align: center;">1.26</td>
 <td style="text-align: center;">&lt; 0.001</td>
-<td style="text-align: center;">-8.71</td>
+<td style="text-align: center;">-8.36</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Opus 4.5</td>
@@ -7714,20 +7726,20 @@ model name [Opus 4.6]       |      -0.03 | [-0.15,  0.09]</code></pre>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Opus 4.6</td>
-<td style="text-align: center;">250</td>
-<td style="text-align: center;">1.92</td>
-<td style="text-align: center;">1.50</td>
-<td style="text-align: center;">27.6</td>
-<td style="text-align: center;">1.67</td>
-<td style="text-align: center;">1.11</td>
+<td style="text-align: center;">270</td>
+<td style="text-align: center;">1.97</td>
+<td style="text-align: center;">1.49</td>
+<td style="text-align: center;">27.3</td>
+<td style="text-align: center;">1.72</td>
+<td style="text-align: center;">1.15</td>
 <td style="text-align: center;">&lt; 0.001</td>
-<td style="text-align: center;">-8.83</td>
+<td style="text-align: center;">-8.56</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>All models perform <strong>significantly above chance</strong> (all p &lt; 0.05). The overall mean of 1.63 atoms correct is 6.5× the chance expectation, confirming that LLMs extract meaningful signal from ray observations.</p>
+<p>All models perform <strong>significantly above chance</strong> (all p &lt; 0.05). The overall mean of 1.67 atoms correct is 6.7× the chance expectation, confirming that LLMs extract meaningful signal from ray observations.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -8073,13 +8085,13 @@ Generated: 2026-03-20T00:32:07.634195+00:00 </code></pre>
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">1.00</td>
-<td style="text-align: right;">10.4</td>
-<td style="text-align: right;">1.30</td>
+<td style="text-align: right;">10.5</td>
+<td style="text-align: right;">1.31</td>
 <td style="text-align: right;">12</td>
 <td style="text-align: right;">13</td>
 <td style="text-align: right;">1.08</td>
-<td style="text-align: right;">31.1</td>
-<td style="text-align: right;">2.59</td>
+<td style="text-align: right;">30.9</td>
+<td style="text-align: right;">2.57</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">1.0</td>
 </tr>
@@ -8108,10 +8120,10 @@ Generated: 2026-03-20T00:32:07.634195+00:00 </code></pre>
 <td style="text-align: right;">11</td>
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">0.73</td>
-<td style="text-align: right;">22.7</td>
-<td style="text-align: right;">2.07</td>
+<td style="text-align: right;">22.5</td>
+<td style="text-align: right;">2.05</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">2.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">3</td>
@@ -8123,23 +8135,23 @@ Generated: 2026-03-20T00:32:07.634195+00:00 </code></pre>
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">29</td>
 <td style="text-align: right;">3.22</td>
-<td style="text-align: right;">26.1</td>
-<td style="text-align: right;">2.90</td>
+<td style="text-align: right;">25.8</td>
+<td style="text-align: right;">2.87</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">1.7</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">7</td>
 <td style="text-align: right;">6</td>
 <td style="text-align: right;">0.86</td>
-<td style="text-align: right;">13.0</td>
-<td style="text-align: right;">1.86</td>
+<td style="text-align: right;">13.1</td>
+<td style="text-align: right;">1.87</td>
 <td style="text-align: right;">12</td>
 <td style="text-align: right;">29</td>
 <td style="text-align: right;">2.42</td>
-<td style="text-align: right;">40.0</td>
-<td style="text-align: right;">3.34</td>
+<td style="text-align: right;">40.2</td>
+<td style="text-align: right;">3.35</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0.5</td>
 </tr>
@@ -8148,13 +8160,13 @@ Generated: 2026-03-20T00:32:07.634195+00:00 </code></pre>
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: right;">1.11</td>
-<td style="text-align: right;">13.2</td>
+<td style="text-align: right;">13.1</td>
 <td style="text-align: right;">1.46</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: right;">34</td>
 <td style="text-align: right;">2.43</td>
-<td style="text-align: right;">34.4</td>
-<td style="text-align: right;">2.46</td>
+<td style="text-align: right;">34.1</td>
+<td style="text-align: right;">2.43</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.0</td>
 </tr>
@@ -8163,13 +8175,13 @@ Generated: 2026-03-20T00:32:07.634195+00:00 </code></pre>
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">1.12</td>
-<td style="text-align: right;">11.4</td>
+<td style="text-align: right;">11.3</td>
 <td style="text-align: right;">1.42</td>
 <td style="text-align: right;">12</td>
 <td style="text-align: right;">11</td>
 <td style="text-align: right;">0.92</td>
-<td style="text-align: right;">15.3</td>
-<td style="text-align: right;">1.28</td>
+<td style="text-align: right;">15.2</td>
+<td style="text-align: right;">1.27</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">3.8</td>
 </tr>
@@ -8179,14 +8191,14 @@ Generated: 2026-03-20T00:32:07.634195+00:00 </code></pre>
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">0.62</td>
 <td style="text-align: right;">11.4</td>
-<td style="text-align: right;">1.43</td>
+<td style="text-align: right;">1.42</td>
 <td style="text-align: right;">12</td>
 <td style="text-align: right;">18</td>
 <td style="text-align: right;">1.50</td>
-<td style="text-align: right;">32.7</td>
-<td style="text-align: right;">2.72</td>
+<td style="text-align: right;">32.1</td>
+<td style="text-align: right;">2.67</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">8</td>
@@ -8198,23 +8210,23 @@ Generated: 2026-03-20T00:32:07.634195+00:00 </code></pre>
 <td style="text-align: right;">10</td>
 <td style="text-align: right;">23</td>
 <td style="text-align: right;">2.30</td>
-<td style="text-align: right;">29.9</td>
-<td style="text-align: right;">2.99</td>
+<td style="text-align: right;">29.7</td>
+<td style="text-align: right;">2.97</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">1.4</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">7</td>
 <td style="text-align: right;">1.40</td>
-<td style="text-align: right;">11.0</td>
-<td style="text-align: right;">2.20</td>
+<td style="text-align: right;">11.1</td>
+<td style="text-align: right;">2.21</td>
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: right;">1.75</td>
-<td style="text-align: right;">26.8</td>
-<td style="text-align: right;">3.35</td>
+<td style="text-align: right;">26.5</td>
+<td style="text-align: right;">3.32</td>
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">1.6</td>
 </tr>
@@ -8384,7 +8396,7 @@ Generated: 2026-03-20T00:32:07.634195+00:00 </code></pre>
 </div>
 </div>
 </div>
-<p><strong>Best condition summary.</strong> The best-performing condition by score is <em>Opus 4.6 | Base | Think | None</em>. Compared to the overall LLM mean, the best condition reduces the score ratio from 2.6× to 1.8× optimal (a 29% reduction) and the rays ratio from 1.6× to 1.2× optimal. This highlights how much of the gap to optimal is driven by model capability vs.&nbsp;the averaging across weaker conditions.</p>
+<p><strong>Best condition summary.</strong> The best-performing condition by score is <em>Opus 4.6 | Base | Think | None</em>. Compared to the overall LLM mean, the best condition reduces the score ratio from 2.6× to 1.8× optimal (a 28% reduction) and the rays ratio from 1.6× to 1.2× optimal. This highlights how much of the gap to optimal is driven by model capability vs.&nbsp;the averaging across weaker conditions.</p>
 </section>
 </section>
 <section id="error-analysis" class="level2" data-number="4.6">
@@ -22123,7 +22135,7 @@ Table: Corrected Prompt: Actual vs Predicted Outcome Type
 <div class="cell-output cell-output-stdout">
 <pre><code>
 **Chi-squared test** (error type distribution × prompt version):
-  X² = 5.43 , p = 0.48 </code></pre>
+  X² = 5.43 , p = 0.493 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>

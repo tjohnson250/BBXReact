@@ -402,19 +402,40 @@ chance_EX <- sum(chance_pmf$k * chance_pmf$prob)
 chance_Escore <- sum(chance_pmf$score * chance_pmf$prob)
 ```
 
+## Follow Along {style="text-align: center;"}
+
+:::: {.columns}
+::: {.column width="50%"}
+<br><br>
+
+### View these slides online:
+
+<h3><a href="https://tjohnson250.github.io/BBXReact/blackbox_presentation.html">tjohnson250.github.io/BBXReact</a></h3>
+
+:::
+
+::: {.column width="50%"}
+
+![](presentation_qr.png){fig-align="center" width="450"}
+
+:::
+::::
+
 ## Clinical Reasoning at Scale
 
 LLMs are being deployed across clinical reasoning tasks at unprecedented speed.
 
--   **In 2024, 31.5% of 2,174 US hospitals** deployed generative AI in clinical workflows;
+::: {.incremental}
+-   **In 2024, 31.5% of 2,174 US hospitals** deployed generative AI in clinical workflows; another **24.7% planned near-term adoption** [@everson2025genai]
 
-    -   another **24.7% planned near-term adoption** [@everson2025genai]
+-   **2024 survey with responses from 43 of 67 Scottsdale Institute health systems** all reported active AI adoption in clinical documentation (ambient listening at 100%) [@poon2025]
 
--   **2024 survey with responses from 43 of 67 Scottsdale Institute health systems** all reported active AI adoption in clinical documentation (ambient listening) [@poon2025]
+-   **1 (2019) → 557 (2024) papers/year** evaluating LLMs in clinical medicine  [@shool2025systematic]
+:::
 
--   Publications evaluating LLMs in clinical medicine: **1 (2019) → 557 (2024)** [@shool2025systematic]
-
+::: {.fragment}
 **Scope of deployment:** Triage · Differential diagnosis · Clinical documentation · Test ordering · Referral decisions · Prior authorization · Coding · Treatment planning
+:::
 
 ::: notes
 I want to start with the scope of what's happening. A third of US hospitals are already running generative AI in clinical workflows. A national survey of leading health systems found universal adoption activity. The research literature has more than tripled in a single year. And the applications span the full range of clinical cognitive work — not just documentation, which is relatively low-risk, but diagnosis, triage, test ordering, treatment planning. Tasks that require clinical reasoning. The question is: what's the evidentiary basis for this deployment?
@@ -423,77 +444,149 @@ I want to start with the scope of what's happening. A third of US hospitals are 
 ## The Case for Deployment
 
 :::::: columns
-::: {.column width="48%"}
+:::: {.column width="48%"}
 ### Benchmark Milestones
 
--   **Med-PaLM 2**: Expert-level medical question answering [@singhal2023medpalm2]
+::: {.incremental}
+-   **GPT-4: \~86% on USMLE-style questions**, exceeding passing threshold by 20+ points [@garabet2024gpt4usmle]
 
--   **GPT-4**: \~86% on USMLE-style questions, exceeding passing threshold by 20+ points
+-   **Med-PaLM 2: Scored 86.5% on MedQA (USMLE-Style)**. [@singhal2025toward]
+    - **Physicians preferred Med-PaLM 2 answers** over generalist physician answers 65% of the time.
 
--   **AMIE**: Outperformed primary care physicians in structured diagnostic conversations (Tu et al. 2024)
+-   **AMIE: Outperformed primary care physicians in structured diagnostic conversations** including information acquisition [@tu2025amie]
 :::
+::::
 
-::: {.column width="4%"}
-:::
+:::: {.column width="4%"}
+::::
 
-::: {.column width="48%"}
+:::: {.column width="48%"}
+::: {.fragment}
 ### Clinical Evidence
 
--   **LLM alone: 92%** diagnostic accuracy vs. 74% for physicians (Goh et al. 2024, JAMA Network Open)
-
--   **MASAI trial**: AI-assisted mammography detected 20% more cancers, halved radiologist workload (Lång et al. 2023)
-
--   **Danish screening**: AI reliably filtered \~50% of normal chest X-rays (Plesner et al. 2024)
+-   NEJM case records: **GPT-4 included the correct diagnosis in its differential for 64%** (34% as top diagnosis) of complex clinicopathological cases from NEJM. [@kanjee2023accuracy]
 :::
+
+::: {.fragment}
+-   **LLM alone: 92% diagnostic accuracy** on 6 clinical vignettes vs. 74% (conventional resources) and 76% (with LLM) for physicians [@goh2024llmdiagnosis]
+:::
+
+::: {.fragment}
+-   Emergency dept: **GPT-4 was better than ED resident physicians** in diagnostic accuracy across 100 real cases [@hoppe2024gpt4ed]
+:::
+::::
 ::::::
 
-<br>
-
-If you're a health system CEO looking at these numbers, deployment seems like an obvious decision.
-
 ::: notes
-And the evidence looks compelling. On the benchmark side, Med-PaLM 2 reached expert-level performance on medical question answering. GPT-4 crushed the USMLE by twenty points. Google's AMIE outperformed primary care physicians in structured diagnostic conversations. On the clinical side, Goh et al. ran a randomized trial where the LLM alone scored 92% on diagnostic reasoning — physicians scored 74%. The MASAI trial found AI-assisted mammography caught 20% more cancers while halving radiologist workload. If you're a health system CEO looking at these numbers, deployment seems like an obvious decision. But there's a problem.
+And the evidence looks compelling. On the benchmark side, Med-PaLM 2 reached expert-level performance on medical question answering. GPT-4 crushed the USMLE by twenty points. Google's AMIE outperformed primary care physicians in structured diagnostic conversations. On the clinical side, Goh et al. ran a randomized trial where the LLM alone scored 92% on diagnostic reasoning — physicians scored 74%. Kanjee et al. found GPT-4 included the correct diagnosis for 64% of complex NEJM case records, and Hoppe et al. showed GPT-4 significantly outperformed ED residents in diagnostic accuracy. If you're a health system CEO looking at these numbers, deployment seems like an obvious decision. But there's a problem.
 :::
 
-## Pattern Recognition ≠ Clinical Reasoning {background-color="#1a1a2e"}
+## The Case for Concern
 
 ::: conflict-thesis
-Healthcare is adopting LLMs for tasks that require clinical reasoning, based on benchmark evidence that measures something other than clinical reasoning.
+Healthcare is adopting LLMs for tasks that require clinical reasoning, based on benchmark evidence that measures pattern recognition
 :::
 
-Three independent lines of evidence:
-
-::: evidence-block
-[**1.**]{.evidence-num} **Context matching, not reasoning** (Wen et al. 2025, *npj Digital Medicine*)
-
-Rephrase a clinical question with synonymous terms → different (wrong) answer. Present a scenario where no answer is correct → models confidently pick one. Tested across 8 models: assumptions underlying MCQA validity **globally invalidated**.
+::: {.fragment}
+[**1.**]{.evidence-num} **Context matching, not reasoning** [@wen2025context]
 :::
 
-::: evidence-block
-[**2.**]{.evidence-num} **Base rate neglect is systematic** (Omar et al. 2025)
-
-Add "recently returned from Southeast Asia" to a fever-and-cough vignette → LLMs shift to malaria/dengue even when pneumonia remains far more likely. **300 vignettes, 20 models** — salient cue overrides base rate every time.
+::: {.fragment}
+[**2.**]{.evidence-num} **Base rate neglect is systematic** [@omar2025zebras]
 :::
 
-::: evidence-block
-[**3.**]{.evidence-num} **Reasoning traces don't reflect actual computation**
-
-Models given incorrect hints construct elaborate justifications without acknowledging the hint (Anthropic faithfulness study; Matton et al. 2025). Models trained on *wrong* intermediate steps paired with correct answers still improve (Kambhampati et al. 2025). Reasoning models show sharp performance collapse at complexity thresholds (Shojaee et al. 2025).
+::: {.fragment}
+[**3.**]{.evidence-num} **Reasoning traces don't reflect actual computation** [@chen2025faithfulness; @matton2025; @kambhampati2024llmmodulo; @shojaee2025illusion]
 :::
 
 ::: notes
-Here's the core problem. Three independent research programs converge on the same conclusion.
+Here's the core problem. Three independent research programs converge on the same conclusion. Let me walk through each one.
+:::
 
-First, Wen and colleagues at Mayo tested whether LLM performance on medical board-style questions reflects applied knowledge or pattern matching. They rephrased clinical questions using synonymous terms — same clinical scenario, different surface features — and got different, wrong answers. When they presented scenarios with no correct answer choice, models confidently selected one anyway. They tested eight models and globally invalidated the assumptions underlying these benchmarks.
+## Context Matching, Not Reasoning
 
+::: evidence-block
+Evaluated LLM performance on clinical Multiple Choice Question and Answer (MCQA) benchmarks
+
+LLMs pattern-match against available answer options rather than independently reasoning through clinical scenarios [@wen2025context]
+
+- **Expand options from 5 to 26** → small models collapse, exposing memorized answer positions
+- **Rephrase with synonymous terms** → different (wrong) answers despite identical clinical content
+- **Replace correct answer with "None of the Above"** → models confidently select a wrong option
+
+Tested across 8 models and 4 benchmarks: Invalidates generalizability of MCQA results
+:::
+
+::: notes
+Wen and colleagues at Mayo define "context matching" — the idea that multiple-choice formats let models generate statistically probable responses by pattern-matching against available options, rather than independently applying clinical knowledge.
+
+They tested this with three perturbations. First, they expanded the answer set from 5 to 26 options. If a model truly reasons, more distractors shouldn't matter — but small models collapsed, suggesting they'd memorized answer positions. Second, they rephrased questions using synonymous terms — same clinical scenario, different surface features — and got different, wrong answers. Third, they replaced the correct answer with "None of the Above." Every model confidently selected a wrong option rather than recognizing no valid answer existed — a particularly dangerous failure mode for clinical decision support.
+
+Eight models, four benchmarks, three perturbations — the assumptions underlying MCQA-based evaluation were globally invalidated.
+:::
+
+## Implications: Context Matching, Not Reasoning
+
+Invalidates three assumptions with respect to MCQA results [@wen2025context]:
+
+::: evidence-block
+- Knowledge is applied, not memorized
+- Semantic consistency will lead to consistent answers
+- Situations with no answers can be recognized.
+:::
+
+## Base Rate Neglect Is Systematic
+
+::: evidence-block
+- **300 vignettes, 20 models** — salient cue overrides base rate every time.
+- Add "recently returned from Southeast Asia" to a fever-and-cough vignette → LLMs shift to malaria/dengue even when pneumonia remains far more likely. 
+ [@omar2025zebras]
+:::
+
+::: notes
 Second, Omar and colleagues found what they call "chasing zebras." Add a single salient cue — recent travel to Southeast Asia — to a routine fever-and-cough vignette, and LLMs shift to rare tropical diagnoses even when community-acquired pneumonia remains far more probable. Three hundred vignettes, twenty models, completely systematic.
+:::
 
+## Reasoning Traces Don't Reflect Actual Computation
+
+::: evidence-block
+- Models given incorrect hints construct elaborate justifications without acknowledging the hint [@chen2025faithfulness; @matton2025]. 
+- Models trained on *wrong* intermediate steps paired with correct answers still improve [@kambhampati2024llmmodulo]. 
+- Reasoning models show sharp performance collapse at complexity thresholds on toy AI problems (e.g., Towers of Hanoi) [@shojaee2025illusion].
+:::
+
+::: notes
 Third — and this is the deepest problem — even the reasoning traces that models produce may not reflect their actual computation. Anthropic's own research found that models given incorrect hints will use the hint to get the right answer but then write an explanation that pretends they solved it independently. Kambhampati's group showed that models trained on deliberately wrong reasoning steps still improve, as long as the final answer is correct. The trace isn't reasoning — it's a learned navigation pattern through latent space. And Shojaee and colleagues showed that reasoning models experience sharp performance collapse once problems exceed certain complexity thresholds.
 
 Now — some of Shojaee's specific findings have been contested on methodological grounds, and the debate is ongoing. But that's actually the point. If the field can't agree on whether these models are truly reasoning even on puzzle tasks, we certainly shouldn't assume they're reasoning on clinical problems.
 :::
 
-## What's Needed
+## Parallels to Human Clinical Reasoning
+
+::: evidence-block
+- Novice clinicians reason from first principles — **backward reasoning** from hypothesis to data [@patel1991general].
+- Expert clinicians develop a clinically-organized knowledge base enabling rapid **forward reasoning** — data to diagnosis [@patel1989biomedical].
+- Basic medical science knowledge and clinical knowledge function as two distinct systems; expertise involves reorganization, not just accumulation.
+- Unlike LLMs, humans demonstrably possess **both** modes of reasoning.
+:::
+
+::: notes
+Vimla Patel and Guy Groen's research program in the 1980s and early 1990s established something striking about how medical expertise develops. Novice clinicians learn basic science and use it to reason from first principles — backward reasoning from hypotheses to data. As they develop expertise, they build an entirely different, clinically-organized knowledge base that enables rapid forward reasoning — data to diagnosis. These are two distinct knowledge systems; the transition isn't accumulation, it's reorganization.
+
+The forward reasoning of experts looks a lot like the pattern matching we see in LLMs. But here's the critical difference: humans demonstrably possess both modes. Experts can fall back on first-principles reasoning for atypical cases. LLMs produce traces that look like first-principles reasoning, but the evidence we just reviewed suggests those traces may not reflect the actual computation. The question is whether LLMs have any genuine first-principles capability, or whether pattern matching is all there is.
+:::
+
+## Implications for Clinical (and Scientific) Reasoning
+
+**Thesis: The frontiers of medicine and science — new hypotheses, new mechanisms, new therapies — inherently demand first-principles reasoning.**
+
+- Routine clinical cases may be solvable by pattern matching — but atypical presentations, rare conditions, and complex comorbidities require reasoning from first principles.
+- Novel diseases, emerging pathogens, and unexpected drug interactions have no patterns to match against.
+
+- If LLMs lack this capability, their utility has a ceiling that benchmarks built on routine cases will not reveal.
+
+
+## What's Needed To Evaluate LLMs?
 
 If clinical reasoning deployment is outrunning our ability to evaluate clinical reasoning, we need benchmarks that:
 
@@ -522,9 +615,6 @@ Evaluate *how* the model reasons, not just whether it gets the right answer.
 :::
 ::::::
 
-<br>
-
-**Diagnostic reasoning** is the best-characterized component of clinical reasoning — multicausal abductive inference with identifiable component processes (Johnson & Krems 2001). I have a task that tests all of them.
 
 ::: notes
 So what do we do? We need evaluation that actually tests reasoning. Four properties. Out-of-distribution, so we're not measuring memorization. An optimality ceiling, so we know how far from perfect a model is, not just whether it passes some threshold. Decomposable, so we can identify which component process is failing. And process-oriented, so we're evaluating how the model reasons, not just whether it gets the right answer.
@@ -532,142 +622,20 @@ So what do we do? We need evaluation that actually tests reasoning. Four propert
 Now, the problem I've described is broad — it applies to clinical reasoning generally. But I'm going to study it through diagnostic reasoning specifically, for two reasons. First, diagnostic reasoning is the most cognitively well-characterized form of clinical reasoning. My work with Josef Krems established that it's multicausal abductive inference — reasoning from observed effects to hidden causes under uncertainty — with identifiable component processes: hypothesis generation, test selection, constraint tracking, belief updating. Second, I have a task environment that lets me test all of these components, with ground truth and a computable optimality ceiling. Let me show you.
 :::
 
-OLDER
-
-## AI in Clinical Diagnosis Today {.smaller}
-
-::::: columns
-::: {.column width="55%"}
-LLMs are now embedded across clinical workflows:
-
--   **31.5%** of US hospitals deployed generative AI in clinical workflows by 2024, with another 24.7% planning near-term implementation [@everson2025genai]
--   Publications on LLMs in medical diagnostics surged from 160 (2023) to **557** (2024) [@shool2025systematic]
--   Primary applications: triage, differential diagnosis, clinical note drafting, referral recommendations
--   Emergency medicine and radiology lead direct diagnostic use
-
-@thirunavukarasu2023llmmed reviewed the initial wave in 2023; the field has since accelerated dramatically.
-:::
-
-::: {.column width="45%"}
-### Milestone Results
-
--   **Med-PaLM 2**: Expert-level medical question answering [@singhal2023medpalm2]
--   **AMIE**: Outperformed primary care physicians in structured diagnostic conversations [@tu2024amie]
--   **Swedish MASAI trial**: AI-assisted mammography detected **20% more cancers** while cutting radiologist workload in half (80,000+ women) [@lang2023masai]
-:::
-:::::
-
-::: notes
-Set the stage with concrete adoption numbers. A third of US hospitals are already using generative AI clinically. The research literature has exploded — over 500 papers in 2024 alone. Thirunavukarasu's 2023 Nature Medicine review captured the first wave, but the pace has intensified since then. Med-PaLM 2 matched experts on medical QA. Google's AMIE beat primary care physicians in structured diagnostic conversations. The Swedish MASAI trial — over 80,000 women — found AI-assisted mammography identified 20% more cancers while halving radiologist workload. These results are driving clinical adoption.
-:::
-
-## The Case for Adoption: AI Outperforming Clinicians {.smaller}
-
-::::::: columns
-::: {.column width="50%"}
-A growing body of evidence shows LLMs exceeding physician performance on diagnostic tasks [@goh2024llmdiagnosis]:
-
-|                  | Accuracy |
-|------------------|----------|
-| **LLM alone**    | **92%**  |
-| Physicians + LLM | 76%      |
-| Physicians alone | 74%      |
-
-: Diagnostic reasoning scores across six clinical cases (50 physicians, JAMA Network Open)
-
--   Danish chest X-ray screening: AI reliably filtered **\~50%** of normal scans, freeing radiologists for complex cases [@plesner2024chestxray]
--   MIT–Harvard study: Radiologists shown AI predictions systematically **undervalued** the AI input relative to their own judgment [@yu2024radiologist]
-:::
-
-::::: {.column width="50%"}
-::: callout-important
-### The Paradox
-
-Physicians with AI barely outperform physicians without AI — but **AI alone** dramatically outperforms both.
-
-This "automation neglect" pattern appears consistently across imaging, clinical reasoning, and diagnostic accuracy studies.
-:::
-
-::: fragment
-If AI is this capable on benchmarks and structured evaluations, shouldn't we deploy it widely?
-:::
-:::::
-:::::::
-
-::: notes
-Now why is adoption accelerating so fast? Because the results are remarkable. Goh et al. in JAMA Network Open ran a randomized clinical trial with 50 physicians: the LLM alone scored 92% on diagnostic reasoning, physicians with LLM access scored 76%, and physicians without AI scored 74%. The combined human-AI approach barely beat unaided physicians. A Danish study found AI could reliably filter about half of all normal chest X-rays, freeing radiologists for the hard cases. The MIT-Harvard study showed that even when the AI was right, radiologists systematically underweighted its input. Topol and Rajpurkar reviewed this pattern across multiple studies — it's consistent. So the enthusiasm is understandable. But should we trust these results?
-:::
-
-## The Evaluation Crisis {.smaller}
-
-::::: columns
-::: {.column width="50%"}
-### The Deployment Gap
-
-LLMs tested in isolation vs. deployed with real users [@bean2026reliability]:
-
-|                  | Condition identified |
-|------------------|----------------------|
-| **LLM alone**    | **94.9%**            |
-| Real users + LLM | 34.5%                |
-| Control (Google) | \~34%                |
-
-: Randomized trial, 1,298 participants, 10 medical scenarios (Nature Medicine)
-
-Real users with the *same* LLMs performed **no better than Googling it**.
-
-In one case, two users describing identical subarachnoid hemorrhage symptoms received opposite advice — one told to "lie down in a dark room," the other correctly referred to emergency care.
-:::
-
-::: {.column width="50%"}
-### Why Benchmarks Fail
-
-**"Context matching," not reasoning** [@wen2025context]: Models match keywords in the question to answer choices. Rephrase the same clinical question with synonymous terms → different (wrong) answer. When *no* answer choice is correct, models confidently pick one anyway.
-
-**"Chasing zebras"** [@omar2025zebras]: Add "recently returned from Southeast Asia" to a fever-and-cough vignette → LLMs shift to malaria or dengue, even when community-acquired pneumonia remains far more likely. Tested across 300 vignettes and 20 models — base rate neglect is systematic.
-
-**"Illusion of thinking"** [@shojaee2025illusion]: Reasoning models appear to deliberate but performance **collapses** at problem complexity thresholds.
-:::
-:::::
-
-::: fragment
-> **Core question**: Does high benchmark performance reflect diagnostic reasoning — or sophisticated pattern matching?
-:::
-
-::: notes
-But here's the problem. Bean et al. in Nature Medicine ran a randomized trial with 1,298 participants: LLMs scored 94.9% on medical scenarios when tested alone, but when real people used the same LLMs, accuracy dropped to 34.5% — no better than just Googling it. In one case, two users described the same subarachnoid hemorrhage symptoms and got opposite advice. One was told to lie down in a dark room, the other to go to the ER. That's a catastrophic failure mode.
-
-Then the deeper benchmarking problems. Wen et al. showed that high MCQA scores reflect context matching, not reasoning. What does that mean concretely? If you rephrase a clinical question using synonymous terms — same clinical scenario, different wording — models give different, wrong answers. And when you present a scenario where none of the answer choices are correct, models confidently pick one anyway. They're matching surface patterns, not reasoning about the clinical situation.
-
-Omar et al. found what they call "chasing zebras." Add an incidental mention of travel to a clinical vignette — say, a patient with fever and cough who recently returned from Southeast Asia — and LLMs shift to rare tropical diagnoses like malaria or dengue even when community-acquired pneumonia is far more probable. This was tested across 300 vignettes and 20 different models. Base rate neglect is systematic. And Shojaee et al. showed that even reasoning models that appear to think through problems experience sharp performance collapses at complexity thresholds. All of this means: we may be measuring the wrong things.
-:::
 
 ## What IS Diagnostic Reasoning? {.smaller}
 
-:::::: columns
-::: {.column width="50%"}
 | Component                 | Description                         |
 |---------------------------|-------------------------------------|
 | **Hypothesis generation** | Propose candidate explanations      |
 | **Test selection**        | Choose informative observations     |
 | **Constraint tracking**   | Maintain consistent evidence        |
 | **Belief updating**       | Revise hypotheses with new data     |
-| **Spatial reasoning**     | Navigate physical/conceptual spaces |
+| **Multistep reasoning**   | Reason through causal pathways.     |
 | **Integration**           | Combine all components iteratively  |
 
-Diagnostic reasoning is **multicausal abductive inference** — reasoning from observed effects to hidden causes under uncertainty [@johnson2001abductive].
-:::
+Diagnostic reasoning is **abductive inference** — reasoning from observed effects to hidden causes under uncertainty.
 
-:::: {.column width="50%"}
-::: fragment
-### What We Know from Cognitive Science
-
--   People use **current explanations** to guide hypothesis selection, but apply them inconsistently across contexts [@johnson2001abductive]
--   Memory demands alter reasoning **strategy** but not necessarily **accuracy** — people compensate by selectively prioritizing prior explanations [@klichowicz2021memory]
--   Abductive reasoning is fundamentally harder than deductive prediction [@liu2024incomplete]
-:::
-::::
-::::::
 
 ::: notes
 Before we can test diagnostic reasoning, we need to define what it is. My prior work with Josef Krems established that diagnostic reasoning is multicausal abductive inference — reasoners must integrate multiple candidate explanations while accumulating evidence. The key finding: people use their current explanation to guide hypothesis selection, but inconsistently — sometimes anchoring when they shouldn't. Klichowicz and Krems later showed that memory demands change reasoning strategies without necessarily hurting accuracy — people compensate by prioritizing existing explanations. Both findings are directly relevant: LLMs face analogous challenges in maintaining working hypotheses across multi-turn diagnostic interactions.
@@ -726,18 +694,21 @@ Here are the four properties we need. Out-of-distribution so we're not just test
 -   Deduce atom positions from ray behavior
 -   Three ray outcomes: **Hit**, **Reflection**, **Detour**
 
-The game naturally requires:
+::: fragment
+**Key advantages**
 
--   Generating hypotheses about hidden states
--   Selecting informative tests (rays)
--   Tracking constraints as evidence accumulates
--   Updating beliefs when contradicted
+- (Currently) out-of-distribution
+- Known ground truth and optimal solutions
+- Easy for humans to learn
+- Has been used to study diagnostic reasoning [@johnson2001abductive]
+:::
 :::
 
 ::: {.column width="45%"}
-![](ray_physics.png){fig-alt="Black Box game board showing ray physics: absorption, deflection, and reflection" width="100%"}
+[![](ray_physics.png){fig-alt="Black Box game board showing ray physics: absorption, deflection, and reflection" width="100%"}](https://claude.ai/public/artifacts/31d93658-cd9d-4ad4-ade0-060a2d96b87d){target="_blank"}
 
-*Screenshot placeholder — use React app Sandbox mode or hand-drawn diagram showing absorption, deflection, and reflection examples on an 8×8 grid.*
+[Click image to play Black Box]{style="font-size: 0.6em; text-align: center; display: block; color: #666;"}
+
 :::
 :::::
 
@@ -755,7 +726,7 @@ Black Box is a deduction game from 1978. You fire rays into an 8x8 grid and obse
 2.  Select next diagnostic test
 3.  Track ruled-out conditions
 4.  Revise hypothesis with new results
-5.  Interpret spatial relationships
+5.  Reason through causal pathways
 6.  Integrate evidence iteratively
 :::
 
@@ -771,9 +742,7 @@ Black Box is a deduction game from 1978. You fire rays into an 8x8 grid and obse
 :::
 :::::
 
-::: fragment
-**Key advantage**: Every game instance is a unique, out-of-distribution problem with known ground truth and quantifiable optimal solutions.
-:::
+
 
 ::: notes
 This is the "aha" slide. Every step of diagnostic reasoning maps directly to a Black Box analog. The critical advantage is that unlike medical cases, every Black Box game has a mathematically optimal solution. We can compute exactly how well a perfect reasoner would do. And because there are 635,376 possible configurations, these problems are genuinely out-of-distribution — you can't memorize them.
@@ -794,42 +763,6 @@ This is the "aha" slide. Every step of diagnostic reasoning maps directly to a B
 Six questions that structure the entire talk. We'll go through each of these systematically. The first two establish baseline capabilities. Question 3 tests our interventions. Question 4 puts results in context. Question 5 is the diagnostic contribution. And question 6 connects back to the clinical stakes.
 :::
 
-## Ray Physics {background-color="#f0f0f0"}
-
-:::::: columns
-::: {.column width="33%"}
-### Absorption (Hit)
-
-Ray strikes an atom **directly** and is absorbed.
-
-No exit position recorded.
-:::
-
-::: {.column width="33%"}
-### Reflection
-
-Atom diagonally adjacent to **entry point** causes ray to reverse.
-
-Ray exits where it entered.
-:::
-
-::: {.column width="34%"}
-### Deflection (Detour)
-
-Single adjacent atom **deflects** ray 90° away from the atom.
-
-Multiple deflections possible.
-:::
-::::::
-
-::: fragment
-**Complexity**: Rays can interact with 0–4 atoms. Deflection chains create paths traversing many cells, making spatial tracking increasingly difficult.
-:::
-
-::: notes
-Three types of ray interactions. Absorption is straightforward — the ray hits an atom head-on. Reflection is trickier — it happens when an atom is diagonally adjacent to where the ray enters the grid. Deflection is the most complex — atoms adjacent to the ray's path bend it 90 degrees, and multiple deflections create complex zigzag paths. This is where spatial reasoning really gets tested.
-:::
-
 ## Two Modes: Partial Decomposition
 
 ::::: columns
@@ -838,7 +771,7 @@ Three types of ray interactions. Absorption is straightforward — the ray hits 
 
 -   Atoms are **visible**
 -   Model predicts ray exit position
--   Tests **spatial reasoning** in isolation
+-   Tests **spatial and multistep reasoning** in isolation
 -   Each ray = **independent API call** (fresh context)
 -   "Given these atoms, what happens to this ray?"
 :::
@@ -854,33 +787,10 @@ Three types of ray interactions. Absorption is straightforward — the ray hits 
 :::
 :::::
 
-| Cross-Mode Pattern | Implication |
-|------------------------------------|------------------------------------|
-| Good Predict + Poor Play | Non-spatial limitations (abduction, constraints, test selection) |
-| Poor Predict + Poor Play | Spatial/world model partly responsible |
-| Performance delta | Isolates inferential machinery contribution |
-
 ::: notes
 We use two modes to partially decompose capabilities. Predict mode isolates spatial reasoning — the atoms are visible, just predict what happens to a ray. Each ray is its own API call with a fresh context window — the model never sees its predictions on other rays. Play mode tests the full diagnostic loop — atoms are hidden, the model must fire rays and figure out where the atoms are. Each game is a single multi-turn conversation: the full history of prior shots, results, and model responses accumulates in the context window. So the model can cross-reference earlier results, but must also track constraints across an increasingly long context.
 :::
 
-------------------------------------------------------------------------
-
-### Live Demo {background-color="#2C3E50" style="text-align: center; color: white;"}
-
-::: {style="font-size: 1.5em; margin-top: 2em;"}
-**Switch to React app in browser**
-:::
-
-::: {style="font-size: 1.2em; margin-top: 1em; color: #ecf0f1;"}
-1.  **Sandbox Mode** — Learn the ray physics
-2.  **Play Mode** — Try the reasoning yourself
-3.  **LLM Mode** — Watch Claude play (optional)
-:::
-
-::: notes
-DEMO TIME. \~4-5 minutes. Start in Sandbox mode where atoms are visible — fire a few rays to show absorption, reflection, and deflection. Then switch to Play mode — ask the audience to suggest rays and watch them try to reason about atom positions. This builds empathy for how hard the task actually is. Optionally show LLM mode briefly if time permits.
-:::
 
 ## Experimental Design
 
@@ -916,6 +826,74 @@ DEMO TIME. \~4-5 minutes. Start in Sandbox mode where atoms are visible — fire
 
 ::: notes
 The full experimental design. Five Claude models spanning the capability range. Two prompt styles — baseline gives human-equivalent instructions, augmented adds detailed strategy and worked examples. Extended thinking gives the model a scratchpad. VoT adds visualization-of-thought prompts. All tested across 10 fixed atom configurations for reproducibility. This gives us about 1,200 unique experimental conditions.
+:::
+
+## Atom Configurations
+
+```{r}
+#| label: config-grid-slide
+#| fig-width: 14
+#| fig-height: 8
+
+config_positions <- list(
+  matrix(c(2,3, 3,6, 6,2, 7,7), ncol = 2, byrow = TRUE),
+  matrix(c(1,1, 1,3, 2,2, 5,6), ncol = 2, byrow = TRUE),
+  matrix(c(2,2, 4,4, 6,6, 8,8), ncol = 2, byrow = TRUE),
+  matrix(c(1,4, 4,8, 8,5, 5,1), ncol = 2, byrow = TRUE),
+  matrix(c(3,4, 4,3, 4,5, 5,4), ncol = 2, byrow = TRUE),
+  matrix(c(2,2, 2,3, 2,4, 4,2), ncol = 2, byrow = TRUE),
+  matrix(c(1,1, 1,8, 8,1, 8,8), ncol = 2, byrow = TRUE),
+  matrix(c(2,7, 3,2, 6,5, 7,3), ncol = 2, byrow = TRUE),
+  matrix(c(4,2, 4,4, 4,6, 4,8), ncol = 2, byrow = TRUE),
+  matrix(c(1,5, 3,3, 5,7, 8,2), ncol = 2, byrow = TRUE)
+)
+
+config_labels <- c(
+  "1: Spread", "2: Corner Cluster", "3: Diagonal",
+  "4: Edge-heavy", "5: Central Cluster",
+  "6: L-shape", "7: Corners", "8: Asymmetric",
+  "9: Row Cluster", "10: Mixed"
+)
+
+# Build data frame for all configs with facet labels
+# Layout: 2 columns x 5 rows (configs 1-5 left, 6-10 right)
+grid_bg <- expand.grid(row = 1:8, col = 1:8)
+
+all_grids <- bind_rows(lapply(1:10, function(i) {
+  mutate(grid_bg, config = config_labels[i])
+}))
+
+all_atoms <- bind_rows(lapply(1:10, function(i) {
+  pos <- config_positions[[i]]
+  data.frame(row = pos[, 1], col = pos[, 2],
+             config = config_labels[i])
+}))
+
+# Set factor order: 1-5 then 6-10 so facet_wrap fills columns
+all_grids$config <- factor(all_grids$config, levels = config_labels)
+all_atoms$config <- factor(all_atoms$config, levels = config_labels)
+
+ggplot() +
+  geom_tile(data = all_grids, aes(x = col, y = row),
+            fill = "#f0f0f0", color = "grey55", linewidth = 0.3) +
+  geom_point(data = all_atoms, aes(x = col, y = row),
+             size = 5, color = "black") +
+  scale_x_continuous(breaks = NULL, limits = c(0.5, 8.5),
+                     expand = c(0, 0)) +
+  scale_y_reverse(breaks = NULL, limits = c(8.5, 0.5),
+                  expand = c(0, 0)) +
+  coord_equal() +
+  facet_wrap(~ config, nrow = 2) +
+  theme_void(base_size = 18) +
+  theme(
+    strip.text = element_text(size = 16, face = "bold",
+                              margin = margin(b = 4)),
+    panel.spacing = unit(0.8, "lines")
+  )
+```
+
+::: notes
+The 10 fixed atom configurations used throughout all experiments. They range from simple patterns like the four corners, to clustered arrangements, to asymmetric placements designed to test different aspects of spatial reasoning.
 :::
 
 ## The Optimal Solver

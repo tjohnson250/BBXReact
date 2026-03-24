@@ -164,18 +164,34 @@ Todd R. Johnson
 
   <p class="date">2026-03-25</p>
 </section>
+<section id="follow-along" class="slide level2" style="text-align: center;">
+<h2>Follow Along</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><br><br></p>
+<h3 id="view-these-slides-online">View these slides online:</h3>
+<h3>
+<a href="https://tjohnson250.github.io/BBXReact/blackbox_presentation.html">tjohnson250.github.io/BBXReact</a>
+</h3>
+</div><div class="column" style="width:50%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="presentation_qr.png" class="quarto-figure quarto-figure-center" width="450"></p>
+</figure>
+</div>
+</div></div>
+</section>
 <section id="clinical-reasoning-at-scale" class="slide level2">
 <h2>Clinical Reasoning at Scale</h2>
 <p>LLMs are being deployed across clinical reasoning tasks at unprecedented speed.</p>
 <ul>
-<li><p><strong>In 2024, 31.5% of 2,174 US hospitals</strong> deployed generative AI in clinical workflows;</p>
-<ul>
-<li>another <strong>24.7% planned near-term adoption</strong> <span class="citation" data-cites="everson2025genai">(<a href="#/references" role="doc-biblioref" onclick="">Everson, Nong, and Richwine 2025</a>)</span></li>
-</ul></li>
-<li><p><strong>2024 survey with responses from 43 of 67 Scottsdale Institute health systems</strong> all reported active AI adoption in clinical documentation (ambient listening) <span class="citation" data-cites="poon2025">(<a href="#/references" role="doc-biblioref" onclick="">Poon et al. 2025</a>)</span></p></li>
-<li><p>Publications evaluating LLMs in clinical medicine: <strong>1 (2019) → 557 (2024)</strong> <span class="citation" data-cites="shool2025systematic">(<a href="#/references" role="doc-biblioref" onclick="">Shool et al. 2025</a>)</span></p></li>
+<li class="fragment"><p><strong>In 2024, 31.5% of 2,174 US hospitals</strong> deployed generative AI in clinical workflows; another <strong>24.7% planned near-term adoption</strong> <span class="citation" data-cites="everson2025genai">(<a href="#/references" role="doc-biblioref" onclick="">Everson, Nong, and Richwine 2025</a>)</span></p></li>
+<li class="fragment"><p><strong>2024 survey with responses from 43 of 67 Scottsdale Institute health systems</strong> all reported active AI adoption in clinical documentation (ambient listening at 100%) <span class="citation" data-cites="poon2025">(<a href="#/references" role="doc-biblioref" onclick="">Poon et al. 2025</a>)</span></p></li>
+<li class="fragment"><p><strong>1 (2019) → 557 (2024) papers/year</strong> evaluating LLMs in clinical medicine <span class="citation" data-cites="shool2025systematic">(<a href="#/references" role="doc-biblioref" onclick="">Shool et al. 2025</a>)</span></p></li>
 </ul>
+<div class="fragment">
 <p><strong>Scope of deployment:</strong> Triage · Differential diagnosis · Clinical documentation · Test ordering · Referral decisions · Prior authorization · Coding · Treatment planning</p>
+</div>
 <aside class="notes">
 <p>I want to start with the scope of what’s happening. A third of US hospitals are already running generative AI in clinical workflows. A national survey of leading health systems found universal adoption activity. The research literature has more than tripled in a single year. And the applications span the full range of clinical cognitive work — not just documentation, which is relatively low-risk, but diagnosis, triage, test ordering, treatment planning. Tasks that require clinical reasoning. The question is: what’s the evidentiary basis for this deployment?</p>
 <style type="text/css">
@@ -196,24 +212,35 @@ Todd R. Johnson
 <div class="column" style="width:48%;">
 <h3 id="benchmark-milestones">Benchmark Milestones</h3>
 <ul>
-<li><p><strong>Med-PaLM 2</strong>: Expert-level medical question answering <span class="citation" data-cites="singhal2023medpalm2">(<a href="#/references" role="doc-biblioref" onclick="">Singhal et al. 2023</a>)</span></p></li>
-<li><p><strong>GPT-4</strong>: ~86% on USMLE-style questions, exceeding passing threshold by 20+ points</p></li>
-<li><p><strong>AMIE</strong>: Outperformed primary care physicians in structured diagnostic conversations (Tu et al.&nbsp;2024)</p></li>
+<li class="fragment"><p><strong>GPT-4: ~86% on USMLE-style questions</strong>, exceeding passing threshold by 20+ points <span class="citation" data-cites="garabet2024gpt4usmle">(<a href="#/references" role="doc-biblioref" onclick="">Garabet et al. 2024</a>)</span></p></li>
+<li class="fragment"><p><strong>Med-PaLM 2: Scored 86.5% on MedQA (USMLE-Style)</strong>. <span class="citation" data-cites="singhal2025toward">(<a href="#/references" role="doc-biblioref" onclick="">Singhal et al. 2025</a>)</span></p>
+<ul>
+<li class="fragment"><strong>Physicians preferred Med-PaLM 2 answers</strong> over generalist physician answers 65% of the time.</li>
+</ul></li>
+<li class="fragment"><p><strong>AMIE: Outperformed primary care physicians in structured diagnostic conversations</strong> including information acquisition <span class="citation" data-cites="tu2025amie">(<a href="#/references" role="doc-biblioref" onclick="">Tu et al. 2025</a>)</span></p></li>
 </ul>
 </div><div class="column" style="width:4%;">
 
 </div><div class="column" style="width:48%;">
+<div class="fragment">
 <h3 id="clinical-evidence">Clinical Evidence</h3>
 <ul>
-<li><p><strong>LLM alone: 92%</strong> diagnostic accuracy vs.&nbsp;74% for physicians (Goh et al.&nbsp;2024, JAMA Network Open)</p></li>
-<li><p><strong>MASAI trial</strong>: AI-assisted mammography detected 20% more cancers, halved radiologist workload (Lång et al.&nbsp;2023)</p></li>
-<li><p><strong>Danish screening</strong>: AI reliably filtered ~50% of normal chest X-rays (Plesner et al.&nbsp;2024)</p></li>
+<li>NEJM case records: <strong>GPT-4 included the correct diagnosis in its differential for 64%</strong> (34% as top diagnosis) of complex clinicopathological cases from NEJM. <span class="citation" data-cites="kanjee2023accuracy">(<a href="#/references" role="doc-biblioref" onclick="">Kanjee, Crowe, and Rodman 2023</a>)</span></li>
 </ul>
+</div>
+<div class="fragment">
+<ul>
+<li><strong>LLM alone: 92% diagnostic accuracy</strong> on 6 clinical vignettes vs.&nbsp;74% (conventional resources) and 76% (with LLM) for physicians <span class="citation" data-cites="goh2024llmdiagnosis">(<a href="#/references" role="doc-biblioref" onclick="">Goh et al. 2024</a>)</span></li>
+</ul>
+</div>
+<div class="fragment">
+<ul>
+<li>Emergency dept: <strong>GPT-4 was better than ED resident physicians</strong> in diagnostic accuracy across 100 real cases <span class="citation" data-cites="hoppe2024gpt4ed">(<a href="#/references" role="doc-biblioref" onclick="">Hoppe et al. 2024</a>)</span></li>
+</ul>
+</div>
 </div></div>
-<p><br></p>
-<p>If you’re a health system CEO looking at these numbers, deployment seems like an obvious decision.</p>
 <aside class="notes">
-<p>And the evidence looks compelling. On the benchmark side, Med-PaLM 2 reached expert-level performance on medical question answering. GPT-4 crushed the USMLE by twenty points. Google’s AMIE outperformed primary care physicians in structured diagnostic conversations. On the clinical side, Goh et al.&nbsp;ran a randomized trial where the LLM alone scored 92% on diagnostic reasoning — physicians scored 74%. The MASAI trial found AI-assisted mammography caught 20% more cancers while halving radiologist workload. If you’re a health system CEO looking at these numbers, deployment seems like an obvious decision. But there’s a problem.</p>
+<p>And the evidence looks compelling. On the benchmark side, Med-PaLM 2 reached expert-level performance on medical question answering. GPT-4 crushed the USMLE by twenty points. Google’s AMIE outperformed primary care physicians in structured diagnostic conversations. On the clinical side, Goh et al.&nbsp;ran a randomized trial where the LLM alone scored 92% on diagnostic reasoning — physicians scored 74%. Kanjee et al.&nbsp;found GPT-4 included the correct diagnosis for 64% of complex NEJM case records, and Hoppe et al.&nbsp;showed GPT-4 significantly outperformed ED residents in diagnostic accuracy. If you’re a health system CEO looking at these numbers, deployment seems like an obvious decision. But there’s a problem.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -226,28 +253,105 @@ Todd R. Johnson
           display:block!important;
       }</style></aside>
 </section>
-<section id="pattern-recognition-clinical-reasoning" class="slide level2" data-background-color="#1a1a2e">
-<h2>Pattern Recognition ≠ Clinical Reasoning</h2>
+<section id="the-case-for-concern" class="slide level2">
+<h2>The Case for Concern</h2>
 <div class="conflict-thesis">
-<p>Healthcare is adopting LLMs for tasks that require clinical reasoning, based on benchmark evidence that measures something other than clinical reasoning.</p>
+<p>Healthcare is adopting LLMs for tasks that require clinical reasoning, based on benchmark evidence that measures pattern recognition</p>
 </div>
-<p>Three independent lines of evidence:</p>
-<div class="evidence-block">
-<p><span class="evidence-num"><strong>1.</strong></span> <strong>Context matching, not reasoning</strong> (Wen et al.&nbsp;2025, <em>npj Digital Medicine</em>)</p>
-<p>Rephrase a clinical question with synonymous terms → different (wrong) answer. Present a scenario where no answer is correct → models confidently pick one. Tested across 8 models: assumptions underlying MCQA validity <strong>globally invalidated</strong>.</p>
+<div class="fragment">
+<p><span class="evidence-num"><strong>1.</strong></span> <strong>Context matching, not reasoning</strong> <span class="citation" data-cites="wen2025context">(<a href="#/references" role="doc-biblioref" onclick="">Wen et al. 2025</a>)</span></p>
 </div>
-<div class="evidence-block">
-<p><span class="evidence-num"><strong>2.</strong></span> <strong>Base rate neglect is systematic</strong> (Omar et al.&nbsp;2025)</p>
-<p>Add “recently returned from Southeast Asia” to a fever-and-cough vignette → LLMs shift to malaria/dengue even when pneumonia remains far more likely. <strong>300 vignettes, 20 models</strong> — salient cue overrides base rate every time.</p>
+<div class="fragment">
+<p><span class="evidence-num"><strong>2.</strong></span> <strong>Base rate neglect is systematic</strong> <span class="citation" data-cites="omar2025zebras">(<a href="#/references" role="doc-biblioref" onclick="">Omar et al. 2025</a>)</span></p>
 </div>
-<div class="evidence-block">
-<p><span class="evidence-num"><strong>3.</strong></span> <strong>Reasoning traces don’t reflect actual computation</strong></p>
-<p>Models given incorrect hints construct elaborate justifications without acknowledging the hint (Anthropic faithfulness study; Matton et al.&nbsp;2025). Models trained on <em>wrong</em> intermediate steps paired with correct answers still improve (Kambhampati et al.&nbsp;2025). Reasoning models show sharp performance collapse at complexity thresholds (Shojaee et al.&nbsp;2025).</p>
+<div class="fragment">
+<p><span class="evidence-num"><strong>3.</strong></span> <strong>Reasoning traces don’t reflect actual computation</strong> <span class="citation" data-cites="chen2025faithfulness matton2025 kambhampati2024llmmodulo shojaee2025illusion">(<a href="#/references" role="doc-biblioref" onclick="">Chen et al. 2025</a>; <a href="#/references" role="doc-biblioref" onclick="">Matton et al. 2025</a>; <a href="#/references" role="doc-biblioref" onclick="">Kambhampati et al. 2024</a>; <a href="#/references" role="doc-biblioref" onclick="">Shojaee et al. 2025</a>)</span></p>
 </div>
 <aside class="notes">
-<p>Here’s the core problem. Three independent research programs converge on the same conclusion.</p>
-<p>First, Wen and colleagues at Mayo tested whether LLM performance on medical board-style questions reflects applied knowledge or pattern matching. They rephrased clinical questions using synonymous terms — same clinical scenario, different surface features — and got different, wrong answers. When they presented scenarios with no correct answer choice, models confidently selected one anyway. They tested eight models and globally invalidated the assumptions underlying these benchmarks.</p>
+<p>Here’s the core problem. Three independent research programs converge on the same conclusion. Let me walk through each one.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="context-matching-not-reasoning" class="slide level2">
+<h2>Context Matching, Not Reasoning</h2>
+<div class="evidence-block">
+<p>Evaluated LLM performance on clinical Multiple Choice Question and Answer (MCQA) benchmarks</p>
+<p>LLMs pattern-match against available answer options rather than independently reasoning through clinical scenarios <span class="citation" data-cites="wen2025context">(<a href="#/references" role="doc-biblioref" onclick="">Wen et al. 2025</a>)</span></p>
+<ul>
+<li><strong>Expand options from 5 to 26</strong> → small models collapse, exposing memorized answer positions</li>
+<li><strong>Rephrase with synonymous terms</strong> → different (wrong) answers despite identical clinical content</li>
+<li><strong>Replace correct answer with “None of the Above”</strong> → models confidently select a wrong option</li>
+</ul>
+<p>Tested across 8 models and 4 benchmarks: Invalidates generalizability of MCQA results</p>
+</div>
+<aside class="notes">
+<p>Wen and colleagues at Mayo define “context matching” — the idea that multiple-choice formats let models generate statistically probable responses by pattern-matching against available options, rather than independently applying clinical knowledge.</p>
+<p>They tested this with three perturbations. First, they expanded the answer set from 5 to 26 options. If a model truly reasons, more distractors shouldn’t matter — but small models collapsed, suggesting they’d memorized answer positions. Second, they rephrased questions using synonymous terms — same clinical scenario, different surface features — and got different, wrong answers. Third, they replaced the correct answer with “None of the Above.” Every model confidently selected a wrong option rather than recognizing no valid answer existed — a particularly dangerous failure mode for clinical decision support.</p>
+<p>Eight models, four benchmarks, three perturbations — the assumptions underlying MCQA-based evaluation were globally invalidated.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="implications-context-matching-not-reasoning" class="slide level2">
+<h2>Implications: Context Matching, Not Reasoning</h2>
+<p>Invalidates three assumptions with respect to MCQA results <span class="citation" data-cites="wen2025context">(<a href="#/references" role="doc-biblioref" onclick="">Wen et al. 2025</a>)</span>:</p>
+<div class="evidence-block">
+<ul>
+<li>Knowledge is applied, not memorized</li>
+<li>Semantic consistency will lead to consistent answers</li>
+<li>Situations with no answers can be recognized.</li>
+</ul>
+</div>
+</section>
+<section id="base-rate-neglect-is-systematic" class="slide level2">
+<h2>Base Rate Neglect Is Systematic</h2>
+<div class="evidence-block">
+<ul>
+<li><strong>300 vignettes, 20 models</strong> — salient cue overrides base rate every time.</li>
+<li>Add “recently returned from Southeast Asia” to a fever-and-cough vignette → LLMs shift to malaria/dengue even when pneumonia remains far more likely. <span class="citation" data-cites="omar2025zebras">(<a href="#/references" role="doc-biblioref" onclick="">Omar et al. 2025</a>)</span></li>
+</ul>
+</div>
+<aside class="notes">
 <p>Second, Omar and colleagues found what they call “chasing zebras.” Add a single salient cue — recent travel to Southeast Asia — to a routine fever-and-cough vignette, and LLMs shift to rare tropical diagnoses even when community-acquired pneumonia remains far more probable. Three hundred vignettes, twenty models, completely systematic.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="reasoning-traces-dont-reflect-actual-computation" class="slide level2">
+<h2>Reasoning Traces Don’t Reflect Actual Computation</h2>
+<div class="evidence-block">
+<ul>
+<li>Models given incorrect hints construct elaborate justifications without acknowledging the hint <span class="citation" data-cites="chen2025faithfulness matton2025">(<a href="#/references" role="doc-biblioref" onclick="">Chen et al. 2025</a>; <a href="#/references" role="doc-biblioref" onclick="">Matton et al. 2025</a>)</span>.</li>
+<li>Models trained on <em>wrong</em> intermediate steps paired with correct answers still improve <span class="citation" data-cites="kambhampati2024llmmodulo">(<a href="#/references" role="doc-biblioref" onclick="">Kambhampati et al. 2024</a>)</span>.</li>
+<li>Reasoning models show sharp performance collapse at complexity thresholds on toy AI problems (e.g., Towers of Hanoi) <span class="citation" data-cites="shojaee2025illusion">(<a href="#/references" role="doc-biblioref" onclick="">Shojaee et al. 2025</a>)</span>.</li>
+</ul>
+</div>
+<aside class="notes">
 <p>Third — and this is the deepest problem — even the reasoning traces that models produce may not reflect their actual computation. Anthropic’s own research found that models given incorrect hints will use the hint to get the right answer but then write an explanation that pretends they solved it independently. Kambhampati’s group showed that models trained on deliberately wrong reasoning steps still improve, as long as the final answer is correct. The trace isn’t reasoning — it’s a learned navigation pattern through latent space. And Shojaee and colleagues showed that reasoning models experience sharp performance collapse once problems exceed certain complexity thresholds.</p>
 <p>Now — some of Shojaee’s specific findings have been contested on methodological grounds, and the debate is ongoing. But that’s actually the point. If the field can’t agree on whether these models are truly reasoning even on puzzle tasks, we certainly shouldn’t assume they’re reasoning on clinical problems.</p>
 <style type="text/css">
@@ -262,8 +366,42 @@ Todd R. Johnson
           display:block!important;
       }</style></aside>
 </section>
-<section id="whats-needed" class="slide level2">
-<h2>What’s Needed</h2>
+<section id="parallels-to-human-clinical-reasoning" class="slide level2">
+<h2>Parallels to Human Clinical Reasoning</h2>
+<div class="evidence-block">
+<ul>
+<li>Novice clinicians reason from first principles — <strong>backward reasoning</strong> from hypothesis to data <span class="citation" data-cites="patel1991general">(<a href="#/references" role="doc-biblioref" onclick="">Patel and Groen 1991</a>)</span>.</li>
+<li>Expert clinicians develop a clinically-organized knowledge base enabling rapid <strong>forward reasoning</strong> — data to diagnosis <span class="citation" data-cites="patel1989biomedical">(<a href="#/references" role="doc-biblioref" onclick="">Patel, Evans, and Groen 1989</a>)</span>.</li>
+<li>Basic medical science knowledge and clinical knowledge function as two distinct systems; expertise involves reorganization, not just accumulation.</li>
+<li>Unlike LLMs, humans demonstrably possess <strong>both</strong> modes of reasoning.</li>
+</ul>
+</div>
+<aside class="notes">
+<p>Vimla Patel and Guy Groen’s research program in the 1980s and early 1990s established something striking about how medical expertise develops. Novice clinicians learn basic science and use it to reason from first principles — backward reasoning from hypotheses to data. As they develop expertise, they build an entirely different, clinically-organized knowledge base that enables rapid forward reasoning — data to diagnosis. These are two distinct knowledge systems; the transition isn’t accumulation, it’s reorganization.</p>
+<p>The forward reasoning of experts looks a lot like the pattern matching we see in LLMs. But here’s the critical difference: humans demonstrably possess both modes. Experts can fall back on first-principles reasoning for atypical cases. LLMs produce traces that look like first-principles reasoning, but the evidence we just reviewed suggests those traces may not reflect the actual computation. The question is whether LLMs have any genuine first-principles capability, or whether pattern matching is all there is.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="implications-for-clinical-and-scientific-reasoning" class="slide level2">
+<h2>Implications for Clinical (and Scientific) Reasoning</h2>
+<p><strong>Thesis: The frontiers of medicine and science — new hypotheses, new mechanisms, new therapies — inherently demand first-principles reasoning.</strong></p>
+<ul>
+<li><p>Routine clinical cases may be solvable by pattern matching — but atypical presentations, rare conditions, and complex comorbidities require reasoning from first principles.</p></li>
+<li><p>Novel diseases, emerging pathogens, and unexpected drug interactions have no patterns to match against.</p></li>
+<li><p>If LLMs lack this capability, their utility has a ceiling that benchmarks built on routine cases will not reveal.</p></li>
+</ul>
+</section>
+<section id="whats-needed-to-evaluate-llms" class="slide level2">
+<h2>What’s Needed To Evaluate LLMs?</h2>
 <p>If clinical reasoning deployment is outrunning our ability to evaluate clinical reasoning, we need benchmarks that:</p>
 <div class="columns">
 <div class="column" style="width:48%;">
@@ -279,8 +417,6 @@ Todd R. Johnson
 <h3 id="process-oriented">Process-Oriented</h3>
 <p>Evaluate <em>how</em> the model reasons, not just whether it gets the right answer.</p>
 </div></div>
-<p><br></p>
-<p><strong>Diagnostic reasoning</strong> is the best-characterized component of clinical reasoning — multicausal abductive inference with identifiable component processes (Johnson &amp; Krems 2001). I have a task that tests all of them.</p>
 <aside class="notes">
 <p>So what do we do? We need evaluation that actually tests reasoning. Four properties. Out-of-distribution, so we’re not measuring memorization. An optimality ceiling, so we know how far from perfect a model is, not just whether it passes some threshold. Decomposable, so we can identify which component process is failing. And process-oriented, so we’re evaluating how the model reasons, not just whether it gets the right answer.</p>
 <p>Now, the problem I’ve described is broad — it applies to clinical reasoning generally. But I’m going to study it through diagnostic reasoning specifically, for two reasons. First, diagnostic reasoning is the most cognitively well-characterized form of clinical reasoning. My work with Josef Krems established that it’s multicausal abductive inference — reasoning from observed effects to hidden causes under uncertainty — with identifiable component processes: hypothesis generation, test selection, constraint tracking, belief updating. Second, I have a task environment that lets me test all of these components, with ground truth and a computable optimality ceiling. Let me show you.</p>
@@ -295,169 +431,9 @@ Todd R. Johnson
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-<p>OLDER</p>
-</section>
-<section id="ai-in-clinical-diagnosis-today" class="slide level2 smaller">
-<h2>AI in Clinical Diagnosis Today</h2>
-<div class="columns">
-<div class="column" style="width:55%;">
-<p>LLMs are now embedded across clinical workflows:</p>
-<ul>
-<li><strong>31.5%</strong> of US hospitals deployed generative AI in clinical workflows by 2024, with another 24.7% planning near-term implementation <span class="citation" data-cites="everson2025genai">(<a href="#/references" role="doc-biblioref" onclick="">Everson, Nong, and Richwine 2025</a>)</span></li>
-<li>Publications on LLMs in medical diagnostics surged from 160 (2023) to <strong>557</strong> (2024) <span class="citation" data-cites="shool2025systematic">(<a href="#/references" role="doc-biblioref" onclick="">Shool et al. 2025</a>)</span></li>
-<li>Primary applications: triage, differential diagnosis, clinical note drafting, referral recommendations</li>
-<li>Emergency medicine and radiology lead direct diagnostic use</li>
-</ul>
-<p><span class="citation" data-cites="thirunavukarasu2023llmmed">Thirunavukarasu et al. (<a href="#/references" role="doc-biblioref" onclick="">2023</a>)</span> reviewed the initial wave in 2023; the field has since accelerated dramatically.</p>
-</div><div class="column" style="width:45%;">
-<h3 id="milestone-results">Milestone Results</h3>
-<ul>
-<li><strong>Med-PaLM 2</strong>: Expert-level medical question answering <span class="citation" data-cites="singhal2023medpalm2">(<a href="#/references" role="doc-biblioref" onclick="">Singhal et al. 2023</a>)</span></li>
-<li><strong>AMIE</strong>: Outperformed primary care physicians in structured diagnostic conversations <span class="citation" data-cites="tu2024amie">(<a href="#/references" role="doc-biblioref" onclick="">Tu et al. 2024</a>)</span></li>
-<li><strong>Swedish MASAI trial</strong>: AI-assisted mammography detected <strong>20% more cancers</strong> while cutting radiologist workload in half (80,000+ women) <span class="citation" data-cites="lang2023masai">(<a href="#/references" role="doc-biblioref" onclick="">Lång et al. 2023</a>)</span></li>
-</ul>
-</div></div>
-<aside class="notes">
-<p>Set the stage with concrete adoption numbers. A third of US hospitals are already using generative AI clinically. The research literature has exploded — over 500 papers in 2024 alone. Thirunavukarasu’s 2023 Nature Medicine review captured the first wave, but the pace has intensified since then. Med-PaLM 2 matched experts on medical QA. Google’s AMIE beat primary care physicians in structured diagnostic conversations. The Swedish MASAI trial — over 80,000 women — found AI-assisted mammography identified 20% more cancers while halving radiologist workload. These results are driving clinical adoption.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="the-case-for-adoption-ai-outperforming-clinicians" class="slide level2 smaller">
-<h2>The Case for Adoption: AI Outperforming Clinicians</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p>A growing body of evidence shows LLMs exceeding physician performance on diagnostic tasks <span class="citation" data-cites="goh2024llmdiagnosis">(<a href="#/references" role="doc-biblioref" onclick="">Goh et al. 2024</a>)</span>:</p>
-<table class="caption-top">
-<caption>Diagnostic reasoning scores across six clinical cases (50 physicians, JAMA Network Open)</caption>
-<thead>
-<tr class="header">
-<th></th>
-<th>Accuracy</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>LLM alone</strong></td>
-<td><strong>92%</strong></td>
-</tr>
-<tr class="even">
-<td>Physicians + LLM</td>
-<td>76%</td>
-</tr>
-<tr class="odd">
-<td>Physicians alone</td>
-<td>74%</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>Danish chest X-ray screening: AI reliably filtered <strong>~50%</strong> of normal scans, freeing radiologists for complex cases <span class="citation" data-cites="plesner2024chestxray">(<a href="#/references" role="doc-biblioref" onclick="">Plesner et al. 2024</a>)</span></li>
-<li>MIT–Harvard study: Radiologists shown AI predictions systematically <strong>undervalued</strong> the AI input relative to their own judgment <span class="citation" data-cites="yu2024radiologist">(<a href="#/references" role="doc-biblioref" onclick="">Yu et al. 2024</a>)</span></li>
-</ul>
-</div><div class="column" style="width:50%;">
-<div class="callout callout-important callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>The Paradox</strong></p>
-</div>
-<div class="callout-content">
-<p>Physicians with AI barely outperform physicians without AI — but <strong>AI alone</strong> dramatically outperforms both.</p>
-<p>This “automation neglect” pattern appears consistently across imaging, clinical reasoning, and diagnostic accuracy studies.</p>
-</div>
-</div>
-</div>
-<div class="fragment">
-<p>If AI is this capable on benchmarks and structured evaluations, shouldn’t we deploy it widely?</p>
-</div>
-</div></div>
-<aside class="notes">
-<p>Now why is adoption accelerating so fast? Because the results are remarkable. Goh et al.&nbsp;in JAMA Network Open ran a randomized clinical trial with 50 physicians: the LLM alone scored 92% on diagnostic reasoning, physicians with LLM access scored 76%, and physicians without AI scored 74%. The combined human-AI approach barely beat unaided physicians. A Danish study found AI could reliably filter about half of all normal chest X-rays, freeing radiologists for the hard cases. The MIT-Harvard study showed that even when the AI was right, radiologists systematically underweighted its input. Topol and Rajpurkar reviewed this pattern across multiple studies — it’s consistent. So the enthusiasm is understandable. But should we trust these results?</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="the-evaluation-crisis" class="slide level2 smaller">
-<h2>The Evaluation Crisis</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<h3 id="the-deployment-gap">The Deployment Gap</h3>
-<p>LLMs tested in isolation vs.&nbsp;deployed with real users <span class="citation" data-cites="bean2026reliability">(<a href="#/references" role="doc-biblioref" onclick="">Bean et al. 2026</a>)</span>:</p>
-<table class="caption-top">
-<caption>Randomized trial, 1,298 participants, 10 medical scenarios (Nature Medicine)</caption>
-<thead>
-<tr class="header">
-<th></th>
-<th>Condition identified</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>LLM alone</strong></td>
-<td><strong>94.9%</strong></td>
-</tr>
-<tr class="even">
-<td>Real users + LLM</td>
-<td>34.5%</td>
-</tr>
-<tr class="odd">
-<td>Control (Google)</td>
-<td>~34%</td>
-</tr>
-</tbody>
-</table>
-<p>Real users with the <em>same</em> LLMs performed <strong>no better than Googling it</strong>.</p>
-<p>In one case, two users describing identical subarachnoid hemorrhage symptoms received opposite advice — one told to “lie down in a dark room,” the other correctly referred to emergency care.</p>
-</div><div class="column" style="width:50%;">
-<h3 id="why-benchmarks-fail">Why Benchmarks Fail</h3>
-<p><strong>“Context matching,” not reasoning</strong> <span class="citation" data-cites="wen2025context">(<a href="#/references" role="doc-biblioref" onclick="">Wen et al. 2025</a>)</span>: Models match keywords in the question to answer choices. Rephrase the same clinical question with synonymous terms → different (wrong) answer. When <em>no</em> answer choice is correct, models confidently pick one anyway.</p>
-<p><strong>“Chasing zebras”</strong> <span class="citation" data-cites="omar2025zebras">(<a href="#/references" role="doc-biblioref" onclick="">Omar et al. 2025</a>)</span>: Add “recently returned from Southeast Asia” to a fever-and-cough vignette → LLMs shift to malaria or dengue, even when community-acquired pneumonia remains far more likely. Tested across 300 vignettes and 20 models — base rate neglect is systematic.</p>
-<p><strong>“Illusion of thinking”</strong> <span class="citation" data-cites="shojaee2025illusion">(<a href="#/references" role="doc-biblioref" onclick="">Shojaee et al. 2025</a>)</span>: Reasoning models appear to deliberate but performance <strong>collapses</strong> at problem complexity thresholds.</p>
-</div></div>
-<div class="fragment">
-<blockquote>
-<p><strong>Core question</strong>: Does high benchmark performance reflect diagnostic reasoning — or sophisticated pattern matching?</p>
-</blockquote>
-</div>
-<aside class="notes">
-<p>But here’s the problem. Bean et al.&nbsp;in Nature Medicine ran a randomized trial with 1,298 participants: LLMs scored 94.9% on medical scenarios when tested alone, but when real people used the same LLMs, accuracy dropped to 34.5% — no better than just Googling it. In one case, two users described the same subarachnoid hemorrhage symptoms and got opposite advice. One was told to lie down in a dark room, the other to go to the ER. That’s a catastrophic failure mode.</p>
-<p>Then the deeper benchmarking problems. Wen et al.&nbsp;showed that high MCQA scores reflect context matching, not reasoning. What does that mean concretely? If you rephrase a clinical question using synonymous terms — same clinical scenario, different wording — models give different, wrong answers. And when you present a scenario where none of the answer choices are correct, models confidently pick one anyway. They’re matching surface patterns, not reasoning about the clinical situation.</p>
-<p>Omar et al.&nbsp;found what they call “chasing zebras.” Add an incidental mention of travel to a clinical vignette — say, a patient with fever and cough who recently returned from Southeast Asia — and LLMs shift to rare tropical diagnoses like malaria or dengue even when community-acquired pneumonia is far more probable. This was tested across 300 vignettes and 20 different models. Base rate neglect is systematic. And Shojaee et al.&nbsp;showed that even reasoning models that appear to think through problems experience sharp performance collapses at complexity thresholds. All of this means: we may be measuring the wrong things.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 </section>
 <section id="what-is-diagnostic-reasoning" class="slide level2 smaller">
 <h2>What IS Diagnostic Reasoning?</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -483,8 +459,8 @@ Todd R. Johnson
 <td>Revise hypotheses with new data</td>
 </tr>
 <tr class="odd">
-<td><strong>Spatial reasoning</strong></td>
-<td>Navigate physical/conceptual spaces</td>
+<td><strong>Multistep reasoning</strong></td>
+<td>Reason through causal pathways.</td>
 </tr>
 <tr class="even">
 <td><strong>Integration</strong></td>
@@ -492,17 +468,7 @@ Todd R. Johnson
 </tr>
 </tbody>
 </table>
-<p>Diagnostic reasoning is <strong>multicausal abductive inference</strong> — reasoning from observed effects to hidden causes under uncertainty <span class="citation" data-cites="johnson2001abductive">(<a href="#/references" role="doc-biblioref" onclick="">Johnson and Krems 2001</a>)</span>.</p>
-</div><div class="column" style="width:50%;">
-<div class="fragment">
-<h3 id="what-we-know-from-cognitive-science">What We Know from Cognitive Science</h3>
-<ul>
-<li>People use <strong>current explanations</strong> to guide hypothesis selection, but apply them inconsistently across contexts <span class="citation" data-cites="johnson2001abductive">(<a href="#/references" role="doc-biblioref" onclick="">Johnson and Krems 2001</a>)</span></li>
-<li>Memory demands alter reasoning <strong>strategy</strong> but not necessarily <strong>accuracy</strong> — people compensate by selectively prioritizing prior explanations <span class="citation" data-cites="klichowicz2021memory">(<a href="#/references" role="doc-biblioref" onclick="">Klichowicz et al. 2021</a>)</span></li>
-<li>Abductive reasoning is fundamentally harder than deductive prediction <span class="citation" data-cites="liu2024incomplete">(<a href="#/references" role="doc-biblioref" onclick="">Liu, Neubig, and Andreas 2024</a>)</span></li>
-</ul>
-</div>
-</div></div>
+<p>Diagnostic reasoning is <strong>abductive inference</strong> — reasoning from observed effects to hidden causes under uncertainty.</p>
 <aside class="notes">
 <p>Before we can test diagnostic reasoning, we need to define what it is. My prior work with Josef Krems established that diagnostic reasoning is multicausal abductive inference — reasoners must integrate multiple candidate explanations while accumulating evidence. The key finding: people use their current explanation to guide hypothesis selection, but inconsistently — sometimes anchoring when they shouldn’t. Klichowicz and Krems later showed that memory demands change reasoning strategies without necessarily hurting accuracy — people compensate by prioritizing existing explanations. Both findings are directly relevant: LLMs face analogous challenges in maintaining working hypotheses across multi-turn diagnostic interactions.</p>
 <style type="text/css">
@@ -567,16 +533,18 @@ Todd R. Johnson
 <li>Deduce atom positions from ray behavior</li>
 <li>Three ray outcomes: <strong>Hit</strong>, <strong>Reflection</strong>, <strong>Detour</strong></li>
 </ul>
-<p>The game naturally requires:</p>
+<div class="fragment">
+<p><strong>Key advantages</strong></p>
 <ul>
-<li>Generating hypotheses about hidden states</li>
-<li>Selecting informative tests (rays)</li>
-<li>Tracking constraints as evidence accumulates</li>
-<li>Updating beliefs when contradicted</li>
+<li>(Currently) out-of-distribution</li>
+<li>Known ground truth and optimal solutions</li>
+<li>Easy for humans to learn</li>
+<li>Has been used to study diagnostic reasoning <span class="citation" data-cites="johnson2001abductive">(<a href="#/references" role="doc-biblioref" onclick="">Johnson and Krems 2001</a>)</span></li>
 </ul>
+</div>
 </div><div class="column" style="width:45%;">
-<p><img data-src="ray_physics.png" style="width:100.0%" alt="Black Box game board showing ray physics: absorption, deflection, and reflection"></p>
-<p><em>Screenshot placeholder — use React app Sandbox mode or hand-drawn diagram showing absorption, deflection, and reflection examples on an 8×8 grid.</em></p>
+<p><a href="https://claude.ai/public/artifacts/31d93658-cd9d-4ad4-ade0-060a2d96b87d" target="_blank"><img data-src="ray_physics.png" style="width:100.0%" alt="Black Box game board showing ray physics: absorption, deflection, and reflection"></a></p>
+<p><span style="font-size: 0.6em; text-align: center; display: block; color: #666;">Click image to play Black Box</span></p>
 </div></div>
 <aside class="notes">
 <p>Black Box is a deduction game from 1978. You fire rays into an 8x8 grid and observe where they come out. From these observations, you deduce where 4 hidden atoms are located. The game is perfect for our purposes because it naturally requires all the component processes of diagnostic reasoning. It’s essentially a miniature diagnostic problem with verifiable ground truth.</p>
@@ -602,7 +570,7 @@ Todd R. Johnson
 <li>Select next diagnostic test</li>
 <li>Track ruled-out conditions</li>
 <li>Revise hypothesis with new results</li>
-<li>Interpret spatial relationships</li>
+<li>Reason through causal pathways</li>
 <li>Integrate evidence iteratively</li>
 </ol>
 </div><div class="column" style="width:50%;">
@@ -616,9 +584,6 @@ Todd R. Johnson
 <li>Combine ray evidence to final guess</li>
 </ol>
 </div></div>
-<div class="fragment">
-<p><strong>Key advantage</strong>: Every game instance is a unique, out-of-distribution problem with known ground truth and quantifiable optimal solutions.</p>
-</div>
 <aside class="notes">
 <p>This is the “aha” slide. Every step of diagnostic reasoning maps directly to a Black Box analog. The critical advantage is that unlike medical cases, every Black Box game has a mathematically optimal solution. We can compute exactly how well a perfect reasoner would do. And because there are 635,376 possible configurations, these problems are genuinely out-of-distribution — you can’t memorize them.</p>
 <style type="text/css">
@@ -657,39 +622,6 @@ Todd R. Johnson
           display:block!important;
       }</style></aside>
 </section>
-<section id="ray-physics" class="slide level2" data-background-color="#f0f0f0">
-<h2>Ray Physics</h2>
-<div class="columns">
-<div class="column" style="width:33%;">
-<h3 id="absorption-hit">Absorption (Hit)</h3>
-<p>Ray strikes an atom <strong>directly</strong> and is absorbed.</p>
-<p>No exit position recorded.</p>
-</div><div class="column" style="width:33%;">
-<h3 id="reflection">Reflection</h3>
-<p>Atom diagonally adjacent to <strong>entry point</strong> causes ray to reverse.</p>
-<p>Ray exits where it entered.</p>
-</div><div class="column" style="width:34%;">
-<h3 id="deflection-detour">Deflection (Detour)</h3>
-<p>Single adjacent atom <strong>deflects</strong> ray 90° away from the atom.</p>
-<p>Multiple deflections possible.</p>
-</div></div>
-<div class="fragment">
-<p><strong>Complexity</strong>: Rays can interact with 0–4 atoms. Deflection chains create paths traversing many cells, making spatial tracking increasingly difficult.</p>
-</div>
-<aside class="notes">
-<p>Three types of ray interactions. Absorption is straightforward — the ray hits an atom head-on. Reflection is trickier — it happens when an atom is diagonally adjacent to where the ray enters the grid. Deflection is the most complex — atoms adjacent to the ray’s path bend it 90 degrees, and multiple deflections create complex zigzag paths. This is where spatial reasoning really gets tested.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
 <section id="two-modes-partial-decomposition" class="slide level2">
 <h2>Two Modes: Partial Decomposition</h2>
 <div class="columns">
@@ -712,61 +644,8 @@ Todd R. Johnson
 <li>Hypothesis generation → test selection → constraint tracking → belief updating</li>
 </ul>
 </div></div>
-<table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Cross-Mode Pattern</th>
-<th>Implication</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Good Predict + Poor Play</td>
-<td>Non-spatial limitations (abduction, constraints, test selection)</td>
-</tr>
-<tr class="even">
-<td>Poor Predict + Poor Play</td>
-<td>Spatial/world model partly responsible</td>
-</tr>
-<tr class="odd">
-<td>Performance delta</td>
-<td>Isolates inferential machinery contribution</td>
-</tr>
-</tbody>
-</table>
 <aside class="notes">
 <p>We use two modes to partially decompose capabilities. Predict mode isolates spatial reasoning — the atoms are visible, just predict what happens to a ray. Each ray is its own API call with a fresh context window — the model never sees its predictions on other rays. Play mode tests the full diagnostic loop — atoms are hidden, the model must fire rays and figure out where the atoms are. Each game is a single multi-turn conversation: the full history of prior shots, results, and model responses accumulates in the context window. So the model can cross-reference earlier results, but must also track constraints across an increasingly long context.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section class="slide level2">
-
-<h3 data-background-color="#2C3E50" style="text-align: center; color: white;" id="live-demo">Live Demo</h3>
-<div style="font-size: 1.5em; margin-top: 2em;">
-<p><strong>Switch to React app in browser</strong></p>
-</div>
-<div style="font-size: 1.2em; margin-top: 1em; color: #ecf0f1;">
-<ol type="1">
-<li><strong>Sandbox Mode</strong> — Learn the ray physics</li>
-<li><strong>Play Mode</strong> — Try the reasoning yourself</li>
-<li><strong>LLM Mode</strong> — Watch Claude play (optional)</li>
-</ol>
-</div>
-<aside class="notes">
-<p>DEMO TIME. ~4-5 minutes. Start in Sandbox mode where atoms are visible — fire a few rays to show absorption, reflection, and deflection. Then switch to Play mode — ask the audience to suggest rays and watch them try to reason about atom positions. This builds empathy for how hard the task actually is. Optionally show LLM mode briefly if time permits.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -832,6 +711,23 @@ Todd R. Johnson
 </div></div>
 <aside class="notes">
 <p>The full experimental design. Five Claude models spanning the capability range. Two prompt styles — baseline gives human-equivalent instructions, augmented adds detailed strategy and worked examples. Extended thinking gives the model a scratchpad. VoT adds visualization-of-thought prompts. All tested across 10 fixed atom configurations for reproducibility. This gives us about 1,200 unique experimental conditions.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="atom-configurations" class="slide level2">
+<h2>Atom Configurations</h2>
+
+<img data-src="blackbox_presentation_files/figure-revealjs/config-grid-slide-1.png" width="1344" class="r-stretch"><aside class="notes">
+<p>The 10 fixed atom configurations used throughout all experiments. They range from simple patterns like the four corners, to clustered arrangements, to asymmetric placements designed to test different aspects of spatial reasoning.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1590,32 +1486,41 @@ All 10 configs solved: TRUE</code></pre>
 <section id="references" class="slide level2 smaller scrollable">
 <h2>References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-bean2026reliability" class="csl-entry" role="listitem">
-Bean, Andrew M et al. 2026. <span>“Reliability of LLMs as Medical Assistants for the General Public: A Randomized Preregistered Study.”</span> <em>Nature Medicine</em> 32: 609–15. <a href="https://doi.org/10.1038/s41591-025-04074-y">https://doi.org/10.1038/s41591-025-04074-y</a>.
+<div id="ref-chen2025faithfulness" class="csl-entry" role="listitem">
+Chen, Yanda, Joe Benton, Ansh Radhakrishnan, Jonathan Uesato, Carson Denison, John Schulman, Arushi Somani, et al. 2025. <span>“Reasoning Models Don’t Always Say What They Think.”</span> <em>arXiv Preprint arXiv:2505.05410</em>. <a href="https://arxiv.org/abs/2505.05410">https://arxiv.org/abs/2505.05410</a>.
 </div>
 <div id="ref-everson2025genai" class="csl-entry" role="listitem">
 Everson, Jordan, Paige Nong, and Chelsea Richwine. 2025. <span>“Uptake of Generative AI Integrated with Electronic Health Records in US Hospitals.”</span> <em>JAMA Network Open</em> 8 (12): e2549463. <a href="https://doi.org/10.1001/jamanetworkopen.2025.49463">https://doi.org/10.1001/jamanetworkopen.2025.49463</a>.
 </div>
+<div id="ref-garabet2024gpt4usmle" class="csl-entry" role="listitem">
+Garabet, Richard, Brian P. Mackey, Jennifer Cross, and Michael Weingarten. 2024. <span>“<span>ChatGPT-4</span> Performance on <span>USMLE</span> Step 1 Style Questions and Its Implications for Medical Education: A Comparative Study Across Systems and Disciplines.”</span> <em>Medical Science Educator</em> 34: 145–52. <a href="https://doi.org/10.1007/s40670-023-01956-z">https://doi.org/10.1007/s40670-023-01956-z</a>.
+</div>
 <div id="ref-goh2024llmdiagnosis" class="csl-entry" role="listitem">
 Goh, Ethan, Robert Gallo, Jason Hom, Eric Strong, Yingjie Weng, Hannah Kerman, Joséphine A Cool, et al. 2024. <span>“Large Language Model Influence on Diagnostic Reasoning: A Randomized Clinical Trial.”</span> <em>JAMA Network Open</em> 7 (10): e2440969. <a href="https://doi.org/10.1001/jamanetworkopen.2024.40969">https://doi.org/10.1001/jamanetworkopen.2024.40969</a>.
+</div>
+<div id="ref-hoppe2024gpt4ed" class="csl-entry" role="listitem">
+Hoppe, John Michael, Matthias K Auer, Anna Strüven, Steffen Massberg, and Christopher Stremmel. 2024. <span>“<span>ChatGPT</span> with <span>GPT-4</span> Outperforms Emergency Department Physicians in Diagnostic Accuracy: Retrospective Analysis.”</span> <em>Journal of Medical Internet Research</em> 26: e56110. <a href="https://doi.org/10.2196/56110">https://doi.org/10.2196/56110</a>.
 </div>
 <div id="ref-johnson2001abductive" class="csl-entry" role="listitem">
 Johnson, Todd R., and Josef F. Krems. 2001. <span>“Use of Current Explanations in Multicausal Abductive Reasoning.”</span> <em>Cognitive Science</em> 25 (6): 903–39. <a href="https://doi.org/10.1207/s15516709cog2506_2">https://doi.org/10.1207/s15516709cog2506_2</a>.
 </div>
-<div id="ref-klichowicz2021memory" class="csl-entry" role="listitem">
-Klichowicz, Anja, Daniela Eileen Lippoldt, Agnes Rosner, and Josef F. Krems. 2021. <span>“Information Stored in Memory Affects Abductive Reasoning.”</span> <em>Psychological Research</em> 85 (8): 3119–33. <a href="https://doi.org/10.1007/s00426-020-01460-8">https://doi.org/10.1007/s00426-020-01460-8</a>.
+<div id="ref-kambhampati2024llmmodulo" class="csl-entry" role="listitem">
+Kambhampati, Subbarao et al. 2024. <span>“LLMs Can’t Plan, but Can Help Planning in LLM-Modulo Frameworks.”</span> <em>arXiv Preprint arXiv:2402.01817</em>.
 </div>
-<div id="ref-lang2023masai" class="csl-entry" role="listitem">
-Lång, Kristina, Viktoria Josefsson, Anna-Maria Larsson, Stefan Larsson, Charlotte Högberg, Hanna Sartor, Solveig Hofvind, Ingvar Andersson, and Aldana Rosso. 2023. <span>“Artificial Intelligence–Supported Screen Reading Versus Standard Double Reading in the <span class="nocase">Mammography Screening with Artificial Intelligence</span> Trial (<span>MASAI</span>).”</span> <em>The Lancet Oncology</em> 24 (8): 936–44. <a href="https://doi.org/10.1016/S1470-2045(23)00298-X">https://doi.org/10.1016/S1470-2045(23)00298-X</a>.
+<div id="ref-kanjee2023accuracy" class="csl-entry" role="listitem">
+Kanjee, Zahir, Byron Crowe, and Adam Rodman. 2023. <span>“Accuracy of a Generative Artificial Intelligence Model in a Complex Diagnostic Challenge.”</span> <em>JAMA</em> 330 (1): 78–80. <a href="https://doi.org/10.1001/jama.2023.8288">https://doi.org/10.1001/jama.2023.8288</a>.
 </div>
-<div id="ref-liu2024incomplete" class="csl-entry" role="listitem">
-Liu, Emmy, Graham Neubig, and Jacob Andreas. 2024. <span>“An Incomplete Loop: Deductive, Inductive, and Abductive Learning in Large Language Models.”</span> <em>arXiv Preprint arXiv:2404.03028</em>.
+<div id="ref-matton2025" class="csl-entry" role="listitem">
+Matton, Katie, Robert Ness, John Guttag, and Emre Kiciman. 2025. <span>“Walk the Talk? Measuring the Faithfulness of Large Language Model Explanations.”</span> In <em>The Thirteenth International Conference on Learning Representations (ICLR)</em>.
 </div>
 <div id="ref-omar2025zebras" class="csl-entry" role="listitem">
 Omar, Mahmud, Reem Agbareia, Alon Gorenshtein, Alexander W Charney, Benjamin S Glicksberg, Girish N Nadkarni, and Eyal Klang. 2025. <span>“Large Language Models Chase Zebras: Salient Cues Overrule Base Rates in Clinical Diagnosis.”</span> <em>SSRN Preprint</em>.
 </div>
-<div id="ref-plesner2024chestxray" class="csl-entry" role="listitem">
-Plesner, Louis Lind, Felix C Müller, Mathias W Brejnebøl, Christian Hedeager Krag, Lene C Laustrup, Finn Rasmussen, Olav Wendelboe Nielsen, Mikael Boesen, and Michael B Andersen. 2024. <span>“Using <span>AI</span> to Identify Unremarkable Chest Radiographs for Automatic Reporting.”</span> <em>Radiology</em> 312 (2): e240272. <a href="https://doi.org/10.1148/radiol.240272">https://doi.org/10.1148/radiol.240272</a>.
+<div id="ref-patel1989biomedical" class="csl-entry" role="listitem">
+Patel, Vimla L., David A. Evans, and Guy J. Groen. 1989. <span>“Biomedical Knowledge and Clinical Reasoning.”</span> In <em>Cognitive Science in Medicine: Biomedical Modeling</em>, edited by David A. Evans and Vimla L. Patel, 53–112. Cambridge, MA: MIT Press.
+</div>
+<div id="ref-patel1991general" class="csl-entry" role="listitem">
+Patel, Vimla L., and Guy J. Groen. 1991. <span>“The General and Specific Nature of Medical Expertise: A Critical Look.”</span> In <em>Toward a General Theory of Expertise: Prospects and Limits</em>, edited by K. Anders Ericsson and Jacqui Smith, 93–125. Cambridge: Cambridge University Press.
 </div>
 <div id="ref-poon2025" class="csl-entry" role="listitem">
 Poon, Eric G., Christy Harris Lemak, Juan C. Rojas, Janet Guptill, and David Classen. 2025. <span>“Adoption of Artificial Intelligence in Healthcare: Survey of Health System Priorities, Successes, and Challenges.”</span> <em>Journal of the American Medical Informatics Association</em>, ocaf065. <a href="https://doi.org/10.1093/jamia/ocaf065">https://doi.org/10.1093/jamia/ocaf065</a>.
@@ -1626,20 +1531,14 @@ Shojaee, Parshin, Iman Mirzadeh, Keivan Alizadeh, Maxwell Horton, Samy Bengio, a
 <div id="ref-shool2025systematic" class="csl-entry" role="listitem">
 Shool, Sina, Sara Adimi, Reza Saboori Amleski, Ehsan Bitaraf, Reza Golpira, and Mahmood Tara. 2025. <span>“A Systematic Review of Large Language Model (<span>LLM</span>) Evaluations in Clinical Medicine.”</span> <em>BMC Medical Informatics and Decision Making</em> 25 (1): 117. <a href="https://doi.org/10.1186/s12911-025-02954-4">https://doi.org/10.1186/s12911-025-02954-4</a>.
 </div>
-<div id="ref-singhal2023medpalm2" class="csl-entry" role="listitem">
-Singhal, Karan, Shekoofeh Azizi, Tao Tu, et al. 2023. <span>“Towards Expert-Level Medical Question Answering with Large Language Models.”</span> <em>Nature Medicine</em> 29: 2697–2705. <a href="https://doi.org/10.1038/s41591-023-02528-7">https://doi.org/10.1038/s41591-023-02528-7</a>.
+<div id="ref-singhal2025toward" class="csl-entry" role="listitem">
+Singhal, Karan, Tao Tu, Juraj Gottweis, Rory Sayres, Ellery Wulczyn, Mohamed Amin, Le Hou, et al. 2025. <span>“Toward Expert-Level Medical Question Answering with Large Language Models.”</span> <em>Nature Medicine</em> 31 (3): 943–50. <a href="https://doi.org/10.1038/s41591-024-03423-7">https://doi.org/10.1038/s41591-024-03423-7</a>.
 </div>
-<div id="ref-thirunavukarasu2023llmmed" class="csl-entry" role="listitem">
-Thirunavukarasu, Arun James, Darren Shu Jeng Ting, Kabilan Elangovan, Laura Gutierrez, Ting Fang Tan, and Daniel Shu Wei Ting. 2023. <span>“Large Language Models in Medicine.”</span> <em>Nature Medicine</em> 29: 1930–40. <a href="https://doi.org/10.1038/s41591-023-02448-8">https://doi.org/10.1038/s41591-023-02448-8</a>.
-</div>
-<div id="ref-tu2024amie" class="csl-entry" role="listitem">
-Tu, Tao, Anil Palepu, Mike Schaekermann, et al. 2024. <span>“Towards Conversational Diagnostic AI.”</span> <em>arXiv Preprint arXiv:2401.05654</em>. <a href="https://arxiv.org/abs/2401.05654">https://arxiv.org/abs/2401.05654</a>.
+<div id="ref-tu2025amie" class="csl-entry" role="listitem">
+Tu, Tao, Mike Schaekermann, Anil Palepu, Khaled Saab, Jan Freyberg, et al. 2025. <span>“Towards Conversational Diagnostic Artificial Intelligence.”</span> <em>Nature</em> 642: 442–50. <a href="https://doi.org/10.1038/s41586-025-08866-7">https://doi.org/10.1038/s41586-025-08866-7</a>.
 </div>
 <div id="ref-wen2025context" class="csl-entry" role="listitem">
 Wen, Andrew, Qiuhao Lu, Yu-Neng Chuang, et al. 2025. <span>“Context Matching Is Not Reasoning When Performing Generalized Clinical Evaluation of Generative Language Models.”</span> <em>Npj Digital Medicine</em>. <a href="https://doi.org/10.1038/s41746-025-02253-2">https://doi.org/10.1038/s41746-025-02253-2</a>.
-</div>
-<div id="ref-yu2024radiologist" class="csl-entry" role="listitem">
-Yu, Feiyang, Alex Moehring, Oishi Banerjee, Tobias Salz, Nikhil Agarwal, and Pranav Rajpurkar. 2024. <span>“Heterogeneity and Predictors of the Effects of <span>AI</span> Assistance on Radiologists.”</span> <em>Nature Medicine</em> 30 (3): 837–49. <a href="https://doi.org/10.1038/s41591-024-02850-w">https://doi.org/10.1038/s41591-024-02850-w</a>.
 </div>
 </div>
 

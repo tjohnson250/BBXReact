@@ -86,9 +86,9 @@ I want to start with the scope of what's happening. A third of US hospitals are 
 
 - **LLM alone: 92%** diagnostic accuracy vs. 74% for physicians (Goh et al. 2024, JAMA Network Open)
 
-- **MASAI trial**: AI-assisted mammography detected 20% more cancers, halved radiologist workload (Lång et al. 2023)
+- **NEJM case records**: GPT-4 included correct diagnosis in differential for 64% of complex cases (Kanjee et al. 2023, JAMA)
 
-- **Danish screening**: AI reliably filtered ~50% of normal chest X-rays (Plesner et al. 2024)
+- **Emergency dept**: GPT-4 significantly outperformed ED physicians in diagnostic accuracy on 100 real cases (Hoppe et al. 2024)
 :::
 
 ::::
@@ -98,7 +98,7 @@ I want to start with the scope of what's happening. A third of US hospitals are 
 If you're a health system CEO looking at these numbers, deployment seems like an obvious decision.
 
 ::: {.notes}
-And the evidence looks compelling. On the benchmark side, Med-PaLM 2 reached expert-level performance on medical question answering. GPT-4 crushed the USMLE by twenty points. Google's AMIE outperformed primary care physicians in structured diagnostic conversations. On the clinical side, Goh et al. ran a randomized trial where the LLM alone scored 92% on diagnostic reasoning — physicians scored 74%. The MASAI trial found AI-assisted mammography caught 20% more cancers while halving radiologist workload. If you're a health system CEO looking at these numbers, deployment seems like an obvious decision. But there's a problem.
+And the evidence looks compelling. On the benchmark side, Med-PaLM 2 reached expert-level performance on medical question answering. GPT-4 crushed the USMLE by twenty points. Google's AMIE outperformed primary care physicians in structured diagnostic conversations. On the clinical side, Goh et al. ran a randomized trial where the LLM alone scored 92% on diagnostic reasoning — physicians scored 74%. Kanjee et al. found GPT-4 included the correct diagnosis for 64% of complex NEJM case records, and Hoppe et al. showed GPT-4 significantly outperformed ED residents in diagnostic accuracy. If you're a health system CEO looking at these numbers, deployment seems like an obvious decision. But there's a problem.
 :::
 
 ## Pattern Recognition ≠ Clinical Reasoning {background-color="#1a1a2e"}
