@@ -40,7 +40,6 @@ wheels/
 # Session Data
 .RData
 # Project files
-*.Rproj
 # R packages
 .Rbuildignore
 # Invisible files created by R
