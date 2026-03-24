@@ -46,6 +46,9 @@ wheels/
 .htrc
 # Build outputs
 *.html
+!docs/**/*.html
+!Experiment 1/**/*.html
+!Experiment 3 Multiple Runs Top Leaders/**/*.html
 *.pdf
 *.tex
 *.aux
