@@ -30,6 +30,11 @@ library(jsonlite)
 library(knitr)
 library(kableExtra)
 library(scales)
+library(gt)
+library(lme4)
+library(lmerTest)    # p-values for mixed models
+library(car)
+library(broom.mixed)
 
 # Order model names by family (Haiku < Sonnet < Opus), then version
 order_model_names <- function(names) {
@@ -705,7 +710,7 @@ Here are the four properties we need. Out-of-distribution so we're not just test
 :::
 
 ::: {.column width="45%"}
-[![](ray_physics.png){fig-alt="Black Box game board showing ray physics: absorption, deflection, and reflection" width="100%"}](https://claude.ai/public/artifacts/31d93658-cd9d-4ad4-ade0-060a2d96b87d){target="_blank"}
+[![](ray_physics.png){fig-alt="Black Box game board showing ray physics: absorption, deflection, and reflection" width="100%"}](https://claude.ai/public/artifacts/2f54d70b-2267-4973-95c6-f7b8140e1a41){target="_blank"}
 
 [Click image to play Black Box]{style="font-size: 0.6em; text-align: center; display: block; color: #666;"}
 
@@ -828,6 +833,108 @@ We use two modes to partially decompose capabilities. Predict mode isolates spat
 The full experimental design. Five Claude models spanning the capability range. Two prompt styles — baseline gives human-equivalent instructions, augmented adds detailed strategy and worked examples. Extended thinking gives the model a scratchpad. VoT adds visualization-of-thought prompts. All tested across 10 fixed atom configurations for reproducibility. This gives us about 1,200 unique experimental conditions.
 :::
 
+## Baseline Prompt
+
+*Human-equivalent instructions — teach by example*
+
+- Describes game rules via **ASCII diagrams** showing deflection, reflection, absorption examples
+- States scoring rules and action format
+- No strategic guidance beyond "use as few rays as possible"
+- ~90 lines, narrative tone
+
+::: {.fragment}
+```
+    1
+  - * - - - - - -         - - - - - - - -
+  - * - - - - - -         - - - - - - - -
+1 * * - - - - - -         - - - - - - - -
+  - - O - - - - -         - - O - - - - -
+  - - - - - - - -         - - - * * * * * 2
+  - - - - - - - -         - - - * - - - -
+  - - - - - - - -         - - - * - - - -
+  - - - - - - - -         - - - * - - - -
+                                2
+```
+:::
+
+::: notes
+The baseline prompt is essentially the rulebook a human would read. It teaches entirely by example — here are ASCII diagrams showing what deflection looks like, what reflection looks like, what absorption looks like. The model has to generalize from these examples to understand the underlying physics. There's no strategic advice beyond "use as few rays as possible." This mirrors what a human player would get from reading the game manual.
+:::
+
+## Augmented Prompt
+
+*Adds algorithmic rules & reasoning scaffolds*
+
+- Replaces ASCII examples with **algorithmic ray-tracing rules** (entry check → subsequent cells → exit)
+- Explicit deflection table by compass direction
+- **"Common Reasoning Error"** warning against over-interpreting single observations
+- **"Critical Deduction Rules"** classifying each outcome type (H, R, pass-through, 90° exit) as *ambiguous*
+- Strategic guidance: triangulate, cross-reference all observations, verify before guessing
+
+::: {.fragment}
+**Key difference:** Baseline teaches by *analogy* (pattern match from examples); Augmented teaches by *algorithm* (execute a procedure step-by-step)
+:::
+
+::: notes
+The augmented prompt takes a very different approach. Instead of examples, it gives the model an algorithmic specification of ray behavior that mirrors the actual traceRay code — entry check, then for each cell check absorption, then check perpendicular cells for deflection. It also adds explicit warnings about reasoning errors we observed in early pilots — like assuming an absorbed ray must have hit an atom in its entry column. The key addition is classifying every observation type as ambiguous and emphasizing that nearly every deduction requires triangulation across multiple rays. The fundamental question is whether models reason better from examples or from algorithms.
+:::
+
+## Compass Direction Deflection Table
+
+*A critical change: replacing relative directions with fixed compass directions*
+
+```
+DEFLECTION BY RAY DIRECTION
+(all directions are board compass directions):
+
+- Ray traveling SOUTH: atom to EAST  → turn WEST
+                       atom to WEST  → turn EAST
+- Ray traveling NORTH: atom to EAST  → turn WEST
+                       atom to WEST  → turn EAST
+- Ray traveling EAST:  atom to NORTH → turn SOUTH
+                       atom to SOUTH → turn NORTH
+- Ray traveling WEST:  atom to NORTH → turn SOUTH
+                       atom to SOUTH → turn NORTH
+```
+
+::: {.fragment}
+Early pilots using relative directions ("turn left", "turn away") produced systematic ray-tracing errors — models confused their frame of reference mid-trace. Fixed compass directions eliminated this class of error.
+:::
+
+::: notes
+This turned out to be one of the most impactful prompt changes. In early pilots, we described deflection using relative directions — "the ray turns away from the atom." Models would frequently lose track of their frame of reference partway through a multi-deflection trace, especially when a ray changed direction multiple times. Switching to fixed compass directions — always north, south, east, west relative to the board — gave the model an unambiguous lookup table. You're traveling south, there's an atom to the east, you turn west. No mental rotation required. This single change significantly reduced ray-tracing errors in predict mode.
+:::
+
+## Prompt Comparison: Predict Mode
+
+:::::: columns
+::: {.column width="50%"}
+**Baseline Predict**
+
+- Same ASCII-diagram teaching style
+- "Predict where a ray will exit"
+- Provides atom positions and ray entry
+- Asks for step-by-step trace in reasoning field
+:::
+
+::: {.column width="50%"}
+**Augmented Predict**
+
+- Same algorithmic ray-tracing specification as play prompt
+- Adds **entry cell example** walking through the check sequence
+- Explicit compass-direction deflection lookup table
+- Same JSON response format
+:::
+::::::
+
+::: {.fragment}
+**Key insight:** Baseline teaches by *analogy* (pattern match from examples); Augmented teaches by *algorithm* (execute a procedure step-by-step)
+:::
+
+::: notes
+For predict mode, the difference is even starker. The baseline shows the model several worked examples and asks it to generalize — essentially pattern matching. The augmented prompt instead gives a precise algorithm: check entry cell, check adjacent cells, then for each subsequent cell check absorption, then check both perpendicular cells for deflection. It's the difference between "here's what happens" and "here's exactly how to compute what happens." The key question is whether models perform better when taught by example or by algorithm.
+:::
+
 ## Atom Configurations
 
 ```{r}
@@ -934,6 +1041,55 @@ This establishes the **ceiling** of the performance corridor — the best any ag
 The optimal solver gives us the upper bound on performance. It searches all 635,376 possible configurations, picks the ray that eliminates the most candidates on average, and repeats. It solves all 10 configurations in about 7 rays on average. This is the ceiling — no agent, human or AI, can do better. Note this is a greedy strategy, which is itself a lower bound on optimal — true optimal via full lookahead would be even better, but greedy is already very strong.
 :::
 
+## Optimal First Shot Analysis
+
+:::::: columns
+::: {.column width="55%"}
+Under D₄ symmetry, all 32 rays fall into **4 equivalence classes**:
+
+| Rank | Position | E[remaining] | Outcomes |
+|------|----------|-------------|----------|
+| **1** | 2, 7 | 123,728 | 27 |
+| **2** | 3, 6 | 125,187 | 27 |
+| **3** | 4, 5 | 126,323 | 27 |
+| **4** | 1, 8 | 155,403 | 10 |
+
+::: fragment
+Corner-adjacent rays (1, 8) are **markedly worse** — only 10 outcomes vs 27, leaving 25% more candidates.
+:::
+:::
+
+:::: {.column width="45%"}
+```{r}
+#| fig-height: 5
+#| fig-width: 6
+
+first_shot_df <- tibble(
+  class = factor(c("2 / 7", "3 / 6", "4 / 5", "1 / 8"),
+                 levels = c("2 / 7", "3 / 6", "4 / 5", "1 / 8")),
+  e_remaining = c(123728, 125187, 126323, 155403),
+  entropy = c(3.245, 3.269, 3.277, 2.536),
+  outcomes = c(27, 27, 27, 10)
+)
+
+ggplot(first_shot_df, aes(x = class, y = e_remaining, fill = class)) +
+  geom_col(width = 0.65, alpha = 0.85) +
+  geom_text(aes(label = scales::comma(e_remaining)), vjust = -0.5, size = 5) +
+  scale_fill_manual(values = c("#2ecc71", "#3498db", "#9b59b6", "#e74c3c")) +
+  scale_y_continuous(labels = scales::comma, limits = c(0, 175000)) +
+  labs(x = "Ray Position Class", y = "E[remaining candidates]",
+       title = "First Shot: Expected Remaining Candidates",
+       subtitle = "Lower is better · 635,376 total configurations") +
+  theme_minimal(base_size = 16) +
+  theme(legend.position = "none")
+```
+::::
+::::::
+
+::: notes
+Before looking at LLM performance, let's understand what the optimal solver actually does on its first move. By D₄ symmetry (4 rotations × 2 reflections), the 32 edge rays collapse into just 4 equivalence classes based on their column or row position. Position 2 (or equivalently 7) is the optimal first shot — it produces 27 distinct outcomes and leaves the fewest expected remaining candidates at 123,728. The inner positions (3-6) are close — within 2% — but corner-adjacent positions (1, 8) are notably worse with only 10 possible outcomes and 25% more remaining candidates. This is because corner rays have fewer deflection possibilities. The key insight: not all rays are created equal, and optimal play requires selecting rays that maximize the partition of the candidate space.
+:::
+
 ## Chance Baseline
 
 :::::: columns
@@ -978,11 +1134,13 @@ Any agent that extracts meaningful signal from ray observations should **substan
 The floor of the performance corridor. If you just guess randomly without firing any rays, you get 0.25 atoms correct on average and a score of 18.75. The vast majority of the time — 77% — you get zero atoms right. We now have our corridor: chance at 0.25 atoms, optimal at 4.0 atoms. Where do LLMs fall?
 :::
 
-## Predict: Leaderboard & Forest Plot {.smaller}
+## Predict: Leaderboard & Forest Plot {.smaller .scrollable}
 
 ```{r}
 #| label: predict-forest
 #| fig-height: 8.5
+#| out-width: "100%"
+#| out-height: "1200px"
 
 # Calculate accuracy and 95% CI for all configurations
 forest_data <- predict_data |>
@@ -1002,7 +1160,7 @@ forest_data <- predict_data |>
     ci_upper = accuracy + 1.96 * sqrt(accuracy * (1 - accuracy) / n),
     .groups = "drop"
   ) |>
-  arrange(desc(accuracy)) |>
+  arrange(accuracy) |>
   mutate(config_label = factor(config_label, levels = config_label))
 
 ggplot(forest_data, aes(x = accuracy, y = config_label)) +
@@ -1013,7 +1171,8 @@ ggplot(forest_data, aes(x = accuracy, y = config_label)) +
   geom_text(aes(label = paste0(round(accuracy * 100, 1), "%")),
             hjust = -0.3, size = 4) +
   scale_color_manual(values = model_colors) +
-  scale_x_continuous(limits = c(0, 1), labels = percent, breaks = seq(0, 1, 0.1)) +
+  scale_x_continuous(limits = c(0, 1), labels = percent, breaks = seq(0, 1, 0.1),
+                     sec.axis = dup_axis(name = NULL)) +
   labs(x = "Accuracy", y = NULL, color = "Model",
        title = "Predict Mode: All Conditions Ranked by Accuracy") +
   theme(
@@ -1076,42 +1235,194 @@ ggplot(factor_data, aes(x = accuracy, y = level)) +
 Marginal effects for each factor. Model matters most — clear separation between Haiku and Opus. Extended thinking and augmented prompts both help, but the gains are modest. VoT has minimal effect in predict mode. Key takeaway: model scale is the dominant factor for forward spatial reasoning.
 :::
 
-## The Complexity Cliff
+## Predict: ANOVA {.smaller .scrollable}
 
 ```{r}
-#| label: complexity-plots
+#| label: predict-pres-anova
 
-p1 <- ggplot(predict_data, aes(x = cells_traveled, y = as.numeric(correct), color = model_name)) +
-  geom_jitter(height = 0.05, alpha = 0.15, size = 1.5) +
-  geom_smooth(method = "loess", se = FALSE, linewidth = 1.2) +
-  scale_color_manual(values = model_colors) +
-  scale_y_continuous(labels = percent) +
-  labs(x = "Cells Traveled (path complexity)", y = "Accuracy",
-       color = "Model",
-       title = "Accuracy Collapses with Path Complexity",
-       subtitle = "Performance drops sharply as ray paths involve more cells")
+# Factor setup for ANOVA
+predict_anova_data <- predict_data |>
+  mutate(
+    model_name = factor(model_name, levels = order_model_names(model_name)),
+    prompt_style = factor(prompt_style, levels = c("baseline", "augmented")),
+    enable_thinking = factor(enable_thinking, levels = c(FALSE, TRUE)),
+    vot_ray_trace = factor(vot_ray_trace, levels = c(FALSE, TRUE)),
+    config_index = factor(config_index)
+  )
 
-p2 <- ggplot(predict_data, aes(x = factor(atoms_affecting), y = as.numeric(correct), fill = model_name)) +
-  stat_summary(fun = mean, geom = "col", position = position_dodge(width = 0.7), width = 0.6) +
-  scale_fill_manual(values = model_colors) +
-  scale_y_continuous(labels = percent) +
-  labs(x = "Atoms Affecting Ray", y = "Accuracy",
-       fill = "Model",
-       title = "Accuracy by Atom Density",
-       subtitle = "More atom interactions = more spatial reasoning errors")
+# Build formula dynamically based on available factor levels
+pres_has_model <- length(unique(predict_anova_data$model_name)) > 1
+pres_has_prompt <- length(unique(predict_anova_data$prompt_style)) > 1
+pres_has_thinking <- length(unique(predict_anova_data$enable_thinking)) > 1
+pres_has_vot <- length(unique(predict_anova_data$vot_ray_trace)) > 1
 
-gridExtra::grid.arrange(p1, p2, ncol = 2)
+pres_parts <- c()
+if (pres_has_model) pres_parts <- c(pres_parts, "model_name")
+if (pres_has_prompt) pres_parts <- c(pres_parts, "prompt_style")
+if (pres_has_thinking) pres_parts <- c(pres_parts, "enable_thinking")
+
+if (pres_has_model && pres_has_prompt && pres_has_thinking) {
+  pres_main <- "model_name * prompt_style * enable_thinking"
+} else {
+  pres_main <- paste(pres_parts, collapse = " + ")
+}
+
+pres_formula <- paste0(
+  "correct ~ ", pres_main,
+  if (pres_has_vot) " + vot_ray_trace" else "",
+  " + cells_traveled + atoms_affecting + (1 | config_index)"
+)
+
+predict_glmer <- glmer(as.formula(pres_formula),
+                       family = binomial(link = "logit"),
+                       data = predict_anova_data,
+                       control = glmerControl(optimizer = "bobyqa"))
+
+# Type III ANOVA
+anova_result <- Anova(predict_glmer, type = 3)
+
+anova_df <- as.data.frame(anova_result) |>
+  rownames_to_column("Term") |>
+  rename(Chi_sq = `Chisq`, df = Df, p_value = `Pr(>Chisq)`) |>
+  mutate(
+    Chi_sq = round(Chi_sq, 2),
+    is_sig = p_value < 0.05,
+    Sig = case_when(
+      p_value < 0.001 ~ "***",
+      p_value < 0.01  ~ "**",
+      p_value < 0.05  ~ "*",
+      p_value < 0.1   ~ ".",
+      TRUE ~ ""
+    ),
+    p_value = ifelse(p_value < 0.001,
+                     formatC(p_value, format = "e", digits = 2),
+                     formatC(p_value, format = "f", digits = 4))
+  )
+
+sig_rows <- which(anova_df$is_sig)
+
+gt(anova_df |> select(-is_sig)) |>
+  tab_header(
+    title = "Type III ANOVA — Predict Mode",
+    subtitle = md(paste0("Mixed-effects logistic regression<br>`", pres_formula, "`"))
+  ) |>
+  cols_label(
+    Term = "Term",
+    Chi_sq = md("&chi;&sup2;"),
+    df = "df",
+    p_value = md("*p*-value"),
+    Sig = ""
+  ) |>
+  cols_align(align = "right", columns = c(Chi_sq, df, p_value)) |>
+  cols_align(align = "center", columns = Sig) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(rows = sig_rows)
+  ) |>
+  tab_source_note(md("Signif: \\*\\*\\* < 0.001, \\*\\* < 0.01, \\* < 0.05, . < 0.1")) |>
+  tab_options(
+    table.font.size = px(20),
+    heading.title.font.size = px(24),
+    heading.subtitle.font.size = px(16)
+  )
 ```
 
 ::: notes
-Two views of the complexity cliff. Left: as path length increases (more cells traveled), accuracy drops sharply. All models show this drop, but weaker models collapse faster. Right: as more atoms interact with a ray (higher atom density), accuracy decreases. This is direct evidence that spatial reasoning degrades with complexity. The models can handle simple, short paths but struggle with the complex deflection chains that require tracking multiple interactions.
+Type III ANOVA from a mixed-effects logistic regression. The model accounts for clustering at the configuration level. Key question: which experimental factors significantly predict accuracy, after controlling for path complexity? Look at the chi-squared values and p-values — model identity typically dominates. cells_traveled and atoms_affecting are covariates — precision variables, not confounders, since the same rays are tested across all conditions. They explain variance in ray difficulty and improve statistical power. Including these continuous covariates technically makes this an ANCOVA.
 :::
 
-## Play: Initial Results (n = 10 per condition) {.smaller}
+## Predict: Regression Coefficients {.smaller .scrollable}
+
+```{r}
+#| label: predict-pres-regression
+
+# Extract fixed effects as odds ratios
+tidy_fe <- tidy(predict_glmer, effects = "fixed", conf.int = TRUE) |>
+  mutate(
+    OR = exp(estimate),
+    OR_lower = exp(conf.low),
+    OR_upper = exp(conf.high),
+    Sig = case_when(
+      p.value < 0.001 ~ "***",
+      p.value < 0.01  ~ "**",
+      p.value < 0.05  ~ "*",
+      p.value < 0.1   ~ ".",
+      TRUE ~ ""
+    )
+  )
+
+tidy_display <- tidy_fe |>
+  select(term, estimate, OR, OR_lower, OR_upper, p.value, Sig) |>
+  mutate(
+    across(c(estimate, OR, OR_lower, OR_upper), ~round(., 3)),
+    p.value = ifelse(p.value < 0.001,
+                     formatC(p.value, format = "e", digits = 2),
+                     formatC(p.value, format = "f", digits = 4))
+  )
+
+gt(tidy_display) |>
+  tab_header(
+    title = "Regression Coefficients — Predict Mode",
+    subtitle = "Mixed-effects logistic regression (fixed effects)"
+  ) |>
+  cols_label(
+    term = "Term",
+    estimate = md("&beta; (log-odds)"),
+    OR = "Odds Ratio",
+    OR_lower = "OR 95% CI Lower",
+    OR_upper = "OR 95% CI Upper",
+    p.value = md("*p*-value"),
+    Sig = ""
+  ) |>
+  cols_align(align = "right", columns = c(estimate, OR, OR_lower, OR_upper, p.value)) |>
+  cols_align(align = "center", columns = Sig) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(
+      columns = everything(),
+      rows = tidy_fe$p.value < 0.05
+    )
+  ) |>
+  tab_source_note(md("OR > 1 = higher odds of correct prediction. Bold = *p* < 0.05.")) |>
+  tab_options(
+    table.font.size = px(20),
+    heading.title.font.size = px(24),
+    heading.subtitle.font.size = px(16)
+  )
+```
+
+::: notes
+This table shows two versions of the same information. The β (log-odds) column is the raw output of logistic regression — positive means it helps, negative means it hurts, but the scale isn't intuitive. The Odds Ratio column converts that to a multiplier: OR of 1 means no effect, OR of 2 means the factor doubles the odds of a correct prediction, OR of 0.5 means it halves the odds. Focus on the Odds Ratio column — it tells you how much each factor multiplies the odds of the model getting the right answer. For example, if augmented prompts show an OR of 1.8, that means 80% higher odds of predicting correctly compared to baseline. Bold rows are statistically significant. The intercept represents the baseline condition — the reference levels of all factors (Haiku 4.5, baseline prompt, no extended thinking, no VoT). Interaction terms test whether factor combinations have synergistic or antagonistic effects beyond their individual contributions.
+
+If asked "how much improvement is that in real terms?": The intercept gives you the baseline probability. Convert the intercept log-odds to a probability with p = exp(β) / (1 + exp(β)). Then multiply the baseline odds by the OR to get new odds, and convert back to a probability: new_p = new_odds / (1 + new_odds). For example, if the intercept gives a baseline of 40% (odds = 0.667) and a factor has OR = 3.2, the new odds are 0.667 × 3.2 = 2.13, so the new probability is 2.13 / 3.13 = 68% — a 28-point gain. The same OR gives different percentage-point gains at different baselines because odds and probability have a nonlinear relationship. For the audience, it's usually simpler to say "this triples the odds" and point to the marginal effects plot for the concrete accuracy numbers.
+:::
+
+
+## Predict Mode: Summary {.smaller}
+
+**Key Findings**
+
+- Overall accuracy range: ~40%–80% across conditions
+- **Extended thinking** and **augmented prompts** are the significant main effects — not model identity
+- A Haiku 4.5 configuration ranks third on the leaderboard — the right scaffolding matters more than model scale
+- VoT ray trace has minimal independent effect
+- Path complexity (cells traveled, atoms affecting) significantly predicts difficulty
+- No condition achieves perfect accuracy on *forward* reasoning
+
+> **Bottom line:** If models can't reliably trace a ray *when shown the atoms*, what happens when they must *infer* atom positions from ray outcomes?
+
+::: notes
+This slide summarizes the predict mode findings before we move to play mode. The surprising result is that model identity is not a significant predictor — a well-configured Haiku can outperform a poorly-configured Opus. What actually drives accuracy are the experimental scaffolding factors: extended thinking and augmented prompts. This suggests forward spatial reasoning is less about raw model capability and more about giving the model the right framework to reason within. The closing question sets up the play mode results — predict mode is the easier task (forward reasoning), and play mode (inverse reasoning) should be strictly harder. If forward reasoning still produces errors even with optimal scaffolding, we should expect inverse reasoning to be substantially worse.
+:::
+
+
+## Play: Atoms Correct — Initial Results (n = 10 per condition) {.smaller .scrollable}
 
 ```{r}
 #| label: play-forest-initial
-#| fig-height: 8.5
+#| fig-height: 20
+#| out-width: "100%"
+#| out-height: "2000px"
 
 play_forest_initial <- play_data_original |>
   mutate(
@@ -1131,7 +1442,7 @@ play_forest_initial <- play_data_original |>
     ci_upper = mean_correct + 1.96 * se,
     .groups = "drop"
   ) |>
-  arrange(desc(mean_correct)) |>
+  arrange(mean_correct) |>
   mutate(config_label = factor(config_label, levels = config_label))
 
 ggplot(play_forest_initial, aes(x = mean_correct, y = config_label)) +
@@ -1143,9 +1454,10 @@ ggplot(play_forest_initial, aes(x = mean_correct, y = config_label)) +
   geom_text(aes(label = sprintf("%.2f", mean_correct)),
             hjust = -0.3, size = 3.5) +
   scale_color_manual(values = model_colors) +
-  scale_x_continuous(limits = c(0, 4), breaks = seq(0, 4, 0.5)) +
-  labs(x = "Mean Atoms Correct", y = NULL, color = "Model",
-       title = "Play Mode: Initial Results (n = 10 per condition)",
+  scale_x_continuous(limits = c(0, 4), breaks = seq(0, 4, 0.5),
+                     sec.axis = dup_axis(name = NULL)) +
+  labs(x = "Mean Atoms Correct (out of 4)", y = NULL, color = "Model",
+       title = "Play Mode: Atoms Correct — Initial Results (n = 10 per condition)",
        subtitle = "Red dotted = chance (0.25). Gray dashed = 1 atom.") +
   theme(
     axis.text.y = element_text(size = 9, family = "mono"),
@@ -1157,11 +1469,13 @@ ggplot(play_forest_initial, aes(x = mean_correct, y = config_label)) +
 Play mode forest plot — the full diagnostic reasoning task. Much lower performance than predict mode, as expected. The best conditions find about 2-3 atoms out of 4. All conditions beat chance. But notice the wide confidence intervals — at n=10, these CIs span nearly half the 0-4 range. As we'll see next, when we replicated the top performers, the rankings shifted substantially.
 :::
 
-## Replication: What Happens With More Data? {.smaller}
+## Replication: Atoms Correct With More Data {.smaller .scrollable}
 
 ```{r}
 #| label: play-replication-slide
-#| fig-height: 7
+#| fig-height: 20
+#| out-width: "100%"
+#| out-height: "2000px"
 
 if (n_replication_runs > 0) {
   # Build comparison: original vs pooled for replicated configs, original-only for others
@@ -1220,7 +1534,7 @@ if (n_replication_runs > 0) {
                              paste0(config_label, " (n=", n, ")"),
                              config_label)
     ) |>
-    arrange(desc(mean_correct)) |>
+    arrange(mean_correct) |>
     mutate(label_display = factor(label_display, levels = label_display))
 
   # Show original means as hollow points for replicated configs
@@ -1245,9 +1559,10 @@ if (n_replication_runs > 0) {
               hjust = -0.3, size = 3.5) +
     scale_color_manual(values = model_colors) +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    scale_x_continuous(limits = c(0, 4.2), breaks = seq(0, 4, 0.5)) +
-    labs(x = "Mean Atoms Correct", y = NULL, color = "Model",
-         title = "Play Mode: Pooled Results (replication shifts rankings)",
+    scale_x_continuous(limits = c(0, 4.2), breaks = seq(0, 4, 0.5),
+                       sec.axis = dup_axis(name = NULL)) +
+    labs(x = "Mean Atoms Correct (out of 4)", y = NULL, color = "Model",
+         title = "Play Mode: Atoms Correct — Pooled Results (replication shifts rankings)",
          subtitle = "Filled = pooled mean. Hollow circle = original n=10 mean for replicated configs.") +
     theme(
       axis.text.y = element_text(size = 9, family = "mono"),
@@ -1297,7 +1612,7 @@ if (n_replication_runs > 0) {
 This heatmap is the key finding. Each row is a game board, each column is a run. Green means all 4 atoms found, red means failure. Look at boards 2 and 6 — reliably solved every single time, both models. These are configurations where the model has stable access to the reasoning needed. But other boards (like 4 and 5) swing between 0 and 4 across runs. This is not consistent partial competence — it's stochastic access to a reasoning strategy. The model either finds the right approach or doesn't, with little middle ground. This bimodal pattern is itself diagnostic of how LLMs reason about constraint satisfaction.
 :::
 
-## Play: Factor Effects
+## Play: Factor Effects (Atoms Correct)
 
 ```{r}
 #| label: play-factors
@@ -1350,6 +1665,157 @@ ggplot(play_factor_data, aes(x = mean_val, y = level)) +
 
 ::: notes
 Play mode factor effects (using pooled data including replication runs). These factor-level aggregations are robust because they average over many games. Model still matters most. Extended thinking shows a clearer benefit with pooled data. Augmented prompts help in play mode more than predict mode — the game is complex enough to benefit from strategic guidance. VoT conditions show mixed results.
+:::
+
+## Play: ANOVA (Atoms Correct) {.smaller .scrollable}
+
+```{r}
+#| label: play-pres-anova
+
+# Factor setup for ANOVA
+play_anova_data <- play_data |>
+  mutate(
+    model_name = factor(model_name, levels = order_model_names(model_name)),
+    prompt_style = factor(prompt_style, levels = c("baseline", "augmented")),
+    enable_thinking = factor(enable_thinking, levels = c(FALSE, TRUE)),
+    config_index = factor(config_index)
+  )
+
+# Build formula dynamically based on available factor levels
+play_pres_has_model <- length(unique(play_anova_data$model_name)) > 1
+play_pres_has_prompt <- length(unique(play_anova_data$prompt_style)) > 1
+play_pres_has_thinking <- length(unique(play_anova_data$enable_thinking)) > 1
+play_pres_has_vot <- length(unique(play_anova_data$vot_condition)) > 1
+
+play_pres_parts <- c()
+if (play_pres_has_model) play_pres_parts <- c(play_pres_parts, "model_name")
+if (play_pres_has_prompt) play_pres_parts <- c(play_pres_parts, "prompt_style")
+if (play_pres_has_thinking) play_pres_parts <- c(play_pres_parts, "enable_thinking")
+
+play_pres_main <- paste(play_pres_parts, collapse = " + ")
+
+play_pres_formula <- paste0(
+  "atoms_correct ~ ", play_pres_main,
+  if (play_pres_has_vot) " + vot_condition" else "",
+  " + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)"
+)
+
+play_lmer <- lmer(as.formula(play_pres_formula),
+                  data = play_anova_data)
+
+# Type III ANOVA
+play_anova_result <- Anova(play_lmer, type = 3)
+
+play_anova_df <- as.data.frame(play_anova_result) |>
+  rownames_to_column("Term") |>
+  rename(Chi_sq = `Chisq`, df = Df, p_value = `Pr(>Chisq)`) |>
+  mutate(
+    Chi_sq = round(Chi_sq, 2),
+    is_sig = p_value < 0.05,
+    Sig = case_when(
+      p_value < 0.001 ~ "***",
+      p_value < 0.01  ~ "**",
+      p_value < 0.05  ~ "*",
+      p_value < 0.1   ~ ".",
+      TRUE ~ ""
+    ),
+    p_value = ifelse(p_value < 0.001,
+                     formatC(p_value, format = "e", digits = 2),
+                     formatC(p_value, format = "f", digits = 4))
+  )
+
+play_sig_rows <- which(play_anova_df$is_sig)
+
+gt(play_anova_df |> select(-is_sig)) |>
+  tab_header(
+    title = "Type III ANOVA — Play Mode (Atoms Correct)",
+    subtitle = md(paste0("Linear mixed-effects model<br>`", play_pres_formula, "`"))
+  ) |>
+  cols_label(
+    Term = "Term",
+    Chi_sq = md("&chi;&sup2;"),
+    df = "df",
+    p_value = md("*p*-value"),
+    Sig = ""
+  ) |>
+  cols_align(align = "right", columns = c(Chi_sq, df, p_value)) |>
+  cols_align(align = "center", columns = Sig) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(rows = play_sig_rows)
+  ) |>
+  tab_source_note(md("Signif: \\*\\*\\* < 0.001, \\*\\* < 0.01, \\* < 0.05, . < 0.1")) |>
+  tab_options(
+    table.font.size = px(20),
+    heading.title.font.size = px(24),
+    heading.subtitle.font.size = px(16)
+  )
+```
+
+::: notes
+Type III ANOVA from a main-effects linear mixed model with atoms_correct as the outcome (0–4 scale). Unlike predict mode which uses logistic regression on binary outcomes, play mode uses a linear model because the outcome is a count of correctly placed atoms. We use a main-effects model (additive, no interactions) rather than the full factorial because play mode has far fewer observations per cell than predict mode — one game per condition versus 32 rays — so the interaction model is overparameterized and absorbs real effects into non-significant interaction terms. The main-effects model tests the average effect of each factor across all levels of the other factors, which aligns with the marginal effects plot. Configuration is included as a random effect to account for difficulty variation across the 10 board configurations.
+:::
+
+## Play: Regression Coefficients (Atoms Correct) {.smaller .scrollable}
+
+```{r}
+#| label: play-pres-regression
+
+# Extract fixed effects with confidence intervals
+play_tidy_fe <- tidy(play_lmer, effects = "fixed", conf.int = TRUE) |>
+  mutate(
+    Sig = case_when(
+      p.value < 0.001 ~ "***",
+      p.value < 0.01  ~ "**",
+      p.value < 0.05  ~ "*",
+      p.value < 0.1   ~ ".",
+      TRUE ~ ""
+    )
+  )
+
+play_tidy_display <- play_tidy_fe |>
+  select(term, estimate, std.error, statistic, p.value, conf.low, conf.high, Sig) |>
+  mutate(
+    across(c(estimate, std.error, statistic, conf.low, conf.high), ~round(., 3)),
+    p.value = ifelse(p.value < 0.001,
+                     formatC(p.value, format = "e", digits = 2),
+                     formatC(p.value, format = "f", digits = 4))
+  )
+
+gt(play_tidy_display) |>
+  tab_header(
+    title = "Regression Coefficients — Play Mode (Atoms Correct)",
+    subtitle = "Linear mixed-effects model (fixed effects)"
+  ) |>
+  cols_label(
+    term = "Term",
+    estimate = md("&beta;"),
+    std.error = "SE",
+    statistic = md("*t*"),
+    p.value = md("*p*-value"),
+    conf.low = "95% CI Lower",
+    conf.high = "95% CI Upper",
+    Sig = ""
+  ) |>
+  cols_align(align = "right", columns = c(estimate, std.error, statistic, p.value, conf.low, conf.high)) |>
+  cols_align(align = "center", columns = Sig) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(
+      columns = everything(),
+      rows = play_tidy_fe$p.value < 0.05
+    )
+  ) |>
+  tab_source_note(md("&beta; = expected change in atoms correct (0–4 scale). Bold = *p* < 0.05.")) |>
+  tab_options(
+    table.font.size = px(20),
+    heading.title.font.size = px(24),
+    heading.subtitle.font.size = px(16)
+  )
+```
+
+::: notes
+Regression coefficients from the main-effects linear mixed model. Unlike predict mode which reports odds ratios from logistic regression, these coefficients are directly interpretable: each β represents the average change in atoms correct (on the 0–4 scale) when that factor is present versus the reference level, across all levels of the other factors. For example, a coefficient of 0.5 means that factor adds half an atom on average. The intercept represents the baseline condition — the reference levels of all factors (first model alphabetically, baseline prompt, no extended thinking, no VoT). The confidence intervals give the plausible range for each effect.
 :::
 
 ## The Performance Corridor {background-color="#f8f9fa"}

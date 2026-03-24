@@ -543,7 +543,7 @@ Todd R. Johnson
 </ul>
 </div>
 </div><div class="column" style="width:45%;">
-<p><a href="https://claude.ai/public/artifacts/31d93658-cd9d-4ad4-ade0-060a2d96b87d" target="_blank"><img data-src="ray_physics.png" style="width:100.0%" alt="Black Box game board showing ray physics: absorption, deflection, and reflection"></a></p>
+<p><a href="https://claude.ai/public/artifacts/2f54d70b-2267-4973-95c6-f7b8140e1a41" target="_blank"><img data-src="ray_physics.png" style="width:100.0%" alt="Black Box game board showing ray physics: absorption, deflection, and reflection"></a></p>
 <p><span style="font-size: 0.6em; text-align: center; display: block; color: #666;">Click image to play Black Box</span></p>
 </div></div>
 <aside class="notes">
@@ -630,7 +630,7 @@ Todd R. Johnson
 <ul>
 <li>Atoms are <strong>visible</strong></li>
 <li>Model predicts ray exit position</li>
-<li>Tests <strong>spatial reasoning</strong> in isolation</li>
+<li>Tests <strong>spatial and multistep reasoning</strong> in isolation</li>
 <li>Each ray = <strong>independent API call</strong> (fresh context)</li>
 <li>“Given these atoms, what happens to this ray?”</li>
 </ul>
@@ -723,6 +723,136 @@ Todd R. Johnson
           display:block!important;
       }</style></aside>
 </section>
+<section id="baseline-prompt" class="slide level2">
+<h2>Baseline Prompt</h2>
+<p><em>Human-equivalent instructions — teach by example</em></p>
+<ul>
+<li>Describes game rules via <strong>ASCII diagrams</strong> showing deflection, reflection, absorption examples</li>
+<li>States scoring rules and action format</li>
+<li>No strategic guidance beyond “use as few rays as possible”</li>
+<li>~90 lines, narrative tone</li>
+</ul>
+<div class="fragment">
+<pre><code>    1
+  - * - - - - - -         - - - - - - - -
+  - * - - - - - -         - - - - - - - -
+1 * * - - - - - -         - - - - - - - -
+  - - O - - - - -         - - O - - - - -
+  - - - - - - - -         - - - * * * * * 2
+  - - - - - - - -         - - - * - - - -
+  - - - - - - - -         - - - * - - - -
+  - - - - - - - -         - - - * - - - -
+                                2</code></pre>
+</div>
+<aside class="notes">
+<p>The baseline prompt is essentially the rulebook a human would read. It teaches entirely by example — here are ASCII diagrams showing what deflection looks like, what reflection looks like, what absorption looks like. The model has to generalize from these examples to understand the underlying physics. There’s no strategic advice beyond “use as few rays as possible.” This mirrors what a human player would get from reading the game manual.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="augmented-prompt" class="slide level2">
+<h2>Augmented Prompt</h2>
+<p><em>Adds algorithmic rules &amp; reasoning scaffolds</em></p>
+<ul>
+<li>Replaces ASCII examples with <strong>algorithmic ray-tracing rules</strong> (entry check → subsequent cells → exit)</li>
+<li>Explicit deflection table by compass direction</li>
+<li><strong>“Common Reasoning Error”</strong> warning against over-interpreting single observations</li>
+<li><strong>“Critical Deduction Rules”</strong> classifying each outcome type (H, R, pass-through, 90° exit) as <em>ambiguous</em></li>
+<li>Strategic guidance: triangulate, cross-reference all observations, verify before guessing</li>
+</ul>
+<div class="fragment">
+<p><strong>Key difference:</strong> Baseline teaches by <em>analogy</em> (pattern match from examples); Augmented teaches by <em>algorithm</em> (execute a procedure step-by-step)</p>
+</div>
+<aside class="notes">
+<p>The augmented prompt takes a very different approach. Instead of examples, it gives the model an algorithmic specification of ray behavior that mirrors the actual traceRay code — entry check, then for each cell check absorption, then check perpendicular cells for deflection. It also adds explicit warnings about reasoning errors we observed in early pilots — like assuming an absorbed ray must have hit an atom in its entry column. The key addition is classifying every observation type as ambiguous and emphasizing that nearly every deduction requires triangulation across multiple rays. The fundamental question is whether models reason better from examples or from algorithms.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="compass-direction-deflection-table" class="slide level2">
+<h2>Compass Direction Deflection Table</h2>
+<p><em>A critical change: replacing relative directions with fixed compass directions</em></p>
+<pre><code>DEFLECTION BY RAY DIRECTION
+(all directions are board compass directions):
+
+- Ray traveling SOUTH: atom to EAST  → turn WEST
+                       atom to WEST  → turn EAST
+- Ray traveling NORTH: atom to EAST  → turn WEST
+                       atom to WEST  → turn EAST
+- Ray traveling EAST:  atom to NORTH → turn SOUTH
+                       atom to SOUTH → turn NORTH
+- Ray traveling WEST:  atom to NORTH → turn SOUTH
+                       atom to SOUTH → turn NORTH</code></pre>
+<div class="fragment">
+<p>Early pilots using relative directions (“turn left”, “turn away”) produced systematic ray-tracing errors — models confused their frame of reference mid-trace. Fixed compass directions eliminated this class of error.</p>
+</div>
+<aside class="notes">
+<p>This turned out to be one of the most impactful prompt changes. In early pilots, we described deflection using relative directions — “the ray turns away from the atom.” Models would frequently lose track of their frame of reference partway through a multi-deflection trace, especially when a ray changed direction multiple times. Switching to fixed compass directions — always north, south, east, west relative to the board — gave the model an unambiguous lookup table. You’re traveling south, there’s an atom to the east, you turn west. No mental rotation required. This single change significantly reduced ray-tracing errors in predict mode.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="prompt-comparison-predict-mode" class="slide level2">
+<h2>Prompt Comparison: Predict Mode</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Baseline Predict</strong></p>
+<ul>
+<li>Same ASCII-diagram teaching style</li>
+<li>“Predict where a ray will exit”</li>
+<li>Provides atom positions and ray entry</li>
+<li>Asks for step-by-step trace in reasoning field</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><strong>Augmented Predict</strong></p>
+<ul>
+<li>Same algorithmic ray-tracing specification as play prompt</li>
+<li>Adds <strong>entry cell example</strong> walking through the check sequence</li>
+<li>Explicit compass-direction deflection lookup table</li>
+<li>Same JSON response format</li>
+</ul>
+</div></div>
+<div class="fragment">
+<p><strong>Key insight:</strong> Baseline teaches by <em>analogy</em> (pattern match from examples); Augmented teaches by <em>algorithm</em> (execute a procedure step-by-step)</p>
+</div>
+<aside class="notes">
+<p>For predict mode, the difference is even starker. The baseline shows the model several worked examples and asks it to generalize — essentially pattern matching. The augmented prompt instead gives a precise algorithm: check entry cell, check adjacent cells, then for each subsequent cell check absorption, then check both perpendicular cells for deflection. It’s the difference between “here’s what happens” and “here’s exactly how to compute what happens.” The key question is whether models perform better when taught by example or by algorithm.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="atom-configurations" class="slide level2">
 <h2>Atom Configurations</h2>
 
@@ -790,6 +920,75 @@ All 10 configs solved: TRUE</code></pre>
           display:block!important;
       }</style></aside>
 </section>
+<section id="optimal-first-shot-analysis" class="slide level2">
+<h2>Optimal First Shot Analysis</h2>
+<div class="columns">
+<div class="column" style="width:55%;">
+<p>Under D₄ symmetry, all 32 rays fall into <strong>4 equivalence classes</strong>:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Rank</th>
+<th>Position</th>
+<th>E[remaining]</th>
+<th>Outcomes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td>2, 7</td>
+<td>123,728</td>
+<td>27</td>
+</tr>
+<tr class="even">
+<td><strong>2</strong></td>
+<td>3, 6</td>
+<td>125,187</td>
+<td>27</td>
+</tr>
+<tr class="odd">
+<td><strong>3</strong></td>
+<td>4, 5</td>
+<td>126,323</td>
+<td>27</td>
+</tr>
+<tr class="even">
+<td><strong>4</strong></td>
+<td>1, 8</td>
+<td>155,403</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>Corner-adjacent rays (1, 8) are <strong>markedly worse</strong> — only 10 outcomes vs 27, leaving 25% more candidates.</p>
+</div>
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="blackbox_presentation_files/figure-revealjs/unnamed-chunk-2-1.png" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+<aside class="notes">
+<p>Before looking at LLM performance, let’s understand what the optimal solver actually does on its first move. By D₄ symmetry (4 rotations × 2 reflections), the 32 edge rays collapse into just 4 equivalence classes based on their column or row position. Position 2 (or equivalently 7) is the optimal first shot — it produces 27 distinct outcomes and leaves the fewest expected remaining candidates at 123,728. The inner positions (3-6) are close — within 2% — but corner-adjacent positions (1, 8) are notably worse with only 10 possible outcomes and 25% more remaining candidates. This is because corner rays have fewer deflection possibilities. The key insight: not all rays are created equal, and optimal play requires selecting rays that maximize the partition of the candidate space.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="chance-baseline" class="slide level2">
 <h2>Chance Baseline</h2>
 <div class="columns">
@@ -804,7 +1003,7 @@ All 10 configs solved: TRUE</code></pre>
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="blackbox_presentation_files/figure-revealjs/unnamed-chunk-2-1.png" width="672"></p>
+<p><img data-src="blackbox_presentation_files/figure-revealjs/unnamed-chunk-3-1.png" width="672"></p>
 </figure>
 </div>
 </div>
@@ -860,10 +1059,18 @@ All 10 configs solved: TRUE</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="predict-leaderboard-forest-plot" class="slide level2 smaller">
+<section id="predict-leaderboard-forest-plot" class="slide level2 smaller scrollable">
 <h2>Predict: Leaderboard &amp; Forest Plot</h2>
-
-<img data-src="blackbox_presentation_files/figure-revealjs/predict-forest-1.png" width="1344" class="r-stretch"><aside class="notes">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="blackbox_presentation_files/figure-revealjs/predict-forest-1.png" style="width:100.0%" height="1200"></p>
+</figure>
+</div>
+</div>
+</div>
+<aside class="notes">
 <p>Here’s the full predict mode leaderboard as a forest plot. Each row is a unique experimental condition, ranked by accuracy. Note the model clustering — Opus models tend to cluster at top, Haiku at bottom. The best conditions achieve around 80% accuracy. This is forward reasoning only — given atoms, predict ray behavior. Already we see substantial error rates.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -894,11 +1101,574 @@ All 10 configs solved: TRUE</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="the-complexity-cliff" class="slide level2">
-<h2>The Complexity Cliff</h2>
+<section id="predict-anova" class="slide level2 smaller scrollable">
+<h2>Predict: ANOVA</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div id="spmfagregu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#spmfagregu table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-<img data-src="blackbox_presentation_files/figure-revealjs/complexity-plots-1.png" width="1344" class="r-stretch"><aside class="notes">
-<p>Two views of the complexity cliff. Left: as path length increases (more cells traveled), accuracy drops sharply. All models show this drop, but weaker models collapse faster. Right: as more atoms interact with a ray (higher atom density), accuracy decreases. This is direct evidence that spatial reasoning degrades with complexity. The models can handle simple, short paths but struggle with the complex deflection chains that require tracking multiple interactions.</p>
+#spmfagregu thead, #spmfagregu tbody, #spmfagregu tfoot, #spmfagregu tr, #spmfagregu td, #spmfagregu th {
+  border-style: none;
+}
+
+#spmfagregu p {
+  margin: 0;
+  padding: 0;
+}
+
+#spmfagregu .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 20px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#spmfagregu .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#spmfagregu .gt_title {
+  color: #333333;
+  font-size: 24px;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#spmfagregu .gt_subtitle {
+  color: #333333;
+  font-size: 16px;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#spmfagregu .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#spmfagregu .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#spmfagregu .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#spmfagregu .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#spmfagregu .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#spmfagregu .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#spmfagregu .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#spmfagregu .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#spmfagregu .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#spmfagregu .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#spmfagregu .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#spmfagregu .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#spmfagregu .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#spmfagregu .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#spmfagregu .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#spmfagregu .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#spmfagregu .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#spmfagregu .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#spmfagregu .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#spmfagregu .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#spmfagregu .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#spmfagregu .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#spmfagregu .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#spmfagregu .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#spmfagregu .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#spmfagregu .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#spmfagregu .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#spmfagregu .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#spmfagregu .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#spmfagregu .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#spmfagregu .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#spmfagregu .gt_left {
+  text-align: left;
+}
+
+#spmfagregu .gt_center {
+  text-align: center;
+}
+
+#spmfagregu .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#spmfagregu .gt_font_normal {
+  font-weight: normal;
+}
+
+#spmfagregu .gt_font_bold {
+  font-weight: bold;
+}
+
+#spmfagregu .gt_font_italic {
+  font-style: italic;
+}
+
+#spmfagregu .gt_super {
+  font-size: 65%;
+}
+
+#spmfagregu .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#spmfagregu .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#spmfagregu .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#spmfagregu .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#spmfagregu .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#spmfagregu .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#spmfagregu .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#spmfagregu .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#spmfagregu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="gt_heading header">
+<td colspan="5" class="gt_heading gt_title gt_font_normal">Type III ANOVA — Predict Mode</td>
+</tr>
+<tr class="gt_heading even">
+<td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Mixed-effects logistic regression<br><code>correct ~ model_name * prompt_style * enable_thinking + vot_ray_trace + cells_traveled + atoms_affecting + (1 | config_index)</code></td>
+</tr>
+<tr class="gt_col_headings header">
+<th id="Term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Term</th>
+<th id="Chi_sq" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">χ²</th>
+<th id="df" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">df</th>
+<th id="p_value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col"><em>p</em>-value</th>
+<th id="Sig" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">(Intercept)</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">9.58</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">0.0020</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">**</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Term">model_name</td>
+<td class="gt_row gt_right" headers="Chi_sq">0.35</td>
+<td class="gt_row gt_right" headers="df">4</td>
+<td class="gt_row gt_right" headers="p_value">0.9865</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">prompt_style</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">62.10</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">3.26e-15</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">enable_thinking</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">75.95</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">2.91e-18</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term">vot_ray_trace</td>
+<td class="gt_row gt_right" headers="Chi_sq">0.69</td>
+<td class="gt_row gt_right" headers="df">1</td>
+<td class="gt_row gt_right" headers="p_value">0.4046</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">cells_traveled</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">21.06</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">4.45e-06</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">atoms_affecting</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">92.83</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">5.71e-22</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Term">model_name:prompt_style</td>
+<td class="gt_row gt_right" headers="Chi_sq">2.21</td>
+<td class="gt_row gt_right" headers="df">4</td>
+<td class="gt_row gt_right" headers="p_value">0.6972</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term">model_name:enable_thinking</td>
+<td class="gt_row gt_right" headers="Chi_sq">8.61</td>
+<td class="gt_row gt_right" headers="df">4</td>
+<td class="gt_row gt_right" headers="p_value">0.0716</td>
+<td class="gt_row gt_center" headers="Sig">.</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Term">prompt_style:enable_thinking</td>
+<td class="gt_row gt_right" headers="Chi_sq">0.65</td>
+<td class="gt_row gt_right" headers="df">1</td>
+<td class="gt_row gt_right" headers="p_value">0.4191</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term">model_name:prompt_style:enable_thinking</td>
+<td class="gt_row gt_right" headers="Chi_sq">6.44</td>
+<td class="gt_row gt_right" headers="df">4</td>
+<td class="gt_row gt_right" headers="p_value">0.1684</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+</tbody><tfoot class="gt_sourcenotes">
+<tr class="odd">
+<td colspan="5" class="gt_sourcenote">Signif: *** &lt; 0.001, ** &lt; 0.01, * &lt; 0.05, . &lt; 0.1</td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Type III ANOVA from a mixed-effects logistic regression. The model accounts for clustering at the configuration level. Key question: which experimental factors significantly predict accuracy, after controlling for path complexity? Look at the chi-squared values and p-values — model identity typically dominates. cells_traveled and atoms_affecting are covariates — precision variables, not confounders, since the same rays are tested across all conditions. They explain variance in ray difficulty and improve statistical power. Including these continuous covariates technically makes this an ANCOVA.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -911,10 +1681,752 @@ All 10 configs solved: TRUE</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="play-initial-results-n-10-per-condition" class="slide level2 smaller">
-<h2>Play: Initial Results (n = 10 per condition)</h2>
+<section id="predict-regression-coefficients" class="slide level2 smaller scrollable">
+<h2>Predict: Regression Coefficients</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div id="nekijdovkw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#nekijdovkw table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-<img data-src="blackbox_presentation_files/figure-revealjs/play-forest-initial-1.png" width="1344" class="r-stretch"><aside class="notes">
+#nekijdovkw thead, #nekijdovkw tbody, #nekijdovkw tfoot, #nekijdovkw tr, #nekijdovkw td, #nekijdovkw th {
+  border-style: none;
+}
+
+#nekijdovkw p {
+  margin: 0;
+  padding: 0;
+}
+
+#nekijdovkw .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 20px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#nekijdovkw .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#nekijdovkw .gt_title {
+  color: #333333;
+  font-size: 24px;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#nekijdovkw .gt_subtitle {
+  color: #333333;
+  font-size: 16px;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#nekijdovkw .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#nekijdovkw .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#nekijdovkw .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#nekijdovkw .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#nekijdovkw .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#nekijdovkw .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#nekijdovkw .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#nekijdovkw .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#nekijdovkw .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#nekijdovkw .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#nekijdovkw .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#nekijdovkw .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#nekijdovkw .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#nekijdovkw .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#nekijdovkw .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#nekijdovkw .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#nekijdovkw .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#nekijdovkw .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#nekijdovkw .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#nekijdovkw .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#nekijdovkw .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#nekijdovkw .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#nekijdovkw .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#nekijdovkw .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#nekijdovkw .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#nekijdovkw .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#nekijdovkw .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#nekijdovkw .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#nekijdovkw .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#nekijdovkw .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#nekijdovkw .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#nekijdovkw .gt_left {
+  text-align: left;
+}
+
+#nekijdovkw .gt_center {
+  text-align: center;
+}
+
+#nekijdovkw .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#nekijdovkw .gt_font_normal {
+  font-weight: normal;
+}
+
+#nekijdovkw .gt_font_bold {
+  font-weight: bold;
+}
+
+#nekijdovkw .gt_font_italic {
+  font-style: italic;
+}
+
+#nekijdovkw .gt_super {
+  font-size: 65%;
+}
+
+#nekijdovkw .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#nekijdovkw .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#nekijdovkw .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#nekijdovkw .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#nekijdovkw .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#nekijdovkw .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#nekijdovkw .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#nekijdovkw .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#nekijdovkw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading header">
+<td colspan="7" class="gt_heading gt_title gt_font_normal">Regression Coefficients — Predict Mode</td>
+</tr>
+<tr class="gt_heading even">
+<td colspan="7" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Mixed-effects logistic regression (fixed effects)</td>
+</tr>
+<tr class="gt_col_headings header">
+<th id="term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Term</th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">β (log-odds)</th>
+<th id="OR" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Odds Ratio</th>
+<th id="OR_lower" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">OR 95% CI Lower</th>
+<th id="OR_upper" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">OR 95% CI Upper</th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col"><em>p</em>-value</th>
+<th id="Sig" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">0.461</td>
+<td class="gt_row gt_right" headers="OR" style="font-weight: bold">1.586</td>
+<td class="gt_row gt_right" headers="OR_lower" style="font-weight: bold">1.184</td>
+<td class="gt_row gt_right" headers="OR_upper" style="font-weight: bold">2.123</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">0.0020</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">**</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">model_nameSonnet 4.5</td>
+<td class="gt_row gt_right" headers="estimate">0.009</td>
+<td class="gt_row gt_right" headers="OR">1.009</td>
+<td class="gt_row gt_right" headers="OR_lower">0.776</td>
+<td class="gt_row gt_right" headers="OR_upper">1.312</td>
+<td class="gt_row gt_right" headers="p.value">0.9467</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term">model_nameSonnet 4.6</td>
+<td class="gt_row gt_right" headers="estimate">0.027</td>
+<td class="gt_row gt_right" headers="OR">1.027</td>
+<td class="gt_row gt_right" headers="OR_lower">0.790</td>
+<td class="gt_row gt_right" headers="OR_upper">1.335</td>
+<td class="gt_row gt_right" headers="p.value">0.8407</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">model_nameOpus 4.5</td>
+<td class="gt_row gt_right" headers="estimate">0.072</td>
+<td class="gt_row gt_right" headers="OR">1.075</td>
+<td class="gt_row gt_right" headers="OR_lower">0.826</td>
+<td class="gt_row gt_right" headers="OR_upper">1.397</td>
+<td class="gt_row gt_right" headers="p.value">0.5917</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term">model_nameOpus 4.6</td>
+<td class="gt_row gt_right" headers="estimate">0.018</td>
+<td class="gt_row gt_right" headers="OR">1.018</td>
+<td class="gt_row gt_right" headers="OR_lower">0.783</td>
+<td class="gt_row gt_right" headers="OR_upper">1.324</td>
+<td class="gt_row gt_right" headers="p.value">0.8935</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">prompt_styleaugmented</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">1.164</td>
+<td class="gt_row gt_right" headers="OR" style="font-weight: bold">3.204</td>
+<td class="gt_row gt_right" headers="OR_lower" style="font-weight: bold">2.398</td>
+<td class="gt_row gt_right" headers="OR_upper" style="font-weight: bold">4.280</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">3.26e-15</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">enable_thinkingTRUE</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">1.154</td>
+<td class="gt_row gt_right" headers="OR" style="font-weight: bold">3.172</td>
+<td class="gt_row gt_right" headers="OR_lower" style="font-weight: bold">2.446</td>
+<td class="gt_row gt_right" headers="OR_upper" style="font-weight: bold">4.112</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">2.91e-18</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">vot_ray_traceTRUE</td>
+<td class="gt_row gt_right" headers="estimate">-0.042</td>
+<td class="gt_row gt_right" headers="OR">0.959</td>
+<td class="gt_row gt_right" headers="OR_lower">0.870</td>
+<td class="gt_row gt_right" headers="OR_upper">1.058</td>
+<td class="gt_row gt_right" headers="p.value">0.4046</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">cells_traveled</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">0.039</td>
+<td class="gt_row gt_right" headers="OR" style="font-weight: bold">1.040</td>
+<td class="gt_row gt_right" headers="OR_lower" style="font-weight: bold">1.023</td>
+<td class="gt_row gt_right" headers="OR_upper" style="font-weight: bold">1.057</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">4.45e-06</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">atoms_affecting</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">-0.393</td>
+<td class="gt_row gt_right" headers="OR" style="font-weight: bold">0.675</td>
+<td class="gt_row gt_right" headers="OR_lower" style="font-weight: bold">0.623</td>
+<td class="gt_row gt_right" headers="OR_upper" style="font-weight: bold">0.731</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">5.71e-22</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term">model_nameSonnet 4.5:prompt_styleaugmented</td>
+<td class="gt_row gt_right" headers="estimate">0.196</td>
+<td class="gt_row gt_right" headers="OR">1.216</td>
+<td class="gt_row gt_right" headers="OR_lower">0.802</td>
+<td class="gt_row gt_right" headers="OR_upper">1.845</td>
+<td class="gt_row gt_right" headers="p.value">0.3577</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">model_nameSonnet 4.6:prompt_styleaugmented</td>
+<td class="gt_row gt_right" headers="estimate">0.163</td>
+<td class="gt_row gt_right" headers="OR">1.177</td>
+<td class="gt_row gt_right" headers="OR_lower">0.776</td>
+<td class="gt_row gt_right" headers="OR_upper">1.785</td>
+<td class="gt_row gt_right" headers="p.value">0.4422</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term">model_nameOpus 4.5:prompt_styleaugmented</td>
+<td class="gt_row gt_right" headers="estimate">0.177</td>
+<td class="gt_row gt_right" headers="OR">1.193</td>
+<td class="gt_row gt_right" headers="OR_lower">0.785</td>
+<td class="gt_row gt_right" headers="OR_upper">1.814</td>
+<td class="gt_row gt_right" headers="p.value">0.4084</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">model_nameOpus 4.6:prompt_styleaugmented</td>
+<td class="gt_row gt_right" headers="estimate">-0.044</td>
+<td class="gt_row gt_right" headers="OR">0.957</td>
+<td class="gt_row gt_right" headers="OR_lower">0.636</td>
+<td class="gt_row gt_right" headers="OR_upper">1.441</td>
+<td class="gt_row gt_right" headers="p.value">0.8346</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term">model_nameSonnet 4.5:enable_thinkingTRUE</td>
+<td class="gt_row gt_right" headers="estimate">-0.279</td>
+<td class="gt_row gt_right" headers="OR">0.756</td>
+<td class="gt_row gt_right" headers="OR_lower">0.527</td>
+<td class="gt_row gt_right" headers="OR_upper">1.085</td>
+<td class="gt_row gt_right" headers="p.value">0.1289</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">model_nameSonnet 4.6:enable_thinkingTRUE</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">-0.428</td>
+<td class="gt_row gt_right" headers="OR" style="font-weight: bold">0.652</td>
+<td class="gt_row gt_right" headers="OR_lower" style="font-weight: bold">0.455</td>
+<td class="gt_row gt_right" headers="OR_upper" style="font-weight: bold">0.933</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">0.0192</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">*</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term">model_nameOpus 4.5:enable_thinkingTRUE</td>
+<td class="gt_row gt_right" headers="estimate">-0.002</td>
+<td class="gt_row gt_right" headers="OR">0.998</td>
+<td class="gt_row gt_right" headers="OR_lower">0.690</td>
+<td class="gt_row gt_right" headers="OR_upper">1.441</td>
+<td class="gt_row gt_right" headers="p.value">0.9894</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">model_nameOpus 4.6:enable_thinkingTRUE</td>
+<td class="gt_row gt_right" headers="estimate">-0.077</td>
+<td class="gt_row gt_right" headers="OR">0.926</td>
+<td class="gt_row gt_right" headers="OR_lower">0.643</td>
+<td class="gt_row gt_right" headers="OR_upper">1.334</td>
+<td class="gt_row gt_right" headers="p.value">0.6806</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term">prompt_styleaugmented:enable_thinkingTRUE</td>
+<td class="gt_row gt_right" headers="estimate">0.205</td>
+<td class="gt_row gt_right" headers="OR">1.227</td>
+<td class="gt_row gt_right" headers="OR_lower">0.747</td>
+<td class="gt_row gt_right" headers="OR_upper">2.015</td>
+<td class="gt_row gt_right" headers="p.value">0.4191</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">model_nameSonnet 4.5:prompt_styleaugmented:enable_thinkingTRUE</td>
+<td class="gt_row gt_right" headers="estimate">0.525</td>
+<td class="gt_row gt_right" headers="OR">1.690</td>
+<td class="gt_row gt_right" headers="OR_lower">0.801</td>
+<td class="gt_row gt_right" headers="OR_upper">3.566</td>
+<td class="gt_row gt_right" headers="p.value">0.1681</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term">model_nameSonnet 4.6:prompt_styleaugmented:enable_thinkingTRUE</td>
+<td class="gt_row gt_right" headers="estimate">0.639</td>
+<td class="gt_row gt_right" headers="OR">1.895</td>
+<td class="gt_row gt_right" headers="OR_lower">0.905</td>
+<td class="gt_row gt_right" headers="OR_upper">3.969</td>
+<td class="gt_row gt_right" headers="p.value">0.0902</td>
+<td class="gt_row gt_center" headers="Sig">.</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">model_nameOpus 4.5:prompt_styleaugmented:enable_thinkingTRUE</td>
+<td class="gt_row gt_right" headers="estimate">-0.176</td>
+<td class="gt_row gt_right" headers="OR">0.838</td>
+<td class="gt_row gt_right" headers="OR_lower">0.411</td>
+<td class="gt_row gt_right" headers="OR_upper">1.712</td>
+<td class="gt_row gt_right" headers="p.value">0.6284</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term">model_nameOpus 4.6:prompt_styleaugmented:enable_thinkingTRUE</td>
+<td class="gt_row gt_right" headers="estimate">0.246</td>
+<td class="gt_row gt_right" headers="OR">1.279</td>
+<td class="gt_row gt_right" headers="OR_lower">0.627</td>
+<td class="gt_row gt_right" headers="OR_upper">2.609</td>
+<td class="gt_row gt_right" headers="p.value">0.4980</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+</tbody><tfoot class="gt_sourcenotes">
+<tr class="odd">
+<td colspan="7" class="gt_sourcenote">OR &gt; 1 = higher odds of correct prediction. Bold = <em>p</em> &lt; 0.05.</td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>This table shows two versions of the same information. The β (log-odds) column is the raw output of logistic regression — positive means it helps, negative means it hurts, but the scale isn’t intuitive. The Odds Ratio column converts that to a multiplier: OR of 1 means no effect, OR of 2 means the factor doubles the odds of a correct prediction, OR of 0.5 means it halves the odds. Focus on the Odds Ratio column — it tells you how much each factor multiplies the odds of the model getting the right answer. For example, if augmented prompts show an OR of 1.8, that means 80% higher odds of predicting correctly compared to baseline. Bold rows are statistically significant. The intercept represents the baseline condition — the reference levels of all factors (Haiku 4.5, baseline prompt, no extended thinking, no VoT). Interaction terms test whether factor combinations have synergistic or antagonistic effects beyond their individual contributions.</p>
+<p>If asked “how much improvement is that in real terms?”: The intercept gives you the baseline probability. Convert the intercept log-odds to a probability with p = exp(β) / (1 + exp(β)). Then multiply the baseline odds by the OR to get new odds, and convert back to a probability: new_p = new_odds / (1 + new_odds). For example, if the intercept gives a baseline of 40% (odds = 0.667) and a factor has OR = 3.2, the new odds are 0.667 × 3.2 = 2.13, so the new probability is 2.13 / 3.13 = 68% — a 28-point gain. The same OR gives different percentage-point gains at different baselines because odds and probability have a nonlinear relationship. For the audience, it’s usually simpler to say “this triples the odds” and point to the marginal effects plot for the concrete accuracy numbers.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="predict-mode-summary" class="slide level2 smaller">
+<h2>Predict Mode: Summary</h2>
+<p><strong>Key Findings</strong></p>
+<ul>
+<li>Overall accuracy range: ~40%–80% across conditions</li>
+<li><strong>Extended thinking</strong> and <strong>augmented prompts</strong> are the significant main effects — not model identity</li>
+<li>A Haiku 4.5 configuration ranks third on the leaderboard — the right scaffolding matters more than model scale</li>
+<li>VoT ray trace has minimal independent effect</li>
+<li>Path complexity (cells traveled, atoms affecting) significantly predicts difficulty</li>
+<li>No condition achieves perfect accuracy on <em>forward</em> reasoning</li>
+</ul>
+<blockquote>
+<p><strong>Bottom line:</strong> If models can’t reliably trace a ray <em>when shown the atoms</em>, what happens when they must <em>infer</em> atom positions from ray outcomes?</p>
+</blockquote>
+<aside class="notes">
+<p>This slide summarizes the predict mode findings before we move to play mode. The surprising result is that model identity is not a significant predictor — a well-configured Haiku can outperform a poorly-configured Opus. What actually drives accuracy are the experimental scaffolding factors: extended thinking and augmented prompts. This suggests forward spatial reasoning is less about raw model capability and more about giving the model the right framework to reason within. The closing question sets up the play mode results — predict mode is the easier task (forward reasoning), and play mode (inverse reasoning) should be strictly harder. If forward reasoning still produces errors even with optimal scaffolding, we should expect inverse reasoning to be substantially worse.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="play-atoms-correct-initial-results-n-10-per-condition" class="slide level2 smaller scrollable">
+<h2>Play: Atoms Correct — Initial Results (n = 10 per condition)</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="blackbox_presentation_files/figure-revealjs/play-forest-initial-1.png" style="width:100.0%" height="2000"></p>
+</figure>
+</div>
+</div>
+</div>
+<aside class="notes">
 <p>Play mode forest plot — the full diagnostic reasoning task. Much lower performance than predict mode, as expected. The best conditions find about 2-3 atoms out of 4. All conditions beat chance. But notice the wide confidence intervals — at n=10, these CIs span nearly half the 0-4 range. As we’ll see next, when we replicated the top performers, the rankings shifted substantially.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -928,10 +2440,18 @@ All 10 configs solved: TRUE</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="replication-what-happens-with-more-data" class="slide level2 smaller">
-<h2>Replication: What Happens With More Data?</h2>
-
-<img data-src="blackbox_presentation_files/figure-revealjs/play-replication-slide-1.png" width="1344" class="r-stretch"><aside class="notes">
+<section id="replication-atoms-correct-with-more-data" class="slide level2 smaller scrollable">
+<h2>Replication: Atoms Correct With More Data</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="blackbox_presentation_files/figure-revealjs/play-replication-slide-1.png" style="width:100.0%" height="2000"></p>
+</figure>
+</div>
+</div>
+</div>
+<aside class="notes">
 <p>When we replicated the top two configurations 4 additional times on the same game boards, both regressed toward the mean. The hollow circles show where they originally ranked; the filled triangles show the pooled result. The original n=10 was a lucky draw — both top configs sat at the upper tail of their actual performance distributions. This is classic winner’s curse: select the best from 80 noisy estimates, and you’ve selected noise along with signal.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -962,11 +2482,1182 @@ All 10 configs solved: TRUE</code></pre>
           display:block!important;
       }</style></aside>
 </section>
-<section id="play-factor-effects" class="slide level2">
-<h2>Play: Factor Effects</h2>
+<section id="play-factor-effects-atoms-correct" class="slide level2">
+<h2>Play: Factor Effects (Atoms Correct)</h2>
 
 <img data-src="blackbox_presentation_files/figure-revealjs/play-factors-1.png" width="1344" class="r-stretch"><aside class="notes">
 <p>Play mode factor effects (using pooled data including replication runs). These factor-level aggregations are robust because they average over many games. Model still matters most. Extended thinking shows a clearer benefit with pooled data. Augmented prompts help in play mode more than predict mode — the game is complex enough to benefit from strategic guidance. VoT conditions show mixed results.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="play-anova-atoms-correct" class="slide level2 smaller scrollable">
+<h2>Play: ANOVA (Atoms Correct)</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div id="bbnvwywnct" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#bbnvwywnct table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#bbnvwywnct thead, #bbnvwywnct tbody, #bbnvwywnct tfoot, #bbnvwywnct tr, #bbnvwywnct td, #bbnvwywnct th {
+  border-style: none;
+}
+
+#bbnvwywnct p {
+  margin: 0;
+  padding: 0;
+}
+
+#bbnvwywnct .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 20px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#bbnvwywnct .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#bbnvwywnct .gt_title {
+  color: #333333;
+  font-size: 24px;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#bbnvwywnct .gt_subtitle {
+  color: #333333;
+  font-size: 16px;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#bbnvwywnct .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bbnvwywnct .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bbnvwywnct .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bbnvwywnct .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#bbnvwywnct .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#bbnvwywnct .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#bbnvwywnct .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#bbnvwywnct .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#bbnvwywnct .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#bbnvwywnct .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#bbnvwywnct .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#bbnvwywnct .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#bbnvwywnct .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#bbnvwywnct .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#bbnvwywnct .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bbnvwywnct .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#bbnvwywnct .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#bbnvwywnct .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#bbnvwywnct .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bbnvwywnct .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#bbnvwywnct .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#bbnvwywnct .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bbnvwywnct .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bbnvwywnct .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#bbnvwywnct .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bbnvwywnct .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#bbnvwywnct .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bbnvwywnct .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bbnvwywnct .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bbnvwywnct .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bbnvwywnct .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bbnvwywnct .gt_left {
+  text-align: left;
+}
+
+#bbnvwywnct .gt_center {
+  text-align: center;
+}
+
+#bbnvwywnct .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#bbnvwywnct .gt_font_normal {
+  font-weight: normal;
+}
+
+#bbnvwywnct .gt_font_bold {
+  font-weight: bold;
+}
+
+#bbnvwywnct .gt_font_italic {
+  font-style: italic;
+}
+
+#bbnvwywnct .gt_super {
+  font-size: 65%;
+}
+
+#bbnvwywnct .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#bbnvwywnct .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#bbnvwywnct .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#bbnvwywnct .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#bbnvwywnct .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#bbnvwywnct .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#bbnvwywnct .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#bbnvwywnct .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#bbnvwywnct div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="gt_heading header">
+<td colspan="5" class="gt_heading gt_title gt_font_normal">Type III ANOVA — Play Mode (Atoms Correct)</td>
+</tr>
+<tr class="gt_heading even">
+<td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Linear mixed-effects model<br><code>atoms_correct ~ model_name + prompt_style + enable_thinking + vot_condition + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)</code></td>
+</tr>
+<tr class="gt_col_headings header">
+<th id="Term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Term</th>
+<th id="Chi_sq" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">χ²</th>
+<th id="df" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">df</th>
+<th id="p_value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col"><em>p</em>-value</th>
+<th id="Sig" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">(Intercept)</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">39.67</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">3.01e-10</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">model_name</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">55.53</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">4</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">2.51e-11</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">prompt_style</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">65.15</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">6.93e-16</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">enable_thinking</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">144.02</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">3.52e-33</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">vot_condition</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">11.53</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">3</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">0.0092</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">**</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">mean_cells_per_ray</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">34.37</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">4.57e-09</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term" style="font-weight: bold">mean_atoms_per_ray</td>
+<td class="gt_row gt_right" headers="Chi_sq" style="font-weight: bold">15.22</td>
+<td class="gt_row gt_right" headers="df" style="font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="p_value" style="font-weight: bold">9.59e-05</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+</tbody><tfoot class="gt_sourcenotes">
+<tr class="odd">
+<td colspan="5" class="gt_sourcenote">Signif: *** &lt; 0.001, ** &lt; 0.01, * &lt; 0.05, . &lt; 0.1</td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Type III ANOVA from a main-effects linear mixed model with atoms_correct as the outcome (0–4 scale). Unlike predict mode which uses logistic regression on binary outcomes, play mode uses a linear model because the outcome is a count of correctly placed atoms. We use a main-effects model (additive, no interactions) rather than the full factorial because play mode has far fewer observations per cell than predict mode — one game per condition versus 32 rays — so the interaction model is overparameterized and absorbs real effects into non-significant interaction terms. The main-effects model tests the average effect of each factor across all levels of the other factors, which aligns with the marginal effects plot. Configuration is included as a random effect to account for difficulty variation across the 10 board configurations.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="play-regression-coefficients-atoms-correct" class="slide level2 smaller scrollable">
+<h2>Play: Regression Coefficients (Atoms Correct)</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div id="qslevvqjni" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qslevvqjni table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#qslevvqjni thead, #qslevvqjni tbody, #qslevvqjni tfoot, #qslevvqjni tr, #qslevvqjni td, #qslevvqjni th {
+  border-style: none;
+}
+
+#qslevvqjni p {
+  margin: 0;
+  padding: 0;
+}
+
+#qslevvqjni .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 20px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#qslevvqjni .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#qslevvqjni .gt_title {
+  color: #333333;
+  font-size: 24px;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#qslevvqjni .gt_subtitle {
+  color: #333333;
+  font-size: 16px;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#qslevvqjni .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qslevvqjni .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qslevvqjni .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qslevvqjni .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#qslevvqjni .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#qslevvqjni .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#qslevvqjni .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#qslevvqjni .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#qslevvqjni .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#qslevvqjni .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#qslevvqjni .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#qslevvqjni .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#qslevvqjni .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#qslevvqjni .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#qslevvqjni .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qslevvqjni .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#qslevvqjni .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#qslevvqjni .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#qslevvqjni .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qslevvqjni .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#qslevvqjni .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#qslevvqjni .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qslevvqjni .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qslevvqjni .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#qslevvqjni .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qslevvqjni .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#qslevvqjni .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qslevvqjni .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qslevvqjni .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qslevvqjni .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qslevvqjni .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qslevvqjni .gt_left {
+  text-align: left;
+}
+
+#qslevvqjni .gt_center {
+  text-align: center;
+}
+
+#qslevvqjni .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#qslevvqjni .gt_font_normal {
+  font-weight: normal;
+}
+
+#qslevvqjni .gt_font_bold {
+  font-weight: bold;
+}
+
+#qslevvqjni .gt_font_italic {
+  font-style: italic;
+}
+
+#qslevvqjni .gt_super {
+  font-size: 65%;
+}
+
+#qslevvqjni .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#qslevvqjni .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#qslevvqjni .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#qslevvqjni .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#qslevvqjni .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#qslevvqjni .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#qslevvqjni .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#qslevvqjni .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#qslevvqjni div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading header">
+<td colspan="8" class="gt_heading gt_title gt_font_normal">Regression Coefficients — Play Mode (Atoms Correct)</td>
+</tr>
+<tr class="gt_heading even">
+<td colspan="8" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Linear mixed-effects model (fixed effects)</td>
+</tr>
+<tr class="gt_col_headings header">
+<th id="term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Term</th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">β</th>
+<th id="std.error" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">SE</th>
+<th id="statistic" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col"><em>t</em></th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col"><em>p</em>-value</th>
+<th id="conf.low" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">95% CI Lower</th>
+<th id="conf.high" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">95% CI Upper</th>
+<th id="Sig" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">2.563</td>
+<td class="gt_row gt_right" headers="std.error" style="font-weight: bold">0.407</td>
+<td class="gt_row gt_right" headers="statistic" style="font-weight: bold">6.298</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">1.98e-08</td>
+<td class="gt_row gt_right" headers="conf.low" style="font-weight: bold">1.752</td>
+<td class="gt_row gt_right" headers="conf.high" style="font-weight: bold">3.374</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">model_nameSonnet 4.5</td>
+<td class="gt_row gt_right" headers="estimate">0.142</td>
+<td class="gt_row gt_right" headers="std.error">0.104</td>
+<td class="gt_row gt_right" headers="statistic">1.368</td>
+<td class="gt_row gt_right" headers="p.value">0.1718</td>
+<td class="gt_row gt_right" headers="conf.low">-0.062</td>
+<td class="gt_row gt_right" headers="conf.high">0.345</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">model_nameSonnet 4.6</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">0.596</td>
+<td class="gt_row gt_right" headers="std.error" style="font-weight: bold">0.095</td>
+<td class="gt_row gt_right" headers="statistic" style="font-weight: bold">6.258</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">5.79e-10</td>
+<td class="gt_row gt_right" headers="conf.low" style="font-weight: bold">0.409</td>
+<td class="gt_row gt_right" headers="conf.high" style="font-weight: bold">0.782</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">model_nameOpus 4.5</td>
+<td class="gt_row gt_right" headers="estimate">0.130</td>
+<td class="gt_row gt_right" headers="std.error">0.104</td>
+<td class="gt_row gt_right" headers="statistic">1.255</td>
+<td class="gt_row gt_right" headers="p.value">0.2099</td>
+<td class="gt_row gt_right" headers="conf.low">-0.073</td>
+<td class="gt_row gt_right" headers="conf.high">0.334</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">model_nameOpus 4.6</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">0.475</td>
+<td class="gt_row gt_right" headers="std.error" style="font-weight: bold">0.095</td>
+<td class="gt_row gt_right" headers="statistic" style="font-weight: bold">4.989</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">7.15e-07</td>
+<td class="gt_row gt_right" headers="conf.low" style="font-weight: bold">0.288</td>
+<td class="gt_row gt_right" headers="conf.high" style="font-weight: bold">0.662</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">prompt_styleaugmented</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">0.506</td>
+<td class="gt_row gt_right" headers="std.error" style="font-weight: bold">0.063</td>
+<td class="gt_row gt_right" headers="statistic" style="font-weight: bold">8.072</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">1.98e-15</td>
+<td class="gt_row gt_right" headers="conf.low" style="font-weight: bold">0.383</td>
+<td class="gt_row gt_right" headers="conf.high" style="font-weight: bold">0.630</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">enable_thinkingTRUE</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">0.753</td>
+<td class="gt_row gt_right" headers="std.error" style="font-weight: bold">0.063</td>
+<td class="gt_row gt_right" headers="statistic" style="font-weight: bold">12.001</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">4.30e-31</td>
+<td class="gt_row gt_right" headers="conf.low" style="font-weight: bold">0.630</td>
+<td class="gt_row gt_right" headers="conf.high" style="font-weight: bold">0.876</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">vot_conditionA: Grid State</td>
+<td class="gt_row gt_right" headers="estimate">0.004</td>
+<td class="gt_row gt_right" headers="std.error">0.093</td>
+<td class="gt_row gt_right" headers="statistic">0.041</td>
+<td class="gt_row gt_right" headers="p.value">0.9669</td>
+<td class="gt_row gt_right" headers="conf.low">-0.178</td>
+<td class="gt_row gt_right" headers="conf.high">0.186</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term">vot_conditionB: Ray Trace</td>
+<td class="gt_row gt_right" headers="estimate">0.148</td>
+<td class="gt_row gt_right" headers="std.error">0.084</td>
+<td class="gt_row gt_right" headers="statistic">1.754</td>
+<td class="gt_row gt_right" headers="p.value">0.0797</td>
+<td class="gt_row gt_right" headers="conf.low">-0.018</td>
+<td class="gt_row gt_right" headers="conf.high">0.313</td>
+<td class="gt_row gt_center" headers="Sig">.</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term">vot_conditionC: Hypothesis</td>
+<td class="gt_row gt_right" headers="estimate">-0.134</td>
+<td class="gt_row gt_right" headers="std.error">0.093</td>
+<td class="gt_row gt_right" headers="statistic">-1.438</td>
+<td class="gt_row gt_right" headers="p.value">0.1507</td>
+<td class="gt_row gt_right" headers="conf.low">-0.317</td>
+<td class="gt_row gt_right" headers="conf.high">0.049</td>
+<td class="gt_row gt_center" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">mean_cells_per_ray</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">-0.270</td>
+<td class="gt_row gt_right" headers="std.error" style="font-weight: bold">0.046</td>
+<td class="gt_row gt_right" headers="statistic" style="font-weight: bold">-5.862</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">6.24e-09</td>
+<td class="gt_row gt_right" headers="conf.low" style="font-weight: bold">-0.360</td>
+<td class="gt_row gt_right" headers="conf.high" style="font-weight: bold">-0.179</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="term" style="font-weight: bold">mean_atoms_per_ray</td>
+<td class="gt_row gt_right" headers="estimate" style="font-weight: bold">-0.771</td>
+<td class="gt_row gt_right" headers="std.error" style="font-weight: bold">0.198</td>
+<td class="gt_row gt_right" headers="statistic" style="font-weight: bold">-3.901</td>
+<td class="gt_row gt_right" headers="p.value" style="font-weight: bold">1.03e-04</td>
+<td class="gt_row gt_right" headers="conf.low" style="font-weight: bold">-1.159</td>
+<td class="gt_row gt_right" headers="conf.high" style="font-weight: bold">-0.383</td>
+<td class="gt_row gt_center" headers="Sig" style="font-weight: bold">***</td>
+</tr>
+</tbody><tfoot class="gt_sourcenotes">
+<tr class="odd">
+<td colspan="8" class="gt_sourcenote">β = expected change in atoms correct (0–4 scale). Bold = <em>p</em> &lt; 0.05.</td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Regression coefficients from the main-effects linear mixed model. Unlike predict mode which reports odds ratios from logistic regression, these coefficients are directly interpretable: each β represents the average change in atoms correct (on the 0–4 scale) when that factor is present versus the reference level, across all levels of the other factors. For example, a coefficient of 0.5 means that factor adds half an atom on average. The intercept represents the baseline condition — the reference levels of all factors (first model alphabetically, baseline prompt, no extended thinking, no VoT). The confidence intervals give the plausible range for each effect.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1049,7 +3740,8 @@ All 10 configs solved: TRUE</code></pre>
 </section>
 <section id="error-analysis-predict-mode" class="slide level2">
 <h2>Error Analysis: Predict Mode</h2>
-<aside class="notes">
+
+<img data-src="blackbox_presentation_files/figure-revealjs/predict-errors-1.png" width="1344" class="r-stretch"><aside class="notes">
 <p>What kinds of errors do models make in predict mode? Deterministic classification — we compare what the model predicted versus what actually happens. Missed reflections are the most common error across all models — the reflection rule is the hardest physics to apply correctly. Off-by-one path errors indicate cell-by-cell tracking failures. The error profiles are surprisingly similar across models, suggesting these are fundamental difficulties with the ray physics rather than model-specific weaknesses.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -1067,15 +3759,7 @@ All 10 configs solved: TRUE</code></pre>
 <h2>Error Analysis: Play Mode</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="blackbox_presentation_files/figure-revealjs/play-errors-spatial-1.png" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
+
 </div><div class="column" style="width:50%;">
 <div class="cell">
 <div class="cell-output-display">
