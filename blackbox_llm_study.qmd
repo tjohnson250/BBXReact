@@ -2711,10 +2711,6 @@ from `r length(play_json_files)` JSON files.
     `r paste(levels(play_data$vot_condition)[levels(play_data$vot_condition) %in% unique(as.character(play_data$vot_condition))], collapse = ", ")`
 -   **Configurations tested**:
     `r length(unique(play_data$config_index))`
--   **Mean atoms per ray range**:
-    `r round(min(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_atoms_per_ray, na.rm = TRUE), 2)`
--   **Mean cells per ray range**:
-    `r round(min(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`–`r round(max(play_data$mean_cells_per_ray, na.rm = TRUE), 2)`
 
 `r if (nrow(hyp_check) > 0) paste0("**WARNING: ", nrow(hyp_check), " file(s) with allowHypotheses = false (", sum(hyp_check$n_false), " total configs):** ", paste(hyp_check$source_file, " (", hyp_check$n_false, " configs)", collapse = ", "))`
 
@@ -2829,7 +2825,6 @@ play_summary <- play_data |>
     atoms_correct_sd = sd(atoms_correct),
     score_mean = mean(score),
     score_sd = sd(score),
-    mean_atoms_ray = mean(mean_atoms_per_ray, na.rm = TRUE),
     rays_used_mean = mean(rays_used),
     .groups = "drop"
   ) |>
@@ -2839,7 +2834,7 @@ kable(play_summary,
       col.names = c("Model", "Prompt", "Thinking", "VoT", "N",
                     "Atoms Correct (M)", "Atoms Correct (SD)",
                     "Score (M)", "Score (SD)",
-                    "Atoms/Ray", "Rays Used"))
+                    "Rays Used"))
 ```
 
 ```{r}
@@ -2855,7 +2850,6 @@ play_summary_vot <- play_data |>
     score_mean = mean(score),
     score_sd = sd(score),
     rays_used_mean = mean(rays_used),
-    mean_atoms_ray = mean(mean_atoms_per_ray, na.rm = TRUE),
     .groups = "drop"
   ) |>
   mutate(across(where(is.numeric) & !n, \(x) round(x, 2)))
@@ -2863,7 +2857,7 @@ play_summary_vot <- play_data |>
 kable(play_summary_vot,
       col.names = c("VoT Condition", "N",
                     "Atoms Correct (M)", "Atoms Correct (SD)",
-                    "Score (M)", "Score (SD)", "Rays Used", "Atoms/Ray"))
+                    "Score (M)", "Score (SD)", "Rays Used"))
 ```
 
 ### Play Mode Leaderboard
@@ -3355,8 +3349,7 @@ leaderboard above.
 ### ANOVA: Play Mode Performance
 
 Full factorial ANOVA using mixed-effects models with configuration-level
-random effects. Covariates (mean_atoms_per_ray, mean_cells_per_ray)
-capture ray difficulty.
+random effects to absorb between-config difficulty variation.
 
 ```{r}
 #| label: play-anova-analysis
@@ -3390,10 +3383,10 @@ if (has_model_var && has_prompt_var && has_thinking_var) {
 # Add VoT condition factor
 if (has_vot_var) {
   atoms_formula <- paste0("atoms_correct ~ ", main_formula, " + vot_condition",
-                          " + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)")
+                          " + (1 | config_index)")
 } else {
   atoms_formula <- paste0("atoms_correct ~ ", main_formula,
-                          " + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)")
+                          " + (1 | config_index)")
 }
 
 model_atoms <- lmer(as.formula(atoms_formula), data = play_data)
@@ -3442,10 +3435,10 @@ effects): `r round(r2_result$R2_conditional, 3)`
 # Model 2: Score (main effects with config random effects)
 if (has_vot_var) {
   score_formula <- paste0("score ~ ", main_formula, " + vot_condition",
-                          " + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)")
+                          " + (1 | config_index)")
 } else {
   score_formula <- paste0("score ~ ", main_formula,
-                          " + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)")
+                          " + (1 | config_index)")
 }
 
 model_score <- lmer(as.formula(score_formula), data = play_data)
@@ -3482,63 +3475,6 @@ r2_score <- performance::r2_nakagawa(model_score)
 **Model Fit**: - **Marginal R²**: `r round(r2_score$R2_marginal, 3)` -
 **Conditional R²**: `r round(r2_score$R2_conditional, 3)`
 
-### Effect Modification by Ray Complexity (Play Mode)
-
-Does ray complexity (mean atoms per ray) moderate treatment effects?
-
-```{r}
-#| label: play-effect-modification
-
-run_play_effect_mod <- has_model_var || has_prompt_var || has_thinking_var || has_vot_var
-
-if (run_play_effect_mod) {
-  # Build interaction formula with random effect
-  interaction_parts <- c()
-  if (has_model_var) interaction_parts <- c(interaction_parts, "model_name * mean_atoms_per_ray")
-  if (has_prompt_var) interaction_parts <- c(interaction_parts, "prompt_style * mean_atoms_per_ray")
-  if (has_thinking_var) interaction_parts <- c(interaction_parts, "enable_thinking * mean_atoms_per_ray")
-  if (has_vot_var) interaction_parts <- c(interaction_parts, "vot_condition * mean_atoms_per_ray")
-
-  atoms_mod_formula <- paste0("atoms_correct ~ ",
-                              paste(interaction_parts, collapse = " + "),
-                              " + (1 | config_index)")
-  score_mod_formula <- paste0("score ~ ",
-                              paste(interaction_parts, collapse = " + "),
-                              " + (1 | config_index)")
-
-  model_atoms_mod <- lmer(as.formula(atoms_mod_formula), data = play_data)
-  model_score_mod <- lmer(as.formula(score_mod_formula), data = play_data)
-}
-```
-
-**Atoms Correct Model**:
-`r if(exists("atoms_mod_formula")) atoms_mod_formula`
-
-```{r}
-#| label: play-effect-mod-atoms
-#| echo: false
-#| eval: !expr run_play_effect_mod
-
-print(Anova(model_atoms_mod, type = 3))
-```
-
-**Score Model**: `r if(exists("score_mod_formula")) score_mod_formula`
-
-```{r}
-#| label: play-effect-mod-score
-#| echo: false
-#| eval: !expr run_play_effect_mod
-
-print(Anova(model_score_mod, type = 3))
-```
-
-```{r}
-#| echo: false
-
-if (!run_play_effect_mod) {
-  cat("Insufficient factor variation for effect modification analysis.\n")
-}
-```
 
 ### Regression Analysis: Play Mode
 
@@ -3552,7 +3488,7 @@ change in predictor.
 # Build formula with factors that have variation
 regression_parts <- formula_parts  # From earlier: model_name, prompt_style, enable_thinking
 if (has_vot_var) regression_parts <- c(regression_parts, "vot_condition")
-regression_parts <- c(regression_parts, "mean_atoms_per_ray", "mean_cells_per_ray")
+
 
 atoms_reg_formula <- paste0("atoms_correct ~ ", paste(regression_parts, collapse = " + "),
                             " + (1 | config_index)")
@@ -3651,10 +3587,10 @@ games per configuration (clustering)
 3.  Ray selection is part of the strategy (endogenous)
 4.  No repeated measures at individual ray level
 
-**Covariates** (mean_cells_per_ray, mean_atoms_per_ray): - **NOT
-confounders**: Ray choice is endogenous to experimental condition -
-**ARE precision variables**: Describe difficulty of rays LLM chose to
-fire - **Improve model fit**: Explain variance, increase power
+**Why no ray complexity covariates?** mean_cells_per_ray and
+mean_atoms_per_ray are config-level properties (each takes only 10
+distinct values). The config random intercept already absorbs all
+between-config variance, making these covariates redundant.
 
 **Impact of ignoring config-level clustering**: - Underestimates
 standard errors - Inflates Type I error (false positives) - Invalid
@@ -3747,16 +3683,6 @@ p2 <- ggplot(play_data, aes(x = model_name, y = score, fill = enable_thinking)) 
        x = "Model", y = "Score (lower is better)", fill = "Thinking") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 print(p2)
-
-# Mean atoms per ray relationship with performance
-p3 <- ggplot(play_data, aes(x = mean_atoms_per_ray, y = atoms_correct, color = model_name)) +
-  geom_point(alpha = 0.5) +
-  geom_smooth(method = "lm", se = FALSE) +
-  labs(title = "Performance vs Ray Complexity",
-       x = "Mean Atoms Affecting Each Ray", y = "Atoms Correct",
-       color = "Model") +
-  theme_minimal()
-print(p3)
 
 # Interaction plot: Prompt Style × Thinking
 p4 <- ggplot(play_data, aes(x = prompt_style, y = atoms_correct,

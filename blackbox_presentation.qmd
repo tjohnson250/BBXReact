@@ -1800,7 +1800,7 @@ play_pres_main <- paste(play_pres_parts, collapse = " + ")
 play_pres_formula <- paste0(
   "atoms_correct ~ ", play_pres_main,
   if (play_pres_has_vot) " + vot_condition" else "",
-  " + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)"
+  " + (1 | config_index)"
 )
 
 play_lmer <- lmer(as.formula(play_pres_formula),
@@ -1920,9 +1920,7 @@ gt(play_tidy_display) |>
 ::: notes
 Regression coefficients from the main-effects linear mixed model. Unlike predict mode which reports odds ratios from logistic regression, these coefficients are directly interpretable: each β represents the average change in atoms correct (on the 0–4 scale) when that factor is present versus the reference level, across all levels of the other factors. For example, a coefficient of 0.5 means that factor adds half an atom on average. The intercept represents the baseline condition — the reference levels of all factors (first model alphabetically, baseline prompt, no extended thinking, no VoT). The confidence intervals give the plausible range for each effect.
 
-How mean_cells_per_ray and mean_atoms_per_ray are calculated: for each game, we iterate over only the rays the LLM actually fired (action == "fire" in raySequence), trace each one through trace_ray_r() to count the cells traversed (path length) or atoms affecting the ray, then average across those fired rays. These are based on the rays the model chose, not all 32 possible rays.
-
-A note on interpreting mean_cells_per_ray and mean_atoms_per_ray: these coefficients should not be interpreted as causal effects. Causal interpretation requires that you could intervene on the variable while holding everything else fixed, but these metrics are deterministic functions of the atom configuration — you cannot change one without changing the configuration itself, which also changes the other metric and unmeasured properties like atom clustering and edge proximity. They were not randomized and only take 10 distinct values (one per configuration), so the betas capture the best linear projection onto these two features with possible confounding from correlated but unmeasured configuration properties. However, they are not confounders in the traditional sense either — they do not cause both treatment assignment and outcome. They are better understood as structural difficulty indicators: configuration-level covariates with a clear mechanistic direction (board properties → reasoning difficulty → performance). The significant coefficients tell us which structural features of the problem instance predict LLM difficulty, consistent with the hypothesis that constraint density drives reasoning errors. The honest framing is conditional association with a clear mechanistic direction, not strict causal effects.
+Note: mean_cells_per_ray and mean_atoms_per_ray have been removed from the play-mode models. These are config-level properties (each takes only 10 distinct values, one per configuration), so the config random intercept already absorbs all between-config variance they would explain. They remain as ray-level covariates in predict mode where they vary meaningfully across observations.
 :::
 
 ## Play: Estimated Marginal Means (Atoms Correct) {.smaller visibility="hidden"}
@@ -2043,7 +2041,7 @@ KEY SLIDE. The performance corridor. Chance at 0.25, optimal at 4.0, and LLMs in
 play_score_pres_formula <- paste0(
   "score ~ ", play_pres_main,
   if (play_pres_has_vot) " + vot_condition" else "",
-  " + mean_cells_per_ray + mean_atoms_per_ray + (1 | config_index)"
+  " + (1 | config_index)"
 )
 
 play_score_lmer <- lmer(as.formula(play_score_pres_formula),
