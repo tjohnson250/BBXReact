@@ -9,7 +9,7 @@
 <link href="blackbox_presentation_files/libs/quarto-html/quarto-syntax-highlighting-4279360f14831a022364d2ef6b4efa56.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.8.26">
 
-  <meta name="author" content="Todd R. Johnson">
+  <meta name="author" content="Todd R. Johnson, PhD, FAMIA">
   <meta name="dcterms.date" content="2026-03-25">
   <title>Black Box as a Diagnostic Reasoning Benchmark</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -166,15 +166,15 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">Black Box as a Diagnostic Reasoning Benchmark</h1>
-  <p class="subtitle">Assessing LLM Capabilities in Hidden State Identification<br><span style="font-size: 0.6em; color: #888;">Slides last updated March 19, 2026</span></p>
+  <p class="subtitle">Assessing LLM Capabilities in Hidden State Identification<br><span style="font-size: 0.6em; color: #888;">Slides last updated March 23, 2026</span></p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-Todd R. Johnson 
+Todd R. Johnson, PhD, FAMIA 
 </div>
         <p class="quarto-title-affiliation">
-            University of Texas Health Science Center at Houston
+            UTHealth McWilliams School of Biomedical Informatics
           </p>
     </div>
 </div>
@@ -431,7 +431,7 @@ Todd R. Johnson
           display:block!important;
       }</style></aside>
 </section>
-<section id="what-is-diagnostic-reasoning" class="slide level2 smaller">
+<section id="what-is-diagnostic-reasoning" class="slide level2">
 <h2>What IS Diagnostic Reasoning?</h2>
 <table class="caption-top">
 <thead>
@@ -482,45 +482,7 @@ Todd R. Johnson
           display:block!important;
       }</style></aside>
 </section>
-<section id="we-need-a-controlled-lab" class="slide level2">
-<h2>We Need a Controlled Lab</h2>
-<p>Four requirements for a diagnostic reasoning benchmark:</p>
-<div class="columns">
-<div class="column" style="width:25%;">
-<div class="fragment">
-<h3 id="out-of-distribution-1">Out-of-Distribution</h3>
-<p>Problems not in training data. No memorization shortcuts.</p>
-</div>
-</div><div class="column" style="width:25%;">
-<div class="fragment">
-<h3 id="ground-truth">Ground Truth</h3>
-<p>Verifiable correct answers. No ambiguity.</p>
-</div>
-</div><div class="column" style="width:25%;">
-<div class="fragment">
-<h3 id="decomposable-1">Decomposable</h3>
-<p>Can isolate component processes. Pinpoint failures.</p>
-</div>
-</div><div class="column" style="width:25%;">
-<div class="fragment">
-<h3 id="integrated">Integrated</h3>
-<p>Tests the full diagnostic loop, not just individual skills.</p>
-</div>
-</div></div>
-<aside class="notes">
-<p>Here are the four properties we need. Out-of-distribution so we’re not just testing memorization. Verifiable ground truth so we know when the model is right or wrong. Decomposable so we can identify which component is failing. And integrated so we test the full diagnostic loop, not just isolated skills.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
+
 <section id="enter-black-box" class="slide level2 nostretch">
 <h2>Enter Black Box</h2>
 <div style="position: absolute; top: 30px; right: 800px; z-index: 10; text-align: center;">
@@ -1097,23 +1059,23 @@ Todd R. Johnson
 <h2>Predict: Regression Coefficients</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div id="jsbpybynyv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#jsbpybynyv table {
+<div id="uebynlbjjv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#uebynlbjjv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#jsbpybynyv thead, #jsbpybynyv tbody, #jsbpybynyv tfoot, #jsbpybynyv tr, #jsbpybynyv td, #jsbpybynyv th {
+#uebynlbjjv thead, #uebynlbjjv tbody, #uebynlbjjv tfoot, #uebynlbjjv tr, #uebynlbjjv td, #uebynlbjjv th {
   border-style: none;
 }
 
-#jsbpybynyv p {
+#uebynlbjjv p {
   margin: 0;
   padding: 0;
 }
 
-#jsbpybynyv .gt_table {
+#uebynlbjjv .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1139,12 +1101,12 @@ Todd R. Johnson
   border-left-color: #D3D3D3;
 }
 
-#jsbpybynyv .gt_caption {
+#uebynlbjjv .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#jsbpybynyv .gt_title {
+#uebynlbjjv .gt_title {
   color: #333333;
   font-size: 24px;
   font-weight: initial;
@@ -1156,7 +1118,7 @@ Todd R. Johnson
   border-bottom-width: 0;
 }
 
-#jsbpybynyv .gt_subtitle {
+#uebynlbjjv .gt_subtitle {
   color: #333333;
   font-size: 16px;
   font-weight: initial;
@@ -1168,7 +1130,7 @@ Todd R. Johnson
   border-top-width: 0;
 }
 
-#jsbpybynyv .gt_heading {
+#uebynlbjjv .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1180,13 +1142,13 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#jsbpybynyv .gt_bottom_border {
+#uebynlbjjv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#jsbpybynyv .gt_col_headings {
+#uebynlbjjv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1201,7 +1163,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#jsbpybynyv .gt_col_heading {
+#uebynlbjjv .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1221,7 +1183,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#jsbpybynyv .gt_column_spanner_outer {
+#uebynlbjjv .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1233,15 +1195,15 @@ Todd R. Johnson
   padding-right: 4px;
 }
 
-#jsbpybynyv .gt_column_spanner_outer:first-child {
+#uebynlbjjv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#jsbpybynyv .gt_column_spanner_outer:last-child {
+#uebynlbjjv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#jsbpybynyv .gt_column_spanner {
+#uebynlbjjv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1253,11 +1215,11 @@ Todd R. Johnson
   width: 100%;
 }
 
-#jsbpybynyv .gt_spanner_row {
+#uebynlbjjv .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#jsbpybynyv .gt_group_heading {
+#uebynlbjjv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1283,7 +1245,7 @@ Todd R. Johnson
   text-align: left;
 }
 
-#jsbpybynyv .gt_empty_group_heading {
+#uebynlbjjv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1298,15 +1260,15 @@ Todd R. Johnson
   vertical-align: middle;
 }
 
-#jsbpybynyv .gt_from_md > :first-child {
+#uebynlbjjv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#jsbpybynyv .gt_from_md > :last-child {
+#uebynlbjjv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#jsbpybynyv .gt_row {
+#uebynlbjjv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1325,7 +1287,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#jsbpybynyv .gt_stub {
+#uebynlbjjv .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1338,7 +1300,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#jsbpybynyv .gt_stub_row_group {
+#uebynlbjjv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1352,15 +1314,15 @@ Todd R. Johnson
   vertical-align: top;
 }
 
-#jsbpybynyv .gt_row_group_first td {
+#uebynlbjjv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#jsbpybynyv .gt_row_group_first th {
+#uebynlbjjv .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#jsbpybynyv .gt_summary_row {
+#uebynlbjjv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1370,16 +1332,16 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#jsbpybynyv .gt_first_summary_row {
+#uebynlbjjv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#jsbpybynyv .gt_first_summary_row.thick {
+#uebynlbjjv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#jsbpybynyv .gt_last_summary_row {
+#uebynlbjjv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1389,7 +1351,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#jsbpybynyv .gt_grand_summary_row {
+#uebynlbjjv .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1399,7 +1361,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#jsbpybynyv .gt_first_grand_summary_row {
+#uebynlbjjv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1409,7 +1371,7 @@ Todd R. Johnson
   border-top-color: #D3D3D3;
 }
 
-#jsbpybynyv .gt_last_grand_summary_row_top {
+#uebynlbjjv .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1419,11 +1381,11 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#jsbpybynyv .gt_striped {
+#uebynlbjjv .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#jsbpybynyv .gt_table_body {
+#uebynlbjjv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1432,7 +1394,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#jsbpybynyv .gt_footnotes {
+#uebynlbjjv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1446,7 +1408,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#jsbpybynyv .gt_footnote {
+#uebynlbjjv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1455,7 +1417,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#jsbpybynyv .gt_sourcenotes {
+#uebynlbjjv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1469,7 +1431,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#jsbpybynyv .gt_sourcenote {
+#uebynlbjjv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1477,72 +1439,72 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#jsbpybynyv .gt_left {
+#uebynlbjjv .gt_left {
   text-align: left;
 }
 
-#jsbpybynyv .gt_center {
+#uebynlbjjv .gt_center {
   text-align: center;
 }
 
-#jsbpybynyv .gt_right {
+#uebynlbjjv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#jsbpybynyv .gt_font_normal {
+#uebynlbjjv .gt_font_normal {
   font-weight: normal;
 }
 
-#jsbpybynyv .gt_font_bold {
+#uebynlbjjv .gt_font_bold {
   font-weight: bold;
 }
 
-#jsbpybynyv .gt_font_italic {
+#uebynlbjjv .gt_font_italic {
   font-style: italic;
 }
 
-#jsbpybynyv .gt_super {
+#uebynlbjjv .gt_super {
   font-size: 65%;
 }
 
-#jsbpybynyv .gt_footnote_marks {
+#uebynlbjjv .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#jsbpybynyv .gt_asterisk {
+#uebynlbjjv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#jsbpybynyv .gt_indent_1 {
+#uebynlbjjv .gt_indent_1 {
   text-indent: 5px;
 }
 
-#jsbpybynyv .gt_indent_2 {
+#uebynlbjjv .gt_indent_2 {
   text-indent: 10px;
 }
 
-#jsbpybynyv .gt_indent_3 {
+#uebynlbjjv .gt_indent_3 {
   text-indent: 15px;
 }
 
-#jsbpybynyv .gt_indent_4 {
+#uebynlbjjv .gt_indent_4 {
   text-indent: 20px;
 }
 
-#jsbpybynyv .gt_indent_5 {
+#uebynlbjjv .gt_indent_5 {
   text-indent: 25px;
 }
 
-#jsbpybynyv .katex-display {
+#uebynlbjjv .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#jsbpybynyv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#uebynlbjjv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1837,8 +1799,8 @@ Todd R. Johnson
 <h2>Error Count by Condition: Predict Mode</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div class="plotly html-widget html-fill-item" id="htmlwidget-53f5a1e62aa4d0a5e0c3" style="width:1344px;height:672px;"></div>
-<script type="application/json" data-for="htmlwidget-53f5a1e62aa4d0a5e0c3">{"x":{"data":[{"x":[1,2,3,4,5],"y":[104,126,154,104,118],"text":["Condition: Base +Think +VoT<br />Model: Haiku 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 126","Condition: Base +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 154","Condition: Base +Think +VoT<br />Model: Opus 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.6<br />Errors: 118"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +VoT","legendgroup":"Base +Think +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[110,110,112,106,112],"text":["Condition: Base +VoT<br />Model: Haiku 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.6<br />Errors: 112","Condition: Base +VoT<br />Model: Opus 4.5<br />Errors: 106","Condition: Base +VoT<br />Model: Opus 4.6<br />Errors: 112"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(217,95,2,1)","dash":"solid"},"hoveron":"points","name":"Base +VoT","legendgroup":"Base +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[106,105,101,102,102],"text":["Condition: Base<br />Model: Haiku 4.5<br />Errors: 106","Condition: Base<br />Model: Sonnet 4.5<br />Errors: 105","Condition: Base<br />Model: Sonnet 4.6<br />Errors: 101","Condition: Base<br />Model: Opus 4.5<br />Errors: 102","Condition: Base<br />Model: Opus 4.6<br />Errors: 102"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(117,112,179,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[51,63,53,43,44],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Errors: 51","Condition: Base +Think<br />Model: Sonnet 4.5<br />Errors: 63","Condition: Base +Think<br />Model: Sonnet 4.6<br />Errors: 53","Condition: Base +Think<br />Model: Opus 4.5<br />Errors: 43","Condition: Base +Think<br />Model: Opus 4.6<br />Errors: 44"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(231,41,138,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[59,52,40,43,59],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Errors: 59","Condition: Aug<br />Model: Sonnet 4.5<br />Errors: 52","Condition: Aug<br />Model: Sonnet 4.6<br />Errors: 40","Condition: Aug<br />Model: Opus 4.5<br />Errors: 43","Condition: Aug<br />Model: Opus 4.6<br />Errors: 59"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,166,30,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[43,35,48,41,45],"text":["Condition: Aug +VoT<br />Model: Haiku 4.5<br />Errors: 43","Condition: Aug +VoT<br />Model: Sonnet 4.5<br />Errors: 35","Condition: Aug +VoT<br />Model: Sonnet 4.6<br />Errors: 48","Condition: Aug +VoT<br />Model: Opus 4.5<br />Errors: 41","Condition: Aug +VoT<br />Model: Opus 4.6<br />Errors: 45"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(230,171,2,1)","dash":"solid"},"hoveron":"points","name":"Aug +VoT","legendgroup":"Aug +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[22,11,14,15,17],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Errors: 22","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Errors: 11","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Errors: 14","Condition: Aug +Think<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think<br />Model: Opus 4.6<br />Errors: 17"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(166,118,29,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[10,10,8,15,11],"text":["Condition: Aug +Think +VoT<br />Model: Haiku 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 8","Condition: Aug +Think +VoT<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think +VoT<br />Model: Opus 4.6<br />Errors: 11"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +VoT","legendgroup":"Aug +Think +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[104,104,118,126,154],"text":["Condition: Base +Think +VoT<br />Model: Haiku 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.6<br />Errors: 118","Condition: Base +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 126","Condition: Base +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 154"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Base +Think +VoT","legendgroup":"Base +Think +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[110,106,112,110,112],"text":["Condition: Base +VoT<br />Model: Haiku 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Opus 4.5<br />Errors: 106","Condition: Base +VoT<br />Model: Opus 4.6<br />Errors: 112","Condition: Base +VoT<br />Model: Sonnet 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.6<br />Errors: 112"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(217,95,2,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(217,95,2,1)"}},"hoveron":"points","name":"Base +VoT","legendgroup":"Base +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[106,102,102,105,101],"text":["Condition: Base<br />Model: Haiku 4.5<br />Errors: 106","Condition: Base<br />Model: Opus 4.5<br />Errors: 102","Condition: Base<br />Model: Opus 4.6<br />Errors: 102","Condition: Base<br />Model: Sonnet 4.5<br />Errors: 105","Condition: Base<br />Model: Sonnet 4.6<br />Errors: 101"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(117,112,179,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(117,112,179,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[51,43,44,63,53],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Errors: 51","Condition: Base +Think<br />Model: Opus 4.5<br />Errors: 43","Condition: Base +Think<br />Model: Opus 4.6<br />Errors: 44","Condition: Base +Think<br />Model: Sonnet 4.5<br />Errors: 63","Condition: Base +Think<br />Model: Sonnet 4.6<br />Errors: 53"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(231,41,138,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(231,41,138,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[59,43,59,52,40],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Errors: 59","Condition: Aug<br />Model: Opus 4.5<br />Errors: 43","Condition: Aug<br />Model: Opus 4.6<br />Errors: 59","Condition: Aug<br />Model: Sonnet 4.5<br />Errors: 52","Condition: Aug<br />Model: Sonnet 4.6<br />Errors: 40"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,166,30,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,166,30,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[43,41,45,35,48],"text":["Condition: Aug +VoT<br />Model: Haiku 4.5<br />Errors: 43","Condition: Aug +VoT<br />Model: Opus 4.5<br />Errors: 41","Condition: Aug +VoT<br />Model: Opus 4.6<br />Errors: 45","Condition: Aug +VoT<br />Model: Sonnet 4.5<br />Errors: 35","Condition: Aug +VoT<br />Model: Sonnet 4.6<br />Errors: 48"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(230,171,2,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(230,171,2,1)"}},"hoveron":"points","name":"Aug +VoT","legendgroup":"Aug +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[22,15,17,11,14],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Errors: 22","Condition: Aug +Think<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think<br />Model: Opus 4.6<br />Errors: 17","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Errors: 11","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Errors: 14"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(166,118,29,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(166,118,29,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[10,15,11,10,8],"text":["Condition: Aug +Think +VoT<br />Model: Haiku 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think +VoT<br />Model: Opus 4.6<br />Errors: 11","Condition: Aug +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Aug +Think +VoT","legendgroup":"Aug +Think +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":70.535491905354931},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Predict Mode: Error Count by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.69999999999999929,161.30000000000001],"tickmode":"array","ticktext":["40","80","120","160"],"tickvals":[40,80,120,160],"categoryorder":"array","categoryarray":["40","80","120","160"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Total Errors","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"c6183c7264ab":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"c6187a2f358d":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"c6183c7264ab","visdat":{"c6183c7264ab":["function (y) ","x"],"c6187a2f358d":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-11bf390707b5af07ab59" style="width:1344px;height:672px;"></div>
+<script type="application/json" data-for="htmlwidget-11bf390707b5af07ab59">{"x":{"data":[{"x":[1,2,3,4,5],"y":[104,126,154,104,118],"text":["Condition: Base +Think +VoT<br />Model: Haiku 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 126","Condition: Base +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 154","Condition: Base +Think +VoT<br />Model: Opus 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.6<br />Errors: 118"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +VoT","legendgroup":"Base +Think +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[110,110,112,106,112],"text":["Condition: Base +VoT<br />Model: Haiku 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.6<br />Errors: 112","Condition: Base +VoT<br />Model: Opus 4.5<br />Errors: 106","Condition: Base +VoT<br />Model: Opus 4.6<br />Errors: 112"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(217,95,2,1)","dash":"solid"},"hoveron":"points","name":"Base +VoT","legendgroup":"Base +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[106,105,101,102,102],"text":["Condition: Base<br />Model: Haiku 4.5<br />Errors: 106","Condition: Base<br />Model: Sonnet 4.5<br />Errors: 105","Condition: Base<br />Model: Sonnet 4.6<br />Errors: 101","Condition: Base<br />Model: Opus 4.5<br />Errors: 102","Condition: Base<br />Model: Opus 4.6<br />Errors: 102"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(117,112,179,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[51,63,53,43,44],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Errors: 51","Condition: Base +Think<br />Model: Sonnet 4.5<br />Errors: 63","Condition: Base +Think<br />Model: Sonnet 4.6<br />Errors: 53","Condition: Base +Think<br />Model: Opus 4.5<br />Errors: 43","Condition: Base +Think<br />Model: Opus 4.6<br />Errors: 44"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(231,41,138,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[59,52,40,43,59],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Errors: 59","Condition: Aug<br />Model: Sonnet 4.5<br />Errors: 52","Condition: Aug<br />Model: Sonnet 4.6<br />Errors: 40","Condition: Aug<br />Model: Opus 4.5<br />Errors: 43","Condition: Aug<br />Model: Opus 4.6<br />Errors: 59"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,166,30,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[43,35,48,41,45],"text":["Condition: Aug +VoT<br />Model: Haiku 4.5<br />Errors: 43","Condition: Aug +VoT<br />Model: Sonnet 4.5<br />Errors: 35","Condition: Aug +VoT<br />Model: Sonnet 4.6<br />Errors: 48","Condition: Aug +VoT<br />Model: Opus 4.5<br />Errors: 41","Condition: Aug +VoT<br />Model: Opus 4.6<br />Errors: 45"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(230,171,2,1)","dash":"solid"},"hoveron":"points","name":"Aug +VoT","legendgroup":"Aug +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[22,11,14,15,17],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Errors: 22","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Errors: 11","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Errors: 14","Condition: Aug +Think<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think<br />Model: Opus 4.6<br />Errors: 17"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(166,118,29,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[10,10,8,15,11],"text":["Condition: Aug +Think +VoT<br />Model: Haiku 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 8","Condition: Aug +Think +VoT<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think +VoT<br />Model: Opus 4.6<br />Errors: 11"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +VoT","legendgroup":"Aug +Think +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[104,104,118,126,154],"text":["Condition: Base +Think +VoT<br />Model: Haiku 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.6<br />Errors: 118","Condition: Base +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 126","Condition: Base +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 154"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Base +Think +VoT","legendgroup":"Base +Think +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[110,106,112,110,112],"text":["Condition: Base +VoT<br />Model: Haiku 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Opus 4.5<br />Errors: 106","Condition: Base +VoT<br />Model: Opus 4.6<br />Errors: 112","Condition: Base +VoT<br />Model: Sonnet 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.6<br />Errors: 112"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(217,95,2,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(217,95,2,1)"}},"hoveron":"points","name":"Base +VoT","legendgroup":"Base +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[106,102,102,105,101],"text":["Condition: Base<br />Model: Haiku 4.5<br />Errors: 106","Condition: Base<br />Model: Opus 4.5<br />Errors: 102","Condition: Base<br />Model: Opus 4.6<br />Errors: 102","Condition: Base<br />Model: Sonnet 4.5<br />Errors: 105","Condition: Base<br />Model: Sonnet 4.6<br />Errors: 101"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(117,112,179,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(117,112,179,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[51,43,44,63,53],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Errors: 51","Condition: Base +Think<br />Model: Opus 4.5<br />Errors: 43","Condition: Base +Think<br />Model: Opus 4.6<br />Errors: 44","Condition: Base +Think<br />Model: Sonnet 4.5<br />Errors: 63","Condition: Base +Think<br />Model: Sonnet 4.6<br />Errors: 53"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(231,41,138,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(231,41,138,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[59,43,59,52,40],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Errors: 59","Condition: Aug<br />Model: Opus 4.5<br />Errors: 43","Condition: Aug<br />Model: Opus 4.6<br />Errors: 59","Condition: Aug<br />Model: Sonnet 4.5<br />Errors: 52","Condition: Aug<br />Model: Sonnet 4.6<br />Errors: 40"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,166,30,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,166,30,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[43,41,45,35,48],"text":["Condition: Aug +VoT<br />Model: Haiku 4.5<br />Errors: 43","Condition: Aug +VoT<br />Model: Opus 4.5<br />Errors: 41","Condition: Aug +VoT<br />Model: Opus 4.6<br />Errors: 45","Condition: Aug +VoT<br />Model: Sonnet 4.5<br />Errors: 35","Condition: Aug +VoT<br />Model: Sonnet 4.6<br />Errors: 48"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(230,171,2,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(230,171,2,1)"}},"hoveron":"points","name":"Aug +VoT","legendgroup":"Aug +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[22,15,17,11,14],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Errors: 22","Condition: Aug +Think<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think<br />Model: Opus 4.6<br />Errors: 17","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Errors: 11","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Errors: 14"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(166,118,29,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(166,118,29,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[10,15,11,10,8],"text":["Condition: Aug +Think +VoT<br />Model: Haiku 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think +VoT<br />Model: Opus 4.6<br />Errors: 11","Condition: Aug +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Aug +Think +VoT","legendgroup":"Aug +Think +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":70.535491905354931},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Predict Mode: Error Count by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.69999999999999929,161.30000000000001],"tickmode":"array","ticktext":["40","80","120","160"],"tickvals":[40,80,120,160],"categoryorder":"array","categoryarray":["40","80","120","160"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Total Errors","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"ddd41362af64":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"ddd433e8d82d":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"ddd41362af64","visdat":{"ddd41362af64":["function (y) ","x"],"ddd433e8d82d":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
 </div>
 </div>
 <aside class="notes">
@@ -1909,23 +1871,23 @@ Todd R. Johnson
 <h2>Play: Regression Coefficients (Atoms Correct)</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div id="adxromkctw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#adxromkctw table {
+<div id="trgktekzxa" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#trgktekzxa table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#adxromkctw thead, #adxromkctw tbody, #adxromkctw tfoot, #adxromkctw tr, #adxromkctw td, #adxromkctw th {
+#trgktekzxa thead, #trgktekzxa tbody, #trgktekzxa tfoot, #trgktekzxa tr, #trgktekzxa td, #trgktekzxa th {
   border-style: none;
 }
 
-#adxromkctw p {
+#trgktekzxa p {
   margin: 0;
   padding: 0;
 }
 
-#adxromkctw .gt_table {
+#trgktekzxa .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1951,12 +1913,12 @@ Todd R. Johnson
   border-left-color: #D3D3D3;
 }
 
-#adxromkctw .gt_caption {
+#trgktekzxa .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#adxromkctw .gt_title {
+#trgktekzxa .gt_title {
   color: #333333;
   font-size: 24px;
   font-weight: initial;
@@ -1968,7 +1930,7 @@ Todd R. Johnson
   border-bottom-width: 0;
 }
 
-#adxromkctw .gt_subtitle {
+#trgktekzxa .gt_subtitle {
   color: #333333;
   font-size: 16px;
   font-weight: initial;
@@ -1980,7 +1942,7 @@ Todd R. Johnson
   border-top-width: 0;
 }
 
-#adxromkctw .gt_heading {
+#trgktekzxa .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1992,13 +1954,13 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#adxromkctw .gt_bottom_border {
+#trgktekzxa .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#adxromkctw .gt_col_headings {
+#trgktekzxa .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2013,7 +1975,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#adxromkctw .gt_col_heading {
+#trgktekzxa .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2033,7 +1995,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#adxromkctw .gt_column_spanner_outer {
+#trgktekzxa .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2045,15 +2007,15 @@ Todd R. Johnson
   padding-right: 4px;
 }
 
-#adxromkctw .gt_column_spanner_outer:first-child {
+#trgktekzxa .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#adxromkctw .gt_column_spanner_outer:last-child {
+#trgktekzxa .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#adxromkctw .gt_column_spanner {
+#trgktekzxa .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2065,11 +2027,11 @@ Todd R. Johnson
   width: 100%;
 }
 
-#adxromkctw .gt_spanner_row {
+#trgktekzxa .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#adxromkctw .gt_group_heading {
+#trgktekzxa .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2095,7 +2057,7 @@ Todd R. Johnson
   text-align: left;
 }
 
-#adxromkctw .gt_empty_group_heading {
+#trgktekzxa .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2110,15 +2072,15 @@ Todd R. Johnson
   vertical-align: middle;
 }
 
-#adxromkctw .gt_from_md > :first-child {
+#trgktekzxa .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#adxromkctw .gt_from_md > :last-child {
+#trgktekzxa .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#adxromkctw .gt_row {
+#trgktekzxa .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2137,7 +2099,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#adxromkctw .gt_stub {
+#trgktekzxa .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2150,7 +2112,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#adxromkctw .gt_stub_row_group {
+#trgktekzxa .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2164,15 +2126,15 @@ Todd R. Johnson
   vertical-align: top;
 }
 
-#adxromkctw .gt_row_group_first td {
+#trgktekzxa .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#adxromkctw .gt_row_group_first th {
+#trgktekzxa .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#adxromkctw .gt_summary_row {
+#trgktekzxa .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2182,16 +2144,16 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#adxromkctw .gt_first_summary_row {
+#trgktekzxa .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#adxromkctw .gt_first_summary_row.thick {
+#trgktekzxa .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#adxromkctw .gt_last_summary_row {
+#trgktekzxa .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2201,7 +2163,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#adxromkctw .gt_grand_summary_row {
+#trgktekzxa .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2211,7 +2173,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#adxromkctw .gt_first_grand_summary_row {
+#trgktekzxa .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2221,7 +2183,7 @@ Todd R. Johnson
   border-top-color: #D3D3D3;
 }
 
-#adxromkctw .gt_last_grand_summary_row_top {
+#trgktekzxa .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2231,11 +2193,11 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#adxromkctw .gt_striped {
+#trgktekzxa .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#adxromkctw .gt_table_body {
+#trgktekzxa .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2244,7 +2206,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#adxromkctw .gt_footnotes {
+#trgktekzxa .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2258,7 +2220,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#adxromkctw .gt_footnote {
+#trgktekzxa .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2267,7 +2229,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#adxromkctw .gt_sourcenotes {
+#trgktekzxa .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2281,7 +2243,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#adxromkctw .gt_sourcenote {
+#trgktekzxa .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2289,72 +2251,72 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#adxromkctw .gt_left {
+#trgktekzxa .gt_left {
   text-align: left;
 }
 
-#adxromkctw .gt_center {
+#trgktekzxa .gt_center {
   text-align: center;
 }
 
-#adxromkctw .gt_right {
+#trgktekzxa .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#adxromkctw .gt_font_normal {
+#trgktekzxa .gt_font_normal {
   font-weight: normal;
 }
 
-#adxromkctw .gt_font_bold {
+#trgktekzxa .gt_font_bold {
   font-weight: bold;
 }
 
-#adxromkctw .gt_font_italic {
+#trgktekzxa .gt_font_italic {
   font-style: italic;
 }
 
-#adxromkctw .gt_super {
+#trgktekzxa .gt_super {
   font-size: 65%;
 }
 
-#adxromkctw .gt_footnote_marks {
+#trgktekzxa .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#adxromkctw .gt_asterisk {
+#trgktekzxa .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#adxromkctw .gt_indent_1 {
+#trgktekzxa .gt_indent_1 {
   text-indent: 5px;
 }
 
-#adxromkctw .gt_indent_2 {
+#trgktekzxa .gt_indent_2 {
   text-indent: 10px;
 }
 
-#adxromkctw .gt_indent_3 {
+#trgktekzxa .gt_indent_3 {
   text-indent: 15px;
 }
 
-#adxromkctw .gt_indent_4 {
+#trgktekzxa .gt_indent_4 {
   text-indent: 20px;
 }
 
-#adxromkctw .gt_indent_5 {
+#trgktekzxa .gt_indent_5 {
   text-indent: 25px;
 }
 
-#adxromkctw .katex-display {
+#trgktekzxa .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#adxromkctw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#trgktekzxa div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2558,23 +2520,23 @@ Todd R. Johnson
 <h2>Play: Regression Coefficients (Score)</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div id="zjaprlbrur" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#zjaprlbrur table {
+<div id="lpohrhqtjo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lpohrhqtjo table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#zjaprlbrur thead, #zjaprlbrur tbody, #zjaprlbrur tfoot, #zjaprlbrur tr, #zjaprlbrur td, #zjaprlbrur th {
+#lpohrhqtjo thead, #lpohrhqtjo tbody, #lpohrhqtjo tfoot, #lpohrhqtjo tr, #lpohrhqtjo td, #lpohrhqtjo th {
   border-style: none;
 }
 
-#zjaprlbrur p {
+#lpohrhqtjo p {
   margin: 0;
   padding: 0;
 }
 
-#zjaprlbrur .gt_table {
+#lpohrhqtjo .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2600,12 +2562,12 @@ Todd R. Johnson
   border-left-color: #D3D3D3;
 }
 
-#zjaprlbrur .gt_caption {
+#lpohrhqtjo .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#zjaprlbrur .gt_title {
+#lpohrhqtjo .gt_title {
   color: #333333;
   font-size: 24px;
   font-weight: initial;
@@ -2617,7 +2579,7 @@ Todd R. Johnson
   border-bottom-width: 0;
 }
 
-#zjaprlbrur .gt_subtitle {
+#lpohrhqtjo .gt_subtitle {
   color: #333333;
   font-size: 16px;
   font-weight: initial;
@@ -2629,7 +2591,7 @@ Todd R. Johnson
   border-top-width: 0;
 }
 
-#zjaprlbrur .gt_heading {
+#lpohrhqtjo .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2641,13 +2603,13 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#zjaprlbrur .gt_bottom_border {
+#lpohrhqtjo .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zjaprlbrur .gt_col_headings {
+#lpohrhqtjo .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2662,7 +2624,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#zjaprlbrur .gt_col_heading {
+#lpohrhqtjo .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2682,7 +2644,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#zjaprlbrur .gt_column_spanner_outer {
+#lpohrhqtjo .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2694,15 +2656,15 @@ Todd R. Johnson
   padding-right: 4px;
 }
 
-#zjaprlbrur .gt_column_spanner_outer:first-child {
+#lpohrhqtjo .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zjaprlbrur .gt_column_spanner_outer:last-child {
+#lpohrhqtjo .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zjaprlbrur .gt_column_spanner {
+#lpohrhqtjo .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2714,11 +2676,11 @@ Todd R. Johnson
   width: 100%;
 }
 
-#zjaprlbrur .gt_spanner_row {
+#lpohrhqtjo .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#zjaprlbrur .gt_group_heading {
+#lpohrhqtjo .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2744,7 +2706,7 @@ Todd R. Johnson
   text-align: left;
 }
 
-#zjaprlbrur .gt_empty_group_heading {
+#lpohrhqtjo .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2759,15 +2721,15 @@ Todd R. Johnson
   vertical-align: middle;
 }
 
-#zjaprlbrur .gt_from_md > :first-child {
+#lpohrhqtjo .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zjaprlbrur .gt_from_md > :last-child {
+#lpohrhqtjo .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zjaprlbrur .gt_row {
+#lpohrhqtjo .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2786,7 +2748,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#zjaprlbrur .gt_stub {
+#lpohrhqtjo .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2799,7 +2761,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#zjaprlbrur .gt_stub_row_group {
+#lpohrhqtjo .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2813,15 +2775,15 @@ Todd R. Johnson
   vertical-align: top;
 }
 
-#zjaprlbrur .gt_row_group_first td {
+#lpohrhqtjo .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zjaprlbrur .gt_row_group_first th {
+#lpohrhqtjo .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#zjaprlbrur .gt_summary_row {
+#lpohrhqtjo .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2831,16 +2793,16 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#zjaprlbrur .gt_first_summary_row {
+#lpohrhqtjo .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zjaprlbrur .gt_first_summary_row.thick {
+#lpohrhqtjo .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zjaprlbrur .gt_last_summary_row {
+#lpohrhqtjo .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2850,7 +2812,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#zjaprlbrur .gt_grand_summary_row {
+#lpohrhqtjo .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2860,7 +2822,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#zjaprlbrur .gt_first_grand_summary_row {
+#lpohrhqtjo .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2870,7 +2832,7 @@ Todd R. Johnson
   border-top-color: #D3D3D3;
 }
 
-#zjaprlbrur .gt_last_grand_summary_row_top {
+#lpohrhqtjo .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2880,11 +2842,11 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#zjaprlbrur .gt_striped {
+#lpohrhqtjo .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zjaprlbrur .gt_table_body {
+#lpohrhqtjo .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2893,7 +2855,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#zjaprlbrur .gt_footnotes {
+#lpohrhqtjo .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2907,7 +2869,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#zjaprlbrur .gt_footnote {
+#lpohrhqtjo .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2916,7 +2878,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#zjaprlbrur .gt_sourcenotes {
+#lpohrhqtjo .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2930,7 +2892,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#zjaprlbrur .gt_sourcenote {
+#lpohrhqtjo .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2938,72 +2900,72 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#zjaprlbrur .gt_left {
+#lpohrhqtjo .gt_left {
   text-align: left;
 }
 
-#zjaprlbrur .gt_center {
+#lpohrhqtjo .gt_center {
   text-align: center;
 }
 
-#zjaprlbrur .gt_right {
+#lpohrhqtjo .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zjaprlbrur .gt_font_normal {
+#lpohrhqtjo .gt_font_normal {
   font-weight: normal;
 }
 
-#zjaprlbrur .gt_font_bold {
+#lpohrhqtjo .gt_font_bold {
   font-weight: bold;
 }
 
-#zjaprlbrur .gt_font_italic {
+#lpohrhqtjo .gt_font_italic {
   font-style: italic;
 }
 
-#zjaprlbrur .gt_super {
+#lpohrhqtjo .gt_super {
   font-size: 65%;
 }
 
-#zjaprlbrur .gt_footnote_marks {
+#lpohrhqtjo .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#zjaprlbrur .gt_asterisk {
+#lpohrhqtjo .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zjaprlbrur .gt_indent_1 {
+#lpohrhqtjo .gt_indent_1 {
   text-indent: 5px;
 }
 
-#zjaprlbrur .gt_indent_2 {
+#lpohrhqtjo .gt_indent_2 {
   text-indent: 10px;
 }
 
-#zjaprlbrur .gt_indent_3 {
+#lpohrhqtjo .gt_indent_3 {
   text-indent: 15px;
 }
 
-#zjaprlbrur .gt_indent_4 {
+#lpohrhqtjo .gt_indent_4 {
   text-indent: 20px;
 }
 
-#zjaprlbrur .gt_indent_5 {
+#lpohrhqtjo .gt_indent_5 {
   text-indent: 25px;
 }
 
-#zjaprlbrur .katex-display {
+#lpohrhqtjo .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#zjaprlbrur div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#lpohrhqtjo div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -3178,8 +3140,8 @@ Todd R. Johnson
 <h2>Atoms Correct by Condition: Play Mode</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div class="plotly html-widget html-fill-item" id="htmlwidget-9af0d8a017f2aebd36a1" style="width:1344px;height:672px;"></div>
-<script type="application/json" data-for="htmlwidget-9af0d8a017f2aebd36a1">{"x":{"data":[{"x":[1,2,3,4,5],"y":[1.7,1.7,2.79,1.8999999999999999,2.6400000000000001],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.79","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.64"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.8999999999999999,2,2.6000000000000001,1.6000000000000001,2.3999999999999999],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.6","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.6","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(115,128,64,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.7,1.2,2.3999999999999999,2,2.5],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(204,99,9,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.8,1.3999999999999999,2.3999999999999999,1.7,1.8999999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.8","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(177,101,72,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.2,1.2,1.5,1.5,2.2999999999999998],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(130,109,155,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.90000000000000002,1.3999999999999999,2.2000000000000002,1.3,1.6000000000000001],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.2","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(155,88,165,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.1000000000000001,1.8999999999999999,1.3999999999999999,1,1.3],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.9","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(208,55,146,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.3999999999999999,1.6000000000000001,1.1000000000000001,1,1.6000000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(196,74,109,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,1.3999999999999999,1.5,1.2,1.5],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(136,132,58,1)","dash":"solid"},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1,1.2,1.3,1.3,1.3999999999999999],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(127,167,24,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.90000000000000002,1.2,1.7,1,1.2],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.7","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(187,169,11,1)","dash":"solid"},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,1.1000000000000001,1.2,1.2,0.69999999999999996],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(221,163,5,1)","dash":"solid"},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.2,1,0.90000000000000002,1.2,0.69999999999999996],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(191,139,18,1)","dash":"solid"},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,0.90000000000000002,0.90000000000000002,1.2,0.90000000000000002],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(161,116,33,1)","dash":"solid"},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1,1,0.80000000000000004,0.90000000000000002,0.90000000000000002],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.8","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(131,109,67,1)","dash":"solid"},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.69999999999999996,0.80000000000000004,1.2,1,0.59999999999999998],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.7","Condition: Base<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.8","Condition: Base<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2","Condition: Base<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.7,1.8999999999999999,2.6400000000000001,1.7,2.79],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.64","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.79"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.8999999999999999,1.6000000000000001,2.3999999999999999,2,2.6000000000000001],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.6","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.6"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(115,128,64,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(115,128,64,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.7,2,2.5,1.2,2.3999999999999999],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(204,99,9,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(204,99,9,1)"}},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.8,1.7,1.8999999999999999,1.3999999999999999,2.3999999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.8","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(177,101,72,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(177,101,72,1)"}},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.2,1.5,2.2999999999999998,1.2,1.5],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.3","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(130,109,155,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(130,109,155,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.90000000000000002,1.3,1.6000000000000001,1.3999999999999999,2.2000000000000002],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(155,88,165,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(155,88,165,1)"}},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.1000000000000001,1,1.3,1.8999999999999999,1.3999999999999999],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.9","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(208,55,146,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(208,55,146,1)"}},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.3999999999999999,1,1.6000000000000001,1.6000000000000001,1.1000000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.1"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(196,74,109,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(196,74,109,1)"}},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,1.5,1.3999999999999999,1.5],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.5","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(136,132,58,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(136,132,58,1)"}},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1,1.3,1.3999999999999999,1.2,1.3],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Aug<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.4","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.3"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(127,167,24,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(127,167,24,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.90000000000000002,1,1.2,1.2,1.7],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.7"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(187,169,11,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(187,169,11,1)"}},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,0.69999999999999996,1.1000000000000001,1.2],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(221,163,5,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(221,163,5,1)"}},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.2,1.2,0.69999999999999996,1,0.90000000000000002],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(191,139,18,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(191,139,18,1)"}},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,0.90000000000000002,0.90000000000000002,0.90000000000000002],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(161,116,33,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(161,116,33,1)"}},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1,0.90000000000000002,0.90000000000000002,1,0.80000000000000004],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(131,109,67,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(131,109,67,1)"}},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.69999999999999996,1,0.59999999999999998,0.80000000000000004,1.2],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.7","Condition: Base<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.6","Condition: Base<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.8","Condition: Base<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":70.535491905354931},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Play Mode: Atoms Correct by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.49049999999999999,2.8995000000000002],"tickmode":"array","ticktext":["0.5","1.0","1.5","2.0","2.5"],"tickvals":[0.5,1,1.5,2,2.5],"categoryorder":"array","categoryarray":["0.5","1.0","1.5","2.0","2.5"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Mean Atoms Correct","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"c6183eb0584c":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"c6182b7505bb":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"c6183eb0584c","visdat":{"c6183eb0584c":["function (y) ","x"],"c6182b7505bb":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-4194afd68225aea6449a" style="width:1344px;height:672px;"></div>
+<script type="application/json" data-for="htmlwidget-4194afd68225aea6449a">{"x":{"data":[{"x":[1,2,3,4,5],"y":[1.7,1.7,2.79,1.8999999999999999,2.6400000000000001],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.79","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.64"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.8999999999999999,2,2.6000000000000001,1.6000000000000001,2.3999999999999999],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.6","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.6","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(115,128,64,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.7,1.2,2.3999999999999999,2,2.5],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(204,99,9,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.8,1.3999999999999999,2.3999999999999999,1.7,1.8999999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.8","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(177,101,72,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.2,1.2,1.5,1.5,2.2999999999999998],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(130,109,155,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.90000000000000002,1.3999999999999999,2.2000000000000002,1.3,1.6000000000000001],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.2","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(155,88,165,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.1000000000000001,1.8999999999999999,1.3999999999999999,1,1.3],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.9","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(208,55,146,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.3999999999999999,1.6000000000000001,1.1000000000000001,1,1.6000000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(196,74,109,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,1.3999999999999999,1.5,1.2,1.5],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(136,132,58,1)","dash":"solid"},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1,1.2,1.3,1.3,1.3999999999999999],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(127,167,24,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.90000000000000002,1.2,1.7,1,1.2],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.7","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(187,169,11,1)","dash":"solid"},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,1.1000000000000001,1.2,1.2,0.69999999999999996],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(221,163,5,1)","dash":"solid"},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.2,1,0.90000000000000002,1.2,0.69999999999999996],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(191,139,18,1)","dash":"solid"},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,0.90000000000000002,0.90000000000000002,1.2,0.90000000000000002],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(161,116,33,1)","dash":"solid"},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1,1,0.80000000000000004,0.90000000000000002,0.90000000000000002],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.8","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(131,109,67,1)","dash":"solid"},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.69999999999999996,0.80000000000000004,1.2,1,0.59999999999999998],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.7","Condition: Base<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.8","Condition: Base<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2","Condition: Base<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.7,1.8999999999999999,2.6400000000000001,1.7,2.79],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.64","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.79"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.8999999999999999,1.6000000000000001,2.3999999999999999,2,2.6000000000000001],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.6","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.6"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(115,128,64,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(115,128,64,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.7,2,2.5,1.2,2.3999999999999999],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(204,99,9,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(204,99,9,1)"}},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.8,1.7,1.8999999999999999,1.3999999999999999,2.3999999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.8","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(177,101,72,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(177,101,72,1)"}},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.2,1.5,2.2999999999999998,1.2,1.5],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.3","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(130,109,155,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(130,109,155,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.90000000000000002,1.3,1.6000000000000001,1.3999999999999999,2.2000000000000002],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(155,88,165,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(155,88,165,1)"}},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.1000000000000001,1,1.3,1.8999999999999999,1.3999999999999999],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.9","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(208,55,146,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(208,55,146,1)"}},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.3999999999999999,1,1.6000000000000001,1.6000000000000001,1.1000000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.1"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(196,74,109,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(196,74,109,1)"}},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,1.5,1.3999999999999999,1.5],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.5","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(136,132,58,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(136,132,58,1)"}},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1,1.3,1.3999999999999999,1.2,1.3],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Aug<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.4","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.3"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(127,167,24,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(127,167,24,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.90000000000000002,1,1.2,1.2,1.7],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.7"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(187,169,11,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(187,169,11,1)"}},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,0.69999999999999996,1.1000000000000001,1.2],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(221,163,5,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(221,163,5,1)"}},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.2,1.2,0.69999999999999996,1,0.90000000000000002],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(191,139,18,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(191,139,18,1)"}},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,0.90000000000000002,0.90000000000000002,0.90000000000000002],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(161,116,33,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(161,116,33,1)"}},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1,0.90000000000000002,0.90000000000000002,1,0.80000000000000004],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(131,109,67,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(131,109,67,1)"}},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.69999999999999996,1,0.59999999999999998,0.80000000000000004,1.2],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.7","Condition: Base<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.6","Condition: Base<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.8","Condition: Base<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":70.535491905354931},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Play Mode: Atoms Correct by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.49049999999999999,2.8995000000000002],"tickmode":"array","ticktext":["0.5","1.0","1.5","2.0","2.5"],"tickvals":[0.5,1,1.5,2,2.5],"categoryorder":"array","categoryarray":["0.5","1.0","1.5","2.0","2.5"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Mean Atoms Correct","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"ddd41a5d175a":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"ddd455a8233b":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"ddd41a5d175a","visdat":{"ddd41a5d175a":["function (y) ","x"],"ddd455a8233b":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
 </div>
 </div>
 <aside class="notes">
@@ -3200,8 +3162,8 @@ Todd R. Johnson
 <h2>Score by Condition: Play Mode</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div class="plotly html-widget html-fill-item" id="htmlwidget-a9234c53e66e616bf42c" style="width:1344px;height:672px;"></div>
-<script type="application/json" data-for="htmlwidget-a9234c53e66e616bf42c">{"x":{"data":[{"x":[1,2,3,4,5],"y":[26,26.699999999999999,22.760000000000002,23.5,23.91],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 26","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 22.8","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 23.5","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 23.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.399999999999999,24.600000000000001,24.5,27.199999999999999,23.300000000000001],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Score: 26.4","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Score: 24.6","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Score: 24.5","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Score: 27.2","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Score: 23.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(115,128,64,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[24.300000000000001,25.399999999999999,26,25.699999999999999,24.800000000000001],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 24.3","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 25.4","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 26","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 25.7","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 24.8"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(204,99,9,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[27,28,26.699999999999999,27.399999999999999,20.5],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Score: 27","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Score: 26.7","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Score: 27.4","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Score: 20.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(177,101,72,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.5,30.5,24.300000000000001,24.199999999999999,25.5],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 26.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 30.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 24.3","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 24.2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 25.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(130,109,155,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.600000000000001,28.300000000000001,23.5,26.300000000000001,24.399999999999999],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 30.6","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 28.3","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 23.5","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 26.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 24.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(155,88,165,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.699999999999999,28.899999999999999,27.899999999999999,28.600000000000001,30.100000000000001],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 27.9","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 28.6","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 30.1"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(208,55,146,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.699999999999999,28,31.100000000000001,30.399999999999999,27.5],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 31.1","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.4","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 27.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(196,74,109,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[29.5,29.300000000000001,34.899999999999999,29.5,33.100000000000001],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Score: 29.3","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Score: 34.9","Condition: Aug<br />Model: Opus 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.6<br />Mean Score: 33.1"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(136,132,58,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[34.5,31,33.399999999999999,28.399999999999999,32.600000000000001],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Score: 34.5","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Score: 31","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Score: 33.4","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Score: 28.4","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Score: 32.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(127,167,24,1)","dash":"solid"},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.699999999999999,31.300000000000001,33.5,30.800000000000001,36.200000000000003],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 31.3","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 33.5","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.8","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.2"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(187,169,11,1)","dash":"solid"},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.5,33,32.5,33.5,32.399999999999999],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.5","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Score: 33","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Score: 32.5","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Score: 33.5","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Score: 32.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(221,163,5,1)","dash":"solid"},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[34.899999999999999,33.299999999999997,32.600000000000001,33,30.399999999999999],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Score: 34.9","Condition: Base<br />Model: Sonnet 4.5<br />Mean Score: 33.3","Condition: Base<br />Model: Sonnet 4.6<br />Mean Score: 32.6","Condition: Base<br />Model: Opus 4.5<br />Mean Score: 33","Condition: Base<br />Model: Opus 4.6<br />Mean Score: 30.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(191,139,18,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.399999999999999,32.100000000000001,35.799999999999997,29.800000000000001,37.700000000000003],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.4","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Score: 32.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Score: 35.8","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Score: 29.8","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Score: 37.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(161,116,33,1)","dash":"solid"},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.899999999999999,36.5,34.899999999999999,33.200000000000003,35.399999999999999],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Score: 31.9","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Score: 36.5","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Score: 34.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Score: 33.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Score: 35.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(131,109,67,1)","dash":"solid"},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[35.5,33.5,37.200000000000003,35.799999999999997,36.5],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Score: 35.5","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 33.5","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 37.2","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Score: 35.8","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26,23.5,23.91,26.699999999999999,22.760000000000002],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 26","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 23.5","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 23.9","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 22.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.399999999999999,27.199999999999999,23.300000000000001,24.600000000000001,24.5],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Score: 26.4","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Score: 27.2","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Score: 23.3","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Score: 24.6","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Score: 24.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(115,128,64,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(115,128,64,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[24.300000000000001,25.699999999999999,24.800000000000001,25.399999999999999,26],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 24.3","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 25.7","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 24.8","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 25.4","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 26"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(204,99,9,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(204,99,9,1)"}},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[27,27.399999999999999,20.5,28,26.699999999999999],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Score: 27","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Score: 27.4","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Score: 20.5","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Score: 26.7"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(177,101,72,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(177,101,72,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.5,24.199999999999999,25.5,30.5,24.300000000000001],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 26.5","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 24.2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 25.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 30.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 24.3"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(130,109,155,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(130,109,155,1)"}},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.600000000000001,26.300000000000001,24.399999999999999,28.300000000000001,23.5],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 30.6","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 26.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 24.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 28.3","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 23.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(155,88,165,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(155,88,165,1)"}},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.699999999999999,28.600000000000001,30.100000000000001,28.899999999999999,27.899999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 28.6","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 30.1","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 27.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(208,55,146,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(208,55,146,1)"}},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.699999999999999,30.399999999999999,27.5,28,31.100000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.4","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 27.5","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 31.1"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(196,74,109,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(196,74,109,1)"}},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[29.5,29.5,33.100000000000001,29.300000000000001,34.899999999999999],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.6<br />Mean Score: 33.1","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Score: 29.3","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Score: 34.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(136,132,58,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(136,132,58,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[34.5,28.399999999999999,32.600000000000001,31,33.399999999999999],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Score: 34.5","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Score: 28.4","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Score: 32.6","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Score: 31","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Score: 33.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(127,167,24,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(127,167,24,1)"}},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.699999999999999,30.800000000000001,36.200000000000003,31.300000000000001,33.5],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.8","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.2","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 31.3","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 33.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(187,169,11,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(187,169,11,1)"}},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.5,33.5,32.399999999999999,33,32.5],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.5","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Score: 33.5","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Score: 32.4","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Score: 33","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Score: 32.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(221,163,5,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(221,163,5,1)"}},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[34.899999999999999,33,30.399999999999999,33.299999999999997,32.600000000000001],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Score: 34.9","Condition: Base<br />Model: Opus 4.5<br />Mean Score: 33","Condition: Base<br />Model: Opus 4.6<br />Mean Score: 30.4","Condition: Base<br />Model: Sonnet 4.5<br />Mean Score: 33.3","Condition: Base<br />Model: Sonnet 4.6<br />Mean Score: 32.6"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(191,139,18,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(191,139,18,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.399999999999999,29.800000000000001,37.700000000000003,32.100000000000001,35.799999999999997],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.4","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Score: 29.8","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Score: 37.7","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Score: 32.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Score: 35.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(161,116,33,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(161,116,33,1)"}},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.899999999999999,33.200000000000003,35.399999999999999,36.5,34.899999999999999],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Score: 31.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Score: 33.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Score: 35.4","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Score: 36.5","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Score: 34.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(131,109,67,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(131,109,67,1)"}},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[35.5,35.799999999999997,36.5,33.5,37.200000000000003],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Score: 35.5","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Score: 35.8","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.5","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 33.5","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 37.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":60.971357409713583},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Play Mode: Score by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[19.640000000000001,38.560000000000002],"tickmode":"array","ticktext":["20","25","30","35"],"tickvals":[20,25,30,35],"categoryorder":"array","categoryarray":["20","25","30","35"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Mean Score","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"c6183a33a51c":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"c618149cef1e":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"c6183a33a51c","visdat":{"c6183a33a51c":["function (y) ","x"],"c618149cef1e":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-6beb636297e723b12456" style="width:1344px;height:672px;"></div>
+<script type="application/json" data-for="htmlwidget-6beb636297e723b12456">{"x":{"data":[{"x":[1,2,3,4,5],"y":[26,26.699999999999999,22.760000000000002,23.5,23.91],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 26","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 22.8","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 23.5","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 23.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.399999999999999,24.600000000000001,24.5,27.199999999999999,23.300000000000001],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Score: 26.4","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Score: 24.6","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Score: 24.5","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Score: 27.2","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Score: 23.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(115,128,64,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[24.300000000000001,25.399999999999999,26,25.699999999999999,24.800000000000001],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 24.3","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 25.4","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 26","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 25.7","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 24.8"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(204,99,9,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[27,28,26.699999999999999,27.399999999999999,20.5],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Score: 27","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Score: 26.7","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Score: 27.4","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Score: 20.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(177,101,72,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.5,30.5,24.300000000000001,24.199999999999999,25.5],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 26.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 30.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 24.3","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 24.2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 25.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(130,109,155,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.600000000000001,28.300000000000001,23.5,26.300000000000001,24.399999999999999],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 30.6","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 28.3","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 23.5","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 26.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 24.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(155,88,165,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.699999999999999,28.899999999999999,27.899999999999999,28.600000000000001,30.100000000000001],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 27.9","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 28.6","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 30.1"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(208,55,146,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.699999999999999,28,31.100000000000001,30.399999999999999,27.5],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 31.1","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.4","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 27.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(196,74,109,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[29.5,29.300000000000001,34.899999999999999,29.5,33.100000000000001],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Score: 29.3","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Score: 34.9","Condition: Aug<br />Model: Opus 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.6<br />Mean Score: 33.1"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(136,132,58,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[34.5,31,33.399999999999999,28.399999999999999,32.600000000000001],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Score: 34.5","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Score: 31","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Score: 33.4","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Score: 28.4","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Score: 32.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(127,167,24,1)","dash":"solid"},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.699999999999999,31.300000000000001,33.5,30.800000000000001,36.200000000000003],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 31.3","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 33.5","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.8","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.2"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(187,169,11,1)","dash":"solid"},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.5,33,32.5,33.5,32.399999999999999],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.5","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Score: 33","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Score: 32.5","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Score: 33.5","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Score: 32.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(221,163,5,1)","dash":"solid"},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[34.899999999999999,33.299999999999997,32.600000000000001,33,30.399999999999999],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Score: 34.9","Condition: Base<br />Model: Sonnet 4.5<br />Mean Score: 33.3","Condition: Base<br />Model: Sonnet 4.6<br />Mean Score: 32.6","Condition: Base<br />Model: Opus 4.5<br />Mean Score: 33","Condition: Base<br />Model: Opus 4.6<br />Mean Score: 30.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(191,139,18,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.399999999999999,32.100000000000001,35.799999999999997,29.800000000000001,37.700000000000003],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.4","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Score: 32.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Score: 35.8","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Score: 29.8","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Score: 37.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(161,116,33,1)","dash":"solid"},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.899999999999999,36.5,34.899999999999999,33.200000000000003,35.399999999999999],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Score: 31.9","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Score: 36.5","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Score: 34.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Score: 33.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Score: 35.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(131,109,67,1)","dash":"solid"},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[35.5,33.5,37.200000000000003,35.799999999999997,36.5],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Score: 35.5","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 33.5","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 37.2","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Score: 35.8","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26,23.5,23.91,26.699999999999999,22.760000000000002],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 26","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 23.5","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 23.9","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 22.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.399999999999999,27.199999999999999,23.300000000000001,24.600000000000001,24.5],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Score: 26.4","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Score: 27.2","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Score: 23.3","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Score: 24.6","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Score: 24.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(115,128,64,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(115,128,64,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[24.300000000000001,25.699999999999999,24.800000000000001,25.399999999999999,26],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 24.3","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 25.7","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 24.8","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 25.4","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 26"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(204,99,9,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(204,99,9,1)"}},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[27,27.399999999999999,20.5,28,26.699999999999999],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Score: 27","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Score: 27.4","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Score: 20.5","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Score: 26.7"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(177,101,72,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(177,101,72,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.5,24.199999999999999,25.5,30.5,24.300000000000001],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 26.5","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 24.2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 25.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 30.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 24.3"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(130,109,155,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(130,109,155,1)"}},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.600000000000001,26.300000000000001,24.399999999999999,28.300000000000001,23.5],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 30.6","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 26.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 24.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 28.3","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 23.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(155,88,165,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(155,88,165,1)"}},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.699999999999999,28.600000000000001,30.100000000000001,28.899999999999999,27.899999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 28.6","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 30.1","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 27.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(208,55,146,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(208,55,146,1)"}},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.699999999999999,30.399999999999999,27.5,28,31.100000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.4","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 27.5","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 31.1"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(196,74,109,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(196,74,109,1)"}},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[29.5,29.5,33.100000000000001,29.300000000000001,34.899999999999999],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.6<br />Mean Score: 33.1","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Score: 29.3","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Score: 34.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(136,132,58,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(136,132,58,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[34.5,28.399999999999999,32.600000000000001,31,33.399999999999999],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Score: 34.5","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Score: 28.4","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Score: 32.6","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Score: 31","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Score: 33.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(127,167,24,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(127,167,24,1)"}},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.699999999999999,30.800000000000001,36.200000000000003,31.300000000000001,33.5],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.8","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.2","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 31.3","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 33.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(187,169,11,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(187,169,11,1)"}},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.5,33.5,32.399999999999999,33,32.5],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.5","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Score: 33.5","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Score: 32.4","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Score: 33","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Score: 32.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(221,163,5,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(221,163,5,1)"}},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[34.899999999999999,33,30.399999999999999,33.299999999999997,32.600000000000001],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Score: 34.9","Condition: Base<br />Model: Opus 4.5<br />Mean Score: 33","Condition: Base<br />Model: Opus 4.6<br />Mean Score: 30.4","Condition: Base<br />Model: Sonnet 4.5<br />Mean Score: 33.3","Condition: Base<br />Model: Sonnet 4.6<br />Mean Score: 32.6"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(191,139,18,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(191,139,18,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.399999999999999,29.800000000000001,37.700000000000003,32.100000000000001,35.799999999999997],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.4","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Score: 29.8","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Score: 37.7","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Score: 32.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Score: 35.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(161,116,33,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(161,116,33,1)"}},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.899999999999999,33.200000000000003,35.399999999999999,36.5,34.899999999999999],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Score: 31.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Score: 33.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Score: 35.4","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Score: 36.5","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Score: 34.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(131,109,67,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(131,109,67,1)"}},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[35.5,35.799999999999997,36.5,33.5,37.200000000000003],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Score: 35.5","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Score: 35.8","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.5","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 33.5","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 37.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":60.971357409713583},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Play Mode: Score by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[19.640000000000001,38.560000000000002],"tickmode":"array","ticktext":["20","25","30","35"],"tickvals":[20,25,30,35],"categoryorder":"array","categoryarray":["20","25","30","35"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Mean Score","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"ddd4737f2216":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"ddd41f970d97":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"ddd4737f2216","visdat":{"ddd4737f2216":["function (y) ","x"],"ddd41f970d97":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
 </div>
 </div>
 <aside class="notes">
@@ -3366,23 +3328,23 @@ Todd R. Johnson
 <h2>Factor Summary</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div id="tkabjdycak" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#tkabjdycak table {
+<div id="lacjjmlwzb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lacjjmlwzb table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#tkabjdycak thead, #tkabjdycak tbody, #tkabjdycak tfoot, #tkabjdycak tr, #tkabjdycak td, #tkabjdycak th {
+#lacjjmlwzb thead, #lacjjmlwzb tbody, #lacjjmlwzb tfoot, #lacjjmlwzb tr, #lacjjmlwzb td, #lacjjmlwzb th {
   border-style: none;
 }
 
-#tkabjdycak p {
+#lacjjmlwzb p {
   margin: 0;
   padding: 0;
 }
 
-#tkabjdycak .gt_table {
+#lacjjmlwzb .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3408,12 +3370,12 @@ Todd R. Johnson
   border-left-color: #D3D3D3;
 }
 
-#tkabjdycak .gt_caption {
+#lacjjmlwzb .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#tkabjdycak .gt_title {
+#lacjjmlwzb .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3425,7 +3387,7 @@ Todd R. Johnson
   border-bottom-width: 0;
 }
 
-#tkabjdycak .gt_subtitle {
+#lacjjmlwzb .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3437,7 +3399,7 @@ Todd R. Johnson
   border-top-width: 0;
 }
 
-#tkabjdycak .gt_heading {
+#lacjjmlwzb .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3449,13 +3411,13 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#tkabjdycak .gt_bottom_border {
+#lacjjmlwzb .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#tkabjdycak .gt_col_headings {
+#lacjjmlwzb .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3470,7 +3432,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#tkabjdycak .gt_col_heading {
+#lacjjmlwzb .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 30px;
@@ -3490,7 +3452,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#tkabjdycak .gt_column_spanner_outer {
+#lacjjmlwzb .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 30px;
@@ -3502,15 +3464,15 @@ Todd R. Johnson
   padding-right: 4px;
 }
 
-#tkabjdycak .gt_column_spanner_outer:first-child {
+#lacjjmlwzb .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#tkabjdycak .gt_column_spanner_outer:last-child {
+#lacjjmlwzb .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#tkabjdycak .gt_column_spanner {
+#lacjjmlwzb .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3522,11 +3484,11 @@ Todd R. Johnson
   width: 100%;
 }
 
-#tkabjdycak .gt_spanner_row {
+#lacjjmlwzb .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#tkabjdycak .gt_group_heading {
+#lacjjmlwzb .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3552,7 +3514,7 @@ Todd R. Johnson
   text-align: left;
 }
 
-#tkabjdycak .gt_empty_group_heading {
+#lacjjmlwzb .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3567,15 +3529,15 @@ Todd R. Johnson
   vertical-align: middle;
 }
 
-#tkabjdycak .gt_from_md > :first-child {
+#lacjjmlwzb .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#tkabjdycak .gt_from_md > :last-child {
+#lacjjmlwzb .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#tkabjdycak .gt_row {
+#lacjjmlwzb .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3594,7 +3556,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#tkabjdycak .gt_stub {
+#lacjjmlwzb .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3607,7 +3569,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#tkabjdycak .gt_stub_row_group {
+#lacjjmlwzb .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3621,15 +3583,15 @@ Todd R. Johnson
   vertical-align: top;
 }
 
-#tkabjdycak .gt_row_group_first td {
+#lacjjmlwzb .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#tkabjdycak .gt_row_group_first th {
+#lacjjmlwzb .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#tkabjdycak .gt_summary_row {
+#lacjjmlwzb .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3639,16 +3601,16 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#tkabjdycak .gt_first_summary_row {
+#lacjjmlwzb .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#tkabjdycak .gt_first_summary_row.thick {
+#lacjjmlwzb .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#tkabjdycak .gt_last_summary_row {
+#lacjjmlwzb .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3658,7 +3620,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#tkabjdycak .gt_grand_summary_row {
+#lacjjmlwzb .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3668,7 +3630,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#tkabjdycak .gt_first_grand_summary_row {
+#lacjjmlwzb .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3678,7 +3640,7 @@ Todd R. Johnson
   border-top-color: #D3D3D3;
 }
 
-#tkabjdycak .gt_last_grand_summary_row_top {
+#lacjjmlwzb .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3688,11 +3650,11 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#tkabjdycak .gt_striped {
+#lacjjmlwzb .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#tkabjdycak .gt_table_body {
+#lacjjmlwzb .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3701,7 +3663,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#tkabjdycak .gt_footnotes {
+#lacjjmlwzb .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3715,7 +3677,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#tkabjdycak .gt_footnote {
+#lacjjmlwzb .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3724,7 +3686,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#tkabjdycak .gt_sourcenotes {
+#lacjjmlwzb .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3738,7 +3700,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#tkabjdycak .gt_sourcenote {
+#lacjjmlwzb .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3746,72 +3708,72 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#tkabjdycak .gt_left {
+#lacjjmlwzb .gt_left {
   text-align: left;
 }
 
-#tkabjdycak .gt_center {
+#lacjjmlwzb .gt_center {
   text-align: center;
 }
 
-#tkabjdycak .gt_right {
+#lacjjmlwzb .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#tkabjdycak .gt_font_normal {
+#lacjjmlwzb .gt_font_normal {
   font-weight: normal;
 }
 
-#tkabjdycak .gt_font_bold {
+#lacjjmlwzb .gt_font_bold {
   font-weight: bold;
 }
 
-#tkabjdycak .gt_font_italic {
+#lacjjmlwzb .gt_font_italic {
   font-style: italic;
 }
 
-#tkabjdycak .gt_super {
+#lacjjmlwzb .gt_super {
   font-size: 65%;
 }
 
-#tkabjdycak .gt_footnote_marks {
+#lacjjmlwzb .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#tkabjdycak .gt_asterisk {
+#lacjjmlwzb .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#tkabjdycak .gt_indent_1 {
+#lacjjmlwzb .gt_indent_1 {
   text-indent: 5px;
 }
 
-#tkabjdycak .gt_indent_2 {
+#lacjjmlwzb .gt_indent_2 {
   text-indent: 10px;
 }
 
-#tkabjdycak .gt_indent_3 {
+#lacjjmlwzb .gt_indent_3 {
   text-indent: 15px;
 }
 
-#tkabjdycak .gt_indent_4 {
+#lacjjmlwzb .gt_indent_4 {
   text-indent: 20px;
 }
 
-#tkabjdycak .gt_indent_5 {
+#lacjjmlwzb .gt_indent_5 {
   text-indent: 25px;
 }
 
-#tkabjdycak .katex-display {
+#lacjjmlwzb .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#tkabjdycak div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#lacjjmlwzb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -3892,17 +3854,14 @@ Todd R. Johnson
 
 <section id="implications-for-deploying-llms-for-clinical-and-scientific-reasoning" class="slide level2" data-background-color="#f8f9fa">
 <h2>Implications for Deploying LLMs for Clinical and Scientific Reasoning</h2>
-<p><strong>Thesis</strong>: The frontiers of medicine and science inherently demand first-principles reasoning <span class="citation" data-cites="patel1991general">(<a href="#/references" role="doc-biblioref" onclick="">Patel and Groen 1991</a>)</span>.</p>
+<p><strong>Thesis</strong>: The frontiers of medicine and science inherently demand first-principles reasoning.</p>
 <div class="fragment">
-<p><strong>Black Box tests exactly this</strong>: out-of-distribution, no patterns to match, requires abductive inference from evidence.</p>
-</div>
-<div class="fragment">
-<p><strong>The verdict</strong> — LLMs fail at the components that <em>define</em> first-principles reasoning:</p>
+<p><strong>The verdict</strong> — When forced to reason from first principles on a diagnostic task, LLMs do poorly</p>
 </div>
 <ol type="1">
-<li class="fragment"><p><strong>Test selection fails</strong> — Models can’t design informative experiments. They rarely pick the most informative ray, analogous to ordering redundant tests when a targeted one would be decisive.</p></li>
+<li class="fragment"><p><strong>Test selection fails</strong> — Models can’t design informative experiments. They rarely pick the most informative ray.</p></li>
 <li class="fragment"><p><strong>Constraint integration fails</strong> — Models don’t maintain consistent evidence across reasoning steps. Contradicted hypotheses persist; evidence that should rule out a possibility is ignored.</p></li>
-<li class="fragment"><p><strong>Scaling doesn’t bridge the gap</strong> — Larger models improve modestly but remain far from optimal. This appears to be an architectural limitation, not an instructional one <span class="citation" data-cites="shojaee2025illusion">(<a href="#/references" role="doc-biblioref" onclick="">Shojaee et al. 2025</a>)</span>.</p></li>
+<li class="fragment"><p><strong>Scaling doesn’t bridge the gap</strong> — Larger models improve modestly but remain far from optimal. This appears to be an architectural limitation, not an instructional one.</p></li>
 </ol>
 <div class="fragment">
 <p>Pattern matching handles routine cases. <strong>The frontiers require something LLMs don’t yet have.</strong></p>
@@ -3923,57 +3882,48 @@ Todd R. Johnson
           display:block!important;
       }</style></aside>
 </section>
-<section id="can-tools-fix-this" class="slide level2">
-<h2>Can Tools Fix This?</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<h3 id="tools-can-help">Tools CAN Help</h3>
-<ul>
-<li><strong>Verification</strong>: Check if guess is consistent with constraints</li>
-<li><strong>Computation</strong>: Enumerate candidate space</li>
-<li><strong>Memory</strong>: Track accumulated evidence</li>
-<li><strong>Visualization</strong>: Display board state</li>
-</ul>
-<p>LLM-Modulo architecture: use tools for verification, not generation.</p>
-</div><div class="column" style="width:50%;">
-<h3 id="tools-cant-help">Tools CAN’T Help</h3>
-<ul>
-<li><strong>Hypothesis generation</strong>: Must come from the model</li>
-<li><strong>Test selection strategy</strong>: Model decides what to test</li>
-<li><strong>Abductive inference</strong>: Reasoning from effects to causes</li>
-<li><strong>Integration</strong>: Combining evidence across modalities</li>
-</ul>
-<p>The hardest parts of diagnosis are <strong>generative</strong>, not computational.</p>
-</div></div>
+<section id="diagnostic-reasoning-what-we-found" class="slide level2 smaller">
+<h2>Diagnostic Reasoning: What We Found</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 54%">
+<col style="width: 46%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>What This Study Found</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Hypothesis generation</strong></td>
+<td>Anchor on early guesses regardless of subsequent evidence</td>
+</tr>
+<tr class="even">
+<td><strong>Test selection</strong></td>
+<td>Rarely pick optimal ray (ranks 5–10 of 32); fire 2–3× more rays than needed</td>
+</tr>
+<tr class="odd">
+<td><strong>Constraint tracking</strong></td>
+<td>Contradicted hypotheses persist; ruled-out positions not eliminated</td>
+</tr>
+<tr class="even">
+<td><strong>Belief updating</strong></td>
+<td>New evidence often fails to change the working hypothesis</td>
+</tr>
+<tr class="odd">
+<td><strong>Multistep reasoning</strong></td>
+<td>Forward ray tracing ~80% accurate — errors even with atoms visible</td>
+</tr>
+<tr class="even">
+<td><strong>Integration</strong></td>
+<td>Consistent predict→play gap: combining components is harder than any alone</td>
+</tr>
+</tbody>
+</table>
 <aside class="notes">
-<p>A question from the field: can we just give LLMs tools to compensate? Partially. Tools can help with constraint checking — verifying whether a hypothesis is consistent with evidence. They can help with memory and computation. But the hard parts of diagnosis — generating hypotheses, choosing what to test, reasoning from effects to causes — are generative processes that must come from the model. No amount of tooling fixes poor abductive inference.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="what-good-benchmarks-need" class="slide level2">
-<h2>What Good Benchmarks Need</h2>
-<ol type="1">
-<li class="fragment"><strong>Out-of-distribution problems</strong> — Not solvable by pattern matching to training data</li>
-<li class="fragment"><strong>Information-theoretic ceiling</strong> — Know the best possible performance, not just pass/fail</li>
-<li class="fragment"><strong>Decomposable</strong> — Isolate which component processes fail, not just overall accuracy</li>
-<li class="fragment"><strong>Process-oriented</strong> — Test the reasoning process, not just the final answer</li>
-</ol>
-<div class="fragment">
-<h3 id="a-challenge-to-the-field">A challenge to the field</h3>
-<p>Most AI evaluation asks “<strong>can it get the right answer?</strong>”</p>
-<p>We should be asking “<strong>does it reason correctly to get there?</strong>”</p>
-</div>
-<aside class="notes">
-<p>Four properties that good diagnostic reasoning benchmarks should have. Most current benchmarks only satisfy one or two of these. Black Box satisfies all four, which is why it’s useful despite being a game rather than a clinical task. The broader challenge: the field focuses too much on outcome accuracy and not enough on process quality. A model that gets the right answer for the wrong reason is dangerous in clinical settings.</p>
+<p>This is the same component table from the beginning of the talk, now populated with what we actually found. Walking through each row: Hypothesis generation — models do propose plausible starting positions, but they anchor on those early guesses even when subsequent evidence contradicts them. Test selection — this is one of the clearest failures. The optimal solver picks the most informative ray; models typically pick rays ranked 5th to 10th and use two to three times as many rays as necessary. Constraint tracking — contradicted hypotheses persist. A ray result that should eliminate a candidate position gets ignored. Belief updating — closely related: new evidence often doesn’t change the working hypothesis. Multistep reasoning — even in predict mode, where atoms are visible and the model just needs to trace a ray path, accuracy tops out around 96%. And integration — the consistent gap between predict and play performance across all models shows that combining these components is harder than any component alone. The bottom line: the failures are overwhelmingly in the inferential machinery — test selection, constraint tracking, belief updating — not in spatial reasoning itself.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -3993,59 +3943,21 @@ Todd R. Johnson
 <h3 id="limitations">Limitations</h3>
 <ul>
 <li>Black Box is spatial; not all diagnosis is</li>
-<li>2D grid; clinical reasoning is higher-dimensional</li>
 <li>Fixed action space (32 rays); clinical tests are open-ended</li>
-<li>Single-player; real diagnosis involves consultation</li>
-<li>Currently only Claude models tested in React app</li>
+<li>Currently only Claude models tested</li>
 </ul>
 </div><div class="column" style="width:50%;">
 <h3 id="future-directions">Future Directions</h3>
 <ul>
+<li>Identify similar medical domains and test there</li>
 <li>Test more model families (GPT, Gemini, open-source)</li>
-<li>Larger grids, more atoms</li>
-<li>Multi-agent collaborative diagnosis</li>
-<li>Transfer analysis: BB performance → clinical task performance</li>
-<li>Agentic architectures with tool access</li>
+<li>Test agentic architectures and harnesses with tool access</li>
+<li>Fine tune an LLM to Predict, then test</li>
+<li>Fine tune an LLM to Play, then test</li>
 </ul>
 </div></div>
 <aside class="notes">
 <p>Honest limitations. Black Box is a spatial game, and not all diagnostic reasoning is spatial. The action space is constrained — in real medicine, you choose from thousands of possible tests. And we’ve only tested Claude models. Future work should test more models, explore multi-agent settings, and — most importantly — test whether Black Box performance predicts performance on actual clinical diagnostic tasks. That transfer analysis would validate the benchmark.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="key-takeaways" class="slide level2">
-<h2>Key Takeaways</h2>
-<ol type="1">
-<li class="fragment"><p><strong>LLMs perform above chance but far below optimal</strong> on diagnostic reasoning — extracting signal but failing at systematic evidence integration</p></li>
-<li class="fragment"><p><strong>The failures are in the process, not the knowledge</strong> — models know ray physics but can’t select informative tests, track constraints, or recognize when evidence is sufficient</p></li>
-<li class="fragment"><p><strong>Scaling and prompting help modestly</strong> — the diagnostic reasoning gap appears to be an architectural limitation, not an instructional one</p></li>
-</ol>
-<div class="fragment">
-<div class="callout callout-important callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Bottom Line</strong></p>
-</div>
-<div class="callout-content">
-<p>Before deploying LLMs for diagnostic tasks, we need benchmarks that test <strong>reasoning process</strong>, not just <strong>answer accuracy</strong>. Black Box demonstrates that the gap between “knows the domain” and “reasons within the domain” is substantial and persistent.</p>
-</div>
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>Three takeaways to leave up during Q&amp;A. First, LLMs are somewhere between random and optimal — they’re not useless, but they’re far from reliable. Second, the problem isn’t knowledge but process — models know the rules, they just can’t apply them systematically over multiple steps. Third, bigger models and better prompts help a bit, but they don’t solve the fundamental problem. The bottom line for clinical deployment: we need much better evaluation before we trust LLMs with diagnostic reasoning.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -4066,7 +3978,7 @@ Todd R. Johnson
 <p>University of Texas Health Science Center at Houston</p>
 </div>
 <div style="font-size: 1.1em; margin-top: 2em; color: #bdc3c7;">
-<p>Paper &amp; Demo: <a href="https://github.com/toddjohnson/BBXReact">github.com/toddjohnson/BBXReact</a></p>
+<p>Early Draft Paper, Slides &amp; Demo: <a href="https://github.com/toddjohnson/BBXReact">github.com/toddjohnson/BBXReact</a></p>
 </div>
 <div style="margin-top: 2em;">
 <p><em>Happy to run additional live demos during Q&amp;A</em></p>

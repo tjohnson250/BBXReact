@@ -1,8 +1,8 @@
 ---
 title: "Black Box as a Diagnostic Reasoning Benchmark"
-subtitle: "Assessing LLM Capabilities in Hidden State Identification<br><span style='font-size: 0.6em; color: #888;'>Slides last updated March 19, 2026</span>"
-author: "Todd R. Johnson"
-institute: "University of Texas Health Science Center at Houston"
+subtitle: "Assessing LLM Capabilities in Hidden State Identification<br><span style='font-size: 0.6em; color: #888;'>Slides last updated March 23, 2026</span>"
+author: "Todd R. Johnson, PhD, FAMIA"
+institute: "UTHealth McWilliams School of Biomedical Informatics"
 date: "BMI Seminar — March 25, 2026"
 format:
   revealjs:
@@ -621,7 +621,7 @@ Now, the problem I've described is broad — it applies to clinical reasoning ge
 :::
 
 
-## What IS Diagnostic Reasoning? {.smaller}
+## What IS Diagnostic Reasoning?
 
 | Component                 | Description                         |
 |---------------------------|-------------------------------------|
@@ -3135,11 +3135,11 @@ How Black Box compares to other reasoning benchmarks. Most benchmarks test const
 :::
 
 ::: incremental
-1. **Test selection fails** — Models can't design informative experiments. They rarely pick the most informative ray, analogous to ordering redundant tests when a targeted one would be decisive.
+1. **Test selection fails** — Models can't design informative experiments. They rarely pick the most informative ray.
 
 2. **Constraint integration fails** — Models don't maintain consistent evidence across reasoning steps. Contradicted hypotheses persist; evidence that should rule out a possibility is ignored.
 
-3. **Scaling doesn't bridge the gap** — Larger models improve modestly but remain far from optimal. This appears to be an architectural limitation, not an instructional one [@shojaee2025illusion].
+3. **Scaling doesn't bridge the gap** — Larger models improve modestly but remain far from optimal. This appears to be an architectural limitation, not an instructional one.
 :::
 
 ::: fragment
@@ -3154,55 +3154,19 @@ The answer: LLMs fail at the specific components that define first-principles re
 The punchline ties back to the thesis: pattern matching may suffice for routine clinical cases and well-characterized scientific problems. But the frontier — novel diseases, atypical presentations, new mechanisms, new therapies — lives in exactly the space where LLMs fail.
 :::
 
-## Can Tools Fix This?
+## Diagnostic Reasoning: What We Found {.smaller}
 
-::::: columns
-::: {.column width="50%"}
-### Tools CAN Help
-
--   **Verification**: Check if guess is consistent with constraints
--   **Computation**: Enumerate candidate space
--   **Memory**: Track accumulated evidence
--   **Visualization**: Display board state
-
-LLM-Modulo architecture: use tools for verification, not generation.
-:::
-
-::: {.column width="50%"}
-### Tools CAN'T Help
-
--   **Hypothesis generation**: Must come from the model
--   **Test selection strategy**: Model decides what to test
--   **Abductive inference**: Reasoning from effects to causes
--   **Integration**: Combining evidence across modalities
-
-The hardest parts of diagnosis are **generative**, not computational.
-:::
-:::::
+| Component                 | What This Study Found |
+|---------------------------|-----------------------|
+| **Hypothesis generation** | Anchor on early guesses regardless of subsequent evidence |
+| **Test selection**        | Rarely pick optimal ray (ranks 5–10 of 32); fire 2–3× more rays than needed |
+| **Constraint tracking**   | Contradicted hypotheses persist; ruled-out positions not eliminated |
+| **Belief updating**       | New evidence often fails to change the working hypothesis |
+| **Multistep reasoning**   | Forward ray tracing ~80% accurate — errors even with atoms visible |
+| **Integration**           | Consistent predict→play gap: combining components is harder than any alone |
 
 ::: notes
-A question from the field: can we just give LLMs tools to compensate? Partially. Tools can help with constraint checking — verifying whether a hypothesis is consistent with evidence. They can help with memory and computation. But the hard parts of diagnosis — generating hypotheses, choosing what to test, reasoning from effects to causes — are generative processes that must come from the model. No amount of tooling fixes poor abductive inference.
-:::
-
-## What Good Benchmarks Need
-
-::: incremental
-1.  **Out-of-distribution problems** — Not solvable by pattern matching to training data
-2.  **Information-theoretic ceiling** — Know the best possible performance, not just pass/fail
-3.  **Decomposable** — Isolate which component processes fail, not just overall accuracy
-4.  **Process-oriented** — Test the reasoning process, not just the final answer
-:::
-
-::: fragment
-### A challenge to the field
-
-Most AI evaluation asks "**can it get the right answer?**"
-
-We should be asking "**does it reason correctly to get there?**"
-:::
-
-::: notes
-Four properties that good diagnostic reasoning benchmarks should have. Most current benchmarks only satisfy one or two of these. Black Box satisfies all four, which is why it's useful despite being a game rather than a clinical task. The broader challenge: the field focuses too much on outcome accuracy and not enough on process quality. A model that gets the right answer for the wrong reason is dangerous in clinical settings.
+This is the same component table from the beginning of the talk, now populated with what we actually found. Walking through each row: Hypothesis generation — models do propose plausible starting positions, but they anchor on those early guesses even when subsequent evidence contradicts them. Test selection — this is one of the clearest failures. The optimal solver picks the most informative ray; models typically pick rays ranked 5th to 10th and use two to three times as many rays as necessary. Constraint tracking — contradicted hypotheses persist. A ray result that should eliminate a candidate position gets ignored. Belief updating — closely related: new evidence often doesn't change the working hypothesis. Multistep reasoning — even in predict mode, where atoms are visible and the model just needs to trace a ray path, accuracy tops out around 96%. And integration — the consistent gap between predict and play performance across all models shows that combining these components is harder than any component alone. The bottom line: the failures are overwhelmingly in the inferential machinery — test selection, constraint tracking, belief updating — not in spatial reasoning itself.
 :::
 
 ## Limitations & Future Work
@@ -3212,20 +3176,18 @@ Four properties that good diagnostic reasoning benchmarks should have. Most curr
 ### Limitations
 
 -   Black Box is spatial; not all diagnosis is
--   2D grid; clinical reasoning is higher-dimensional
 -   Fixed action space (32 rays); clinical tests are open-ended
--   Single-player; real diagnosis involves consultation
--   Currently only Claude models tested in React app
+-   Currently only Claude models tested
 :::
 
 ::: {.column width="50%"}
 ### Future Directions
 
+-   Identify similar medical domains and test there
 -   Test more model families (GPT, Gemini, open-source)
--   Larger grids, more atoms
--   Multi-agent collaborative diagnosis
--   Transfer analysis: BB performance → clinical task performance
--   Agentic architectures with tool access
+-   Test agentic architectures and harnesses with tool access
+-   Fine tune an LLM to Predict, then test
+-   Fine tune an LLM to Play, then test
 :::
 :::::
 
@@ -3233,27 +3195,6 @@ Four properties that good diagnostic reasoning benchmarks should have. Most curr
 Honest limitations. Black Box is a spatial game, and not all diagnostic reasoning is spatial. The action space is constrained — in real medicine, you choose from thousands of possible tests. And we've only tested Claude models. Future work should test more models, explore multi-agent settings, and — most importantly — test whether Black Box performance predicts performance on actual clinical diagnostic tasks. That transfer analysis would validate the benchmark.
 :::
 
-## Key Takeaways
-
-::: incremental
-1.  **LLMs perform above chance but far below optimal** on diagnostic reasoning — extracting signal but failing at systematic evidence integration
-
-2.  **The failures are in the process, not the knowledge** — models know ray physics but can't select informative tests, track constraints, or recognize when evidence is sufficient
-
-3.  **Scaling and prompting help modestly** — the diagnostic reasoning gap appears to be an architectural limitation, not an instructional one
-:::
-
-:::: fragment
-::: callout-important
-## Bottom Line
-
-Before deploying LLMs for diagnostic tasks, we need benchmarks that test **reasoning process**, not just **answer accuracy**. Black Box demonstrates that the gap between "knows the domain" and "reasons within the domain" is substantial and persistent.
-:::
-::::
-
-::: notes
-Three takeaways to leave up during Q&A. First, LLMs are somewhere between random and optimal — they're not useless, but they're far from reliable. Second, the problem isn't knowledge but process — models know the rules, they just can't apply them systematically over multiple steps. Third, bigger models and better prompts help a bit, but they don't solve the fundamental problem. The bottom line for clinical deployment: we need much better evaluation before we trust LLMs with diagnostic reasoning.
-:::
 
 ## Questions? {background-color="#2C3E50" style="color: white; text-align: center;"}
 
@@ -3266,7 +3207,7 @@ University of Texas Health Science Center at Houston
 :::
 
 ::: {style="font-size: 1.1em; margin-top: 2em; color: #bdc3c7;"}
-Paper & Demo: [github.com/toddjohnson/BBXReact](https://github.com/toddjohnson/BBXReact)
+Early Draft Paper, Slides & Demo: [github.com/toddjohnson/BBXReact](https://github.com/toddjohnson/BBXReact)
 :::
 
 ::: {style="margin-top: 2em;"}
