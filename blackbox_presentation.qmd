@@ -15,20 +15,20 @@ format:
     code-fold: true
     fig-width: 14
     fig-height: 7
+    header-includes: |
+      <style>
+      .reveal .slides section.scrollable h2 {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 10;
+      }
+      </style>
 bibliography: references.bib
 execute:
   echo: false
   warning: false
 ---
-
-<style>
-.reveal .slides section.scrollable h2 {
-  position: sticky;
-  top: 0;
-  background: white;
-  z-index: 10;
-}
-</style>
 
 ```{r}
 #| label: setup
@@ -45,6 +45,7 @@ library(lmerTest)    # p-values for mixed models
 library(car)
 library(broom.mixed)
 library(plotly)
+library(ggeffects)
 
 # Order model names by family (Haiku < Sonnet < Opus), then version
 order_model_names <- function(names) {
@@ -951,7 +952,7 @@ The baseline prompt uses an intrinsic frame of reference — directions are rela
 Switching to fixed compass directions — an absolute frame — gave the model an unambiguous lookup table. You're traveling south, there's an atom to the east, you turn west. No mental rotation required. The frame of reference never changes regardless of how many deflections occur. This single change significantly reduced ray-tracing errors in predict mode.
 :::
 
-## Prompt Comparison: Predict Mode
+## Prompt Comparison: Predict Mode {visibility="hidden"}
 
 :::::: columns
 ::: {.column width="50%"}
@@ -1066,12 +1067,13 @@ The 10 fixed atom configurations used throughout all experiments. They range fro
 ## Optimal Solver Results
 
 ```{r}
+#| output: asis
 if (has_optimal) {
   cat(paste0(
-    "Mean rays to solve: ", round(mean(optimal_data$optimal_rays), 1), "\n",
-    "Range: ", min(optimal_data$optimal_rays), "–", max(optimal_data$optimal_rays), "\n",
-    "Mean score: ", round(mean(optimal_data$optimal_score), 1), "\n",
-    "All 10 configs solved: ", all(optimal_data$optimal_solved)
+    "**Mean rays to solve:** ", round(mean(optimal_data$optimal_rays), 1), "\n\n",
+    "**Range:** ", min(optimal_data$optimal_rays), "–", max(optimal_data$optimal_rays), "\n\n",
+    "**Mean score:** ", round(mean(optimal_data$optimal_score), 1), "\n\n",
+    "**All 10 configs solved:** ", all(optimal_data$optimal_solved)
   ))
 }
 ```
@@ -1178,6 +1180,10 @@ Any agent that extracts meaningful signal from ray observations should **substan
 
 ::: notes
 The floor of the performance corridor. If you just guess randomly without firing any rays, you get 0.25 atoms correct on average and a score of 18.75. The vast majority of the time — 77% — you get zero atoms right. We now have our corridor: chance at 0.25 atoms, optimal at 4.0 atoms. Where do LLMs fall?
+
+The hypergeometric distribution models drawing without replacement from a finite population. N is the total population size (64 board positions), K is the total number of success items in the population (4 hidden atoms), and n is the number of draws without replacement (4 guesses). X counts how many draws land on success items. This is the right model because guessing is sampling without replacement from a fixed set — you wouldn't guess the same cell twice. The expected value is nK/N = 4×4/64 = 0.25.
+
+K and n happen to both be 4 here, but they're conceptually different. K is a property of the board — how many atoms are hidden. n is a property of the guesser — how many guesses you make. They could easily differ: if the game had 6 atoms but you only got 4 guesses, K=6 and n=4. The distribution needs both to compute the overlap probability.
 :::
 
 ## Predict: Leaderboard & Forest Plot {.smaller .scrollable}
@@ -1231,7 +1237,7 @@ ggplot(forest_data, aes(x = accuracy, y = config_label)) +
 Here's the full predict mode leaderboard as a forest plot. Each row is a unique experimental condition, ranked by accuracy. Note the model clustering — Opus models tend to cluster at top, Haiku at bottom. The best conditions achieve around 80% accuracy. This is forward reasoning only — given atoms, predict ray behavior. Already we see substantial error rates.
 :::
 
-## Predict: Factor Effects
+## Predict: Factor Effects {visibility="hidden"}
 
 ```{r}
 #| label: predict-factors
@@ -1278,7 +1284,7 @@ ggplot(factor_data, aes(x = accuracy, y = level)) +
 ```
 
 ::: notes
-Marginal effects for each factor. Model matters most — clear separation between Haiku and Opus. Extended thinking and augmented prompts both help, but the gains are modest. VoT has minimal effect in predict mode. Key takeaway: model scale is the dominant factor for forward spatial reasoning.
+Marginal effects for each factor. The raw marginals show some separation between models, but in the ANOVA (which includes model × prompt × thinking interactions), model identity is not a significant main effect. Extended thinking and augmented prompts are the significant factors. VoT has minimal effect in predict mode. Key takeaway: the right scaffolding — not model scale — drives forward spatial reasoning accuracy.
 :::
 
 ## Predict: ANOVA {.smaller .scrollable visibility="hidden"}
@@ -1374,7 +1380,7 @@ gt(anova_df |> select(-is_sig)) |>
 ```
 
 ::: notes
-Type III ANOVA from a mixed-effects logistic regression. The model accounts for clustering at the configuration level. Key question: which experimental factors significantly predict accuracy, after controlling for path complexity? Look at the chi-squared values and p-values — model identity typically dominates. cells_traveled and atoms_affecting are covariates — precision variables, not confounders, since the same rays are tested across all conditions. They explain variance in ray difficulty and improve statistical power. Including these continuous covariates technically makes this an ANCOVA.
+Type III ANOVA from a mixed-effects logistic regression. The model accounts for clustering at the configuration level. Key question: which experimental factors significantly predict accuracy, after controlling for path complexity? Look at the chi-squared values and p-values — extended thinking and augmented prompts are the significant main effects, not model identity. cells_traveled and atoms_affecting are covariates — precision variables, not confounders, since the same rays are tested across all conditions. They explain variance in ray difficulty and improve statistical power. Including these continuous covariates technically makes this an ANCOVA.
 :::
 
 ## Predict: Regression Coefficients {.smaller .scrollable}
@@ -1441,6 +1447,70 @@ gt(tidy_display) |>
 This table shows two versions of the same information. The β (log-odds) column is the raw output of logistic regression — positive means it helps, negative means it hurts, but the scale isn't intuitive. The Odds Ratio column converts that to a multiplier: OR of 1 means no effect, OR of 2 means the factor doubles the odds of a correct prediction, OR of 0.5 means it halves the odds. Focus on the Odds Ratio column — it tells you how much each factor multiplies the odds of the model getting the right answer. For example, if augmented prompts show an OR of 1.8, that means 80% higher odds of predicting correctly compared to baseline. Bold rows are statistically significant. The intercept represents the baseline condition — the reference levels of all factors (Haiku 4.5, baseline prompt, no extended thinking, no VoT). Interaction terms test whether factor combinations have synergistic or antagonistic effects beyond their individual contributions.
 
 If asked "how much improvement is that in real terms?": The intercept gives you the baseline probability. Convert the intercept log-odds to a probability with p = exp(β) / (1 + exp(β)). Then multiply the baseline odds by the OR to get new odds, and convert back to a probability: new_p = new_odds / (1 + new_odds). For example, if the intercept gives a baseline of 40% (odds = 0.667) and a factor has OR = 3.2, the new odds are 0.667 × 3.2 = 2.13, so the new probability is 2.13 / 3.13 = 68% — a 28-point gain. The same OR gives different percentage-point gains at different baselines because odds and probability have a nonlinear relationship. For the audience, it's usually simpler to say "this triples the odds" and point to the marginal effects plot for the concrete accuracy numbers.
+:::
+
+## Predict: Estimated Marginal Means (Accuracy) {.smaller}
+
+```{r}
+#| label: predict-marginal-accuracy
+#| fig-height: 6
+
+# Refit with correct as factor (ggemmeans requires non-logical response)
+predict_anova_data_me <- predict_anova_data |>
+  mutate(correct = factor(correct, levels = c(FALSE, TRUE)))
+predict_glmer_me <- glmer(as.formula(pres_formula),
+                          family = binomial(link = "logit"),
+                          data = predict_anova_data_me,
+                          control = glmerControl(optimizer = "bobyqa"))
+
+# Get estimated marginal means for each factor in the predict model
+predict_me_terms <- c()
+if (pres_has_model) predict_me_terms <- c(predict_me_terms, "model_name")
+if (pres_has_prompt) predict_me_terms <- c(predict_me_terms, "prompt_style")
+if (pres_has_thinking) predict_me_terms <- c(predict_me_terms, "enable_thinking")
+if (pres_has_vot) predict_me_terms <- c(predict_me_terms, "vot_ray_trace")
+
+predict_me_list <- lapply(predict_me_terms, function(term) {
+  pred <- ggemmeans(predict_glmer_me, terms = term)
+  tibble(
+    factor = term,
+    level = as.character(pred$x),
+    predicted = pred$predicted,
+    ci_low = pred$conf.low,
+    ci_high = pred$conf.high
+  )
+})
+predict_me <- bind_rows(predict_me_list)
+
+# Clean up factor labels
+predict_me <- predict_me |>
+  mutate(
+    factor = case_when(
+      factor == "model_name" ~ "Model",
+      factor == "prompt_style" ~ "Prompt Style",
+      factor == "enable_thinking" ~ "Extended Thinking",
+      factor == "vot_ray_trace" ~ "VoT Ray Trace",
+      TRUE ~ factor
+    ),
+    level = case_when(
+      level == "TRUE" | level == "1" ~ "Enabled",
+      level == "FALSE" | level == "0" ~ "Disabled",
+      TRUE ~ level
+    )
+  )
+
+ggplot(predict_me, aes(x = predicted, y = level)) +
+  geom_pointrange(aes(xmin = ci_low, xmax = ci_high),
+                  size = 0.8, linewidth = 1) +
+  facet_wrap(~ factor, scales = "free_y") +
+  scale_x_continuous(labels = percent, limits = c(0, 1)) +
+  labs(y = NULL, x = "Predicted Probability of Correct",
+       title = "Predict Mode: Estimated Marginal Means",
+       subtitle = "Population-averaged predictions with 95% CI, marginalized over other factors")
+```
+
+::: notes
+Estimated marginal means from the fitted logistic mixed-effects model, shown on the probability scale. Each panel shows the population-averaged predicted probability of a correct prediction for each level of one factor, marginalized (averaged) over all levels of the other factors. This is the "real terms" translation of the odds ratios in the regression table — instead of saying "this triples the odds," you can read directly that accuracy goes from X% to Y%. Because the logistic link is nonlinear, the same odds ratio produces different percentage-point gains depending on the baseline. These plots show the actual predicted probabilities, making the effect sizes immediately interpretable. All factors — including model — were crossed in the factorial design, so the differences within each panel are causally interpretable as average treatment effects.
 :::
 
 ## Error Analysis: Predict Mode
@@ -1530,6 +1600,15 @@ errors_by_condition <- predict_errors |>
   count(model_name, condition) |>
   rename(total_errors = n)
 
+# Order condition legend by total errors (highest to lowest)
+condition_order <- errors_by_condition |>
+  group_by(condition) |>
+  summarise(sum_errors = sum(total_errors)) |>
+  arrange(desc(sum_errors)) |>
+  pull(condition)
+errors_by_condition$condition <- factor(errors_by_condition$condition,
+                                        levels = condition_order)
+
 # Use same model order as previous slide (by model size)
 errors_by_condition$model_name <- factor(errors_by_condition$model_name,
                                          levels = model_error_order)
@@ -1549,7 +1628,8 @@ p <- ggplot(errors_by_condition, aes(x = model_name, y = total_errors,
         legend.position = "right")
 
 ggplotly(p, tooltip = "text") |>
-  layout(hoverlabel = list(bgcolor = "white")) |>
+  layout(hoverlabel = list(bgcolor = "white"),
+         margin = list(r = 150)) |>
   htmlwidgets::onRender("
     function(el) {
       var highlighted = null;
@@ -1584,14 +1664,10 @@ This shows how error counts vary across experimental conditions for each model, 
 
 **Key Findings**
 
-- Overall accuracy range: ~40%–80% across conditions
-- **Extended thinking** and **augmented prompts** are the significant main effects — not model identity
-- A Haiku 4.5 configuration ranks third on the leaderboard — the right scaffolding matters more than model scale
-- VoT ray trace has minimal independent effect
+- ~40%–80% accuracy across conditions
+- **Extended thinking** and **augmented prompts** are the significant main effects — **not model identity**
+- A **Haiku 4.5 configuration ranks third** on the leaderboard — the right scaffolding matters more than model scale
 - Path complexity (cells traveled, atoms affecting) significantly predicts difficulty
-- No condition achieves perfect accuracy on *forward* reasoning
-
-> **Bottom line:** If models can't reliably trace a ray *when shown the atoms*, what happens when they must *infer* atom positions from ray outcomes?
 
 ::: notes
 This slide summarizes the predict mode findings before we move to play mode. The surprising result is that model identity is not a significant predictor — a well-configured Haiku can outperform a poorly-configured Opus. What actually drives accuracy are the experimental scaffolding factors: extended thinking and augmented prompts. This suggests forward spatial reasoning is less about raw model capability and more about giving the model the right framework to reason within. The closing question sets up the play mode results — predict mode is the easier task (forward reasoning), and play mode (inverse reasoning) should be strictly harder. If forward reasoning still produces errors even with optimal scaffolding, we should expect inverse reasoning to be substantially worse.
@@ -1650,150 +1726,7 @@ ggplot(play_forest_initial, aes(x = mean_correct, y = config_label)) +
 Play mode forest plot — the full diagnostic reasoning task. Much lower performance than predict mode, as expected. The best conditions find about 2-3 atoms out of 4. All conditions beat chance. But notice the wide confidence intervals — at n=10, these CIs span nearly half the 0-4 range. As we'll see next, when we replicated the top performers, the rankings shifted substantially.
 :::
 
-## Replication: Atoms Correct With More Data {.smaller .scrollable}
-
-```{r}
-#| label: play-replication-slide
-#| fig-height: 20
-#| out-width: "100%"
-#| out-height: "2000px"
-
-if (n_replication_runs > 0) {
-  # Build comparison: original vs pooled for replicated configs, original-only for others
-  forest_original <- play_data_original |>
-    mutate(
-      config_label = paste0(
-        model_name, " | ",
-        ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
-        ifelse(as.logical(enable_thinking), "Think", "No-Think"), " | ",
-        gsub("^[A-C]: ", "", as.character(vot_condition))
-      )
-    ) |>
-    group_by(config_label, model_name, prompt_style, enable_thinking,
-             vot_grid_state, vot_ray_trace, vot_hypothesis) |>
-    summarise(
-      n = n(), mean_correct = mean(atoms_correct),
-      se = sd(atoms_correct) / sqrt(n()),
-      ci_lower = mean_correct - 1.96 * se,
-      ci_upper = mean_correct + 1.96 * se,
-      .groups = "drop"
-    )
-
-  forest_pooled <- play_data |>
-    mutate(
-      config_label = paste0(
-        model_name, " | ",
-        ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
-        ifelse(as.logical(enable_thinking), "Think", "No-Think"), " | ",
-        gsub("^[A-C]: ", "", as.character(vot_condition))
-      )
-    ) |>
-    group_by(config_label, model_name, prompt_style, enable_thinking,
-             vot_grid_state, vot_ray_trace, vot_hypothesis) |>
-    summarise(
-      n = n(), mean_correct = mean(atoms_correct),
-      se = sd(atoms_correct) / sqrt(n()),
-      ci_lower = mean_correct - 1.96 * se,
-      ci_upper = mean_correct + 1.96 * se,
-      .groups = "drop"
-    )
-
-  # Identify replicated configs
-  forest_pooled <- forest_pooled |>
-    mutate(
-      replicated = pmap_lgl(list(model_name, prompt_style, enable_thinking,
-                                  vot_grid_state, vot_ray_trace, vot_hypothesis),
-        function(mn, ps, et, vgs, vrt, vh) {
-          any(replicated_conditions$model_name == mn &
-              replicated_conditions$prompt_style == ps &
-              replicated_conditions$enable_thinking == et &
-              replicated_conditions$vot_grid_state == vgs &
-              replicated_conditions$vot_ray_trace == vrt &
-              replicated_conditions$vot_hypothesis == vh)
-        }),
-      label_display = ifelse(replicated,
-                             paste0(config_label, " (n=", n, ")"),
-                             config_label)
-    ) |>
-    arrange(mean_correct) |>
-    mutate(label_display = factor(label_display, levels = label_display))
-
-  # Show original means as hollow points for replicated configs
-  original_replicated <- forest_original |>
-    semi_join(replicated_conditions,
-              by = c("model_name", "prompt_style", "enable_thinking",
-                     "vot_grid_state", "vot_ray_trace", "vot_hypothesis")) |>
-    left_join(forest_pooled |> select(config_label, label_display),
-              by = "config_label")
-
-  ggplot(forest_pooled, aes(x = mean_correct, y = label_display)) +
-    geom_point(aes(color = model_name, shape = replicated), size = 3.5) +
-    geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper, color = model_name),
-                   height = 0.3, linewidth = 0.9) +
-    # Show original means as hollow circles for replicated configs
-    geom_point(data = original_replicated,
-               aes(x = mean_correct, y = label_display),
-               shape = 1, size = 4, color = "gray40", stroke = 1.2) +
-    geom_vline(xintercept = 0.25, linetype = "dotted", color = "red", alpha = 0.7) +
-    geom_vline(xintercept = 1, linetype = "dashed", color = "gray50", alpha = 0.5) +
-    geom_text(aes(label = sprintf("%.2f", mean_correct)),
-              hjust = -0.3, size = 3.5) +
-    scale_color_manual(values = model_colors) +
-    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    scale_x_continuous(limits = c(0, 4.2), breaks = seq(0, 4, 0.5),
-                       sec.axis = dup_axis(name = NULL)) +
-    labs(x = "Mean Atoms Correct (out of 4)", y = NULL, color = "Model",
-         title = "Play Mode: Atoms Correct — Pooled Results (replication shifts rankings)",
-         subtitle = "Filled = pooled mean. Hollow circle = original n=10 mean for replicated configs.") +
-    theme(
-      axis.text.y = element_text(size = 9, family = "mono"),
-      panel.grid.major.y = element_blank()
-    )
-}
-```
-
-::: notes
-When we replicated the top two configurations 4 additional times on the same game boards, both regressed toward the mean. The hollow circles show where they originally ranked; the filled triangles show the pooled result. The original n=10 was a lucky draw — both top configs sat at the upper tail of their actual performance distributions. This is classic winner's curse: select the best from 80 noisy estimates, and you've selected noise along with signal.
-:::
-
-## Performance Variance as a Finding {.smaller}
-
-```{r}
-#| label: play-variance-slide
-#| fig-height: 7
-
-if (n_replication_runs > 0) {
-  heatmap_data <- play_data |>
-    semi_join(replicated_conditions,
-              by = c("model_name", "prompt_style", "enable_thinking",
-                     "vot_grid_state", "vot_ray_trace", "vot_hypothesis")) |>
-    mutate(run_label = ifelse(source == "original", "Original",
-                              paste0("Run ", as.integer(factor(run_id)))))
-
-  ggplot(heatmap_data,
-         aes(x = run_label, y = factor(config_index), fill = atoms_correct)) +
-    geom_tile(color = "white", linewidth = 0.5) +
-    geom_text(aes(label = atoms_correct), size = 5, fontface = "bold") +
-    scale_fill_gradient2(low = "#c62828", mid = "#fff176", high = "#2e7d32",
-                         midpoint = 2, limits = c(0, 4),
-                         name = "Atoms\nCorrect") +
-    facet_wrap(~model_name, ncol = 2) +
-    labs(
-      title = "Per-Configuration Reliability Across Runs",
-      subtitle = "Same boards, same config — performance swings wildly on some boards, not others",
-      x = NULL, y = "Game Board"
-    ) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 11),
-          axis.text.y = element_text(size = 12),
-          strip.text = element_text(size = 13))
-}
-```
-
-::: notes
-This heatmap is the key finding. Each row is a game board, each column is a run. Green means all 4 atoms found, red means failure. Look at boards 2 and 6 — reliably solved every single time, both models. These are configurations where the model has stable access to the reasoning needed. But other boards (like 4 and 5) swing between 0 and 4 across runs. This is not consistent partial competence — it's stochastic access to a reasoning strategy. The model either finds the right approach or doesn't, with little middle ground. This bimodal pattern is itself diagnostic of how LLMs reason about constraint satisfaction.
-:::
-
-## Play: Factor Effects (Atoms Correct)
+## Play: Factor Effects (Atoms Correct) {visibility="hidden"}
 
 ```{r}
 #| label: play-factors
@@ -1845,7 +1778,7 @@ ggplot(play_factor_data, aes(x = mean_val, y = level)) +
 ```
 
 ::: notes
-Play mode factor effects (using pooled data including replication runs). These factor-level aggregations are robust because they average over many games. Model still matters most. Extended thinking shows a clearer benefit with pooled data. Augmented prompts help in play mode more than predict mode — the game is complex enough to benefit from strategic guidance. VoT conditions show mixed results.
+Play mode factor effects (using pooled data including replication runs). These factor-level aggregations are robust because they average over many games. Extended thinking is the dominant factor — its chi-squared is at least twice the runner-up. Model and augmented prompts are also significant. Augmented prompts help in play mode more than predict mode — the game is complex enough to benefit from strategic guidance. VoT conditions show mixed results, with ray trace providing some benefit.
 :::
 
 ## Play: ANOVA (Atoms Correct) {.smaller .scrollable visibility="hidden"}
@@ -1998,10 +1931,67 @@ gt(play_tidy_display) |>
 ::: notes
 Regression coefficients from the main-effects linear mixed model. Unlike predict mode which reports odds ratios from logistic regression, these coefficients are directly interpretable: each β represents the average change in atoms correct (on the 0–4 scale) when that factor is present versus the reference level, across all levels of the other factors. For example, a coefficient of 0.5 means that factor adds half an atom on average. The intercept represents the baseline condition — the reference levels of all factors (first model alphabetically, baseline prompt, no extended thinking, no VoT). The confidence intervals give the plausible range for each effect.
 
+How mean_cells_per_ray and mean_atoms_per_ray are calculated: for each game, we iterate over only the rays the LLM actually fired (action == "fire" in raySequence), trace each one through trace_ray_r() to count the cells traversed (path length) or atoms affecting the ray, then average across those fired rays. These are based on the rays the model chose, not all 32 possible rays.
+
 A note on interpreting mean_cells_per_ray and mean_atoms_per_ray: these coefficients should not be interpreted as causal effects. Causal interpretation requires that you could intervene on the variable while holding everything else fixed, but these metrics are deterministic functions of the atom configuration — you cannot change one without changing the configuration itself, which also changes the other metric and unmeasured properties like atom clustering and edge proximity. They were not randomized and only take 10 distinct values (one per configuration), so the betas capture the best linear projection onto these two features with possible confounding from correlated but unmeasured configuration properties. However, they are not confounders in the traditional sense either — they do not cause both treatment assignment and outcome. They are better understood as structural difficulty indicators: configuration-level covariates with a clear mechanistic direction (board properties → reasoning difficulty → performance). The significant coefficients tell us which structural features of the problem instance predict LLM difficulty, consistent with the hypothesis that constraint density drives reasoning errors. The honest framing is conditional association with a clear mechanistic direction, not strict causal effects.
 :::
 
-## The Performance Corridor {background-color="#f8f9fa"}
+## Play: Estimated Marginal Means (Atoms Correct) {.smaller visibility="hidden"}
+
+```{r}
+#| label: play-marginal-atoms
+#| fig-height: 6
+
+# Get marginal effects for each manipulated factor
+me_terms <- c()
+if (play_pres_has_model) me_terms <- c(me_terms, "model_name")
+if (play_pres_has_prompt) me_terms <- c(me_terms, "prompt_style")
+if (play_pres_has_thinking) me_terms <- c(me_terms, "enable_thinking")
+if (play_pres_has_vot) me_terms <- c(me_terms, "vot_condition")
+
+me_atoms_list <- lapply(me_terms, function(term) {
+  pred <- ggemmeans(play_lmer, terms = term)
+  tibble(
+    factor = term,
+    level = as.character(pred$x),
+    predicted = pred$predicted,
+    ci_low = pred$conf.low,
+    ci_high = pred$conf.high
+  )
+})
+me_atoms <- bind_rows(me_atoms_list)
+
+# Clean up factor labels
+me_atoms <- me_atoms |>
+  mutate(
+    factor = case_when(
+      factor == "model_name" ~ "Model",
+      factor == "prompt_style" ~ "Prompt Style",
+      factor == "enable_thinking" ~ "Extended Thinking",
+      factor == "vot_condition" ~ "VoT Condition",
+      TRUE ~ factor
+    ),
+    level = case_when(
+      level == "TRUE" ~ "Enabled",
+      level == "FALSE" ~ "Disabled",
+      TRUE ~ level
+    )
+  )
+
+ggplot(me_atoms, aes(x = predicted, y = level)) +
+  geom_pointrange(aes(xmin = ci_low, xmax = ci_high),
+                  size = 0.8, linewidth = 1) +
+  facet_wrap(~ factor, scales = "free_y") +
+  labs(y = NULL, x = "Predicted Atoms Correct",
+       title = "Play Mode: Estimated Marginal Means (Atoms Correct)",
+       subtitle = "Population-averaged predictions with 95% CI, marginalized over other factors")
+```
+
+::: notes
+Estimated marginal means from the fitted mixed-effects model. Each panel shows the population-averaged predicted atoms correct for each level of one factor, marginalized over all levels of the other factors. Unlike the raw cell means in the factor effects plot, these estimates account for the random intercept structure and isolate each factor's contribution. The confidence intervals reflect model uncertainty. All factors — including model — were crossed in the factorial design, so the differences within each panel are causally interpretable as average treatment effects. For model, the causal claim is that choosing Opus over Haiku causes better performance, though the mechanism (scale, training data, architecture) is bundled and cannot be decomposed from this design alone.
+:::
+
+## The Performance Corridor {background-color="#f8f9fa" visibility="hidden"}
 
 ```{r}
 #| label: performance-corridor
@@ -2244,6 +2234,229 @@ gt(play_score_tidy_display) |>
 Regression coefficients for the score model. Score is the composite game outcome (lower is better) that penalizes both incorrect atom placement and excessive ray use. Negative coefficients indicate improvement (lower score). Unlike atoms correct where positive β means better performance, here a negative β means the factor reduces score — which is better. The intercept represents the expected score at the baseline condition. These coefficients complement the atoms correct model by revealing whether factors that improve placement accuracy also improve information-gathering efficiency, or whether some factors trade off accuracy against ray economy.
 :::
 
+## Play: Estimated Marginal Means (Score) {.smaller visibility="hidden"}
+
+```{r}
+#| label: play-marginal-score
+#| fig-height: 6
+
+# Get marginal effects for each manipulated factor
+me_score_list <- lapply(me_terms, function(term) {
+  pred <- ggemmeans(play_score_lmer, terms = term)
+  tibble(
+    factor = term,
+    level = as.character(pred$x),
+    predicted = pred$predicted,
+    ci_low = pred$conf.low,
+    ci_high = pred$conf.high
+  )
+})
+me_score <- bind_rows(me_score_list)
+
+# Clean up factor labels
+me_score <- me_score |>
+  mutate(
+    factor = case_when(
+      factor == "model_name" ~ "Model",
+      factor == "prompt_style" ~ "Prompt Style",
+      factor == "enable_thinking" ~ "Extended Thinking",
+      factor == "vot_condition" ~ "VoT Condition",
+      TRUE ~ factor
+    ),
+    level = case_when(
+      level == "TRUE" ~ "Enabled",
+      level == "FALSE" ~ "Disabled",
+      TRUE ~ level
+    )
+  )
+
+ggplot(me_score, aes(x = predicted, y = level)) +
+  geom_pointrange(aes(xmin = ci_low, xmax = ci_high),
+                  size = 0.8, linewidth = 1) +
+  facet_wrap(~ factor, scales = "free_y") +
+  labs(y = NULL, x = "Predicted Score",
+       title = "Play Mode: Estimated Marginal Means (Score)",
+       subtitle = "Population-averaged predictions with 95% CI (lower is better)")
+```
+
+::: notes
+Estimated marginal means from the score mixed-effects model. Each panel shows the population-averaged predicted score for each level of one factor, marginalized over all levels of the other factors. Lower predicted scores indicate better performance. As with atoms correct, all factors were crossed in the factorial design, so differences are causally interpretable as average treatment effects. These complement the atoms correct marginal means by revealing whether factors that improve placement accuracy also reduce overall score (which additionally penalizes excessive ray use). If a factor improves atoms correct but worsens score, it may be encouraging more exploratory ray firing without proportional accuracy gains.
+:::
+
+## Atoms Correct by Condition: Play Mode {.smaller}
+
+```{r}
+#| label: play-atoms-by-condition
+
+# Build condition labels
+play_atoms_by_condition <- play_data |>
+  mutate(
+    condition = paste0(
+      ifelse(prompt_style == "augmented", "Aug", "Base"),
+      ifelse(as.logical(enable_thinking), " +Think", ""),
+      case_when(
+        vot_condition == "A: Grid State" ~ " +Grid",
+        vot_condition == "B: Ray Trace" ~ " +Ray",
+        vot_condition == "C: Hypothesis" ~ " +Hypo",
+        TRUE ~ ""
+      )
+    )
+  ) |>
+  group_by(model_name, condition) |>
+  summarise(mean_atoms = mean(atoms_correct), .groups = "drop")
+
+# Order condition legend by mean atoms correct (highest to lowest = best to worst)
+condition_order_atoms <- play_atoms_by_condition |>
+  group_by(condition) |>
+  summarise(sum_atoms = sum(mean_atoms)) |>
+  arrange(desc(sum_atoms)) |>
+  pull(condition)
+play_atoms_by_condition$condition <- factor(play_atoms_by_condition$condition,
+                                            levels = condition_order_atoms)
+
+# Order models by size
+play_atoms_by_condition$model_name <- factor(
+  play_atoms_by_condition$model_name,
+  levels = order_model_names(unique(play_atoms_by_condition$model_name)))
+
+n_cond_atoms <- n_distinct(play_atoms_by_condition$condition)
+atoms_cond_colors <- colorRampPalette(RColorBrewer::brewer.pal(8, "Dark2"))(n_cond_atoms)
+
+p <- ggplot(play_atoms_by_condition, aes(x = model_name, y = mean_atoms,
+                                 color = condition, group = condition,
+                                 text = paste0("Condition: ", condition,
+                                               "\nModel: ", model_name,
+                                               "\nMean Atoms Correct: ",
+                                               round(mean_atoms, 2)))) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3.5) +
+  scale_color_manual(values = atoms_cond_colors) +
+  labs(x = NULL, y = "Mean Atoms Correct", color = "Condition",
+       title = "Play Mode: Atoms Correct by Experimental Condition",
+       subtitle = "Each line = one prompt × thinking × VoT combination") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1),
+        legend.position = "right")
+
+ggplotly(p, tooltip = "text") |>
+  layout(hoverlabel = list(bgcolor = "white"),
+         margin = list(r = 150)) |>
+  htmlwidgets::onRender("
+    function(el) {
+      var highlighted = null;
+      el.on('plotly_legendclick', function(d) {
+        var clickedGroup = el.data[d.curveNumber].legendgroup;
+        if (highlighted === clickedGroup) {
+          Plotly.restyle(el, {opacity: 1});
+          highlighted = null;
+        } else {
+          for (var i = 0; i < el.data.length; i++) {
+            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;
+            Plotly.restyle(el, {opacity: op}, [i]);
+          }
+          highlighted = clickedGroup;
+        }
+        return false;
+      });
+      el.on('plotly_legenddoubleclick', function() {
+        Plotly.restyle(el, {opacity: 1});
+        highlighted = null;
+        return false;
+      });
+    }
+  ")
+```
+
+::: notes
+Play mode atoms correct by experimental condition, with models ordered by size. Lines higher on the chart mean more atoms correctly placed. Conditions that maintain consistent ranking across models suggest additive effects; crossings indicate interaction effects. Unlike predict mode error counts, this uses the mean atoms correct (0–4 scale) averaged across configurations.
+:::
+
+## Score by Condition: Play Mode {.smaller}
+
+```{r}
+#| label: play-score-by-condition
+
+# Build condition labels
+play_score_by_condition <- play_data |>
+  mutate(
+    condition = paste0(
+      ifelse(prompt_style == "augmented", "Aug", "Base"),
+      ifelse(as.logical(enable_thinking), " +Think", ""),
+      case_when(
+        vot_condition == "A: Grid State" ~ " +Grid",
+        vot_condition == "B: Ray Trace" ~ " +Ray",
+        vot_condition == "C: Hypothesis" ~ " +Hypo",
+        TRUE ~ ""
+      )
+    )
+  ) |>
+  group_by(model_name, condition) |>
+  summarise(mean_score = mean(score), .groups = "drop")
+
+# Order condition legend by mean score (lowest to highest = best to worst)
+condition_order_score <- play_score_by_condition |>
+  group_by(condition) |>
+  summarise(sum_score = sum(mean_score)) |>
+  arrange(sum_score) |>
+  pull(condition)
+play_score_by_condition$condition <- factor(play_score_by_condition$condition,
+                                            levels = condition_order_score)
+
+# Order models by size
+play_score_by_condition$model_name <- factor(
+  play_score_by_condition$model_name,
+  levels = order_model_names(unique(play_score_by_condition$model_name)))
+
+n_cond_score <- n_distinct(play_score_by_condition$condition)
+score_cond_colors <- colorRampPalette(RColorBrewer::brewer.pal(8, "Dark2"))(n_cond_score)
+
+p <- ggplot(play_score_by_condition, aes(x = model_name, y = mean_score,
+                                 color = condition, group = condition,
+                                 text = paste0("Condition: ", condition,
+                                               "\nModel: ", model_name,
+                                               "\nMean Score: ",
+                                               round(mean_score, 1)))) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3.5) +
+  scale_color_manual(values = score_cond_colors) +
+  labs(x = NULL, y = "Mean Score", color = "Condition",
+       title = "Play Mode: Score by Experimental Condition",
+       subtitle = "Each line = one prompt × thinking × VoT combination (lower is better)") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1),
+        legend.position = "right")
+
+ggplotly(p, tooltip = "text") |>
+  layout(hoverlabel = list(bgcolor = "white"),
+         margin = list(r = 150)) |>
+  htmlwidgets::onRender("
+    function(el) {
+      var highlighted = null;
+      el.on('plotly_legendclick', function(d) {
+        var clickedGroup = el.data[d.curveNumber].legendgroup;
+        if (highlighted === clickedGroup) {
+          Plotly.restyle(el, {opacity: 1});
+          highlighted = null;
+        } else {
+          for (var i = 0; i < el.data.length; i++) {
+            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;
+            Plotly.restyle(el, {opacity: op}, [i]);
+          }
+          highlighted = clickedGroup;
+        }
+        return false;
+      });
+      el.on('plotly_legenddoubleclick', function() {
+        Plotly.restyle(el, {opacity: 1});
+        highlighted = null;
+        return false;
+      });
+    }
+  ")
+```
+
+::: notes
+Play mode score by experimental condition. Score is a composite metric where lower is better — it penalizes both incorrect atom placement and excessive ray use. Conditions with lower lines are better. This complements the atoms correct chart by revealing whether conditions that improve placement accuracy also improve information-gathering efficiency, or whether some conditions trade off accuracy against ray economy.
+:::
+
 ## LLM vs Optimal: Rays Used
 
 ```{r}
@@ -2297,7 +2510,8 @@ ggplot(rays_long, aes(x = config_index, y = rays, color = agent, group = agent))
   scale_x_continuous(breaks = 0:9) +
   labs(x = "Configuration", y = "Rays Used", color = NULL,
        title = "Rays Used: Optimal vs Best Condition vs LLM Mean",
-       subtitle = "LLMs consistently use more rays — poor test selection efficiency")
+       subtitle = "LLMs consistently use more rays — poor test selection efficiency",
+       caption = "Best condition selected by lowest mean score")
 ```
 
 ::: notes
@@ -2338,7 +2552,7 @@ ggplot(score_long, aes(x = config_index, y = score_val, color = agent, group = a
 Same comparison but for total score — which combines ray costs AND missed atom penalties. The gap is even larger here because LLMs both use more rays AND miss more atoms. The chance baseline at 18.75 shows that LLMs are well above chance, but the gap to optimal is substantial. Some configurations are much harder than others — note how the lines diverge on harder configs.
 :::
 
-## Cross-Mode Comparison
+## Cross-Mode Comparison {visibility="hidden"}
 
 ```{r}
 #| label: cross-mode
@@ -2379,31 +2593,34 @@ ggplot(model_comparison, aes(x = model_name, y = performance, fill = mode)) +
 Head-to-head comparison. Blue is predict mode — forward reasoning. Red is play mode — full diagnostic loop. The gap is consistent across all models: forward reasoning is easier than inverse reasoning. This makes theoretical sense — prediction is deductive, diagnosis is abductive. But the gap also reveals that the inferential machinery (hypothesis generation, test selection, constraint tracking) adds substantial difficulty beyond just spatial reasoning.
 :::
 
-## Error Analysis: Play Mode
+## The Test Selection Problem
 
 ```{r}
-#| label: play-errors-spatial
-#| eval: !expr has_error_classifications && has_play_errors
+#| label: ray-rank-histogram
+#| eval: !expr has_det_play
 #| fig-height: 5.5
-#| fig-width: 7
 
-play_spatial_by_model <- play_errors |>
-  count(model_name, error_domain) |>
-  group_by(model_name) |>
-  mutate(pct = n / sum(n) * 100) |>
-  ungroup()
+non_excess_rays <- det_rays |> filter(!is_excess)
 
-ggplot(play_spatial_by_model,
-       aes(x = model_name, y = pct, fill = error_domain)) +
-  geom_col(position = "stack", width = 0.6) +
-  geom_text(aes(label = paste0(round(pct, 0), "%")),
-            position = position_stack(vjust = 0.5), size = 5) +
-  scale_fill_manual(values = c("Spatial" = "#e74c3c", "Non-spatial" = "#3498db")) +
-  labs(x = NULL, y = "Percentage", fill = "Error Domain",
-       title = "Spatial vs Non-Spatial Failures",
-       subtitle = "LLM-as-judge classification") +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+ggplot(non_excess_rays, aes(x = llm_rank)) +
+  geom_histogram(binwidth = 1, fill = "#3498db", color = "white", alpha = 0.8) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "#e74c3c", linewidth = 1) +
+  facet_wrap(~model_name, scales = "free_y") +
+  labs(x = "LLM Ray Rank (competition ranking, among 32 possible rays)", y = "Count",
+       title = "Distribution of Ray Selection Rank by Model",
+       subtitle = "Rank 1 = information-theoretically optimal (ties share rank). Dashed red = optimal.") +
+  theme(strip.text = element_text(size = 14))
 ```
+
+::: fragment
+**Clinical analog**: Choosing which diagnostic test to order next. Models rarely pick the most informative option — analogous to ordering a comprehensive metabolic panel when a single targeted test would be more informative.
+:::
+
+::: notes
+The test selection problem visualized. For each ray the model fires, we rank it among all 32 possible rays by information content. Rank 1 is the information-theoretically optimal choice. The distributions show that models rarely pick the optimal ray — they're spread across the ranking, with many choosing rays ranked 5-15 out of 32. This is the clinical analog of choosing which test to order next. An optimal diagnostician picks the test that rules out the most conditions. LLMs pick tests somewhat informatively but far from optimal. In clinical practice, this manifests as redundant testing and delayed diagnosis.
+:::
+
+## Error Analysis: Deterministic
 
 ```{r}
 #| label: play-errors-det
@@ -2444,10 +2661,198 @@ ggplot(det_summary_long, aes(x = model_name, y = value, fill = model_name)) +
 ```
 
 ::: notes
-Two complementary views of play mode errors. Left: LLM-as-judge classification into spatial versus non-spatial failures. Non-spatial errors — experiment design, constraint tracking, belief updating — dominate across all models. Right: deterministic analysis. Models pick optimal rays only a fraction of the time, with typical ray ranks around 5-10 out of 32 possible rays. They also fire excess rays after the solution is already determinable — they don't know when to stop.
+Deterministic analysis of play mode. We replay each model's ray sequences through the full candidate space to measure decision quality objectively. Models pick optimal rays only a fraction of the time, with typical ray ranks around 5-10 out of 32 possible rays. They also fire excess rays after the solution is already determinable — they don't know when to stop.
 :::
 
-## Scaling Effects
+## Error Analysis: Spatial Classification {visibility="hidden"}
+
+```{r}
+#| label: play-errors-spatial
+#| eval: !expr has_error_classifications && has_play_errors
+#| fig-height: 5.5
+#| fig-width: 7
+
+play_spatial_by_model <- play_errors |>
+  count(model_name, error_domain) |>
+  group_by(model_name) |>
+  mutate(pct = n / sum(n) * 100) |>
+  ungroup()
+
+ggplot(play_spatial_by_model,
+       aes(x = model_name, y = pct, fill = error_domain)) +
+  geom_col(position = "stack", width = 0.6) +
+  geom_text(aes(label = paste0(round(pct, 0), "%")),
+            position = position_stack(vjust = 0.5), size = 5) +
+  scale_fill_manual(values = c("Spatial" = "#e74c3c", "Non-spatial" = "#3498db")) +
+  labs(x = NULL, y = "Percentage", fill = "Error Domain",
+       title = "Spatial vs Non-Spatial Failures",
+       subtitle = "LLM-as-judge classification") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+::: notes
+LLM-as-judge classification of play mode errors into spatial versus non-spatial failures. Non-spatial errors — experiment design, constraint tracking, belief updating — dominate across all models. Spatial reasoning is not the bottleneck; the inferential machinery is.
+:::
+
+## Replication
+
+- 80 experimental conditions, each tested on only **n = 10 game boards**
+- Top two configurations by atoms correct:
+  1. **Opus 4.6** — Augmented, Thinking, VoT Ray Trace → **3.10 mean**
+  2. **Sonnet 4.6** — Augmented, Thinking, VoT Ray Trace → **3.00 mean**
+- With n = 10, confidence intervals are wide — are these truly the best, or just lucky draws?
+- **Winner's curse**: selecting the top performers from 80 noisy estimates guarantees upward bias
+- Replication: ran both configs **8 more times** on the same 10 boards (n = 10 → 90 per config)
+- Does the observed ranking reflect real performance or sampling noise?
+
+::: notes
+Before showing the replication data, it's worth explaining why we ran it. With 80 experimental conditions each tested on only 10 game boards, our estimates of mean atoms correct carry substantial uncertainty. The top two configs — both using augmented prompts, extended thinking, and VoT ray trace — scored 3.10 and 3.00 out of 4. But with n=10, a single lucky or unlucky board swings the mean by 0.4. When you pick the best from 80 noisy estimates, you're selecting on noise as much as signal. This is the classic winner's curse problem from auction theory. So we ran both configurations 8 more times on the same 10 game boards, bringing each from n=10 to n=90.
+:::
+
+## Replication: Atoms Correct With More Data {.smaller .scrollable}
+
+```{r}
+#| label: play-replication-slide
+#| fig-height: 20
+#| out-width: "100%"
+#| out-height: "2000px"
+
+if (n_replication_runs > 0) {
+  # Build comparison: original vs pooled for replicated configs, original-only for others
+  forest_original <- play_data_original |>
+    mutate(
+      config_label = paste0(
+        model_name, " | ",
+        ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+        ifelse(as.logical(enable_thinking), "Think", "No-Think"), " | ",
+        gsub("^[A-C]: ", "", as.character(vot_condition))
+      )
+    ) |>
+    group_by(config_label, model_name, prompt_style, enable_thinking,
+             vot_grid_state, vot_ray_trace, vot_hypothesis) |>
+    summarise(
+      n = n(), mean_correct = mean(atoms_correct),
+      se = sd(atoms_correct) / sqrt(n()),
+      ci_lower = mean_correct - 1.96 * se,
+      ci_upper = mean_correct + 1.96 * se,
+      .groups = "drop"
+    )
+
+  forest_pooled <- play_data |>
+    mutate(
+      config_label = paste0(
+        model_name, " | ",
+        ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+        ifelse(as.logical(enable_thinking), "Think", "No-Think"), " | ",
+        gsub("^[A-C]: ", "", as.character(vot_condition))
+      )
+    ) |>
+    group_by(config_label, model_name, prompt_style, enable_thinking,
+             vot_grid_state, vot_ray_trace, vot_hypothesis) |>
+    summarise(
+      n = n(), mean_correct = mean(atoms_correct),
+      se = sd(atoms_correct) / sqrt(n()),
+      ci_lower = mean_correct - 1.96 * se,
+      ci_upper = mean_correct + 1.96 * se,
+      .groups = "drop"
+    )
+
+  # Identify replicated configs
+  forest_pooled <- forest_pooled |>
+    mutate(
+      replicated = pmap_lgl(list(model_name, prompt_style, enable_thinking,
+                                  vot_grid_state, vot_ray_trace, vot_hypothesis),
+        function(mn, ps, et, vgs, vrt, vh) {
+          any(replicated_conditions$model_name == mn &
+              replicated_conditions$prompt_style == ps &
+              replicated_conditions$enable_thinking == et &
+              replicated_conditions$vot_grid_state == vgs &
+              replicated_conditions$vot_ray_trace == vrt &
+              replicated_conditions$vot_hypothesis == vh)
+        }),
+      label_display = ifelse(replicated,
+                             paste0(config_label, " (n=", n, ")"),
+                             config_label)
+    ) |>
+    arrange(mean_correct) |>
+    mutate(label_display = factor(label_display, levels = label_display))
+
+  # Show original means as hollow points for replicated configs
+  original_replicated <- forest_original |>
+    semi_join(replicated_conditions,
+              by = c("model_name", "prompt_style", "enable_thinking",
+                     "vot_grid_state", "vot_ray_trace", "vot_hypothesis")) |>
+    left_join(forest_pooled |> select(config_label, label_display),
+              by = "config_label")
+
+  ggplot(forest_pooled, aes(x = mean_correct, y = label_display)) +
+    geom_point(aes(color = model_name, shape = replicated), size = 3.5) +
+    geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper, color = model_name),
+                   height = 0.3, linewidth = 0.9) +
+    # Show original means as hollow circles for replicated configs
+    geom_point(data = original_replicated,
+               aes(x = mean_correct, y = label_display),
+               shape = 1, size = 4, color = "gray40", stroke = 1.2) +
+    geom_vline(xintercept = 0.25, linetype = "dotted", color = "red", alpha = 0.7) +
+    geom_vline(xintercept = 1, linetype = "dashed", color = "gray50", alpha = 0.5) +
+    geom_text(aes(label = sprintf("%.2f", mean_correct)),
+              hjust = -0.3, size = 3.5) +
+    scale_color_manual(values = model_colors) +
+    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    scale_x_continuous(limits = c(0, 4.2), breaks = seq(0, 4, 0.5),
+                       sec.axis = dup_axis(name = NULL)) +
+    labs(x = "Mean Atoms Correct (out of 4)", y = NULL, color = "Model",
+         title = "Play Mode: Atoms Correct — Pooled Results (replication shifts rankings)",
+         subtitle = "Filled = pooled mean. Hollow circle = original n=10 mean for replicated configs.") +
+    theme(
+      axis.text.y = element_text(size = 9, family = "mono"),
+      panel.grid.major.y = element_blank()
+    )
+}
+```
+
+::: notes
+When we replicated the top two configurations 4 additional times on the same game boards, both regressed toward the mean. The hollow circles show where they originally ranked; the filled triangles show the pooled result. The original n=10 was a lucky draw — both top configs sat at the upper tail of their actual performance distributions. This is classic winner's curse: select the best from 80 noisy estimates, and you've selected noise along with signal.
+:::
+
+## Performance Variance as a Finding {.smaller}
+
+```{r}
+#| label: play-variance-slide
+#| fig-height: 7
+
+if (n_replication_runs > 0) {
+  heatmap_data <- play_data |>
+    semi_join(replicated_conditions,
+              by = c("model_name", "prompt_style", "enable_thinking",
+                     "vot_grid_state", "vot_ray_trace", "vot_hypothesis")) |>
+    mutate(run_label = ifelse(source == "original", "Original",
+                              paste0("Run ", as.integer(factor(run_id)))))
+
+  ggplot(heatmap_data,
+         aes(x = run_label, y = factor(config_index), fill = atoms_correct)) +
+    geom_tile(color = "white", linewidth = 0.5) +
+    geom_text(aes(label = atoms_correct), size = 5, fontface = "bold") +
+    scale_fill_gradient2(low = "#c62828", mid = "#fff176", high = "#2e7d32",
+                         midpoint = 2, limits = c(0, 4),
+                         name = "Atoms\nCorrect") +
+    facet_wrap(~model_name, ncol = 2) +
+    labs(
+      title = "Per-Configuration Reliability Across Runs",
+      subtitle = "Same boards, same config — performance swings wildly on some boards, not others",
+      x = NULL, y = "Game Board"
+    ) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 11),
+          axis.text.y = element_text(size = 12),
+          strip.text = element_text(size = 13))
+}
+```
+
+::: notes
+This heatmap is the key finding. Each row is a game board, each column is a run. Green means all 4 atoms found, red means failure. Look at boards 2 and 6 — reliably solved every single time, both models. These are configurations where the model has stable access to the reasoning needed. But other boards (like 4 and 5) swing between 0 and 4 across runs. This is not consistent partial competence — it's stochastic access to a reasoning strategy. The model either finds the right approach or doesn't, with little middle ground. This bimodal pattern is itself diagnostic of how LLMs reason about constraint satisfaction.
+:::
+
+## Scaling Effects {visibility="hidden"}
 
 ```{r}
 #| label: scaling
@@ -2592,6 +2997,53 @@ fs_vot_arrow <- function(p_overall, eff) {
   "\u2014"
 }
 
+# ── Play mode (Score) ──
+# Score: lower is better, so negate effects for consistent arrow direction (positive = improvement)
+score_p <- c(model = fs_get_p(play_score_anova_result, "model_name"),
+             prompt = fs_get_p(play_score_anova_result, "prompt_style"),
+             thinking = fs_get_p(play_score_anova_result, "enable_thinking"),
+             vot = fs_get_p(play_score_anova_result, "vot_condition"))
+score_chi <- c(model = fs_get_chi(play_score_anova_result, "model_name"),
+               prompt = fs_get_chi(play_score_anova_result, "prompt_style"),
+               thinking = fs_get_chi(play_score_anova_result, "enable_thinking"),
+               vot = fs_get_chi(play_score_anova_result, "vot_condition"))
+score_dom <- fs_find_dominant(score_p, score_chi)
+
+# Compute score marginals (negate: positive = improvement = lower score)
+score_by_model <- play_data |> group_by(model_name) |> summarise(ms = mean(score), .groups = "drop")
+score_model_eff <- diff(range(score_by_model$ms))  # always positive (models differ)
+score_by_prompt <- play_data |> group_by(prompt_style) |> summarise(ms = mean(score), .groups = "drop")
+score_prompt_eff <- fs_safe_diff(score_by_prompt$ms, score_by_prompt$prompt_style,
+                                 "baseline", "augmented")  # positive if augmented lowers score
+score_by_thinking <- play_data |> group_by(enable_thinking) |> summarise(ms = mean(score), .groups = "drop")
+score_think_eff <- fs_safe_diff(score_by_thinking$ms,
+                                ifelse(score_by_thinking$enable_thinking, "Enabled", "Disabled"),
+                                "Disabled", "Enabled")  # positive if thinking lowers score
+
+# VoT individual effects in score (negate: positive = improvement)
+score_by_vot <- play_data |> group_by(vot_condition) |> summarise(ms = mean(score), .groups = "drop")
+score_vot_none <- score_by_vot$ms[score_by_vot$vot_condition == "None"]
+if (length(score_vot_none) == 0) score_vot_none <- NA_real_
+
+fs_vot_eff_score <- function(pat) {
+  if (is.na(score_vot_none)) return(0)
+  v <- score_by_vot$ms[grepl(pat, score_by_vot$vot_condition)]
+  if (length(v) == 0) 0 else -(v[1] - score_vot_none)  # negate: lower score = positive
+}
+
+# Score VoT thresholds scaled to score range (~20-37)
+fs_vot_arrow_score <- function(p_overall, eff) {
+  if (is.na(p_overall) || p_overall >= 0.10) return("\u2014")
+  if (p_overall >= 0.05) {
+    if (eff > 0.5) return("\u2014 / \u2191")
+    if (eff < -0.5) return("\u2014 / \u2193")
+    return("\u2014")
+  }
+  if (eff > 1.0) return("\u2191")
+  if (eff < -1.0) return("\u2193")
+  "\u2014"
+}
+
 # ── Build table ──
 fs_tbl <- tibble(
   Factor = c("Model", "Augmented prompt", "Extended thinking",
@@ -2604,65 +3056,71 @@ fs_tbl <- tibble(
     fs_arrow(pred_p["vot"], pred_vot_eff, fs_is_dom(pred_dom, "vot")),
     "\u2014"
   ),
-  Play = c(
+  `Play (Atoms)` = c(
     fs_arrow(play_p["model"], play_model_eff, fs_is_dom(play_dom, "model")),
     fs_arrow(play_p["prompt"], play_prompt_eff, fs_is_dom(play_dom, "prompt")),
     fs_arrow(play_p["thinking"], play_think_eff, fs_is_dom(play_dom, "thinking")),
     fs_vot_arrow(play_p["vot"], fs_vot_eff("Grid")),
     fs_vot_arrow(play_p["vot"], fs_vot_eff("Ray")),
     fs_vot_arrow(play_p["vot"], fs_vot_eff("Hyp"))
+  ),
+  `Play (Score)` = c(
+    fs_arrow(score_p["model"], score_model_eff, fs_is_dom(score_dom, "model")),
+    fs_arrow(score_p["prompt"], score_prompt_eff, fs_is_dom(score_dom, "prompt")),
+    fs_arrow(score_p["thinking"], score_think_eff, fs_is_dom(score_dom, "thinking")),
+    fs_vot_arrow_score(score_p["vot"], fs_vot_eff_score("Grid")),
+    fs_vot_arrow_score(score_p["vot"], fs_vot_eff_score("Ray")),
+    fs_vot_arrow_score(score_p["vot"], fs_vot_eff_score("Hyp"))
   )
 )
 
-# Interpretation
-fs_interpret <- function(pred, play) {
-  p2 <- pred == "\u2191\u2191"; p1 <- pred == "\u2191"
-  pm <- grepl("/", pred); p0 <- pred == "\u2014"; pd <- pred == "\u2193"
-  l2 <- play == "\u2191\u2191"; l1 <- play == "\u2191"
-  lm <- grepl("/", play); l0 <- play == "\u2014"; ld <- play == "\u2193"
+# Interpretation across all three columns
+fs_interpret <- function(pred, atoms, score) {
+  up <- function(x) x %in% c("\u2191", "\u2191\u2191")
+  strong <- function(x) x == "\u2191\u2191"
+  down <- function(x) x == "\u2193"
+  none <- function(x) x == "\u2014"
 
-  if (p2 && l2) "Dominant factor in both modes"
-  else if (p2 && l1) "Strong predict, moderate play"
-  else if (p1 && l2) "Moderate predict, strong play"
-  else if ((p2 || p1) && (l2 || l1)) "Consistent benefit"
-  else if ((p2 || p1) && lm) "Helps predict; mixed play"
-  else if (pm && (l2 || l1)) "Mixed predict; helps play"
-  else if ((p2 || p1) && l0) "Helps predict only"
-  else if (p0 && (l2 || l1)) "Helps play only"
-  else if ((p2 || p1) && ld) "Helps predict; hurts play"
-  else if (p0 && ld) "No help; hurts play"
-  else if (p0 && lm) "Minimal predict; mixed play"
-  else if (pm && l0) "Mixed predict; minimal play"
-  else if (p0 && l0) "Minimal effect"
+  pu <- up(pred); au <- up(atoms); su <- up(score)
+  sd <- down(score); an <- none(atoms); sn <- none(score)
+  pn <- none(pred)
+
+  if (pu && au && su) {
+    if (strong(atoms) || strong(score)) "Strong consistent benefit"
+    else "Consistent benefit"
+  }
+  else if (pn && au && su) "Helps play only"
+  else if (pu && au && sn) "Helps accuracy, not efficiency"
+  else if (pn && au && sn) "Helps atoms only"
+  else if (pn && an && sd) "Hurts efficiency only"
+  else if (pu && an && sn) "Helps predict only"
+  else if (au && sd) "Improves atoms; hurts score"
+  else if (pn && an && sn) "Minimal effect"
   else "Mixed effects"
 }
 
-fs_tbl$Interpretation <- mapply(fs_interpret, fs_tbl$Predict, fs_tbl$Play,
-                                 USE.NAMES = FALSE)
+fs_tbl$Interpretation <- mapply(fs_interpret, fs_tbl$Predict, fs_tbl$`Play (Atoms)`,
+                                fs_tbl$`Play (Score)`, USE.NAMES = FALSE)
 
 gt(fs_tbl) |>
-  cols_align(align = "center", columns = c(Predict, Play)) |>
+  cols_align(align = "center", columns = c(Predict, `Play (Atoms)`, `Play (Score)`)) |>
   cols_align(align = "left", columns = c(Factor, Interpretation)) |>
   tab_style(
     style = cell_text(weight = "bold"),
     locations = cells_body(columns = Factor)
   ) |>
   tab_options(
-    table.font.size = px(22),
-    column_labels.font.size = px(22),
+    table.font.size = px(30),
+    column_labels.font.size = px(30),
     column_labels.font.weight = "bold"
   )
 ```
 
-::: fragment
-**Key finding**: No prompt intervention closes the gap to optimal. The limitations are architectural, not instructional.
-:::
-
 ::: notes
-Factor summary derived from the ANOVA results and marginal means. The double-arrow indicates the dominant factor — its chi-squared is at least twice the runner-up among significant terms. Single arrows indicate significant effects (p < 0.05). Mixed arrows (— / ↑) indicate marginal significance (0.05 ≤ p < 0.10). Dashes indicate non-significant effects. The key takeaway: you can't prompt your way to diagnostic reasoning. The limitations appear to be in the model's ability to maintain and manipulate internal state, not in the instructions it receives.
+Factor summary derived from the ANOVA results and marginal means. Three outcome columns: Predict (binary accuracy), Play Atoms (0–4 correct), and Play Score (composite penalty, lower is better). The double-arrow indicates the dominant factor — its chi-squared is at least twice the runner-up among significant terms. Single arrows indicate significant effects (p < 0.05). Mixed arrows (— / ↑) indicate marginal significance (0.05 ≤ p < 0.10). Dashes indicate non-significant effects. The Score column reveals divergences from atoms correct: VoT Hypothesis actively hurts score (increases ray use without improving placement), and VoT Ray Trace's atom benefit doesn't survive the composite metric. The key takeaway: you can't prompt your way to diagnostic reasoning. The limitations appear to be in the model's ability to maintain and manipulate internal state, not in the instructions it receives.
 :::
 
-## Benchmark Context
+## Benchmark Context {visibility="hidden"}
 
 How does Black Box compare to other reasoning benchmarks?
 
@@ -2682,59 +3140,36 @@ Black Box is unique in providing an **information-theoretic ceiling** and **part
 How Black Box compares to other reasoning benchmarks. Most benchmarks test constraint satisfaction or puzzle solving but lack key properties. Black Box is the only one that provides an information-theoretic ceiling — we can compute exactly how well a perfect agent would do. And it's the only one that partially decomposes into component processes through the predict/play design. The ceiling is critical because it lets us measure not just whether models succeed or fail, but how far they are from optimal.
 :::
 
-## What This Means for Diagnostic AI {background-color="#f8f9fa"}
+## Implications for Deploying LLMs for Clinical and Scientific Reasoning {background-color="#f8f9fa"}
 
-::::: columns
-::: {.column width="50%"}
-### Constraint Tracking
-
-Models fail to maintain consistent evidence sets. **Clinical risk**: Contradicted diagnoses remain in differential.
-
-### Test Selection
-
-Models fire redundant/uninformative rays. **Clinical risk**: Unnecessary tests, delayed diagnosis.
-:::
-
-::: {.column width="50%"}
-### Scaling Limits
-
-Larger models help but don't solve the problem. **Clinical risk**: Upgrading models doesn't fix reasoning gaps.
-
-### Forward ≠ Inverse
-
-Good at prediction, poor at diagnosis. **Clinical risk**: Can explain findings but not generate differential.
-:::
-:::::
-
-::: notes
-Four clinical implications. First, constraint tracking failures — models don't maintain consistent evidence sets, so they'd fail to rule out conditions even when evidence is clear. Second, test selection — models choose uninformative tests, analogous to ordering redundant labs. Third, scaling doesn't fix this — you can't just use a bigger model. Fourth, the forward-inverse gap means models might be good at explaining test results but bad at generating the differential diagnosis in the first place.
-:::
-
-## The Test Selection Problem
-
-```{r}
-#| label: ray-rank-histogram
-#| eval: !expr has_det_play
-#| fig-height: 5.5
-
-non_excess_rays <- det_rays |> filter(!is_excess)
-
-ggplot(non_excess_rays, aes(x = llm_rank)) +
-  geom_histogram(binwidth = 1, fill = "#3498db", color = "white", alpha = 0.8) +
-  geom_vline(xintercept = 1, linetype = "dashed", color = "#e74c3c", linewidth = 1) +
-  facet_wrap(~model_name, scales = "free_y") +
-  labs(x = "LLM Ray Rank (competition ranking, among 32 possible rays)", y = "Count",
-       title = "Distribution of Ray Selection Rank by Model",
-       subtitle = "Rank 1 = information-theoretically optimal (ties share rank). Dashed red = optimal.") +
-  theme(strip.text = element_text(size = 14))
-```
+**Thesis**: The frontiers of medicine and science inherently demand first-principles reasoning [@patel1991general].
 
 ::: fragment
-**Clinical analog**: Choosing which diagnostic test to order next. Models rarely pick the most informative option — analogous to ordering a comprehensive metabolic panel when a single targeted test would be more informative.
+**Black Box tests exactly this**: out-of-distribution, no patterns to match, requires abductive inference from evidence.
+:::
+
+::: fragment
+**The verdict** — LLMs fail at the components that *define* first-principles reasoning:
+:::
+
+::: incremental
+1. **Test selection fails** — Models can't design informative experiments. They rarely pick the most informative ray, analogous to ordering redundant tests when a targeted one would be decisive.
+
+2. **Constraint integration fails** — Models don't maintain consistent evidence across reasoning steps. Contradicted hypotheses persist; evidence that should rule out a possibility is ignored.
+
+3. **Scaling doesn't bridge the gap** — Larger models improve modestly but remain far from optimal. This appears to be an architectural limitation, not an instructional one [@shojaee2025illusion].
+:::
+
+::: fragment
+Pattern matching handles routine cases. **The frontiers require something LLMs don't yet have.**
 :::
 
 ::: notes
-The test selection problem visualized. For each ray the model fires, we rank it among all 32 possible rays by information content. Rank 1 is the information-theoretically optimal choice. The distributions show that models rarely pick the optimal ray — they're spread across the ranking, with many choosing rays ranked 5-15 out of 32. This is the clinical analog of choosing which test to order next. An optimal diagnostician picks the test that rules out the most conditions. LLMs pick tests somewhat informatively but far from optimal. In clinical practice, this manifests as redundant testing and delayed diagnosis.
+This slide closes the loop on the thesis from the beginning of the talk. We asked whether LLMs have genuine first-principles reasoning capability or whether pattern matching is all there is. Black Box is designed to answer exactly that question — it's out-of-distribution, there are no training patterns to match, and solving it requires the same abductive inference that drives diagnosis and scientific discovery.
+
+The answer: LLMs fail at the specific components that define first-principles reasoning. First, test selection — models rarely pick the most informative experiment, which means they can't drive an efficient diagnostic workup or design informative scientific experiments. Second, constraint integration — they don't maintain consistent evidence sets across reasoning steps, which means contradicted diagnoses would persist in a clinical differential. Third, scaling provides modest improvement but doesn't close the gap, consistent with Shojaee et al.'s finding that reasoning models hit sharp performance thresholds on problems requiring genuine multi-step reasoning.
+
+The punchline ties back to the thesis: pattern matching may suffice for routine clinical cases and well-characterized scientific problems. But the frontier — novel diseases, atypical presentations, new mechanisms, new therapies — lives in exactly the space where LLMs fail.
 :::
 
 ## Can Tools Fix This?
