@@ -888,6 +888,8 @@ def analyze_game(configs, result, first_ray, first_partition,
                     'llm_score': None,
                     'score_delta': None,
                     'llm_rank': None,
+                    'n_available_rays': None,
+                    'llm_rank_percentile': None,
                     'is_optimal': False,
                     'note': 'skipped — empty candidate set',
                 })
@@ -917,6 +919,7 @@ def analyze_game(configs, result, first_ray, first_partition,
             # Find LLM's ray rank using min-rank (competition ranking):
             # all tied scores share the same rank (e.g., 5 rays tied for
             # best all get rank 1, next distinct score gets rank 6).
+            n_available = len(all_results)
             llm_rank = None
             if llm_score is not None:
                 # Count how many rays have a strictly better score
@@ -926,7 +929,17 @@ def analyze_game(configs, result, first_ray, first_partition,
 
             # If LLM fired a ray already used (duplicate), it won't be in all_results
             if llm_rank is None:
-                llm_rank = len(all_results) + 1
+                llm_rank = n_available + 1
+
+            # Percentile rank normalized to [0, 1]: 0 = best, 1 = worst.
+            # Uses (rank - 1) / (n_available - 1) so rank 1 → 0.0 and
+            # last rank → 1.0.  When only one ray remains, percentile = 0.
+            # Clamped to 1.0 for duplicate rays (rank > n_available).
+            if n_available > 1:
+                llm_rank_percentile = round(
+                    min((llm_rank - 1) / (n_available - 1), 1.0), 4)
+            else:
+                llm_rank_percentile = 0.0
 
             is_optimal = (llm_score is not None and abs(llm_score - opt_score) < 1e-9)
             score_delta = (llm_score - opt_score) if llm_score is not None else None
@@ -972,6 +985,8 @@ def analyze_game(configs, result, first_ray, first_partition,
                 'llm_score': round(llm_score, 2) if llm_score is not None else None,
                 'score_delta': round(score_delta, 2) if score_delta is not None else None,
                 'llm_rank': llm_rank,
+                'n_available_rays': n_available,
+                'llm_rank_percentile': llm_rank_percentile,
                 'is_optimal': is_optimal,
             })
 
@@ -1050,6 +1065,8 @@ def analyze_game(configs, result, first_ray, first_partition,
     excess_rays = sum(1 for r in ray_analysis if r['is_excess'])
     ranks = [r['llm_rank'] for r in ray_analysis
              if r['llm_rank'] is not None]
+    rank_pcts = [r['llm_rank_percentile'] for r in ray_analysis
+                 if r['llm_rank_percentile'] is not None]
     deltas = [r['score_delta'] for r in ray_analysis
               if r['score_delta'] is not None]
 
@@ -1058,6 +1075,8 @@ def analyze_game(configs, result, first_ray, first_partition,
         'n_optimal_rays': n_optimal,
         'n_suboptimal_rays': n_suboptimal,
         'mean_ray_rank': round(sum(ranks) / len(ranks), 2) if ranks else None,
+        'mean_ray_rank_percentile': (round(sum(rank_pcts) / len(rank_pcts), 4)
+                                     if rank_pcts else None),
         'mean_score_delta': round(sum(deltas) / len(deltas), 2) if deltas else None,
         'uniquely_identified_at_ray': uniquely_identified_at,
         'excess_rays': excess_rays,

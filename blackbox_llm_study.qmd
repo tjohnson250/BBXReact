@@ -4936,6 +4936,7 @@ if (has_det_play) {
         n_optimal_rays = s$n_optimal_rays %||% NA_integer_,
         n_suboptimal_rays = s$n_suboptimal_rays %||% NA_integer_,
         mean_ray_rank = s$mean_ray_rank %||% NA_real_,
+        mean_ray_rank_percentile = s$mean_ray_rank_percentile %||% NA_real_,
         mean_score_delta = s$mean_score_delta %||% NA_real_,
         uniquely_identified_at_ray = s$uniquely_identified_at_ray %||% NA_integer_,
         excess_rays = s$excess_rays %||% NA_integer_,
@@ -4971,6 +4972,8 @@ if (has_det_play) {
           llm_score = ray$llm_score %||% NA_real_,
           score_delta = ray$score_delta %||% NA_real_,
           llm_rank = ray$llm_rank %||% NA_integer_,
+          n_available_rays = ray$n_available_rays %||% NA_integer_,
+          llm_rank_percentile = ray$llm_rank_percentile %||% NA_real_,
           is_optimal = ray$is_optimal
         )
         det_all_rays <- c(det_all_rays, list(ray_row))
@@ -5027,17 +5030,18 @@ det_ray_summary <- det_games |>
     pct_optimal = round(sum(n_optimal_rays) / sum(total_rays_fired) * 100, 1),
     pct_suboptimal = round(sum(n_suboptimal_rays) / sum(total_rays_fired) * 100, 1),
     mean_rank = round(mean(mean_ray_rank, na.rm = TRUE), 2),
+    mean_rank_pct = round(mean(mean_ray_rank_percentile, na.rm = TRUE), 3),
     mean_score_delta = round(mean(mean_score_delta, na.rm = TRUE), 1),
     .groups = "drop"
   )
 
 kable(det_ray_summary,
       col.names = c("Model", "Games", "Total Rays", "% Optimal", "% Suboptimal",
-                     "Mean Rank", "Mean Score Delta"),
+                     "Mean Rank", "Mean Rank %ile", "Mean Score Delta"),
       caption = "Ray Selection Quality by Model (Deterministic Analysis)") |>
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
-# Figure 1: Histogram of ray ranks by model
+# Figure 1: Histogram of raw ray ranks by model
 non_excess_rays <- det_rays |> filter(!is_excess)
 
 p_rank_hist <- ggplot(non_excess_rays, aes(x = llm_rank)) +
@@ -5045,16 +5049,39 @@ p_rank_hist <- ggplot(non_excess_rays, aes(x = llm_rank)) +
   geom_vline(xintercept = 1, linetype = "dashed", color = "#e74c3c", linewidth = 0.8) +
   facet_wrap(~model_name, scales = "free_y") +
   labs(
-    title = "Distribution of Ray Selection Rank by Model",
-    subtitle = "Rank 1 = information-theoretically optimal (competition ranking: ties share rank); dashed line marks optimal",
-    x = "LLM Ray Rank (competition ranking, among 32 possible rays)",
+    title = "Distribution of Ray Selection Rank by Model (Raw)",
+    subtitle = "Rank 1 = optimal; pool shrinks as rays are used (max rank varies by turn)",
+    x = "LLM Ray Rank (competition ranking, among remaining unfired rays)",
     y = "Count"
   ) +
   theme_minimal() +
   theme(legend.position = "top")
 print(p_rank_hist)
 
-# Figure 2: Score delta vs ray number (does selection improve over game?)
+# Figure 2: Percentile rank histogram (normalized for shrinking action space)
+# Percentile rank: 0 = optimal, 1 = worst among available rays.
+# This corrects for the fact that raw rank has a shrinking ceiling as rays
+# are used: rank 5/32 early-game is not comparable to rank 5/20 late-game.
+if ("llm_rank_percentile" %in% names(non_excess_rays) &&
+    any(!is.na(non_excess_rays$llm_rank_percentile))) {
+  p_rank_pct <- ggplot(non_excess_rays |> filter(!is.na(llm_rank_percentile)),
+                       aes(x = llm_rank_percentile)) +
+    geom_histogram(binwidth = 0.05, fill = "#2ecc71", color = "white", alpha = 0.8) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "#e74c3c", linewidth = 0.8) +
+    facet_wrap(~model_name, scales = "free_y") +
+    scale_x_continuous(labels = scales::percent_format()) +
+    labs(
+      title = "Distribution of Normalized Ray Selection Rank by Model",
+      subtitle = "Percentile rank among unfired rays (0% = optimal, 100% = worst); corrects for shrinking action space",
+      x = "LLM Ray Rank Percentile (among remaining unfired rays)",
+      y = "Count"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "top")
+  print(p_rank_pct)
+}
+
+# Figure 3: Score delta vs ray number (does selection improve over game?)
 p_delta_prog <- ggplot(non_excess_rays |> filter(!is.na(score_delta)),
                         aes(x = ray_number, y = score_delta, color = model_name)) +
   geom_point(alpha = 0.3, size = 1.5) +
@@ -5072,7 +5099,7 @@ p_delta_prog <- ggplot(non_excess_rays |> filter(!is.na(score_delta)),
 print(p_delta_prog)
 ```
 
-`r if(has_det_play) paste0("**Ray selection summary.** Across all models, ", round(mean(det_ray_summary$pct_optimal), 1), "% of non-excess rays matched the information-theoretically optimal E[remaining] score (including ties among equally-optimal rays). The mean rank was ", round(mean(det_ray_summary$mean_rank), 2), ", indicating that LLM ray choices were typically near-optimal in the ranking but not at the top.")`
+`r if(has_det_play) paste0("**Ray selection summary.** Across all models, ", round(mean(det_ray_summary$pct_optimal), 1), "% of non-excess rays matched the information-theoretically optimal E[remaining] score (including ties among equally-optimal rays). The mean raw rank was ", round(mean(det_ray_summary$mean_rank), 2), " and the mean percentile rank (normalized for shrinking action space) was ", round(mean(det_ray_summary$mean_rank_pct) * 100, 1), "%, where 0% is optimal.")`
 
 #### Excess Rays
 

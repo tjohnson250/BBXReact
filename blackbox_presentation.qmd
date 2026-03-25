@@ -1,6 +1,7 @@
 ---
 title: "Black Box as a Diagnostic Reasoning Benchmark"
-subtitle: "Assessing LLM Capabilities in Hidden State Identification<br><span style='font-size: 0.6em; color: #888;'>Slides last updated March 23, 2026</span>"
+subtitle: "Assessing LLM Capabilities in Hidden State Identification<br><span style='font-size: 0.6em; color: #888;'>Slides last updated {{< meta date-modified >}}</span>"
+date-modified: today
 author: "Todd R. Johnson, PhD, FAMIA"
 institute: "UTHealth McWilliams School of Biomedical Informatics"
 date: "BMI Seminar — March 25, 2026"
@@ -396,6 +397,8 @@ if (has_det_play) {
           ray_number = ray$ray_number,
           is_excess = ray$is_excess,
           llm_rank = ray$llm_rank %||% NA_integer_,
+          n_available_rays = ray$n_available_rays %||% NA_integer_,
+          llm_rank_percentile = ray$llm_rank_percentile %||% NA_real_,
           is_optimal = ray$is_optimal
         )
         det_all_rays <- c(det_all_rays, list(ray_row))
@@ -2588,14 +2591,32 @@ Head-to-head comparison. Blue is predict mode — forward reasoning. Red is play
 
 non_excess_rays <- det_rays |> filter(!is_excess)
 
-ggplot(non_excess_rays, aes(x = llm_rank)) +
-  geom_histogram(binwidth = 1, fill = "#3498db", color = "white", alpha = 0.8) +
-  geom_vline(xintercept = 1, linetype = "dashed", color = "#e74c3c", linewidth = 1) +
-  facet_wrap(~model_name, scales = "free_y") +
-  labs(x = "LLM Ray Rank (competition ranking, among 32 possible rays)", y = "Count",
-       title = "Distribution of Ray Selection Rank by Model",
-       subtitle = "Rank 1 = information-theoretically optimal (ties share rank). Dashed red = optimal.") +
-  theme(strip.text = element_text(size = 14))
+# Use percentile rank if available (corrects for shrinking action space),
+# otherwise fall back to raw rank.
+if ("llm_rank_percentile" %in% names(non_excess_rays) &&
+    any(!is.na(non_excess_rays$llm_rank_percentile))) {
+  ggplot(non_excess_rays |> filter(!is.na(llm_rank_percentile)),
+         aes(x = llm_rank_percentile)) +
+    geom_histogram(binwidth = 0.05, fill = "#2ecc71", color = "white", alpha = 0.8) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "#e74c3c", linewidth = 1) +
+    facet_wrap(~model_name, scales = "free_y") +
+    scale_x_continuous(labels = scales::percent_format()) +
+    labs(x = "Ray Rank Percentile (among remaining unfired rays)",
+         y = "Count",
+         title = "Distribution of Normalized Ray Selection Rank by Model",
+         subtitle = "0% = optimal; normalized for shrinking action space as rays are used") +
+    theme(strip.text = element_text(size = 14))
+} else {
+  ggplot(non_excess_rays, aes(x = llm_rank)) +
+    geom_histogram(binwidth = 1, fill = "#3498db", color = "white", alpha = 0.8) +
+    geom_vline(xintercept = 1, linetype = "dashed", color = "#e74c3c", linewidth = 1) +
+    facet_wrap(~model_name, scales = "free_y") +
+    labs(x = "LLM Ray Rank (competition ranking, among remaining unfired rays)",
+         y = "Count",
+         title = "Distribution of Ray Selection Rank by Model",
+         subtitle = "Rank 1 = optimal (ties share rank). Dashed red = optimal.") +
+    theme(strip.text = element_text(size = 14))
+}
 ```
 
 ::: fragment
@@ -2603,7 +2624,7 @@ ggplot(non_excess_rays, aes(x = llm_rank)) +
 :::
 
 ::: notes
-The test selection problem visualized. For each ray the model fires, we rank it among all 32 possible rays by information content. Rank 1 is the information-theoretically optimal choice. The distributions show that models rarely pick the optimal ray — they're spread across the ranking, with many choosing rays ranked 5-15 out of 32. This is the clinical analog of choosing which test to order next. An optimal diagnostician picks the test that rules out the most conditions. LLMs pick tests somewhat informatively but far from optimal. In clinical practice, this manifests as redundant testing and delayed diagnosis.
+The test selection problem visualized. For each ray the model fires, we compute its percentile rank among all remaining unfired rays by information content. 0% is the information-theoretically optimal choice. The percentile normalization corrects for the shrinking action space — as rays are used, fewer remain, so raw ranks become artificially compressed toward lower values. The distributions show that models rarely pick the optimal ray. This is the clinical analog of choosing which test to order next. An optimal diagnostician picks the test that rules out the most conditions. LLMs pick tests somewhat informatively but far from optimal. In clinical practice, this manifests as redundant testing and delayed diagnosis.
 :::
 
 ## Error Analysis: Deterministic
