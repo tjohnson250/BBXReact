@@ -44,6 +44,7 @@ library(lme4)
 library(lmerTest)    # p-values for mixed models
 library(car)
 library(broom.mixed)
+library(plotly)
 
 # Order model names by family (Haiku < Sonnet < Opus), then version
 order_model_names <- function(names) {
@@ -1442,6 +1443,142 @@ This table shows two versions of the same information. The β (log-odds) column 
 If asked "how much improvement is that in real terms?": The intercept gives you the baseline probability. Convert the intercept log-odds to a probability with p = exp(β) / (1 + exp(β)). Then multiply the baseline odds by the OR to get new odds, and convert back to a probability: new_p = new_odds / (1 + new_odds). For example, if the intercept gives a baseline of 40% (odds = 0.667) and a factor has OR = 3.2, the new odds are 0.667 × 3.2 = 2.13, so the new probability is 2.13 / 3.13 = 68% — a 28-point gain. The same OR gives different percentage-point gains at different baselines because odds and probability have a nonlinear relationship. For the audience, it's usually simpler to say "this triples the odds" and point to the marginal effects plot for the concrete accuracy numbers.
 :::
 
+## Error Analysis: Predict Mode
+
+```{r}
+#| label: predict-errors
+#| eval: !expr has_error_classifications && has_predict_errors
+
+cat_order <- c("Missed reflection", "Off-by-one path error",
+               "Deflection direction error", "Missed absorption",
+               "False absorption", "Large path tracking error",
+               "False reflection")
+
+error_by_model <- predict_errors |>
+  count(model_name, error_label) |>
+  group_by(model_name) |>
+  mutate(pct = n / sum(n) * 100,
+         total_errors = sum(n)) |>
+  ungroup()
+
+error_by_model$error_label <- factor(error_by_model$error_label, levels = cat_order)
+
+# Order models by size (Haiku < Sonnet < Opus)
+model_error_order <- order_model_names(unique(error_by_model$model_name))
+error_by_model$model_name <- factor(error_by_model$model_name, levels = model_error_order)
+
+# Total errors per model for the line
+error_totals <- error_by_model |>
+  distinct(model_name, total_errors)
+
+# Scale factor to map error counts onto percentage axis
+max_pct <- 100
+max_errors <- max(error_totals$total_errors)
+scale_factor <- max_pct / max_errors
+
+ggplot(error_by_model, aes(x = model_name, y = pct, fill = error_label)) +
+  geom_col(position = "stack", width = 0.7) +
+  geom_line(data = error_totals,
+            aes(x = model_name, y = total_errors * scale_factor, fill = NULL),
+            group = 1, linewidth = 1.2, color = "black", linetype = "dashed") +
+  geom_point(data = error_totals,
+             aes(x = model_name, y = total_errors * scale_factor, fill = NULL),
+             size = 4, color = "black") +
+  geom_text(data = error_totals,
+            aes(x = model_name, y = total_errors * scale_factor, fill = NULL,
+                label = total_errors),
+            vjust = -1, size = 5, fontface = "bold") +
+  scale_fill_manual(values = c(
+    "Missed reflection" = "#e74c3c",
+    "Off-by-one path error" = "#3498db",
+    "Deflection direction error" = "#2ecc71",
+    "Missed absorption" = "#e67e22",
+    "False absorption" = "#9b59b6",
+    "Large path tracking error" = "#1abc9c",
+    "False reflection" = "#95a5a6"
+  )) +
+  scale_y_continuous(
+    name = "Percentage of Errors",
+    limits = c(0, max_pct * 1.1),
+    sec.axis = sec_axis(~ . / scale_factor, name = "Total Errors")
+  ) +
+  labs(x = NULL, fill = "Error Category",
+       title = "Predict Mode: Which Ray Physics Rules Break?",
+       subtitle = "Bars = error distribution (%), line = total error count per model") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+::: notes
+What kinds of errors do models make in predict mode? Deterministic classification — we compare what the model predicted versus what actually happens. Missed reflections are the most common error across all models — the reflection rule is the hardest physics to apply correctly. Off-by-one path errors indicate cell-by-cell tracking failures. The error profiles are surprisingly similar across models, suggesting these are fundamental difficulties with the ray physics rather than model-specific weaknesses.
+:::
+
+## Error Count by Condition: Predict Mode {.smaller}
+
+```{r}
+#| label: predict-errors-by-condition
+#| eval: !expr has_error_classifications && has_predict_errors
+
+# Build condition labels
+errors_by_condition <- predict_errors |>
+  mutate(
+    condition = paste0(
+      ifelse(prompt_style == "augmented", "Aug", "Base"),
+      ifelse(enable_thinking, " +Think", ""),
+      ifelse(vot_ray_trace, " +VoT", "")
+    )
+  ) |>
+  count(model_name, condition) |>
+  rename(total_errors = n)
+
+# Use same model order as previous slide (by model size)
+errors_by_condition$model_name <- factor(errors_by_condition$model_name,
+                                         levels = model_error_order)
+
+p <- ggplot(errors_by_condition, aes(x = model_name, y = total_errors,
+                                 color = condition, group = condition,
+                                 text = paste0("Condition: ", condition,
+                                               "\nModel: ", model_name,
+                                               "\nErrors: ", total_errors))) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3.5) +
+  scale_color_brewer(palette = "Dark2") +
+  labs(x = NULL, y = "Total Errors", color = "Condition",
+       title = "Predict Mode: Error Count by Experimental Condition",
+       subtitle = "Each line = one prompt × thinking × VoT combination") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1),
+        legend.position = "right")
+
+ggplotly(p, tooltip = "text") |>
+  layout(hoverlabel = list(bgcolor = "white")) |>
+  htmlwidgets::onRender("
+    function(el) {
+      var highlighted = null;
+      el.on('plotly_legendclick', function(d) {
+        var clickedGroup = el.data[d.curveNumber].legendgroup;
+        if (highlighted === clickedGroup) {
+          Plotly.restyle(el, {opacity: 1});
+          highlighted = null;
+        } else {
+          for (var i = 0; i < el.data.length; i++) {
+            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;
+            Plotly.restyle(el, {opacity: op}, [i]);
+          }
+          highlighted = clickedGroup;
+        }
+        return false;
+      });
+      el.on('plotly_legenddoubleclick', function() {
+        Plotly.restyle(el, {opacity: 1});
+        highlighted = null;
+        return false;
+      });
+    }
+  ")
+```
+
+::: notes
+This shows how error counts vary across experimental conditions for each model, using the same model ordering (weakest to strongest). Lines that are higher mean more errors. Look for whether the lines maintain their relative positions across models — if so, the condition effect is additive. Crossings would indicate interaction effects. Augmented prompts with thinking enabled should consistently produce fewer errors.
+:::
 
 ## Predict Mode: Summary {.smaller}
 
@@ -1495,7 +1632,6 @@ ggplot(play_forest_initial, aes(x = mean_correct, y = config_label)) +
   geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper, color = model_name),
                  height = 0.3, linewidth = 0.9) +
   geom_vline(xintercept = 0.25, linetype = "dotted", color = "red", alpha = 0.7) +
-  geom_vline(xintercept = 1, linetype = "dashed", color = "gray50", alpha = 0.5) +
   geom_text(aes(label = sprintf("%.2f", mean_correct)),
             hjust = -0.3, size = 3.5) +
   scale_color_manual(values = model_colors) +
@@ -1503,7 +1639,7 @@ ggplot(play_forest_initial, aes(x = mean_correct, y = config_label)) +
                      sec.axis = dup_axis(name = NULL)) +
   labs(x = "Mean Atoms Correct (out of 4)", y = NULL, color = "Model",
        title = "Play Mode: Atoms Correct — Initial Results (n = 10 per condition)",
-       subtitle = "Red dotted = chance (0.25). Gray dashed = 1 atom.") +
+       subtitle = "Red dotted = chance (0.25).") +
   theme(
     axis.text.y = element_text(size = 9, family = "mono"),
     panel.grid.major.y = element_blank()
@@ -2243,50 +2379,8 @@ ggplot(model_comparison, aes(x = model_name, y = performance, fill = mode)) +
 Head-to-head comparison. Blue is predict mode — forward reasoning. Red is play mode — full diagnostic loop. The gap is consistent across all models: forward reasoning is easier than inverse reasoning. This makes theoretical sense — prediction is deductive, diagnosis is abductive. But the gap also reveals that the inferential machinery (hypothesis generation, test selection, constraint tracking) adds substantial difficulty beyond just spatial reasoning.
 :::
 
-## Error Analysis: Predict Mode
-
-```{r}
-#| label: predict-errors
-#| eval: !expr has_error_classifications && has_predict_errors
-
-cat_order <- c("Missed reflection", "Off-by-one path error",
-               "Deflection direction error", "Missed absorption",
-               "False absorption", "Large path tracking error",
-               "False reflection")
-
-error_by_model <- predict_errors |>
-  count(model_name, error_label) |>
-  group_by(model_name) |>
-  mutate(pct = n / sum(n) * 100) |>
-  ungroup()
-
-error_by_model$error_label <- factor(error_by_model$error_label, levels = cat_order)
-
-ggplot(error_by_model, aes(x = model_name, y = pct, fill = error_label)) +
-  geom_col(position = "stack", width = 0.7) +
-  scale_fill_manual(values = c(
-    "Missed reflection" = "#e74c3c",
-    "Off-by-one path error" = "#3498db",
-    "Deflection direction error" = "#2ecc71",
-    "Missed absorption" = "#e67e22",
-    "False absorption" = "#9b59b6",
-    "Large path tracking error" = "#1abc9c",
-    "False reflection" = "#95a5a6"
-  )) +
-  labs(x = NULL, y = "Percentage of Errors", fill = "Error Category",
-       title = "Predict Mode: Which Ray Physics Rules Break?",
-       subtitle = "Deterministic classification — comparing predicted vs actual outcome types") +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1))
-```
-
-::: notes
-What kinds of errors do models make in predict mode? Deterministic classification — we compare what the model predicted versus what actually happens. Missed reflections are the most common error across all models — the reflection rule is the hardest physics to apply correctly. Off-by-one path errors indicate cell-by-cell tracking failures. The error profiles are surprisingly similar across models, suggesting these are fundamental difficulties with the ray physics rather than model-specific weaknesses.
-:::
-
 ## Error Analysis: Play Mode
 
-::::: columns
-::: {.column width="50%"}
 ```{r}
 #| label: play-errors-spatial
 #| eval: !expr has_error_classifications && has_play_errors
@@ -2310,14 +2404,13 @@ ggplot(play_spatial_by_model,
        subtitle = "LLM-as-judge classification") +
   theme(axis.text.x = element_text(angle = 30, hjust = 1))
 ```
-:::
 
-::: {.column width="50%"}
 ```{r}
 #| label: play-errors-det
 #| eval: !expr has_det_play
-#| fig-height: 5.5
-#| fig-width: 7
+#| fig-height: 7
+#| fig-width: 12
+#| out-width: "100%"
 
 det_ray_summary <- det_games |>
   group_by(model_name) |>
@@ -2341,6 +2434,7 @@ ggplot(det_summary_long, aes(x = model_name, y = value, fill = model_name)) +
   geom_col(width = 0.6) +
   geom_text(aes(label = round(value, 1)), vjust = -0.3, size = 4.5) +
   facet_wrap(~metric, scales = "free_y", ncol = 1) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
   scale_fill_manual(values = model_colors) +
   labs(x = NULL, y = NULL,
        title = "Deterministic Analysis",
@@ -2348,8 +2442,6 @@ ggplot(det_summary_long, aes(x = model_name, y = value, fill = model_name)) +
   theme(legend.position = "none",
         axis.text.x = element_text(angle = 30, hjust = 1))
 ```
-:::
-:::::
 
 ::: notes
 Two complementary views of play mode errors. Left: LLM-as-judge classification into spatial versus non-spatial failures. Non-spatial errors — experiment design, constraint tracking, belief updating — dominate across all models. Right: deterministic analysis. Models pick optimal rays only a fraction of the time, with typical ray ranks around 5-10 out of 32 possible rays. They also fire excess rays after the solution is already determinable — they don't know when to stop.
@@ -2396,21 +2488,178 @@ Scaling from Haiku to Opus. Both modes improve with model size, but the gap betw
 
 ## Factor Summary
 
-| Factor                | Predict | Play  | Interpretation                |
-|-----------------------|:-------:|:-----:|-------------------------------|
-| **Model scale**       |   ↑↑    |  ↑↑   | Dominant factor in both modes |
-| **Augmented prompt**  |    ↑    |   ↑   | Consistent but modest benefit |
-| **Extended thinking** |    ↑    | — / ↑ | Helps predict; mixed in play  |
-| **VoT: Grid State**   |    —    |   —   | Minimal effect                |
-| **VoT: Ray Trace**    |    —    | — / ↓ | No help; sometimes hurts      |
-| **VoT: Hypothesis**   |    —    |   —   | No consistent effect          |
+```{r}
+#| label: factor-summary-table
+
+# ── Helpers ──
+fs_get_p <- function(res, term) {
+  df <- as.data.frame(res) |> rownames_to_column("term")
+  p <- df$`Pr(>Chisq)`[df$term == term]
+  if (length(p) == 0) NA_real_ else p[1]
+}
+
+fs_get_chi <- function(res, term) {
+  df <- as.data.frame(res) |> rownames_to_column("term")
+  v <- df$Chisq[df$term == term]
+  if (length(v) == 0) NA_real_ else v[1]
+}
+
+fs_arrow <- function(p_val, effect_size, is_dominant = FALSE) {
+  if (is.na(p_val) || p_val >= 0.10) return("\u2014")
+  if (p_val >= 0.05) {
+    if (effect_size > 0) return("\u2014 / \u2191")
+    if (effect_size < 0) return("\u2014 / \u2193")
+    return("\u2014")
+  }
+  if (is_dominant && effect_size > 0) return("\u2191\u2191")
+  if (effect_size > 0) return("\u2191")
+  if (effect_size < 0) return("\u2193")
+  "\u2014"
+}
+
+# Dominant = highest chi-sq among significant terms, and >= 2x runner-up
+fs_find_dominant <- function(ps, chis) {
+  sig <- names(ps)[!is.na(ps) & ps < 0.05]
+  sig_chis <- chis[sig]; sig_chis <- sig_chis[!is.na(sig_chis)]
+  if (length(sig_chis) < 2) return(if (length(sig_chis) == 1) names(sig_chis) else NULL)
+  s <- sort(sig_chis, decreasing = TRUE)
+  if (s[1] >= 2 * s[2]) names(which.max(sig_chis)) else NULL
+}
+
+fs_safe_diff <- function(vals, labels, hi, lo) {
+  h <- vals[labels == hi]; l <- vals[labels == lo]
+  if (length(h) > 0 && length(l) > 0) h[1] - l[1] else 0
+}
+
+fs_is_dom <- function(dom, name) !is.null(dom) && dom == name
+
+# ── Predict mode ──
+pred_p <- c(model = fs_get_p(anova_result, "model_name"),
+            prompt = fs_get_p(anova_result, "prompt_style"),
+            thinking = fs_get_p(anova_result, "enable_thinking"),
+            vot = fs_get_p(anova_result, "vot_ray_trace"))
+pred_chi <- c(model = fs_get_chi(anova_result, "model_name"),
+              prompt = fs_get_chi(anova_result, "prompt_style"),
+              thinking = fs_get_chi(anova_result, "enable_thinking"),
+              vot = fs_get_chi(anova_result, "vot_ray_trace"))
+pred_dom <- fs_find_dominant(pred_p, pred_chi)
+
+pred_model_eff <- diff(range(factor_data$accuracy[factor_data$factor == "Model"]))
+fd_pr <- factor_data |> filter(factor == "Prompt")
+pred_prompt_eff <- fs_safe_diff(fd_pr$accuracy, fd_pr$level, "augmented", "baseline")
+fd_th <- factor_data |> filter(factor == "Extended Thinking")
+pred_think_eff <- fs_safe_diff(fd_th$accuracy, fd_th$level, "Enabled", "Disabled")
+fd_vt <- factor_data |> filter(factor == "VoT Ray Trace")
+pred_vot_eff <- fs_safe_diff(fd_vt$accuracy, fd_vt$level, "Enabled", "Disabled")
+
+# ── Play mode ──
+play_p <- c(model = fs_get_p(play_anova_result, "model_name"),
+            prompt = fs_get_p(play_anova_result, "prompt_style"),
+            thinking = fs_get_p(play_anova_result, "enable_thinking"),
+            vot = fs_get_p(play_anova_result, "vot_condition"))
+play_chi <- c(model = fs_get_chi(play_anova_result, "model_name"),
+              prompt = fs_get_chi(play_anova_result, "prompt_style"),
+              thinking = fs_get_chi(play_anova_result, "enable_thinking"),
+              vot = fs_get_chi(play_anova_result, "vot_condition"))
+play_dom <- fs_find_dominant(play_p, play_chi)
+
+play_model_eff <- diff(range(play_factor_data$mean_val[play_factor_data$factor == "Model"]))
+pfd_pr <- play_factor_data |> filter(factor == "Prompt")
+play_prompt_eff <- fs_safe_diff(pfd_pr$mean_val, pfd_pr$level, "augmented", "baseline")
+pfd_th <- play_factor_data |> filter(factor == "Extended Thinking")
+play_think_eff <- fs_safe_diff(pfd_th$mean_val, pfd_th$level, "Enabled", "Disabled")
+
+# VoT individual effects in play
+pfd_vot <- play_factor_data |> filter(factor == "VoT Condition")
+vot_none_val <- pfd_vot$mean_val[pfd_vot$level == "None"]
+if (length(vot_none_val) == 0) vot_none_val <- NA_real_
+
+fs_vot_eff <- function(pat) {
+  if (is.na(vot_none_val)) return(0)
+  v <- pfd_vot$mean_val[grepl(pat, pfd_vot$level)]
+  if (length(v) == 0) 0 else v[1] - vot_none_val
+}
+
+fs_vot_arrow <- function(p_overall, eff) {
+  if (is.na(p_overall) || p_overall >= 0.10) return("\u2014")
+  if (p_overall >= 0.05) {
+    if (eff > 0.1) return("\u2014 / \u2191")
+    if (eff < -0.1) return("\u2014 / \u2193")
+    return("\u2014")
+  }
+  if (eff > 0.2) return("\u2191")
+  if (eff < -0.2) return("\u2193")
+  "\u2014"
+}
+
+# ── Build table ──
+fs_tbl <- tibble(
+  Factor = c("Model", "Augmented prompt", "Extended thinking",
+             "VoT: Grid State", "VoT: Ray Trace", "VoT: Hypothesis"),
+  Predict = c(
+    fs_arrow(pred_p["model"], pred_model_eff, fs_is_dom(pred_dom, "model")),
+    fs_arrow(pred_p["prompt"], pred_prompt_eff, fs_is_dom(pred_dom, "prompt")),
+    fs_arrow(pred_p["thinking"], pred_think_eff, fs_is_dom(pred_dom, "thinking")),
+    "\u2014",
+    fs_arrow(pred_p["vot"], pred_vot_eff, fs_is_dom(pred_dom, "vot")),
+    "\u2014"
+  ),
+  Play = c(
+    fs_arrow(play_p["model"], play_model_eff, fs_is_dom(play_dom, "model")),
+    fs_arrow(play_p["prompt"], play_prompt_eff, fs_is_dom(play_dom, "prompt")),
+    fs_arrow(play_p["thinking"], play_think_eff, fs_is_dom(play_dom, "thinking")),
+    fs_vot_arrow(play_p["vot"], fs_vot_eff("Grid")),
+    fs_vot_arrow(play_p["vot"], fs_vot_eff("Ray")),
+    fs_vot_arrow(play_p["vot"], fs_vot_eff("Hyp"))
+  )
+)
+
+# Interpretation
+fs_interpret <- function(pred, play) {
+  p2 <- pred == "\u2191\u2191"; p1 <- pred == "\u2191"
+  pm <- grepl("/", pred); p0 <- pred == "\u2014"; pd <- pred == "\u2193"
+  l2 <- play == "\u2191\u2191"; l1 <- play == "\u2191"
+  lm <- grepl("/", play); l0 <- play == "\u2014"; ld <- play == "\u2193"
+
+  if (p2 && l2) "Dominant factor in both modes"
+  else if (p2 && l1) "Strong predict, moderate play"
+  else if (p1 && l2) "Moderate predict, strong play"
+  else if ((p2 || p1) && (l2 || l1)) "Consistent benefit"
+  else if ((p2 || p1) && lm) "Helps predict; mixed play"
+  else if (pm && (l2 || l1)) "Mixed predict; helps play"
+  else if ((p2 || p1) && l0) "Helps predict only"
+  else if (p0 && (l2 || l1)) "Helps play only"
+  else if ((p2 || p1) && ld) "Helps predict; hurts play"
+  else if (p0 && ld) "No help; hurts play"
+  else if (p0 && lm) "Minimal predict; mixed play"
+  else if (pm && l0) "Mixed predict; minimal play"
+  else if (p0 && l0) "Minimal effect"
+  else "Mixed effects"
+}
+
+fs_tbl$Interpretation <- mapply(fs_interpret, fs_tbl$Predict, fs_tbl$Play,
+                                 USE.NAMES = FALSE)
+
+gt(fs_tbl) |>
+  cols_align(align = "center", columns = c(Predict, Play)) |>
+  cols_align(align = "left", columns = c(Factor, Interpretation)) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(columns = Factor)
+  ) |>
+  tab_options(
+    table.font.size = px(22),
+    column_labels.font.size = px(22),
+    column_labels.font.weight = "bold"
+  )
+```
 
 ::: fragment
 **Key finding**: No prompt intervention closes the gap to optimal. The limitations are architectural, not instructional.
 :::
 
 ::: notes
-Summary table. Model scale is the only factor with consistent, large effects. Everything else is marginal. The sobering conclusion: you can't prompt your way to diagnostic reasoning. Extended thinking helps with forward spatial reasoning but has mixed effects on the full diagnostic loop. VoT prompts — which add explicit visualization instructions — don't reliably help and sometimes hurt. The limitations appear to be in the model's ability to maintain and manipulate internal state, not in the instructions it receives.
+Factor summary derived from the ANOVA results and marginal means. The double-arrow indicates the dominant factor — its chi-squared is at least twice the runner-up among significant terms. Single arrows indicate significant effects (p < 0.05). Mixed arrows (— / ↑) indicate marginal significance (0.05 ≤ p < 0.10). Dashes indicate non-significant effects. The key takeaway: you can't prompt your way to diagnostic reasoning. The limitations appear to be in the model's ability to maintain and manipulate internal state, not in the instructions it receives.
 :::
 
 ## Benchmark Context

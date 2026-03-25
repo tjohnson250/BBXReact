@@ -137,7 +137,7 @@ identifying *which* specific state from a known set is present.
 **Component processes of diagnostic reasoning:**
 
 | Process | Description |
-|------------------------------------|------------------------------------|
+|----|----|
 | **Hypothesis Generation** | Generate candidate hidden states that could explain observations |
 | **Forward Reasoning** | Predict what observations would occur under each hypothesis |
 | **Test Selection** | Choose which observation to gather next to best discriminate among hypotheses |
@@ -164,7 +164,7 @@ realization of diagnostic reasoning*—requiring all six component
 processes in an integrated task:
 
 | Diagnostic Process | Black Box Analog |
-|------------------------------------|------------------------------------|
+|----|----|
 | **Hypothesis Generation** | Consider which atom configurations could explain observations |
 | **Forward Reasoning** | Predict ray behavior under a hypothesized configuration |
 | **Test Selection** | Choose which ray to fire next to discriminate among hypotheses |
@@ -843,7 +843,7 @@ kable(predict_design, format = "pipe")
 ```
 
 | Model | Prompt | Extended Thinking | Vot (None, B Ray Trace) |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **10K** | **None** |
@@ -858,7 +858,7 @@ kable(predict_design, format = "pipe")
 Play Mode Experiment Log
 
 | Model | Prompt | Extended Thinking | VoT (None, A, B, or C) |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT A Grid State Tracking** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
@@ -1118,7 +1118,7 @@ Following Cohen (1988), we interpret effect sizes using conventional
 benchmarks:
 
 | Measure | Small | Medium | Large | Notes |
-|---------------|---------------|---------------|---------------|---------------|
+|----|----|----|----|----|
 | η² (Eta-squared) | 0.01 | 0.06 | 0.14 | Total variance explained |
 | η²p (Partial eta-squared) | 0.01 | 0.06 | 0.14 | Variance explained controlling for other factors |
 | ω² (Omega-squared) | 0.01 | 0.06 | 0.14 | Unbiased estimate (preferred over η²) |
@@ -1158,23 +1158,22 @@ Comparing Predict mode (forward reasoning, heavily spatial) to Play mode
 
 We use two complementary measures of spatial complexity:
 
--   **Predict mode**: *Cells traveled*—the number of internal grid
-    cells a ray visits. A ray that passes straight through the grid
-    without interaction traverses 8 cells; absorption shortens the
-    path (the absorbing cell is the last cell counted); deflections
-    lengthen it by adding turns. Edge reflections—where an atom
-    diagonally adjacent to the entry point bounces the ray before it
-    enters the grid—yield 0 cells. Loop-back reflections, where the
-    ray enters the grid, reverses via a pair of flanking atoms, and
-    exits at its entry point, include all internal cells visited
-    (typically 1–7).
+-   **Predict mode**: *Cells traveled*—the number of internal grid cells
+    a ray visits. A ray that passes straight through the grid without
+    interaction traverses 8 cells; absorption shortens the path (the
+    absorbing cell is the last cell counted); deflections lengthen it by
+    adding turns. Edge reflections—where an atom diagonally adjacent to
+    the entry point bounces the ray before it enters the grid—yield 0
+    cells. Loop-back reflections, where the ray enters the grid,
+    reverses via a pair of flanking atoms, and exits at its entry point,
+    include all internal cells visited (typically 1–7).
 -   **Atoms affecting**—the number of distinct atoms within Chebyshev
     distance 1 of any cell the ray visits (or, for edge reflections,
     within distance 1 of the entry cell). This counts atoms that
     directly interact with the ray (absorbing, reflecting, or
-    deflecting) as well as atoms adjacent to the path that do not
-    alter it. Values range from 0 (a straight-through detour with no
-    nearby atoms) to 4.
+    deflecting) as well as atoms adjacent to the path that do not alter
+    it. Values range from 0 (a straight-through detour with no nearby
+    atoms) to 4.
 -   **Play mode**: *Mean atoms per ray*—the per-game average of atoms
     affecting, computed over all rays fired in a game. This measures
     interaction complexity.
@@ -1192,7 +1191,7 @@ style, extended thinking) interact with spatial complexity:
 We classify errors from extended thinking traces into categories:
 
 | Error Type | Spatial? | Description |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Ray path error | Yes | Path traced incorrectly through grid |
 | Deflection geometry error | Yes | Misunderstood deflection rules |
 | Constraint tracking error | No | Failed to update ruled-out positions |
@@ -1971,9 +1970,9 @@ icc_display <- if (!is.null(icc_value) && is.data.frame(icc_value)) {
 }
 ```
 
-**Intraclass Correlation Coefficient (ICC)**:
-`r icc_display` — Proportion of variance due to
-clustering at both configuration and ray-within-config levels.
+**Intraclass Correlation Coefficient (ICC)**: `r icc_display` —
+Proportion of variance due to clustering at both configuration and
+ray-within-config levels.
 
 ```{r}
 #| label: predict-model-fit
@@ -3430,8 +3429,8 @@ r2_result <- performance::r2_nakagawa(model_atoms)
 config-level difficulty and allows generalization beyond these 10
 configurations.
 
-**ICC**: `r icc_display` — Proportion of variance
-due to configuration clustering
+**ICC**: `r icc_display` — Proportion of variance due to configuration
+clustering
 
 **Model Fit**: - **Marginal R²** (fixed effects only):
 `r round(r2_result$R2_marginal, 3)` - **Conditional R²** (fixed + random
@@ -4583,7 +4582,7 @@ the predicted vs. actual outcome types and exit positions.
 **Error taxonomy:**
 
 | Error Category | Pattern | Description |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Missed absorption | pred: detour/reflected → actual: absorbed | Failed to check for atom directly in ray's path before checking diagonals |
 | Missed reflection | pred: detour/absorbed → actual: reflected | Failed to recognize reflection condition at entry point |
 | False absorption | pred: absorbed → actual: detour/reflected | Incorrectly identified absorption; confused diagonal atom with forward atom |
@@ -5709,8 +5708,8 @@ e2_icc_display <- if (!is.null(e2_icc) && is.data.frame(e2_icc)) {
 }
 ```
 
-**ICC**: `r e2_icc_display` — Proportion of variance due
-to clustering at configuration and ray-within-config levels.
+**ICC**: `r e2_icc_display` — Proportion of variance due to clustering
+at configuration and ray-within-config levels.
 
 ```{r}
 #| label: e2-predict-model-fit

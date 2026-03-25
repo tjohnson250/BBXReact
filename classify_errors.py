@@ -798,6 +798,23 @@ def main():
     # Write final output
     # =======================================================================
     if not args.dry_run:
+        # When running a single mode, preserve the other mode's data from
+        # the existing output file so we don't clobber prior results.
+        existing = {}
+        if os.path.exists(OUTPUT_FILE):
+            with open(OUTPUT_FILE) as f:
+                existing = json.load(f)
+
+        predict_data = checkpoint.get("predict", [])
+        play_data = checkpoint.get("play", [])
+        play_gold_data = checkpoint.get("play_gold", [])
+
+        if args.mode == "play" and not predict_data:
+            predict_data = existing.get("predict", [])
+        if args.mode == "predict" and not play_data:
+            play_data = existing.get("play", [])
+            play_gold_data = existing.get("play_gold_standard", [])
+
         output = {
             "metadata": {
                 "classification_date": time.strftime("%Y-%m-%dT%H:%M:%S"),
@@ -806,13 +823,13 @@ def main():
                 "play_gold_standard_model": OPUS_MODEL if args.gold_standard else None,
                 "predict_taxonomy": PREDICT_ERROR_CATEGORIES,
                 "play_taxonomy": PLAY_ERROR_CATEGORIES,
-                "predict_count": len(checkpoint.get("predict", [])),
-                "play_count": len(checkpoint.get("play", [])),
-                "play_gold_count": len(checkpoint.get("play_gold", [])),
+                "predict_count": len(predict_data),
+                "play_count": len(play_data),
+                "play_gold_count": len(play_gold_data),
             },
-            "predict": checkpoint.get("predict", []),
-            "play": checkpoint.get("play", []),
-            "play_gold_standard": checkpoint.get("play_gold", []),
+            "predict": predict_data,
+            "play": play_data,
+            "play_gold_standard": play_gold_data,
         }
 
         with open(OUTPUT_FILE, "w") as f:
