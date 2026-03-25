@@ -151,6 +151,14 @@
   <script src="blackbox_presentation_files/libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
   <link href="blackbox_presentation_files/libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
   <script src="blackbox_presentation_files/libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+  <style>
+  .reveal .slides section.scrollable h2 {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+  }
+  </style>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -173,17 +181,6 @@ Todd R. Johnson
 
   <p class="date">2026-03-25</p>
 </section>
-<section class="slide level2">
-
-<style>
-.reveal .slides section.scrollable h2 {
-  position: sticky;
-  top: 0;
-  background: white;
-  z-index: 10;
-}
-</style>
-</section>
 <section id="follow-along" class="slide level2" style="text-align: center;">
 <h2>Follow Along</h2>
 <div class="columns">
@@ -205,13 +202,11 @@ Todd R. Johnson
 <h2>Clinical Reasoning at Scale</h2>
 <p>LLMs are being deployed across clinical reasoning tasks at unprecedented speed.</p>
 <ul>
-<li class="fragment"><p><strong>In 2024, 31.5% of 2,174 US hospitals</strong> deployed generative AI in clinical workflows; another <strong>24.7% planned near-term adoption</strong> <span class="citation" data-cites="everson2025genai">(<a href="#/references" role="doc-biblioref" onclick="">Everson, Nong, and Richwine 2025</a>)</span></p></li>
-<li class="fragment"><p><strong>2024 survey with responses from 43 of 67 Scottsdale Institute health systems</strong> all reported active AI adoption in clinical documentation (ambient listening at 100%) <span class="citation" data-cites="poon2025">(<a href="#/references" role="doc-biblioref" onclick="">Poon et al. 2025</a>)</span></p></li>
-<li class="fragment"><p><strong>1 (2019) → 557 (2024) papers/year</strong> evaluating LLMs in clinical medicine <span class="citation" data-cites="shool2025systematic">(<a href="#/references" role="doc-biblioref" onclick="">Shool et al. 2025</a>)</span></p></li>
+<li><p><strong>In 2024, 31.5% of 2,174 US hospitals</strong> deployed generative AI in clinical workflows; another <strong>24.7% planned near-term adoption</strong> <span class="citation" data-cites="everson2025genai">(<a href="#/references" role="doc-biblioref" onclick="">Everson, Nong, and Richwine 2025</a>)</span></p></li>
+<li><p><strong>2024 survey with responses from 43 of 67 Scottsdale Institute health systems</strong> all reported active AI adoption in clinical documentation (ambient listening at 100%) <span class="citation" data-cites="poon2025">(<a href="#/references" role="doc-biblioref" onclick="">Poon et al. 2025</a>)</span></p></li>
+<li><p><strong>1 (2019) → 557 (2024) papers/year</strong> evaluating LLMs in clinical medicine <span class="citation" data-cites="shool2025systematic">(<a href="#/references" role="doc-biblioref" onclick="">Shool et al. 2025</a>)</span></p></li>
 </ul>
-<div class="fragment">
 <p><strong>Scope of deployment:</strong> Triage · Differential diagnosis · Clinical documentation · Test ordering · Referral decisions · Prior authorization · Coding · Treatment planning</p>
-</div>
 <aside class="notes">
 <p>I want to start with the scope of what’s happening. A third of US hospitals are already running generative AI in clinical workflows. A national survey of leading health systems found universal adoption activity. The research literature has more than tripled in a single year. And the applications span the full range of clinical cognitive work — not just documentation, which is relatively low-risk, but diagnosis, triage, test ordering, treatment planning. Tasks that require clinical reasoning. The question is: what’s the evidentiary basis for this deployment?</p>
 <style type="text/css">
@@ -232,32 +227,22 @@ Todd R. Johnson
 <div class="column" style="width:48%;">
 <h3 id="benchmark-milestones">Benchmark Milestones</h3>
 <ul>
-<li class="fragment"><p><strong>GPT-4: ~86% on USMLE-style questions</strong>, exceeding passing threshold by 20+ points <span class="citation" data-cites="garabet2024gpt4usmle">(<a href="#/references" role="doc-biblioref" onclick="">Garabet et al. 2024</a>)</span></p></li>
-<li class="fragment"><p><strong>Med-PaLM 2: Scored 86.5% on MedQA (USMLE-Style)</strong>. <span class="citation" data-cites="singhal2025toward">(<a href="#/references" role="doc-biblioref" onclick="">Singhal et al. 2025</a>)</span></p>
+<li><p><strong>GPT-4: ~86% on USMLE-style questions</strong>, exceeding passing threshold by 20+ points <span class="citation" data-cites="garabet2024gpt4usmle">(<a href="#/references" role="doc-biblioref" onclick="">Garabet et al. 2024</a>)</span></p></li>
+<li><p><strong>Med-PaLM 2: Scored 86.5% on MedQA (USMLE-Style)</strong>. <span class="citation" data-cites="singhal2025toward">(<a href="#/references" role="doc-biblioref" onclick="">Singhal et al. 2025</a>)</span></p>
 <ul>
-<li class="fragment"><strong>Physicians preferred Med-PaLM 2 answers</strong> over generalist physician answers 65% of the time.</li>
+<li><strong>Physicians preferred Med-PaLM 2 answers</strong> over generalist physician answers 65% of the time.</li>
 </ul></li>
-<li class="fragment"><p><strong>AMIE: Outperformed primary care physicians in structured diagnostic conversations</strong> including information acquisition <span class="citation" data-cites="tu2025amie">(<a href="#/references" role="doc-biblioref" onclick="">Tu et al. 2025</a>)</span></p></li>
+<li><p><strong>AMIE: Outperformed primary care physicians in structured diagnostic conversations</strong> including information acquisition <span class="citation" data-cites="tu2025amie">(<a href="#/references" role="doc-biblioref" onclick="">Tu et al. 2025</a>)</span></p></li>
 </ul>
 </div><div class="column" style="width:4%;">
 
 </div><div class="column" style="width:48%;">
-<div class="fragment">
 <h3 id="clinical-evidence">Clinical Evidence</h3>
 <ul>
-<li>NEJM case records: <strong>GPT-4 included the correct diagnosis in its differential for 64%</strong> (34% as top diagnosis) of complex clinicopathological cases from NEJM. <span class="citation" data-cites="kanjee2023accuracy">(<a href="#/references" role="doc-biblioref" onclick="">Kanjee, Crowe, and Rodman 2023</a>)</span></li>
+<li><p>NEJM case records: <strong>GPT-4 included the correct diagnosis in its differential for 64%</strong> (34% as top diagnosis) of complex clinicopathological cases from NEJM. <span class="citation" data-cites="kanjee2023accuracy">(<a href="#/references" role="doc-biblioref" onclick="">Kanjee, Crowe, and Rodman 2023</a>)</span></p></li>
+<li><p><strong>LLM alone: 92% diagnostic accuracy</strong> on 6 clinical vignettes vs.&nbsp;74% (conventional resources) and 76% (with LLM) for physicians <span class="citation" data-cites="goh2024llmdiagnosis">(<a href="#/references" role="doc-biblioref" onclick="">Goh et al. 2024</a>)</span></p></li>
+<li><p>Emergency dept: <strong>GPT-4 was better than ED resident physicians</strong> in diagnostic accuracy across 100 real cases <span class="citation" data-cites="hoppe2024gpt4ed">(<a href="#/references" role="doc-biblioref" onclick="">Hoppe et al. 2024</a>)</span></p></li>
 </ul>
-</div>
-<div class="fragment">
-<ul>
-<li><strong>LLM alone: 92% diagnostic accuracy</strong> on 6 clinical vignettes vs.&nbsp;74% (conventional resources) and 76% (with LLM) for physicians <span class="citation" data-cites="goh2024llmdiagnosis">(<a href="#/references" role="doc-biblioref" onclick="">Goh et al. 2024</a>)</span></li>
-</ul>
-</div>
-<div class="fragment">
-<ul>
-<li>Emergency dept: <strong>GPT-4 was better than ED resident physicians</strong> in diagnostic accuracy across 100 real cases <span class="citation" data-cites="hoppe2024gpt4ed">(<a href="#/references" role="doc-biblioref" onclick="">Hoppe et al. 2024</a>)</span></li>
-</ul>
-</div>
 </div></div>
 <aside class="notes">
 <p>And the evidence looks compelling. On the benchmark side, Med-PaLM 2 reached expert-level performance on medical question answering. GPT-4 crushed the USMLE by twenty points. Google’s AMIE outperformed primary care physicians in structured diagnostic conversations. On the clinical side, Goh et al.&nbsp;ran a randomized trial where the LLM alone scored 92% on diagnostic reasoning — physicians scored 74%. Kanjee et al.&nbsp;found GPT-4 included the correct diagnosis for 64% of complex NEJM case records, and Hoppe et al.&nbsp;showed GPT-4 significantly outperformed ED residents in diagnostic accuracy. If you’re a health system CEO looking at these numbers, deployment seems like an obvious decision. But there’s a problem.</p>
@@ -278,15 +263,9 @@ Todd R. Johnson
 <div class="conflict-thesis">
 <p>Healthcare is adopting LLMs for tasks that require clinical reasoning, based on benchmark evidence that measures pattern recognition</p>
 </div>
-<div class="fragment">
 <p><span class="evidence-num"><strong>1.</strong></span> <strong>Context matching, not reasoning</strong> <span class="citation" data-cites="wen2025context">(<a href="#/references" role="doc-biblioref" onclick="">Wen et al. 2025</a>)</span></p>
-</div>
-<div class="fragment">
 <p><span class="evidence-num"><strong>2.</strong></span> <strong>Base rate neglect is systematic</strong> <span class="citation" data-cites="omar2025zebras">(<a href="#/references" role="doc-biblioref" onclick="">Omar et al. 2025</a>)</span></p>
-</div>
-<div class="fragment">
 <p><span class="evidence-num"><strong>3.</strong></span> <strong>Reasoning traces don’t reflect actual computation</strong> <span class="citation" data-cites="chen2025faithfulness matton2025 kambhampati2024llmmodulo shojaee2025illusion">(<a href="#/references" role="doc-biblioref" onclick="">Chen et al. 2025</a>; <a href="#/references" role="doc-biblioref" onclick="">Matton et al. 2025</a>; <a href="#/references" role="doc-biblioref" onclick="">Kambhampati et al. 2024</a>; <a href="#/references" role="doc-biblioref" onclick="">Shojaee et al. 2025</a>)</span></p>
-</div>
 <aside class="notes">
 <p>Here’s the core problem. Three independent research programs converge on the same conclusion. Let me walk through each one.</p>
 <style type="text/css">
@@ -600,7 +579,9 @@ Todd R. Johnson
 </ul>
 </div>
 <div class="fragment">
-<p><span class="math display">\[\text{Score} = \underbrace{\sum \text{ray points}}_{\text{information cost}} + \underbrace{(\text{atoms missed} \times 5)}_{\text{placement penalty}}\]</span></p>
+<div style="text-align: center; font-size: 1.4em; margin: 0.5em 0;">
+<p><strong>Score</strong> = <span style="display: inline-block; text-align: center; vertical-align: top;">∑ ray points<br><span style="border-top: 2px solid #333; font-size: 0.6em; color: #666; display: block; padding-top: 0.2em;">information cost</span></span> + <span style="display: inline-block; text-align: center; vertical-align: top;">(atoms missed × 5)<br><span style="border-top: 2px solid #333; font-size: 0.6em; color: #666; display: block; padding-top: 0.2em;">placement penalty</span></span></p>
+</div>
 <p><strong>Lower is better</strong> — a perfect game means finding all 4 atoms with minimal rays.</p>
 <aside class="notes">
 <p>The scoring system creates a natural tension between gathering information (firing rays) and accuracy (placing atoms correctly). Each ray you fire costs 1–2 points depending on its outcome, and each atom you get wrong costs 5 points. This means it’s worth firing a few extra rays to avoid missing an atom — but not too many. The scoring system incentivizes efficient diagnostic reasoning: gather just enough evidence to be confident, then commit to your diagnosis.</p>
@@ -745,7 +726,7 @@ Todd R. Johnson
 <td>Standard, Extended</td>
 </tr>
 <tr class="even">
-<td><strong>VoT</strong><sup>[Visualization of Thinking <span class="citation" data-cites="wu2024vot">(<a href="#/references" role="doc-biblioref" onclick=""><strong>wu2024vot?</strong></a>)</span>]</sup></td>
+<td><strong>VoT</strong></td>
 <td>None + 3 visualization prompts</td>
 </tr>
 <tr class="odd">
@@ -754,6 +735,7 @@ Todd R. Johnson
 </tr>
 </tbody>
 </table>
+<p>VoT = Visualization of Thinking <span class="citation" data-cites="wu2024vot">(<a href="#/references" role="doc-biblioref" onclick="">Wu et al. 2024</a>)</span></p>
 </div><div class="column" style="width:45%;">
 <p><strong>Scale</strong></p>
 <ul>
@@ -1115,23 +1097,23 @@ Todd R. Johnson
 <h2>Predict: Regression Coefficients</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div id="tzwpamifht" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#tzwpamifht table {
+<div id="jsbpybynyv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#jsbpybynyv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#tzwpamifht thead, #tzwpamifht tbody, #tzwpamifht tfoot, #tzwpamifht tr, #tzwpamifht td, #tzwpamifht th {
+#jsbpybynyv thead, #jsbpybynyv tbody, #jsbpybynyv tfoot, #jsbpybynyv tr, #jsbpybynyv td, #jsbpybynyv th {
   border-style: none;
 }
 
-#tzwpamifht p {
+#jsbpybynyv p {
   margin: 0;
   padding: 0;
 }
 
-#tzwpamifht .gt_table {
+#jsbpybynyv .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1157,12 +1139,12 @@ Todd R. Johnson
   border-left-color: #D3D3D3;
 }
 
-#tzwpamifht .gt_caption {
+#jsbpybynyv .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#tzwpamifht .gt_title {
+#jsbpybynyv .gt_title {
   color: #333333;
   font-size: 24px;
   font-weight: initial;
@@ -1174,7 +1156,7 @@ Todd R. Johnson
   border-bottom-width: 0;
 }
 
-#tzwpamifht .gt_subtitle {
+#jsbpybynyv .gt_subtitle {
   color: #333333;
   font-size: 16px;
   font-weight: initial;
@@ -1186,7 +1168,7 @@ Todd R. Johnson
   border-top-width: 0;
 }
 
-#tzwpamifht .gt_heading {
+#jsbpybynyv .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1198,13 +1180,13 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#tzwpamifht .gt_bottom_border {
+#jsbpybynyv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#tzwpamifht .gt_col_headings {
+#jsbpybynyv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1219,7 +1201,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#tzwpamifht .gt_col_heading {
+#jsbpybynyv .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1239,7 +1221,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#tzwpamifht .gt_column_spanner_outer {
+#jsbpybynyv .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1251,15 +1233,15 @@ Todd R. Johnson
   padding-right: 4px;
 }
 
-#tzwpamifht .gt_column_spanner_outer:first-child {
+#jsbpybynyv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#tzwpamifht .gt_column_spanner_outer:last-child {
+#jsbpybynyv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#tzwpamifht .gt_column_spanner {
+#jsbpybynyv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1271,11 +1253,11 @@ Todd R. Johnson
   width: 100%;
 }
 
-#tzwpamifht .gt_spanner_row {
+#jsbpybynyv .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#tzwpamifht .gt_group_heading {
+#jsbpybynyv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1301,7 +1283,7 @@ Todd R. Johnson
   text-align: left;
 }
 
-#tzwpamifht .gt_empty_group_heading {
+#jsbpybynyv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1316,15 +1298,15 @@ Todd R. Johnson
   vertical-align: middle;
 }
 
-#tzwpamifht .gt_from_md > :first-child {
+#jsbpybynyv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#tzwpamifht .gt_from_md > :last-child {
+#jsbpybynyv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#tzwpamifht .gt_row {
+#jsbpybynyv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1343,7 +1325,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#tzwpamifht .gt_stub {
+#jsbpybynyv .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1356,7 +1338,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#tzwpamifht .gt_stub_row_group {
+#jsbpybynyv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1370,15 +1352,15 @@ Todd R. Johnson
   vertical-align: top;
 }
 
-#tzwpamifht .gt_row_group_first td {
+#jsbpybynyv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#tzwpamifht .gt_row_group_first th {
+#jsbpybynyv .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#tzwpamifht .gt_summary_row {
+#jsbpybynyv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1388,16 +1370,16 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#tzwpamifht .gt_first_summary_row {
+#jsbpybynyv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#tzwpamifht .gt_first_summary_row.thick {
+#jsbpybynyv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#tzwpamifht .gt_last_summary_row {
+#jsbpybynyv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1407,7 +1389,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#tzwpamifht .gt_grand_summary_row {
+#jsbpybynyv .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1417,7 +1399,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#tzwpamifht .gt_first_grand_summary_row {
+#jsbpybynyv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1427,7 +1409,7 @@ Todd R. Johnson
   border-top-color: #D3D3D3;
 }
 
-#tzwpamifht .gt_last_grand_summary_row_top {
+#jsbpybynyv .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1437,11 +1419,11 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#tzwpamifht .gt_striped {
+#jsbpybynyv .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#tzwpamifht .gt_table_body {
+#jsbpybynyv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1450,7 +1432,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#tzwpamifht .gt_footnotes {
+#jsbpybynyv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1464,7 +1446,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#tzwpamifht .gt_footnote {
+#jsbpybynyv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1473,7 +1455,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#tzwpamifht .gt_sourcenotes {
+#jsbpybynyv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1487,7 +1469,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#tzwpamifht .gt_sourcenote {
+#jsbpybynyv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1495,72 +1477,72 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#tzwpamifht .gt_left {
+#jsbpybynyv .gt_left {
   text-align: left;
 }
 
-#tzwpamifht .gt_center {
+#jsbpybynyv .gt_center {
   text-align: center;
 }
 
-#tzwpamifht .gt_right {
+#jsbpybynyv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#tzwpamifht .gt_font_normal {
+#jsbpybynyv .gt_font_normal {
   font-weight: normal;
 }
 
-#tzwpamifht .gt_font_bold {
+#jsbpybynyv .gt_font_bold {
   font-weight: bold;
 }
 
-#tzwpamifht .gt_font_italic {
+#jsbpybynyv .gt_font_italic {
   font-style: italic;
 }
 
-#tzwpamifht .gt_super {
+#jsbpybynyv .gt_super {
   font-size: 65%;
 }
 
-#tzwpamifht .gt_footnote_marks {
+#jsbpybynyv .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#tzwpamifht .gt_asterisk {
+#jsbpybynyv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#tzwpamifht .gt_indent_1 {
+#jsbpybynyv .gt_indent_1 {
   text-indent: 5px;
 }
 
-#tzwpamifht .gt_indent_2 {
+#jsbpybynyv .gt_indent_2 {
   text-indent: 10px;
 }
 
-#tzwpamifht .gt_indent_3 {
+#jsbpybynyv .gt_indent_3 {
   text-indent: 15px;
 }
 
-#tzwpamifht .gt_indent_4 {
+#jsbpybynyv .gt_indent_4 {
   text-indent: 20px;
 }
 
-#tzwpamifht .gt_indent_5 {
+#jsbpybynyv .gt_indent_5 {
   text-indent: 25px;
 }
 
-#tzwpamifht .katex-display {
+#jsbpybynyv .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#tzwpamifht div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#jsbpybynyv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1855,8 +1837,8 @@ Todd R. Johnson
 <h2>Error Count by Condition: Predict Mode</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div class="plotly html-widget html-fill-item" id="htmlwidget-41e836852880efb075f7" style="width:1344px;height:672px;"></div>
-<script type="application/json" data-for="htmlwidget-41e836852880efb075f7">{"x":{"data":[{"x":[1,2,3,4,5],"y":[104,126,154,104,118],"text":["Condition: Base +Think +VoT<br />Model: Haiku 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 126","Condition: Base +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 154","Condition: Base +Think +VoT<br />Model: Opus 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.6<br />Errors: 118"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +VoT","legendgroup":"Base +Think +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[110,110,112,106,112],"text":["Condition: Base +VoT<br />Model: Haiku 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.6<br />Errors: 112","Condition: Base +VoT<br />Model: Opus 4.5<br />Errors: 106","Condition: Base +VoT<br />Model: Opus 4.6<br />Errors: 112"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(217,95,2,1)","dash":"solid"},"hoveron":"points","name":"Base +VoT","legendgroup":"Base +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[106,105,101,102,102],"text":["Condition: Base<br />Model: Haiku 4.5<br />Errors: 106","Condition: Base<br />Model: Sonnet 4.5<br />Errors: 105","Condition: Base<br />Model: Sonnet 4.6<br />Errors: 101","Condition: Base<br />Model: Opus 4.5<br />Errors: 102","Condition: Base<br />Model: Opus 4.6<br />Errors: 102"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(117,112,179,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[51,63,53,43,44],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Errors: 51","Condition: Base +Think<br />Model: Sonnet 4.5<br />Errors: 63","Condition: Base +Think<br />Model: Sonnet 4.6<br />Errors: 53","Condition: Base +Think<br />Model: Opus 4.5<br />Errors: 43","Condition: Base +Think<br />Model: Opus 4.6<br />Errors: 44"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(231,41,138,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[59,52,40,43,59],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Errors: 59","Condition: Aug<br />Model: Sonnet 4.5<br />Errors: 52","Condition: Aug<br />Model: Sonnet 4.6<br />Errors: 40","Condition: Aug<br />Model: Opus 4.5<br />Errors: 43","Condition: Aug<br />Model: Opus 4.6<br />Errors: 59"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,166,30,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[43,35,48,41,45],"text":["Condition: Aug +VoT<br />Model: Haiku 4.5<br />Errors: 43","Condition: Aug +VoT<br />Model: Sonnet 4.5<br />Errors: 35","Condition: Aug +VoT<br />Model: Sonnet 4.6<br />Errors: 48","Condition: Aug +VoT<br />Model: Opus 4.5<br />Errors: 41","Condition: Aug +VoT<br />Model: Opus 4.6<br />Errors: 45"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(230,171,2,1)","dash":"solid"},"hoveron":"points","name":"Aug +VoT","legendgroup":"Aug +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[22,11,14,15,17],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Errors: 22","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Errors: 11","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Errors: 14","Condition: Aug +Think<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think<br />Model: Opus 4.6<br />Errors: 17"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(166,118,29,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[10,10,8,15,11],"text":["Condition: Aug +Think +VoT<br />Model: Haiku 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 8","Condition: Aug +Think +VoT<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think +VoT<br />Model: Opus 4.6<br />Errors: 11"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +VoT","legendgroup":"Aug +Think +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[104,104,118,126,154],"text":["Condition: Base +Think +VoT<br />Model: Haiku 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.6<br />Errors: 118","Condition: Base +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 126","Condition: Base +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 154"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Base +Think +VoT","legendgroup":"Base +Think +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[110,106,112,110,112],"text":["Condition: Base +VoT<br />Model: Haiku 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Opus 4.5<br />Errors: 106","Condition: Base +VoT<br />Model: Opus 4.6<br />Errors: 112","Condition: Base +VoT<br />Model: Sonnet 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.6<br />Errors: 112"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(217,95,2,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(217,95,2,1)"}},"hoveron":"points","name":"Base +VoT","legendgroup":"Base +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[106,102,102,105,101],"text":["Condition: Base<br />Model: Haiku 4.5<br />Errors: 106","Condition: Base<br />Model: Opus 4.5<br />Errors: 102","Condition: Base<br />Model: Opus 4.6<br />Errors: 102","Condition: Base<br />Model: Sonnet 4.5<br />Errors: 105","Condition: Base<br />Model: Sonnet 4.6<br />Errors: 101"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(117,112,179,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(117,112,179,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[51,43,44,63,53],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Errors: 51","Condition: Base +Think<br />Model: Opus 4.5<br />Errors: 43","Condition: Base +Think<br />Model: Opus 4.6<br />Errors: 44","Condition: Base +Think<br />Model: Sonnet 4.5<br />Errors: 63","Condition: Base +Think<br />Model: Sonnet 4.6<br />Errors: 53"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(231,41,138,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(231,41,138,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[59,43,59,52,40],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Errors: 59","Condition: Aug<br />Model: Opus 4.5<br />Errors: 43","Condition: Aug<br />Model: Opus 4.6<br />Errors: 59","Condition: Aug<br />Model: Sonnet 4.5<br />Errors: 52","Condition: Aug<br />Model: Sonnet 4.6<br />Errors: 40"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,166,30,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,166,30,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[43,41,45,35,48],"text":["Condition: Aug +VoT<br />Model: Haiku 4.5<br />Errors: 43","Condition: Aug +VoT<br />Model: Opus 4.5<br />Errors: 41","Condition: Aug +VoT<br />Model: Opus 4.6<br />Errors: 45","Condition: Aug +VoT<br />Model: Sonnet 4.5<br />Errors: 35","Condition: Aug +VoT<br />Model: Sonnet 4.6<br />Errors: 48"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(230,171,2,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(230,171,2,1)"}},"hoveron":"points","name":"Aug +VoT","legendgroup":"Aug +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[22,15,17,11,14],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Errors: 22","Condition: Aug +Think<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think<br />Model: Opus 4.6<br />Errors: 17","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Errors: 11","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Errors: 14"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(166,118,29,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(166,118,29,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[10,15,11,10,8],"text":["Condition: Aug +Think +VoT<br />Model: Haiku 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think +VoT<br />Model: Opus 4.6<br />Errors: 11","Condition: Aug +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Aug +Think +VoT","legendgroup":"Aug +Think +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":70.535491905354931},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Predict Mode: Error Count by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.69999999999999929,161.30000000000001],"tickmode":"array","ticktext":["40","80","120","160"],"tickvals":[40,80,120,160],"categoryorder":"array","categoryarray":["40","80","120","160"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Total Errors","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"bf0c13d082d2":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"bf0c5e3cb327":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"bf0c13d082d2","visdat":{"bf0c13d082d2":["function (y) ","x"],"bf0c5e3cb327":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-53f5a1e62aa4d0a5e0c3" style="width:1344px;height:672px;"></div>
+<script type="application/json" data-for="htmlwidget-53f5a1e62aa4d0a5e0c3">{"x":{"data":[{"x":[1,2,3,4,5],"y":[104,126,154,104,118],"text":["Condition: Base +Think +VoT<br />Model: Haiku 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 126","Condition: Base +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 154","Condition: Base +Think +VoT<br />Model: Opus 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.6<br />Errors: 118"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +VoT","legendgroup":"Base +Think +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[110,110,112,106,112],"text":["Condition: Base +VoT<br />Model: Haiku 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.6<br />Errors: 112","Condition: Base +VoT<br />Model: Opus 4.5<br />Errors: 106","Condition: Base +VoT<br />Model: Opus 4.6<br />Errors: 112"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(217,95,2,1)","dash":"solid"},"hoveron":"points","name":"Base +VoT","legendgroup":"Base +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[106,105,101,102,102],"text":["Condition: Base<br />Model: Haiku 4.5<br />Errors: 106","Condition: Base<br />Model: Sonnet 4.5<br />Errors: 105","Condition: Base<br />Model: Sonnet 4.6<br />Errors: 101","Condition: Base<br />Model: Opus 4.5<br />Errors: 102","Condition: Base<br />Model: Opus 4.6<br />Errors: 102"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(117,112,179,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[51,63,53,43,44],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Errors: 51","Condition: Base +Think<br />Model: Sonnet 4.5<br />Errors: 63","Condition: Base +Think<br />Model: Sonnet 4.6<br />Errors: 53","Condition: Base +Think<br />Model: Opus 4.5<br />Errors: 43","Condition: Base +Think<br />Model: Opus 4.6<br />Errors: 44"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(231,41,138,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[59,52,40,43,59],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Errors: 59","Condition: Aug<br />Model: Sonnet 4.5<br />Errors: 52","Condition: Aug<br />Model: Sonnet 4.6<br />Errors: 40","Condition: Aug<br />Model: Opus 4.5<br />Errors: 43","Condition: Aug<br />Model: Opus 4.6<br />Errors: 59"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,166,30,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[43,35,48,41,45],"text":["Condition: Aug +VoT<br />Model: Haiku 4.5<br />Errors: 43","Condition: Aug +VoT<br />Model: Sonnet 4.5<br />Errors: 35","Condition: Aug +VoT<br />Model: Sonnet 4.6<br />Errors: 48","Condition: Aug +VoT<br />Model: Opus 4.5<br />Errors: 41","Condition: Aug +VoT<br />Model: Opus 4.6<br />Errors: 45"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(230,171,2,1)","dash":"solid"},"hoveron":"points","name":"Aug +VoT","legendgroup":"Aug +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[22,11,14,15,17],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Errors: 22","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Errors: 11","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Errors: 14","Condition: Aug +Think<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think<br />Model: Opus 4.6<br />Errors: 17"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(166,118,29,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[10,10,8,15,11],"text":["Condition: Aug +Think +VoT<br />Model: Haiku 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 8","Condition: Aug +Think +VoT<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think +VoT<br />Model: Opus 4.6<br />Errors: 11"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +VoT","legendgroup":"Aug +Think +VoT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[104,104,118,126,154],"text":["Condition: Base +Think +VoT<br />Model: Haiku 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.5<br />Errors: 104","Condition: Base +Think +VoT<br />Model: Opus 4.6<br />Errors: 118","Condition: Base +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 126","Condition: Base +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 154"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Base +Think +VoT","legendgroup":"Base +Think +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[110,106,112,110,112],"text":["Condition: Base +VoT<br />Model: Haiku 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Opus 4.5<br />Errors: 106","Condition: Base +VoT<br />Model: Opus 4.6<br />Errors: 112","Condition: Base +VoT<br />Model: Sonnet 4.5<br />Errors: 110","Condition: Base +VoT<br />Model: Sonnet 4.6<br />Errors: 112"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(217,95,2,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(217,95,2,1)"}},"hoveron":"points","name":"Base +VoT","legendgroup":"Base +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[106,102,102,105,101],"text":["Condition: Base<br />Model: Haiku 4.5<br />Errors: 106","Condition: Base<br />Model: Opus 4.5<br />Errors: 102","Condition: Base<br />Model: Opus 4.6<br />Errors: 102","Condition: Base<br />Model: Sonnet 4.5<br />Errors: 105","Condition: Base<br />Model: Sonnet 4.6<br />Errors: 101"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(117,112,179,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(117,112,179,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[51,43,44,63,53],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Errors: 51","Condition: Base +Think<br />Model: Opus 4.5<br />Errors: 43","Condition: Base +Think<br />Model: Opus 4.6<br />Errors: 44","Condition: Base +Think<br />Model: Sonnet 4.5<br />Errors: 63","Condition: Base +Think<br />Model: Sonnet 4.6<br />Errors: 53"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(231,41,138,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(231,41,138,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[59,43,59,52,40],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Errors: 59","Condition: Aug<br />Model: Opus 4.5<br />Errors: 43","Condition: Aug<br />Model: Opus 4.6<br />Errors: 59","Condition: Aug<br />Model: Sonnet 4.5<br />Errors: 52","Condition: Aug<br />Model: Sonnet 4.6<br />Errors: 40"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,166,30,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,166,30,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[43,41,45,35,48],"text":["Condition: Aug +VoT<br />Model: Haiku 4.5<br />Errors: 43","Condition: Aug +VoT<br />Model: Opus 4.5<br />Errors: 41","Condition: Aug +VoT<br />Model: Opus 4.6<br />Errors: 45","Condition: Aug +VoT<br />Model: Sonnet 4.5<br />Errors: 35","Condition: Aug +VoT<br />Model: Sonnet 4.6<br />Errors: 48"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(230,171,2,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(230,171,2,1)"}},"hoveron":"points","name":"Aug +VoT","legendgroup":"Aug +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[22,15,17,11,14],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Errors: 22","Condition: Aug +Think<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think<br />Model: Opus 4.6<br />Errors: 17","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Errors: 11","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Errors: 14"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(166,118,29,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(166,118,29,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[10,15,11,10,8],"text":["Condition: Aug +Think +VoT<br />Model: Haiku 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Opus 4.5<br />Errors: 15","Condition: Aug +Think +VoT<br />Model: Opus 4.6<br />Errors: 11","Condition: Aug +Think +VoT<br />Model: Sonnet 4.5<br />Errors: 10","Condition: Aug +Think +VoT<br />Model: Sonnet 4.6<br />Errors: 8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Aug +Think +VoT","legendgroup":"Aug +Think +VoT","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":70.535491905354931},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Predict Mode: Error Count by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.69999999999999929,161.30000000000001],"tickmode":"array","ticktext":["40","80","120","160"],"tickvals":[40,80,120,160],"categoryorder":"array","categoryarray":["40","80","120","160"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Total Errors","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"c6183c7264ab":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"c6187a2f358d":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"c6183c7264ab","visdat":{"c6183c7264ab":["function (y) ","x"],"c6187a2f358d":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
 </div>
 </div>
 <aside class="notes">
@@ -1927,23 +1909,23 @@ Todd R. Johnson
 <h2>Play: Regression Coefficients (Atoms Correct)</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div id="ejhnakzpbe" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ejhnakzpbe table {
+<div id="adxromkctw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#adxromkctw table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ejhnakzpbe thead, #ejhnakzpbe tbody, #ejhnakzpbe tfoot, #ejhnakzpbe tr, #ejhnakzpbe td, #ejhnakzpbe th {
+#adxromkctw thead, #adxromkctw tbody, #adxromkctw tfoot, #adxromkctw tr, #adxromkctw td, #adxromkctw th {
   border-style: none;
 }
 
-#ejhnakzpbe p {
+#adxromkctw p {
   margin: 0;
   padding: 0;
 }
 
-#ejhnakzpbe .gt_table {
+#adxromkctw .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1969,12 +1951,12 @@ Todd R. Johnson
   border-left-color: #D3D3D3;
 }
 
-#ejhnakzpbe .gt_caption {
+#adxromkctw .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ejhnakzpbe .gt_title {
+#adxromkctw .gt_title {
   color: #333333;
   font-size: 24px;
   font-weight: initial;
@@ -1986,7 +1968,7 @@ Todd R. Johnson
   border-bottom-width: 0;
 }
 
-#ejhnakzpbe .gt_subtitle {
+#adxromkctw .gt_subtitle {
   color: #333333;
   font-size: 16px;
   font-weight: initial;
@@ -1998,7 +1980,7 @@ Todd R. Johnson
   border-top-width: 0;
 }
 
-#ejhnakzpbe .gt_heading {
+#adxromkctw .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2010,13 +1992,13 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#ejhnakzpbe .gt_bottom_border {
+#adxromkctw .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ejhnakzpbe .gt_col_headings {
+#adxromkctw .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2031,7 +2013,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#ejhnakzpbe .gt_col_heading {
+#adxromkctw .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2051,7 +2033,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#ejhnakzpbe .gt_column_spanner_outer {
+#adxromkctw .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2063,15 +2045,15 @@ Todd R. Johnson
   padding-right: 4px;
 }
 
-#ejhnakzpbe .gt_column_spanner_outer:first-child {
+#adxromkctw .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ejhnakzpbe .gt_column_spanner_outer:last-child {
+#adxromkctw .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ejhnakzpbe .gt_column_spanner {
+#adxromkctw .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2083,11 +2065,11 @@ Todd R. Johnson
   width: 100%;
 }
 
-#ejhnakzpbe .gt_spanner_row {
+#adxromkctw .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ejhnakzpbe .gt_group_heading {
+#adxromkctw .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2113,7 +2095,7 @@ Todd R. Johnson
   text-align: left;
 }
 
-#ejhnakzpbe .gt_empty_group_heading {
+#adxromkctw .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2128,15 +2110,15 @@ Todd R. Johnson
   vertical-align: middle;
 }
 
-#ejhnakzpbe .gt_from_md > :first-child {
+#adxromkctw .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ejhnakzpbe .gt_from_md > :last-child {
+#adxromkctw .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ejhnakzpbe .gt_row {
+#adxromkctw .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2155,7 +2137,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#ejhnakzpbe .gt_stub {
+#adxromkctw .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2168,7 +2150,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#ejhnakzpbe .gt_stub_row_group {
+#adxromkctw .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2182,15 +2164,15 @@ Todd R. Johnson
   vertical-align: top;
 }
 
-#ejhnakzpbe .gt_row_group_first td {
+#adxromkctw .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ejhnakzpbe .gt_row_group_first th {
+#adxromkctw .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ejhnakzpbe .gt_summary_row {
+#adxromkctw .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2200,16 +2182,16 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#ejhnakzpbe .gt_first_summary_row {
+#adxromkctw .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ejhnakzpbe .gt_first_summary_row.thick {
+#adxromkctw .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ejhnakzpbe .gt_last_summary_row {
+#adxromkctw .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2219,7 +2201,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#ejhnakzpbe .gt_grand_summary_row {
+#adxromkctw .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2229,7 +2211,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#ejhnakzpbe .gt_first_grand_summary_row {
+#adxromkctw .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2239,7 +2221,7 @@ Todd R. Johnson
   border-top-color: #D3D3D3;
 }
 
-#ejhnakzpbe .gt_last_grand_summary_row_top {
+#adxromkctw .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2249,11 +2231,11 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#ejhnakzpbe .gt_striped {
+#adxromkctw .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ejhnakzpbe .gt_table_body {
+#adxromkctw .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2262,7 +2244,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#ejhnakzpbe .gt_footnotes {
+#adxromkctw .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2276,7 +2258,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#ejhnakzpbe .gt_footnote {
+#adxromkctw .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2285,7 +2267,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#ejhnakzpbe .gt_sourcenotes {
+#adxromkctw .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2299,7 +2281,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#ejhnakzpbe .gt_sourcenote {
+#adxromkctw .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2307,72 +2289,72 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#ejhnakzpbe .gt_left {
+#adxromkctw .gt_left {
   text-align: left;
 }
 
-#ejhnakzpbe .gt_center {
+#adxromkctw .gt_center {
   text-align: center;
 }
 
-#ejhnakzpbe .gt_right {
+#adxromkctw .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ejhnakzpbe .gt_font_normal {
+#adxromkctw .gt_font_normal {
   font-weight: normal;
 }
 
-#ejhnakzpbe .gt_font_bold {
+#adxromkctw .gt_font_bold {
   font-weight: bold;
 }
 
-#ejhnakzpbe .gt_font_italic {
+#adxromkctw .gt_font_italic {
   font-style: italic;
 }
 
-#ejhnakzpbe .gt_super {
+#adxromkctw .gt_super {
   font-size: 65%;
 }
 
-#ejhnakzpbe .gt_footnote_marks {
+#adxromkctw .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ejhnakzpbe .gt_asterisk {
+#adxromkctw .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ejhnakzpbe .gt_indent_1 {
+#adxromkctw .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ejhnakzpbe .gt_indent_2 {
+#adxromkctw .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ejhnakzpbe .gt_indent_3 {
+#adxromkctw .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ejhnakzpbe .gt_indent_4 {
+#adxromkctw .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ejhnakzpbe .gt_indent_5 {
+#adxromkctw .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ejhnakzpbe .katex-display {
+#adxromkctw .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ejhnakzpbe div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#adxromkctw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2576,23 +2558,23 @@ Todd R. Johnson
 <h2>Play: Regression Coefficients (Score)</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div id="ohjxsgcaee" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ohjxsgcaee table {
+<div id="zjaprlbrur" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zjaprlbrur table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ohjxsgcaee thead, #ohjxsgcaee tbody, #ohjxsgcaee tfoot, #ohjxsgcaee tr, #ohjxsgcaee td, #ohjxsgcaee th {
+#zjaprlbrur thead, #zjaprlbrur tbody, #zjaprlbrur tfoot, #zjaprlbrur tr, #zjaprlbrur td, #zjaprlbrur th {
   border-style: none;
 }
 
-#ohjxsgcaee p {
+#zjaprlbrur p {
   margin: 0;
   padding: 0;
 }
 
-#ohjxsgcaee .gt_table {
+#zjaprlbrur .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2618,12 +2600,12 @@ Todd R. Johnson
   border-left-color: #D3D3D3;
 }
 
-#ohjxsgcaee .gt_caption {
+#zjaprlbrur .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ohjxsgcaee .gt_title {
+#zjaprlbrur .gt_title {
   color: #333333;
   font-size: 24px;
   font-weight: initial;
@@ -2635,7 +2617,7 @@ Todd R. Johnson
   border-bottom-width: 0;
 }
 
-#ohjxsgcaee .gt_subtitle {
+#zjaprlbrur .gt_subtitle {
   color: #333333;
   font-size: 16px;
   font-weight: initial;
@@ -2647,7 +2629,7 @@ Todd R. Johnson
   border-top-width: 0;
 }
 
-#ohjxsgcaee .gt_heading {
+#zjaprlbrur .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2659,13 +2641,13 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#ohjxsgcaee .gt_bottom_border {
+#zjaprlbrur .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ohjxsgcaee .gt_col_headings {
+#zjaprlbrur .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2680,7 +2662,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#ohjxsgcaee .gt_col_heading {
+#zjaprlbrur .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2700,7 +2682,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#ohjxsgcaee .gt_column_spanner_outer {
+#zjaprlbrur .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2712,15 +2694,15 @@ Todd R. Johnson
   padding-right: 4px;
 }
 
-#ohjxsgcaee .gt_column_spanner_outer:first-child {
+#zjaprlbrur .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ohjxsgcaee .gt_column_spanner_outer:last-child {
+#zjaprlbrur .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ohjxsgcaee .gt_column_spanner {
+#zjaprlbrur .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2732,11 +2714,11 @@ Todd R. Johnson
   width: 100%;
 }
 
-#ohjxsgcaee .gt_spanner_row {
+#zjaprlbrur .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ohjxsgcaee .gt_group_heading {
+#zjaprlbrur .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2762,7 +2744,7 @@ Todd R. Johnson
   text-align: left;
 }
 
-#ohjxsgcaee .gt_empty_group_heading {
+#zjaprlbrur .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2777,15 +2759,15 @@ Todd R. Johnson
   vertical-align: middle;
 }
 
-#ohjxsgcaee .gt_from_md > :first-child {
+#zjaprlbrur .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ohjxsgcaee .gt_from_md > :last-child {
+#zjaprlbrur .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ohjxsgcaee .gt_row {
+#zjaprlbrur .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2804,7 +2786,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#ohjxsgcaee .gt_stub {
+#zjaprlbrur .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2817,7 +2799,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#ohjxsgcaee .gt_stub_row_group {
+#zjaprlbrur .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2831,15 +2813,15 @@ Todd R. Johnson
   vertical-align: top;
 }
 
-#ohjxsgcaee .gt_row_group_first td {
+#zjaprlbrur .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ohjxsgcaee .gt_row_group_first th {
+#zjaprlbrur .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ohjxsgcaee .gt_summary_row {
+#zjaprlbrur .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2849,16 +2831,16 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#ohjxsgcaee .gt_first_summary_row {
+#zjaprlbrur .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ohjxsgcaee .gt_first_summary_row.thick {
+#zjaprlbrur .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ohjxsgcaee .gt_last_summary_row {
+#zjaprlbrur .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2868,7 +2850,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#ohjxsgcaee .gt_grand_summary_row {
+#zjaprlbrur .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2878,7 +2860,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#ohjxsgcaee .gt_first_grand_summary_row {
+#zjaprlbrur .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2888,7 +2870,7 @@ Todd R. Johnson
   border-top-color: #D3D3D3;
 }
 
-#ohjxsgcaee .gt_last_grand_summary_row_top {
+#zjaprlbrur .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2898,11 +2880,11 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#ohjxsgcaee .gt_striped {
+#zjaprlbrur .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ohjxsgcaee .gt_table_body {
+#zjaprlbrur .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2911,7 +2893,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#ohjxsgcaee .gt_footnotes {
+#zjaprlbrur .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2925,7 +2907,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#ohjxsgcaee .gt_footnote {
+#zjaprlbrur .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2934,7 +2916,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#ohjxsgcaee .gt_sourcenotes {
+#zjaprlbrur .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2948,7 +2930,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#ohjxsgcaee .gt_sourcenote {
+#zjaprlbrur .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2956,72 +2938,72 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#ohjxsgcaee .gt_left {
+#zjaprlbrur .gt_left {
   text-align: left;
 }
 
-#ohjxsgcaee .gt_center {
+#zjaprlbrur .gt_center {
   text-align: center;
 }
 
-#ohjxsgcaee .gt_right {
+#zjaprlbrur .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ohjxsgcaee .gt_font_normal {
+#zjaprlbrur .gt_font_normal {
   font-weight: normal;
 }
 
-#ohjxsgcaee .gt_font_bold {
+#zjaprlbrur .gt_font_bold {
   font-weight: bold;
 }
 
-#ohjxsgcaee .gt_font_italic {
+#zjaprlbrur .gt_font_italic {
   font-style: italic;
 }
 
-#ohjxsgcaee .gt_super {
+#zjaprlbrur .gt_super {
   font-size: 65%;
 }
 
-#ohjxsgcaee .gt_footnote_marks {
+#zjaprlbrur .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ohjxsgcaee .gt_asterisk {
+#zjaprlbrur .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ohjxsgcaee .gt_indent_1 {
+#zjaprlbrur .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ohjxsgcaee .gt_indent_2 {
+#zjaprlbrur .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ohjxsgcaee .gt_indent_3 {
+#zjaprlbrur .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ohjxsgcaee .gt_indent_4 {
+#zjaprlbrur .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ohjxsgcaee .gt_indent_5 {
+#zjaprlbrur .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ohjxsgcaee .katex-display {
+#zjaprlbrur .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ohjxsgcaee div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#zjaprlbrur div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -3196,8 +3178,8 @@ Todd R. Johnson
 <h2>Atoms Correct by Condition: Play Mode</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div class="plotly html-widget html-fill-item" id="htmlwidget-93e28fe46abbfe436f6c" style="width:1344px;height:672px;"></div>
-<script type="application/json" data-for="htmlwidget-93e28fe46abbfe436f6c">{"x":{"data":[{"x":[1,2,3,4,5],"y":[1.7,1.7,2.79,1.8999999999999999,2.6400000000000001],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.79","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.64"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.8999999999999999,2,2.6000000000000001,1.6000000000000001,2.3999999999999999],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.6","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.6","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(115,128,64,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.7,1.2,2.3999999999999999,2,2.5],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(204,99,9,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.8,1.3999999999999999,2.3999999999999999,1.7,1.8999999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.8","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(177,101,72,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.2,1.2,1.5,1.5,2.2999999999999998],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(130,109,155,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.90000000000000002,1.3999999999999999,2.2000000000000002,1.3,1.6000000000000001],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.2","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(155,88,165,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.1000000000000001,1.8999999999999999,1.3999999999999999,1,1.3],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.9","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(208,55,146,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.3999999999999999,1.6000000000000001,1.1000000000000001,1,1.6000000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(196,74,109,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,1.3999999999999999,1.5,1.2,1.5],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(136,132,58,1)","dash":"solid"},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1,1.2,1.3,1.3,1.3999999999999999],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(127,167,24,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.90000000000000002,1.2,1.7,1,1.2],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.7","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(187,169,11,1)","dash":"solid"},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,1.1000000000000001,1.2,1.2,0.69999999999999996],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(221,163,5,1)","dash":"solid"},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.2,1,0.90000000000000002,1.2,0.69999999999999996],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(191,139,18,1)","dash":"solid"},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,0.90000000000000002,0.90000000000000002,1.2,0.90000000000000002],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(161,116,33,1)","dash":"solid"},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1,1,0.80000000000000004,0.90000000000000002,0.90000000000000002],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.8","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(131,109,67,1)","dash":"solid"},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.69999999999999996,0.80000000000000004,1.2,1,0.59999999999999998],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.7","Condition: Base<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.8","Condition: Base<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2","Condition: Base<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.7,1.8999999999999999,2.6400000000000001,1.7,2.79],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.64","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.79"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.8999999999999999,1.6000000000000001,2.3999999999999999,2,2.6000000000000001],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.6","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.6"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(115,128,64,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(115,128,64,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.7,2,2.5,1.2,2.3999999999999999],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(204,99,9,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(204,99,9,1)"}},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.8,1.7,1.8999999999999999,1.3999999999999999,2.3999999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.8","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(177,101,72,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(177,101,72,1)"}},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.2,1.5,2.2999999999999998,1.2,1.5],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.3","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(130,109,155,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(130,109,155,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.90000000000000002,1.3,1.6000000000000001,1.3999999999999999,2.2000000000000002],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(155,88,165,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(155,88,165,1)"}},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.1000000000000001,1,1.3,1.8999999999999999,1.3999999999999999],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.9","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(208,55,146,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(208,55,146,1)"}},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.3999999999999999,1,1.6000000000000001,1.6000000000000001,1.1000000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.1"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(196,74,109,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(196,74,109,1)"}},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,1.5,1.3999999999999999,1.5],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.5","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(136,132,58,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(136,132,58,1)"}},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1,1.3,1.3999999999999999,1.2,1.3],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Aug<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.4","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.3"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(127,167,24,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(127,167,24,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.90000000000000002,1,1.2,1.2,1.7],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.7"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(187,169,11,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(187,169,11,1)"}},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,0.69999999999999996,1.1000000000000001,1.2],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(221,163,5,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(221,163,5,1)"}},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.2,1.2,0.69999999999999996,1,0.90000000000000002],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(191,139,18,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(191,139,18,1)"}},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,0.90000000000000002,0.90000000000000002,0.90000000000000002],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(161,116,33,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(161,116,33,1)"}},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1,0.90000000000000002,0.90000000000000002,1,0.80000000000000004],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(131,109,67,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(131,109,67,1)"}},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.69999999999999996,1,0.59999999999999998,0.80000000000000004,1.2],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.7","Condition: Base<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.6","Condition: Base<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.8","Condition: Base<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":70.535491905354931},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Play Mode: Atoms Correct by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.49049999999999999,2.8995000000000002],"tickmode":"array","ticktext":["0.5","1.0","1.5","2.0","2.5"],"tickvals":[0.5,1,1.5,2,2.5],"categoryorder":"array","categoryarray":["0.5","1.0","1.5","2.0","2.5"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Mean Atoms Correct","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"bf0cd7efdf6":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"bf0cc532866":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"bf0cd7efdf6","visdat":{"bf0cd7efdf6":["function (y) ","x"],"bf0cc532866":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-9af0d8a017f2aebd36a1" style="width:1344px;height:672px;"></div>
+<script type="application/json" data-for="htmlwidget-9af0d8a017f2aebd36a1">{"x":{"data":[{"x":[1,2,3,4,5],"y":[1.7,1.7,2.79,1.8999999999999999,2.6400000000000001],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.79","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.64"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.8999999999999999,2,2.6000000000000001,1.6000000000000001,2.3999999999999999],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.6","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.6","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(115,128,64,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.7,1.2,2.3999999999999999,2,2.5],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(204,99,9,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.8,1.3999999999999999,2.3999999999999999,1.7,1.8999999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.8","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(177,101,72,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.2,1.2,1.5,1.5,2.2999999999999998],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(130,109,155,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.90000000000000002,1.3999999999999999,2.2000000000000002,1.3,1.6000000000000001],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.2","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(155,88,165,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.1000000000000001,1.8999999999999999,1.3999999999999999,1,1.3],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.9","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(208,55,146,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.3999999999999999,1.6000000000000001,1.1000000000000001,1,1.6000000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(196,74,109,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,1.3999999999999999,1.5,1.2,1.5],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(136,132,58,1)","dash":"solid"},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1,1.2,1.3,1.3,1.3999999999999999],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(127,167,24,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.90000000000000002,1.2,1.7,1,1.2],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.7","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(187,169,11,1)","dash":"solid"},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,1.1000000000000001,1.2,1.2,0.69999999999999996],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(221,163,5,1)","dash":"solid"},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1.2,1,0.90000000000000002,1.2,0.69999999999999996],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(191,139,18,1)","dash":"solid"},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.80000000000000004,0.90000000000000002,0.90000000000000002,1.2,0.90000000000000002],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(161,116,33,1)","dash":"solid"},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1,1,0.80000000000000004,0.90000000000000002,0.90000000000000002],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.8","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(131,109,67,1)","dash":"solid"},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[0.69999999999999996,0.80000000000000004,1.2,1,0.59999999999999998],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.7","Condition: Base<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.8","Condition: Base<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2","Condition: Base<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.7,1.8999999999999999,2.6400000000000001,1.7,2.79],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.64","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.79"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.8999999999999999,1.6000000000000001,2.3999999999999999,2,2.6000000000000001],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.9","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.6","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.4","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.6"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(115,128,64,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(115,128,64,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.7,2,2.5,1.2,2.3999999999999999],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(204,99,9,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(204,99,9,1)"}},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.8,1.7,1.8999999999999999,1.3999999999999999,2.3999999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.8","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(177,101,72,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(177,101,72,1)"}},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.2,1.5,2.2999999999999998,1.2,1.5],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.5","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Atoms Correct: 2.3","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(130,109,155,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(130,109,155,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.90000000000000002,1.3,1.6000000000000001,1.3999999999999999,2.2000000000000002],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 2.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(155,88,165,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(155,88,165,1)"}},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.1000000000000001,1,1.3,1.8999999999999999,1.3999999999999999],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.1","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.3","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.9","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(208,55,146,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(208,55,146,1)"}},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.3999999999999999,1,1.6000000000000001,1.6000000000000001,1.1000000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.4","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.6","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.1"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(196,74,109,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(196,74,109,1)"}},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,1.5,1.3999999999999999,1.5],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.5","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.4","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(136,132,58,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(136,132,58,1)"}},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1,1.3,1.3999999999999999,1.2,1.3],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Aug<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.3","Condition: Aug<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.4","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.3"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(127,167,24,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(127,167,24,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.90000000000000002,1,1.2,1.2,1.7],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.9","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.7"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(187,169,11,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(187,169,11,1)"}},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,0.69999999999999996,1.1000000000000001,1.2],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(221,163,5,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(221,163,5,1)"}},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1.2,1.2,0.69999999999999996,1,0.90000000000000002],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.7","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(191,139,18,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(191,139,18,1)"}},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.80000000000000004,1.2,0.90000000000000002,0.90000000000000002,0.90000000000000002],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.8","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Atoms Correct: 1.2","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(161,116,33,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(161,116,33,1)"}},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[1,0.90000000000000002,0.90000000000000002,1,0.80000000000000004],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.9","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 1","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 0.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(131,109,67,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(131,109,67,1)"}},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[0.69999999999999996,1,0.59999999999999998,0.80000000000000004,1.2],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Atoms Correct: 0.7","Condition: Base<br />Model: Opus 4.5<br />Mean Atoms Correct: 1","Condition: Base<br />Model: Opus 4.6<br />Mean Atoms Correct: 0.6","Condition: Base<br />Model: Sonnet 4.5<br />Mean Atoms Correct: 0.8","Condition: Base<br />Model: Sonnet 4.6<br />Mean Atoms Correct: 1.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":70.535491905354931},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Play Mode: Atoms Correct by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.49049999999999999,2.8995000000000002],"tickmode":"array","ticktext":["0.5","1.0","1.5","2.0","2.5"],"tickvals":[0.5,1,1.5,2,2.5],"categoryorder":"array","categoryarray":["0.5","1.0","1.5","2.0","2.5"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Mean Atoms Correct","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"c6183eb0584c":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"c6182b7505bb":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"c6183eb0584c","visdat":{"c6183eb0584c":["function (y) ","x"],"c6182b7505bb":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
 </div>
 </div>
 <aside class="notes">
@@ -3218,8 +3200,8 @@ Todd R. Johnson
 <h2>Score by Condition: Play Mode</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div class="plotly html-widget html-fill-item" id="htmlwidget-b6baab057872a7d2f443" style="width:1344px;height:672px;"></div>
-<script type="application/json" data-for="htmlwidget-b6baab057872a7d2f443">{"x":{"data":[{"x":[1,2,3,4,5],"y":[26,26.699999999999999,22.760000000000002,23.5,23.91],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 26","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 22.8","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 23.5","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 23.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.399999999999999,24.600000000000001,24.5,27.199999999999999,23.300000000000001],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Score: 26.4","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Score: 24.6","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Score: 24.5","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Score: 27.2","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Score: 23.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(115,128,64,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[24.300000000000001,25.399999999999999,26,25.699999999999999,24.800000000000001],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 24.3","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 25.4","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 26","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 25.7","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 24.8"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(204,99,9,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[27,28,26.699999999999999,27.399999999999999,20.5],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Score: 27","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Score: 26.7","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Score: 27.4","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Score: 20.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(177,101,72,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.5,30.5,24.300000000000001,24.199999999999999,25.5],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 26.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 30.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 24.3","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 24.2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 25.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(130,109,155,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.600000000000001,28.300000000000001,23.5,26.300000000000001,24.399999999999999],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 30.6","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 28.3","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 23.5","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 26.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 24.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(155,88,165,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.699999999999999,28.899999999999999,27.899999999999999,28.600000000000001,30.100000000000001],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 27.9","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 28.6","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 30.1"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(208,55,146,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.699999999999999,28,31.100000000000001,30.399999999999999,27.5],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 31.1","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.4","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 27.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(196,74,109,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[29.5,29.300000000000001,34.899999999999999,29.5,33.100000000000001],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Score: 29.3","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Score: 34.9","Condition: Aug<br />Model: Opus 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.6<br />Mean Score: 33.1"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(136,132,58,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[34.5,31,33.399999999999999,28.399999999999999,32.600000000000001],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Score: 34.5","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Score: 31","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Score: 33.4","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Score: 28.4","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Score: 32.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(127,167,24,1)","dash":"solid"},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.699999999999999,31.300000000000001,33.5,30.800000000000001,36.200000000000003],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 31.3","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 33.5","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.8","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.2"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(187,169,11,1)","dash":"solid"},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.5,33,32.5,33.5,32.399999999999999],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.5","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Score: 33","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Score: 32.5","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Score: 33.5","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Score: 32.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(221,163,5,1)","dash":"solid"},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[34.899999999999999,33.299999999999997,32.600000000000001,33,30.399999999999999],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Score: 34.9","Condition: Base<br />Model: Sonnet 4.5<br />Mean Score: 33.3","Condition: Base<br />Model: Sonnet 4.6<br />Mean Score: 32.6","Condition: Base<br />Model: Opus 4.5<br />Mean Score: 33","Condition: Base<br />Model: Opus 4.6<br />Mean Score: 30.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(191,139,18,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.399999999999999,32.100000000000001,35.799999999999997,29.800000000000001,37.700000000000003],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.4","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Score: 32.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Score: 35.8","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Score: 29.8","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Score: 37.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(161,116,33,1)","dash":"solid"},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.899999999999999,36.5,34.899999999999999,33.200000000000003,35.399999999999999],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Score: 31.9","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Score: 36.5","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Score: 34.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Score: 33.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Score: 35.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(131,109,67,1)","dash":"solid"},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[35.5,33.5,37.200000000000003,35.799999999999997,36.5],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Score: 35.5","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 33.5","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 37.2","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Score: 35.8","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26,23.5,23.91,26.699999999999999,22.760000000000002],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 26","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 23.5","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 23.9","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 22.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.399999999999999,27.199999999999999,23.300000000000001,24.600000000000001,24.5],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Score: 26.4","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Score: 27.2","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Score: 23.3","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Score: 24.6","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Score: 24.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(115,128,64,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(115,128,64,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[24.300000000000001,25.699999999999999,24.800000000000001,25.399999999999999,26],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 24.3","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 25.7","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 24.8","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 25.4","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 26"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(204,99,9,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(204,99,9,1)"}},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[27,27.399999999999999,20.5,28,26.699999999999999],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Score: 27","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Score: 27.4","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Score: 20.5","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Score: 26.7"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(177,101,72,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(177,101,72,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.5,24.199999999999999,25.5,30.5,24.300000000000001],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 26.5","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 24.2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 25.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 30.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 24.3"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(130,109,155,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(130,109,155,1)"}},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.600000000000001,26.300000000000001,24.399999999999999,28.300000000000001,23.5],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 30.6","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 26.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 24.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 28.3","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 23.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(155,88,165,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(155,88,165,1)"}},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.699999999999999,28.600000000000001,30.100000000000001,28.899999999999999,27.899999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 28.6","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 30.1","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 27.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(208,55,146,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(208,55,146,1)"}},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.699999999999999,30.399999999999999,27.5,28,31.100000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.4","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 27.5","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 31.1"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(196,74,109,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(196,74,109,1)"}},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[29.5,29.5,33.100000000000001,29.300000000000001,34.899999999999999],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.6<br />Mean Score: 33.1","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Score: 29.3","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Score: 34.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(136,132,58,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(136,132,58,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[34.5,28.399999999999999,32.600000000000001,31,33.399999999999999],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Score: 34.5","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Score: 28.4","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Score: 32.6","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Score: 31","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Score: 33.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(127,167,24,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(127,167,24,1)"}},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.699999999999999,30.800000000000001,36.200000000000003,31.300000000000001,33.5],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.8","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.2","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 31.3","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 33.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(187,169,11,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(187,169,11,1)"}},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.5,33.5,32.399999999999999,33,32.5],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.5","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Score: 33.5","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Score: 32.4","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Score: 33","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Score: 32.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(221,163,5,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(221,163,5,1)"}},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[34.899999999999999,33,30.399999999999999,33.299999999999997,32.600000000000001],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Score: 34.9","Condition: Base<br />Model: Opus 4.5<br />Mean Score: 33","Condition: Base<br />Model: Opus 4.6<br />Mean Score: 30.4","Condition: Base<br />Model: Sonnet 4.5<br />Mean Score: 33.3","Condition: Base<br />Model: Sonnet 4.6<br />Mean Score: 32.6"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(191,139,18,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(191,139,18,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.399999999999999,29.800000000000001,37.700000000000003,32.100000000000001,35.799999999999997],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.4","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Score: 29.8","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Score: 37.7","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Score: 32.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Score: 35.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(161,116,33,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(161,116,33,1)"}},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.899999999999999,33.200000000000003,35.399999999999999,36.5,34.899999999999999],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Score: 31.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Score: 33.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Score: 35.4","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Score: 36.5","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Score: 34.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(131,109,67,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(131,109,67,1)"}},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[35.5,35.799999999999997,36.5,33.5,37.200000000000003],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Score: 35.5","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Score: 35.8","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.5","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 33.5","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 37.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":60.971357409713583},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Play Mode: Score by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[19.640000000000001,38.560000000000002],"tickmode":"array","ticktext":["20","25","30","35"],"tickvals":[20,25,30,35],"categoryorder":"array","categoryarray":["20","25","30","35"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Mean Score","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"bf0ce75457d":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"bf0c352518f5":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"bf0ce75457d","visdat":{"bf0ce75457d":["function (y) ","x"],"bf0c352518f5":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-a9234c53e66e616bf42c" style="width:1344px;height:672px;"></div>
+<script type="application/json" data-for="htmlwidget-a9234c53e66e616bf42c">{"x":{"data":[{"x":[1,2,3,4,5],"y":[26,26.699999999999999,22.760000000000002,23.5,23.91],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 26","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 22.8","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 23.5","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 23.9"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(27,158,119,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.399999999999999,24.600000000000001,24.5,27.199999999999999,23.300000000000001],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Score: 26.4","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Score: 24.6","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Score: 24.5","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Score: 27.2","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Score: 23.3"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(115,128,64,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[24.300000000000001,25.399999999999999,26,25.699999999999999,24.800000000000001],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 24.3","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 25.4","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 26","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 25.7","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 24.8"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(204,99,9,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[27,28,26.699999999999999,27.399999999999999,20.5],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Score: 27","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Score: 26.7","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Score: 27.4","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Score: 20.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(177,101,72,1)","dash":"solid"},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.5,30.5,24.300000000000001,24.199999999999999,25.5],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 26.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 30.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 24.3","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 24.2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 25.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(130,109,155,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.600000000000001,28.300000000000001,23.5,26.300000000000001,24.399999999999999],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 30.6","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 28.3","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 23.5","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 26.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 24.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(155,88,165,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[26.699999999999999,28.899999999999999,27.899999999999999,28.600000000000001,30.100000000000001],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 27.9","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 28.6","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 30.1"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(208,55,146,1)","dash":"solid"},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.699999999999999,28,31.100000000000001,30.399999999999999,27.5],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 31.1","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.4","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 27.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(196,74,109,1)","dash":"solid"},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[29.5,29.300000000000001,34.899999999999999,29.5,33.100000000000001],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Score: 29.3","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Score: 34.9","Condition: Aug<br />Model: Opus 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.6<br />Mean Score: 33.1"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(136,132,58,1)","dash":"solid"},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[34.5,31,33.399999999999999,28.399999999999999,32.600000000000001],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Score: 34.5","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Score: 31","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Score: 33.4","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Score: 28.4","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Score: 32.6"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(127,167,24,1)","dash":"solid"},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[30.699999999999999,31.300000000000001,33.5,30.800000000000001,36.200000000000003],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 31.3","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 33.5","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.8","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.2"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(187,169,11,1)","dash":"solid"},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.5,33,32.5,33.5,32.399999999999999],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.5","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Score: 33","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Score: 32.5","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Score: 33.5","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Score: 32.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(221,163,5,1)","dash":"solid"},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[34.899999999999999,33.299999999999997,32.600000000000001,33,30.399999999999999],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Score: 34.9","Condition: Base<br />Model: Sonnet 4.5<br />Mean Score: 33.3","Condition: Base<br />Model: Sonnet 4.6<br />Mean Score: 32.6","Condition: Base<br />Model: Opus 4.5<br />Mean Score: 33","Condition: Base<br />Model: Opus 4.6<br />Mean Score: 30.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(191,139,18,1)","dash":"solid"},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.399999999999999,32.100000000000001,35.799999999999997,29.800000000000001,37.700000000000003],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.4","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Score: 32.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Score: 35.8","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Score: 29.8","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Score: 37.7"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(161,116,33,1)","dash":"solid"},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[31.899999999999999,36.5,34.899999999999999,33.200000000000003,35.399999999999999],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Score: 31.9","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Score: 36.5","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Score: 34.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Score: 33.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Score: 35.4"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(131,109,67,1)","dash":"solid"},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[35.5,33.5,37.200000000000003,35.799999999999997,36.5],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Score: 35.5","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 33.5","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 37.2","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Score: 35.8","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.5"],"type":"scatter","mode":"lines","line":{"width":4.5354330708661417,"color":"rgba(102,102,102,1)","dash":"solid"},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26,23.5,23.91,26.699999999999999,22.760000000000002],"text":["Condition: Aug +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 26","Condition: Aug +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 23.5","Condition: Aug +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 23.9","Condition: Aug +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 22.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(27,158,119,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(27,158,119,1)"}},"hoveron":"points","name":"Aug +Think +Ray","legendgroup":"Aug +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.399999999999999,27.199999999999999,23.300000000000001,24.600000000000001,24.5],"text":["Condition: Aug +Think<br />Model: Haiku 4.5<br />Mean Score: 26.4","Condition: Aug +Think<br />Model: Opus 4.5<br />Mean Score: 27.2","Condition: Aug +Think<br />Model: Opus 4.6<br />Mean Score: 23.3","Condition: Aug +Think<br />Model: Sonnet 4.5<br />Mean Score: 24.6","Condition: Aug +Think<br />Model: Sonnet 4.6<br />Mean Score: 24.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(115,128,64,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(115,128,64,1)"}},"hoveron":"points","name":"Aug +Think","legendgroup":"Aug +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[24.300000000000001,25.699999999999999,24.800000000000001,25.399999999999999,26],"text":["Condition: Base +Think +Ray<br />Model: Haiku 4.5<br />Mean Score: 24.3","Condition: Base +Think +Ray<br />Model: Opus 4.5<br />Mean Score: 25.7","Condition: Base +Think +Ray<br />Model: Opus 4.6<br />Mean Score: 24.8","Condition: Base +Think +Ray<br />Model: Sonnet 4.5<br />Mean Score: 25.4","Condition: Base +Think +Ray<br />Model: Sonnet 4.6<br />Mean Score: 26"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(204,99,9,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(204,99,9,1)"}},"hoveron":"points","name":"Base +Think +Ray","legendgroup":"Base +Think +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[27,27.399999999999999,20.5,28,26.699999999999999],"text":["Condition: Base +Think<br />Model: Haiku 4.5<br />Mean Score: 27","Condition: Base +Think<br />Model: Opus 4.5<br />Mean Score: 27.4","Condition: Base +Think<br />Model: Opus 4.6<br />Mean Score: 20.5","Condition: Base +Think<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think<br />Model: Sonnet 4.6<br />Mean Score: 26.7"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(177,101,72,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(177,101,72,1)"}},"hoveron":"points","name":"Base +Think","legendgroup":"Base +Think","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.5,24.199999999999999,25.5,30.5,24.300000000000001],"text":["Condition: Aug +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 26.5","Condition: Aug +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 24.2","Condition: Aug +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 25.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 30.5","Condition: Aug +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 24.3"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(130,109,155,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(130,109,155,1)"}},"hoveron":"points","name":"Aug +Think +Grid","legendgroup":"Aug +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.600000000000001,26.300000000000001,24.399999999999999,28.300000000000001,23.5],"text":["Condition: Base +Think +Grid<br />Model: Haiku 4.5<br />Mean Score: 30.6","Condition: Base +Think +Grid<br />Model: Opus 4.5<br />Mean Score: 26.3","Condition: Base +Think +Grid<br />Model: Opus 4.6<br />Mean Score: 24.4","Condition: Base +Think +Grid<br />Model: Sonnet 4.5<br />Mean Score: 28.3","Condition: Base +Think +Grid<br />Model: Sonnet 4.6<br />Mean Score: 23.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(155,88,165,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(155,88,165,1)"}},"hoveron":"points","name":"Base +Think +Grid","legendgroup":"Base +Think +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[26.699999999999999,28.600000000000001,30.100000000000001,28.899999999999999,27.899999999999999],"text":["Condition: Aug +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 26.7","Condition: Aug +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 28.6","Condition: Aug +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 30.1","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28.9","Condition: Aug +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 27.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(208,55,146,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(208,55,146,1)"}},"hoveron":"points","name":"Aug +Think +Hypo","legendgroup":"Aug +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.699999999999999,30.399999999999999,27.5,28,31.100000000000001],"text":["Condition: Base +Think +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Base +Think +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.4","Condition: Base +Think +Hypo<br />Model: Opus 4.6<br />Mean Score: 27.5","Condition: Base +Think +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 28","Condition: Base +Think +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 31.1"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(196,74,109,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(196,74,109,1)"}},"hoveron":"points","name":"Base +Think +Hypo","legendgroup":"Base +Think +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[29.5,29.5,33.100000000000001,29.300000000000001,34.899999999999999],"text":["Condition: Aug<br />Model: Haiku 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.5<br />Mean Score: 29.5","Condition: Aug<br />Model: Opus 4.6<br />Mean Score: 33.1","Condition: Aug<br />Model: Sonnet 4.5<br />Mean Score: 29.3","Condition: Aug<br />Model: Sonnet 4.6<br />Mean Score: 34.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(136,132,58,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(136,132,58,1)"}},"hoveron":"points","name":"Aug","legendgroup":"Aug","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[34.5,28.399999999999999,32.600000000000001,31,33.399999999999999],"text":["Condition: Aug +Grid<br />Model: Haiku 4.5<br />Mean Score: 34.5","Condition: Aug +Grid<br />Model: Opus 4.5<br />Mean Score: 28.4","Condition: Aug +Grid<br />Model: Opus 4.6<br />Mean Score: 32.6","Condition: Aug +Grid<br />Model: Sonnet 4.5<br />Mean Score: 31","Condition: Aug +Grid<br />Model: Sonnet 4.6<br />Mean Score: 33.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(127,167,24,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(127,167,24,1)"}},"hoveron":"points","name":"Aug +Grid","legendgroup":"Aug +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[30.699999999999999,30.800000000000001,36.200000000000003,31.300000000000001,33.5],"text":["Condition: Aug +Hypo<br />Model: Haiku 4.5<br />Mean Score: 30.7","Condition: Aug +Hypo<br />Model: Opus 4.5<br />Mean Score: 30.8","Condition: Aug +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.2","Condition: Aug +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 31.3","Condition: Aug +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 33.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(187,169,11,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(187,169,11,1)"}},"hoveron":"points","name":"Aug +Hypo","legendgroup":"Aug +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.5,33.5,32.399999999999999,33,32.5],"text":["Condition: Base +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.5","Condition: Base +Ray<br />Model: Opus 4.5<br />Mean Score: 33.5","Condition: Base +Ray<br />Model: Opus 4.6<br />Mean Score: 32.4","Condition: Base +Ray<br />Model: Sonnet 4.5<br />Mean Score: 33","Condition: Base +Ray<br />Model: Sonnet 4.6<br />Mean Score: 32.5"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(221,163,5,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(221,163,5,1)"}},"hoveron":"points","name":"Base +Ray","legendgroup":"Base +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[34.899999999999999,33,30.399999999999999,33.299999999999997,32.600000000000001],"text":["Condition: Base<br />Model: Haiku 4.5<br />Mean Score: 34.9","Condition: Base<br />Model: Opus 4.5<br />Mean Score: 33","Condition: Base<br />Model: Opus 4.6<br />Mean Score: 30.4","Condition: Base<br />Model: Sonnet 4.5<br />Mean Score: 33.3","Condition: Base<br />Model: Sonnet 4.6<br />Mean Score: 32.6"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(191,139,18,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(191,139,18,1)"}},"hoveron":"points","name":"Base","legendgroup":"Base","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.399999999999999,29.800000000000001,37.700000000000003,32.100000000000001,35.799999999999997],"text":["Condition: Aug +Ray<br />Model: Haiku 4.5<br />Mean Score: 31.4","Condition: Aug +Ray<br />Model: Opus 4.5<br />Mean Score: 29.8","Condition: Aug +Ray<br />Model: Opus 4.6<br />Mean Score: 37.7","Condition: Aug +Ray<br />Model: Sonnet 4.5<br />Mean Score: 32.1","Condition: Aug +Ray<br />Model: Sonnet 4.6<br />Mean Score: 35.8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(161,116,33,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(161,116,33,1)"}},"hoveron":"points","name":"Aug +Ray","legendgroup":"Aug +Ray","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[31.899999999999999,33.200000000000003,35.399999999999999,36.5,34.899999999999999],"text":["Condition: Base +Grid<br />Model: Haiku 4.5<br />Mean Score: 31.9","Condition: Base +Grid<br />Model: Opus 4.5<br />Mean Score: 33.2","Condition: Base +Grid<br />Model: Opus 4.6<br />Mean Score: 35.4","Condition: Base +Grid<br />Model: Sonnet 4.5<br />Mean Score: 36.5","Condition: Base +Grid<br />Model: Sonnet 4.6<br />Mean Score: 34.9"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(131,109,67,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(131,109,67,1)"}},"hoveron":"points","name":"Base +Grid","legendgroup":"Base +Grid","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,4,5,2,3],"y":[35.5,35.799999999999997,36.5,33.5,37.200000000000003],"text":["Condition: Base +Hypo<br />Model: Haiku 4.5<br />Mean Score: 35.5","Condition: Base +Hypo<br />Model: Opus 4.5<br />Mean Score: 35.8","Condition: Base +Hypo<br />Model: Opus 4.6<br />Mean Score: 36.5","Condition: Base +Hypo<br />Model: Sonnet 4.5<br />Mean Score: 33.5","Condition: Base +Hypo<br />Model: Sonnet 4.6<br />Mean Score: 37.2"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(102,102,102,1)","opacity":1,"size":13.228346456692915,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(102,102,102,1)"}},"hoveron":"points","name":"Base +Hypo","legendgroup":"Base +Hypo","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":57.178912411789128,"r":150,"b":37.061021170610218,"l":60.971357409713583},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366},"title":{"text":"<b> Play Mode: Score by Experimental Condition <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":29.223744292237448},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,5.5999999999999996],"tickmode":"array","ticktext":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["Haiku 4.5","Sonnet 4.5","Sonnet 4.6","Opus 4.5","Opus 4.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-30,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[19.640000000000001,38.560000000000002],"tickmode":"array","ticktext":["20","25","30","35"],"tickvals":[20,25,30,35],"categoryorder":"array","categoryarray":["20","25","30","35"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":5.9775840597758414,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.128268991282695},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Mean Score","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282695},"title":{"text":"Condition","font":{"color":"rgba(0,0,0,1)","family":"","size":23.910336239103366}}},"hovermode":"closest","barmode":"relative","hoverlabel":{"bgcolor":"white"}},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"c6183a33a51c":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"},"c618149cef1e":{"x":{},"y":{},"colour":{},"text":{}}},"cur_data":"c6183a33a51c","visdat":{"c6183a33a51c":["function (y) ","x"],"c618149cef1e":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":{"render":[{"code":"\n    function(el) {\n      var highlighted = null;\n      el.on('plotly_legendclick', function(d) {\n        var clickedGroup = el.data[d.curveNumber].legendgroup;\n        if (highlighted === clickedGroup) {\n          Plotly.restyle(el, {opacity: 1});\n          highlighted = null;\n        } else {\n          for (var i = 0; i < el.data.length; i++) {\n            var op = (el.data[i].legendgroup === clickedGroup) ? 1 : 0.2;\n            Plotly.restyle(el, {opacity: op}, [i]);\n          }\n          highlighted = clickedGroup;\n        }\n        return false;\n      });\n      el.on('plotly_legenddoubleclick', function() {\n        Plotly.restyle(el, {opacity: 1});\n        highlighted = null;\n        return false;\n      });\n    }\n  ","data":null}]}}</script>
 </div>
 </div>
 <aside class="notes">
@@ -3384,23 +3366,23 @@ Todd R. Johnson
 <h2>Factor Summary</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div id="zpxfdebtuo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#zpxfdebtuo table {
+<div id="tkabjdycak" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tkabjdycak table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#zpxfdebtuo thead, #zpxfdebtuo tbody, #zpxfdebtuo tfoot, #zpxfdebtuo tr, #zpxfdebtuo td, #zpxfdebtuo th {
+#tkabjdycak thead, #tkabjdycak tbody, #tkabjdycak tfoot, #tkabjdycak tr, #tkabjdycak td, #tkabjdycak th {
   border-style: none;
 }
 
-#zpxfdebtuo p {
+#tkabjdycak p {
   margin: 0;
   padding: 0;
 }
 
-#zpxfdebtuo .gt_table {
+#tkabjdycak .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3426,12 +3408,12 @@ Todd R. Johnson
   border-left-color: #D3D3D3;
 }
 
-#zpxfdebtuo .gt_caption {
+#tkabjdycak .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#zpxfdebtuo .gt_title {
+#tkabjdycak .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3443,7 +3425,7 @@ Todd R. Johnson
   border-bottom-width: 0;
 }
 
-#zpxfdebtuo .gt_subtitle {
+#tkabjdycak .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3455,7 +3437,7 @@ Todd R. Johnson
   border-top-width: 0;
 }
 
-#zpxfdebtuo .gt_heading {
+#tkabjdycak .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3467,13 +3449,13 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#zpxfdebtuo .gt_bottom_border {
+#tkabjdycak .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zpxfdebtuo .gt_col_headings {
+#tkabjdycak .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3488,7 +3470,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#zpxfdebtuo .gt_col_heading {
+#tkabjdycak .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 30px;
@@ -3508,7 +3490,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#zpxfdebtuo .gt_column_spanner_outer {
+#tkabjdycak .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 30px;
@@ -3520,15 +3502,15 @@ Todd R. Johnson
   padding-right: 4px;
 }
 
-#zpxfdebtuo .gt_column_spanner_outer:first-child {
+#tkabjdycak .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zpxfdebtuo .gt_column_spanner_outer:last-child {
+#tkabjdycak .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zpxfdebtuo .gt_column_spanner {
+#tkabjdycak .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3540,11 +3522,11 @@ Todd R. Johnson
   width: 100%;
 }
 
-#zpxfdebtuo .gt_spanner_row {
+#tkabjdycak .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#zpxfdebtuo .gt_group_heading {
+#tkabjdycak .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3570,7 +3552,7 @@ Todd R. Johnson
   text-align: left;
 }
 
-#zpxfdebtuo .gt_empty_group_heading {
+#tkabjdycak .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3585,15 +3567,15 @@ Todd R. Johnson
   vertical-align: middle;
 }
 
-#zpxfdebtuo .gt_from_md > :first-child {
+#tkabjdycak .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zpxfdebtuo .gt_from_md > :last-child {
+#tkabjdycak .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zpxfdebtuo .gt_row {
+#tkabjdycak .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3612,7 +3594,7 @@ Todd R. Johnson
   overflow-x: hidden;
 }
 
-#zpxfdebtuo .gt_stub {
+#tkabjdycak .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3625,7 +3607,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#zpxfdebtuo .gt_stub_row_group {
+#tkabjdycak .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3639,15 +3621,15 @@ Todd R. Johnson
   vertical-align: top;
 }
 
-#zpxfdebtuo .gt_row_group_first td {
+#tkabjdycak .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zpxfdebtuo .gt_row_group_first th {
+#tkabjdycak .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#zpxfdebtuo .gt_summary_row {
+#tkabjdycak .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3657,16 +3639,16 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#zpxfdebtuo .gt_first_summary_row {
+#tkabjdycak .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zpxfdebtuo .gt_first_summary_row.thick {
+#tkabjdycak .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zpxfdebtuo .gt_last_summary_row {
+#tkabjdycak .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3676,7 +3658,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#zpxfdebtuo .gt_grand_summary_row {
+#tkabjdycak .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3686,7 +3668,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#zpxfdebtuo .gt_first_grand_summary_row {
+#tkabjdycak .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3696,7 +3678,7 @@ Todd R. Johnson
   border-top-color: #D3D3D3;
 }
 
-#zpxfdebtuo .gt_last_grand_summary_row_top {
+#tkabjdycak .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3706,11 +3688,11 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#zpxfdebtuo .gt_striped {
+#tkabjdycak .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zpxfdebtuo .gt_table_body {
+#tkabjdycak .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3719,7 +3701,7 @@ Todd R. Johnson
   border-bottom-color: #D3D3D3;
 }
 
-#zpxfdebtuo .gt_footnotes {
+#tkabjdycak .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3733,7 +3715,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#zpxfdebtuo .gt_footnote {
+#tkabjdycak .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3742,7 +3724,7 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#zpxfdebtuo .gt_sourcenotes {
+#tkabjdycak .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3756,7 +3738,7 @@ Todd R. Johnson
   border-right-color: #D3D3D3;
 }
 
-#zpxfdebtuo .gt_sourcenote {
+#tkabjdycak .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3764,72 +3746,72 @@ Todd R. Johnson
   padding-right: 5px;
 }
 
-#zpxfdebtuo .gt_left {
+#tkabjdycak .gt_left {
   text-align: left;
 }
 
-#zpxfdebtuo .gt_center {
+#tkabjdycak .gt_center {
   text-align: center;
 }
 
-#zpxfdebtuo .gt_right {
+#tkabjdycak .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zpxfdebtuo .gt_font_normal {
+#tkabjdycak .gt_font_normal {
   font-weight: normal;
 }
 
-#zpxfdebtuo .gt_font_bold {
+#tkabjdycak .gt_font_bold {
   font-weight: bold;
 }
 
-#zpxfdebtuo .gt_font_italic {
+#tkabjdycak .gt_font_italic {
   font-style: italic;
 }
 
-#zpxfdebtuo .gt_super {
+#tkabjdycak .gt_super {
   font-size: 65%;
 }
 
-#zpxfdebtuo .gt_footnote_marks {
+#tkabjdycak .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#zpxfdebtuo .gt_asterisk {
+#tkabjdycak .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zpxfdebtuo .gt_indent_1 {
+#tkabjdycak .gt_indent_1 {
   text-indent: 5px;
 }
 
-#zpxfdebtuo .gt_indent_2 {
+#tkabjdycak .gt_indent_2 {
   text-indent: 10px;
 }
 
-#zpxfdebtuo .gt_indent_3 {
+#tkabjdycak .gt_indent_3 {
   text-indent: 15px;
 }
 
-#zpxfdebtuo .gt_indent_4 {
+#tkabjdycak .gt_indent_4 {
   text-indent: 20px;
 }
 
-#zpxfdebtuo .gt_indent_5 {
+#tkabjdycak .gt_indent_5 {
   text-indent: 25px;
 }
 
-#zpxfdebtuo .katex-display {
+#tkabjdycak .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#zpxfdebtuo div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#tkabjdycak div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -4159,6 +4141,9 @@ Tu, Tao, Mike Schaekermann, Anil Palepu, Khaled Saab, Jan Freyberg, et al. 2025.
 </div>
 <div id="ref-wen2025context" class="csl-entry" role="listitem">
 Wen, Andrew, Qiuhao Lu, Yu-Neng Chuang, et al. 2025. <span>“Context Matching Is Not Reasoning When Performing Generalized Clinical Evaluation of Generative Language Models.”</span> <em>Npj Digital Medicine</em>. <a href="https://doi.org/10.1038/s41746-025-02253-2">https://doi.org/10.1038/s41746-025-02253-2</a>.
+</div>
+<div id="ref-wu2024vot" class="csl-entry" role="listitem">
+Wu, Wenshan, Shaoguang Shi, Yongwei Zhang, Yuxuan Hao, et al. 2024. <span>“Visualization-of-Thought Elicits Spatial Reasoning in Large Language Models.”</span> <em>arXiv Preprint arXiv:2404.03622</em>. <a href="https://arxiv.org/abs/2404.03622">https://arxiv.org/abs/2404.03622</a>.
 </div>
 </div>
 

@@ -441,17 +441,13 @@ chance_Escore <- sum(chance_pmf$score * chance_pmf$prob)
 
 LLMs are being deployed across clinical reasoning tasks at unprecedented speed.
 
-::: {.incremental}
 -   **In 2024, 31.5% of 2,174 US hospitals** deployed generative AI in clinical workflows; another **24.7% planned near-term adoption** [@everson2025genai]
 
 -   **2024 survey with responses from 43 of 67 Scottsdale Institute health systems** all reported active AI adoption in clinical documentation (ambient listening at 100%) [@poon2025]
 
 -   **1 (2019) → 557 (2024) papers/year** evaluating LLMs in clinical medicine  [@shool2025systematic]
-:::
 
-::: {.fragment}
 **Scope of deployment:** Triage · Differential diagnosis · Clinical documentation · Test ordering · Referral decisions · Prior authorization · Coding · Treatment planning
-:::
 
 ::: notes
 I want to start with the scope of what's happening. A third of US hospitals are already running generative AI in clinical workflows. A national survey of leading health systems found universal adoption activity. The research literature has more than tripled in a single year. And the applications span the full range of clinical cognitive work — not just documentation, which is relatively low-risk, but diagnosis, triage, test ordering, treatment planning. Tasks that require clinical reasoning. The question is: what's the evidentiary basis for this deployment?
@@ -463,33 +459,25 @@ I want to start with the scope of what's happening. A third of US hospitals are 
 :::: {.column width="48%"}
 ### Benchmark Milestones
 
-::: {.incremental}
 -   **GPT-4: \~86% on USMLE-style questions**, exceeding passing threshold by 20+ points [@garabet2024gpt4usmle]
 
 -   **Med-PaLM 2: Scored 86.5% on MedQA (USMLE-Style)**. [@singhal2025toward]
     - **Physicians preferred Med-PaLM 2 answers** over generalist physician answers 65% of the time.
 
 -   **AMIE: Outperformed primary care physicians in structured diagnostic conversations** including information acquisition [@tu2025amie]
-:::
 ::::
 
 :::: {.column width="4%"}
 ::::
 
 :::: {.column width="48%"}
-::: {.fragment}
 ### Clinical Evidence
 
 -   NEJM case records: **GPT-4 included the correct diagnosis in its differential for 64%** (34% as top diagnosis) of complex clinicopathological cases from NEJM. [@kanjee2023accuracy]
-:::
 
-::: {.fragment}
 -   **LLM alone: 92% diagnostic accuracy** on 6 clinical vignettes vs. 74% (conventional resources) and 76% (with LLM) for physicians [@goh2024llmdiagnosis]
-:::
 
-::: {.fragment}
 -   Emergency dept: **GPT-4 was better than ED resident physicians** in diagnostic accuracy across 100 real cases [@hoppe2024gpt4ed]
-:::
 ::::
 ::::::
 
@@ -503,17 +491,11 @@ And the evidence looks compelling. On the benchmark side, Med-PaLM 2 reached exp
 Healthcare is adopting LLMs for tasks that require clinical reasoning, based on benchmark evidence that measures pattern recognition
 :::
 
-::: {.fragment}
 [**1.**]{.evidence-num} **Context matching, not reasoning** [@wen2025context]
-:::
 
-::: {.fragment}
 [**2.**]{.evidence-num} **Base rate neglect is systematic** [@omar2025zebras]
-:::
 
-::: {.fragment}
 [**3.**]{.evidence-num} **Reasoning traces don't reflect actual computation** [@chen2025faithfulness; @matton2025; @kambhampati2024llmmodulo; @shojaee2025illusion]
-:::
 
 ::: notes
 Here's the core problem. Three independent research programs converge on the same conclusion. Let me walk through each one.
@@ -657,7 +639,7 @@ Diagnostic reasoning is **abductive inference** — reasoning from observed effe
 Before we can test diagnostic reasoning, we need to define what it is. My prior work with Josef Krems established that diagnostic reasoning is multicausal abductive inference — reasoners must integrate multiple candidate explanations while accumulating evidence. The key finding: people use their current explanation to guide hypothesis selection, but inconsistently — sometimes anchoring when they shouldn't. Klichowicz and Krems later showed that memory demands change reasoning strategies without necessarily hurting accuracy — people compensate by prioritizing existing explanations. Both findings are directly relevant: LLMs face analogous challenges in maintaining working hypotheses across multi-turn diagnostic interactions.
 :::
 
-## We Need a Controlled Lab
+## We Need a Controlled Lab {visibility="hidden"}
 
 Four requirements for a diagnostic reasoning benchmark:
 
@@ -756,7 +738,9 @@ Black Box is a deduction game from 1978. You fire rays into an 8x8 grid and obse
 
 . . .
 
-$$\text{Score} = \underbrace{\sum \text{ray points}}_{\text{information cost}} + \underbrace{(\text{atoms missed} \times 5)}_{\text{placement penalty}}$$
+<div style="text-align: center; font-size: 1.4em; margin: 0.5em 0;">
+<strong>Score</strong> = <span style="display: inline-block; text-align: center; vertical-align: top;">&sum; ray points<br><span style="border-top: 2px solid #333; font-size: 0.6em; color: #666; display: block; padding-top: 0.2em;">information cost</span></span> + <span style="display: inline-block; text-align: center; vertical-align: top;">(atoms missed &times; 5)<br><span style="border-top: 2px solid #333; font-size: 0.6em; color: #666; display: block; padding-top: 0.2em;">placement penalty</span></span>
+</div>
 
 **Lower is better** — a perfect game means finding all 4 atoms with minimal rays.
 
@@ -851,8 +835,10 @@ We use two modes to partially decompose capabilities. Predict mode isolates spat
 | **Model**    | Haiku 4.5, Sonnet 4.5, Sonnet 4.6, Opus 4.5, Opus 4.6 |
 | **Prompt**   | Baseline, Augmented                                   |
 | **Thinking** | Standard, Extended                                    |
-| **VoT**^[Visualization of Thinking [@wu2024vot]]^      | None + 3 visualization prompts                        |
+| **VoT**                                                | None + 3 visualization prompts                        |
 | **Config**   | 10 fixed atom configurations                          |
+
+VoT = Visualization of Thinking [@wu2024vot]
 :::
 
 :::: {.column width="45%"}
@@ -3142,14 +3128,10 @@ How Black Box compares to other reasoning benchmarks. Most benchmarks test const
 
 ## Implications for Deploying LLMs for Clinical and Scientific Reasoning {background-color="#f8f9fa"}
 
-**Thesis**: The frontiers of medicine and science inherently demand first-principles reasoning [@patel1991general].
+**Thesis**: The frontiers of medicine and science inherently demand first-principles reasoning.
 
 ::: fragment
-**Black Box tests exactly this**: out-of-distribution, no patterns to match, requires abductive inference from evidence.
-:::
-
-::: fragment
-**The verdict** — LLMs fail at the components that *define* first-principles reasoning:
+**The verdict** — When forced to reason from first principles on a diagnostic task, LLMs do poorly
 :::
 
 ::: incremental
