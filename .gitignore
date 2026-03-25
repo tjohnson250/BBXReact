@@ -47,6 +47,7 @@ wheels/
 # Build outputs
 *.html
 !docs/**/*.html
+!docs/**/dist/**
 !Experiment 1/**/*.html
 !Experiment 3 Multiple Runs Top Leaders/**/*.html
 *.pdf
