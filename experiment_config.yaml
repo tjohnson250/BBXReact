@@ -4,11 +4,12 @@
 # Results are exported in the same JSON format for cross-model comparison.
 
 # API keys (can also be set via environment variables)
-# Environment variables take precedence: OPENAI_API_KEY, GOOGLE_API_KEY, DEEPSEEK_API_KEY
+# Environment variables take precedence: OPENAI_API_KEY, GOOGLE_API_KEY, DEEPSEEK_API_KEY, ANTHROPIC_API_KEY
 api_keys:
   openai: ""        # or set OPENAI_API_KEY env var
   google: ""        # or set GOOGLE_API_KEY env var
   deepseek: ""      # or set DEEPSEEK_API_KEY env var
+  anthropic: ""     # or set ANTHROPIC_API_KEY env var
 
 # Experiment settings
 experiment:
@@ -29,7 +30,7 @@ experiment:
   config_indices: [0, 1, 2, 3, 4]
 
   # Models to test - provider is inferred from model ID
-  # Supported providers: openai, google, deepseek
+  # Supported providers: openai, google, deepseek, anthropic
   models:
     - id: o3
       name: "o3"

@@ -775,6 +775,47 @@ class DeepSeekProvider(LLMProvider):
             return {"thinking": [], "text": f"Error: {e}", "usage": {"input_tokens": 0, "output_tokens": 0}}
 
 
+class AnthropicProvider(LLMProvider):
+    def __init__(self, model_id: str, api_key: str):
+        import anthropic
+        self.client = anthropic.Anthropic(api_key=api_key)
+        self.model_id = model_id
+
+    def call(self, messages, system_prompt, enable_thinking=False, thinking_budget=10000):
+        try:
+            kwargs = {
+                "model": self.model_id,
+                "max_tokens": 16000,
+                "system": system_prompt,
+                "messages": messages,
+            }
+
+            if enable_thinking:
+                kwargs["thinking"] = {
+                    "type": "enabled",
+                    "budget_tokens": thinking_budget,
+                }
+                kwargs["betas"] = ["interleaved-thinking-2025-05-14"]
+
+            resp = self.client.messages.create(**kwargs)
+
+            text = ""
+            thinking = []
+            for block in resp.content:
+                if block.type == "thinking":
+                    thinking.append(block.thinking)
+                elif block.type == "text":
+                    text += block.text
+
+            usage = {
+                "input_tokens": resp.usage.input_tokens if resp.usage else 0,
+                "output_tokens": resp.usage.output_tokens if resp.usage else 0,
+            }
+            return {"thinking": thinking, "text": text or "Error: No response content", "usage": usage}
+        except Exception as e:
+            return {"thinking": [], "text": f"Error: {e}", "usage": {"input_tokens": 0, "output_tokens": 0}}
+
+
 def create_provider(model_cfg: dict, api_keys: dict) -> LLMProvider:
     provider = model_cfg["provider"]
     model_id = model_cfg["id"]
@@ -794,6 +835,11 @@ def create_provider(model_cfg: dict, api_keys: dict) -> LLMProvider:
         if not key:
             raise ValueError("DeepSeek API key required (config or DEEPSEEK_API_KEY env var)")
         return DeepSeekProvider(model_id, key)
+    elif provider == "anthropic":
+        key = api_keys.get("anthropic") or os.environ.get("ANTHROPIC_API_KEY")
+        if not key:
+            raise ValueError("Anthropic API key required (config or ANTHROPIC_API_KEY env var)")
+        return AnthropicProvider(model_id, key)
     else:
         raise ValueError(f"Unknown provider: {provider}")
 

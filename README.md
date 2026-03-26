@@ -65,7 +65,7 @@ The `play` mode is designed to work alongside the React application: the solver 
 
 ### Experiment Runner (`blackbox_experiment.py`)
 
-A Python script for running Black Box experiments against non-Anthropic models (OpenAI, Google Gemini, DeepSeek). Outputs results in the same JSON format as the React app for cross-model comparison.
+A Python script for running Black Box experiments against multiple LLM providers (Anthropic, OpenAI, Google Gemini, DeepSeek). Outputs results in the same JSON format as the React app for cross-model comparison.
 
 **Usage:**
 
@@ -80,6 +80,7 @@ python blackbox_experiment.py -v                       # verbose/debug logging
 
 | Provider | Models | API Key Env Var |
 |----------|--------|-----------------|
+| Anthropic | Claude Haiku/Sonnet/Opus 4.5/4.6 | `ANTHROPIC_API_KEY` |
 | OpenAI | o3, o4-mini, GPT-4o, etc. | `OPENAI_API_KEY` |
 | Google | Gemini 2.5 Pro, etc. | `GOOGLE_API_KEY` |
 | DeepSeek | DeepSeek R1, etc. | `DEEPSEEK_API_KEY` |
@@ -100,7 +101,7 @@ Results are saved to the `./results/` directory in the same JSON format as the R
 
 **Requirements:**
 ```bash
-pip install openai google-genai pyyaml
+pip install anthropic openai google-genai pyyaml
 ```
 
 ### Presentation (`blackbox_presentation.qmd`)
@@ -133,7 +134,7 @@ The goal is to deduce atom locations from ray observations.
 ## Experiment Data
 
 - The `Experiment 1/` directory contains JSON results from systematic experiments testing Claude models (Haiku, Sonnet, Opus) across prompt conditions via the React app.
-- The `results/` directory contains JSON results from the Python experiment runner testing non-Anthropic models (OpenAI, Google, DeepSeek).
+- The `results/` directory contains JSON results from the Python experiment runner testing additional models (Anthropic, OpenAI, Google, DeepSeek).
 
 Both use the same JSON export format for unified analysis in the Quarto document.
 
