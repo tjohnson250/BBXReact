@@ -134,20 +134,21 @@ def trace_ray(atoms, side, pos):
         if (ai, aj) in atoms:
             return ('H',)
 
-        # Deflection: check flanks of ahead cell, but only if the cell
-        # beyond it is empty (absorption takes priority over deflection)
-        if (ai + vi, aj + vj) not in atoms:
-            f1 = (ai - vj, aj + vi) in atoms   # CCW flank (q1)
-            f2 = (ai + vj, aj - vi) in atoms   # CW flank (q2)
-            if f1 and f2:
-                vi, vj = -vi, -vj               # N(v): reverse
-                continue                        # stay at current cell
-            elif f1:
-                vi, vj = vj, -vi                # P(v): CW turn
-                continue                        # stay at current cell
-            elif f2:
-                vi, vj = -vj, vi                # Q(v): CCW turn
-                continue                        # stay at current cell
+        # Deflection: check flanks of ahead cell
+        # (ai, aj) is guaranteed not an atom — absorption check above
+        # already returned if it were.  The JSX checks deflection whenever
+        # the ahead cell is NOT an atom, with no look-ahead beyond that.
+        f1 = (ai - vj, aj + vi) in atoms   # CCW flank (q1)
+        f2 = (ai + vj, aj - vi) in atoms   # CW flank (q2)
+        if f1 and f2:
+            vi, vj = -vi, -vj               # N(v): reverse
+            continue                        # stay at current cell
+        elif f1:
+            vi, vj = vj, -vi                # P(v): CW turn
+            continue                        # stay at current cell
+        elif f2:
+            vi, vj = -vj, vi                # Q(v): CCW turn
+            continue                        # stay at current cell
 
         # No deflection — advance to ahead cell
         i, j = ai, aj
