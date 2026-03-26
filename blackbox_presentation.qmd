@@ -354,11 +354,7 @@ if (has_error_classifications) {
 }
 
 # ── Deterministic Play Analysis ───────────────────────────────
-det_analysis_files <- if (file.exists("experiment1_play_combined_analysis.json")) {
-  "experiment1_play_combined_analysis.json"
-} else {
-  Sys.glob("*_analysis.json")
-}
+det_analysis_files <- Sys.glob("*_play_combined_analysis.json")
 has_det_play <- length(det_analysis_files) > 0
 
 if (has_det_play) {
@@ -366,10 +362,12 @@ if (has_det_play) {
   det_all_rays <- list()
 
   for (f in det_analysis_files) {
+    experiment <- stringr::str_extract(basename(f), "^[^_]+")
     raw <- jsonlite::fromJSON(f, simplifyDataFrame = FALSE)
     for (game in raw$games) {
       s <- game$summary
       game_row <- tibble(
+        experiment = experiment,
         model_name = game$model_name %||% NA_character_,
         config_index = game$config_index %||% NA_integer_,
         prompt_style = game$prompt_style %||% NA_character_,
@@ -392,6 +390,7 @@ if (has_det_play) {
       game_id <- paste0(game$model_name, "_", game$config_index)
       for (ray in game$ray_analysis) {
         ray_row <- tibble(
+          experiment = experiment,
           game_id = game_id,
           model_name = game$model_name %||% NA_character_,
           ray_number = ray$ray_number,

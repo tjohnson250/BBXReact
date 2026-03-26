@@ -8,9 +8,12 @@ and rebuilds them as needed before quarto renders the document.
 Derived files and their dependencies:
   optimal_solver_results.json   <- blackbox_solver.py
   error_classifications.json    <- classify_errors.py, Experiment 1/{Predict,Play}/*.json
-  experiment1_play_combined.json <- Experiment 1/Play/*.json
-  experiment1_play_combined_analysis.json <- experiment1_play_combined.json,
-                                             blackbox_solver.py, optimal_solver_results.json
+
+Per-experiment (for each entry in PLAY_EXPERIMENTS):
+  <prefix>_play_combined.json          <- <play_dir>/*.json
+  <prefix>_play_combined_analysis.json <- <prefix>_play_combined.json,
+                                           optimal_solver_results.json
+                                           (warns if blackbox_solver.py changed)
 
 Always exits 0 so quarto doesn't abort the render.
 """
@@ -79,8 +82,14 @@ def run_command(cmd, description, slow_warning=None):
 # Steps
 # ---------------------------------------------------------------------------
 
-PLAY_DIR = "Experiment 1/Play"
 PREDICT_DIR = "Experiment 1/Predict"
+
+# Each entry: (play_dir, output_prefix)
+# Add new experiment directories here as data collection expands.
+PLAY_EXPERIMENTS = [
+    ("Experiment 1/Play", "experiment1"),
+    ("Experiment 3 Multiple Runs Top Leaders", "experiment3"),
+]
 
 
 def step_optimal_solver():
@@ -112,8 +121,9 @@ def step_error_classifications():
     (predict-only). Otherwise we warn about staleness.
     """
     output = "error_classifications.json"
+    play_dir = PLAY_EXPERIMENTS[0][0]  # Experiment 1
     predict_inputs = ["classify_errors.py"] + glob.glob(f"{PREDICT_DIR}/*.json")
-    play_inputs = glob.glob(f"{PLAY_DIR}/*.json")
+    play_inputs = glob.glob(f"{play_dir}/*.json")
 
     if not os.path.exists(output):
         print(f"[REBUILD] {output} (predict mode only)")
@@ -129,7 +139,7 @@ def step_error_classifications():
     # File exists — check staleness for each portion
     out_mt = file_mtime(output)
     predict_mt = newest_mtime(["classify_errors.py"] + [f"{PREDICT_DIR}/*.json"])
-    play_mt = newest_mtime([f"{PLAY_DIR}/*.json"])
+    play_mt = newest_mtime([f"{play_dir}/*.json"])
 
     stale_parts = []
     if predict_mt > out_mt:
@@ -148,21 +158,21 @@ def step_error_classifications():
         print(f"  Re-run play:    python3 classify_errors.py --mode play --api-key YOUR_KEY --resume")
 
 
-def step_combine_play():
-    """Merge all Play experiment JSONs into experiment1_play_combined.json."""
-    output = "experiment1_play_combined.json"
-    input_pattern = f"{PLAY_DIR}/*.json"
+def step_combine_play(play_dir, prefix):
+    """Merge all Play experiment JSONs from play_dir into {prefix}_play_combined.json."""
+    output = f"{prefix}_play_combined.json"
+    input_pattern = f"{play_dir}/*.json"
     play_files = sorted(glob.glob(input_pattern))
 
     if not play_files:
-        print(f"[SKIP] No Play experiment files found in {PLAY_DIR}/")
+        print(f"[SKIP] No Play experiment files found in {play_dir}/")
         return
 
     if not is_stale(output, [input_pattern]):
         print(f"[OK] {output} is current")
         return
 
-    print(f"[REBUILD] {output} (merging {len(play_files)} files)")
+    print(f"[REBUILD] {output} (merging {len(play_files)} files from {play_dir}/)")
     all_results = []
     for f in play_files:
         try:
@@ -181,11 +191,11 @@ def step_combine_play():
     print(f"  Merged {len(all_results)} results from {len(play_files)} files")
 
 
-def step_analyze_play():
-    """Run deterministic play analysis on the combined file."""
-    input_file = "experiment1_play_combined.json"
-    output = "experiment1_play_combined_analysis.json"
-    inputs = [input_file, "blackbox_solver.py", "optimal_solver_results.json"]
+def step_analyze_play(prefix):
+    """Run deterministic play analysis on {prefix}_play_combined.json."""
+    input_file = f"{prefix}_play_combined.json"
+    output = f"{prefix}_play_combined_analysis.json"
+    inputs = [input_file, "optimal_solver_results.json"]
 
     if not os.path.exists(input_file):
         print(f"[SKIP] {output} — {input_file} not found")
@@ -194,6 +204,16 @@ def step_analyze_play():
     if not os.path.exists("optimal_solver_results.json"):
         print(f"[SKIP] {output} — optimal_solver_results.json not found")
         return
+
+    # Warn (don't auto-rebuild) if only the solver code changed
+    out_mt = file_mtime(output)
+    solver_mt = file_mtime("blackbox_solver.py")
+    if out_mt > 0 and solver_mt > out_mt:
+        n_workers = os.cpu_count() or 1
+        print(f"[STALE?] {output} — blackbox_solver.py has changed")
+        print(f"  If the analyze logic changed, re-run manually:")
+        print(f"  python3 blackbox_solver.py analyze {input_file}"
+              f" --output {output} --workers {n_workers}")
 
     if not is_stale(output, inputs):
         print(f"[OK] {output} is current")
@@ -220,8 +240,9 @@ def main():
 
     step_optimal_solver()
     step_error_classifications()
-    step_combine_play()
-    step_analyze_play()
+    for play_dir, prefix in PLAY_EXPERIMENTS:
+        step_combine_play(play_dir, prefix)
+        step_analyze_play(prefix)
 
     print("=" * 60)
     print("prerender.py — done")
