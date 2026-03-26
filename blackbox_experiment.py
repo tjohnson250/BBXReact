@@ -795,7 +795,6 @@ class AnthropicProvider(LLMProvider):
                     "type": "enabled",
                     "budget_tokens": thinking_budget,
                 }
-                kwargs["betas"] = ["interleaved-thinking-2025-05-14"]
 
             resp = self.client.messages.create(**kwargs)
 

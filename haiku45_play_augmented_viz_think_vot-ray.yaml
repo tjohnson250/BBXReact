@@ -1,0 +1,37 @@
+# Haiku 4.5 — Play mode, 10 benchmark configs
+# Augmented prompt, visualization, extended thinking, VoT ray trace
+# Run this script 10 times for 10 replication runs
+
+api_keys:
+  anthropic: ""   # or set ANTHROPIC_API_KEY env var
+
+experiment:
+  task_mode: play
+  prompt_style: augmented
+  include_visualization: true
+  allow_hypotheses: true
+  enable_thinking: true
+  thinking_budget: 10000
+
+  vot:
+    grid_state: false
+    ray_trace: true
+    hypothesis: false
+
+  config_indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+  models:
+    - id: claude-haiku-4-5-20251001
+      name: "Haiku 4.5"
+      provider: anthropic
+
+rate_limit:
+  delay_between_calls_ms: 500
+  max_retries: 3
+  backoff_base_ms: 1000
+  backoff_max_ms: 30000
+
+output:
+  directory: "./results"
+  include_html_report: true
+  log_file: "./results/experiment.log"
