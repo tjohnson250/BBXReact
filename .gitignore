@@ -23,7 +23,7 @@ env/
 # Distribution / packaging
 .Python
 build/
-dist/
+/dist/
 wheels/
 *.egg-info/
 *.whl
