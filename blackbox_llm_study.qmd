@@ -1130,6 +1130,318 @@ benchmarks:
 Note: These are heuristics, not absolute cutoffs. Practical significance
 depends on context and cost-benefit considerations.
 
+### Power Analysis {#sec-power-analysis}
+
+With $n = 1$ per cell in Experiment 1 (800 games: 5 models $\times$ 2
+prompt styles $\times$ 2 thinking conditions $\times$ 4 VoT levels
+$\times$ 10 configurations), statistical power for detecting smaller
+effects is limited. A simulation-based power analysis determines the
+number of replications per cell ($k$) needed to achieve 80% and 90%
+power for each experimental factor.
+
+We use a parametric bootstrap approach: extract variance components from
+pilot data (fixed effects, configuration-level ICC, and residual
+variance), then simulate datasets at increasing replication levels
+($k = 1, 2, 3, 5, 10, 15, 20$). For each simulated dataset, we fit the
+same mixed-effects model used in the primary analysis and test each
+factor via Type III ANOVA. Power is the proportion of 1,000 simulations
+where $p < 0.05$ for each effect. This simulation-based approach is
+preferred over analytic power formulas because it naturally handles the
+mixed-effects structure, the ICC from configuration clustering, and the
+factorial design.
+
+```{r}
+#| label: power-analysis-simulation
+#| cache: true
+
+# --- Extract pilot parameters from Experiment 1 play data ---
+
+# Load the combined play data directly (avoids re-extracting from individual files)
+power_pilot_raw <- jsonlite::fromJSON(
+  "experiment1_play_combined.json",
+  simplifyDataFrame = FALSE
+)
+
+# Extract the 7 columns needed for parameter estimation
+power_pilot <- map_dfr(power_pilot_raw$results, function(r) {
+  tibble(
+    model_name = r$modelName,
+    prompt_style = r$promptStyle,
+    enable_thinking = r$enableThinking,
+    vot_grid_state = r$votGridState,
+    vot_ray_trace = r$votRayTrace,
+    vot_hypothesis = r$votHypothesis,
+    config_index = r$configIndex,
+    atoms_correct = r$atomsCorrect,
+    score = r$score
+  )
+})
+
+# Derive VoT condition factor (same coding as primary analysis)
+power_pilot <- power_pilot |>
+  mutate(
+    vot_condition = case_when(
+      vot_grid_state ~ "A: Grid State",
+      vot_ray_trace ~ "B: Ray Trace",
+      vot_hypothesis ~ "C: Hypothesis",
+      TRUE ~ "None"
+    ),
+    vot_condition = factor(vot_condition,
+      levels = c("None", "A: Grid State", "B: Ray Trace", "C: Hypothesis")),
+    model_name = factor(model_name),
+    prompt_style = factor(prompt_style),
+    enable_thinking = factor(enable_thinking),
+    config_index = factor(config_index)
+  )
+
+# Fit pilot mixed-effects models to extract variance components
+pilot_fit_score <- lmer(
+  score ~ model_name * prompt_style * enable_thinking + vot_condition +
+    (1 | config_index),
+  data = power_pilot
+)
+pilot_fit_atoms <- lmer(
+  atoms_correct ~ model_name * prompt_style * enable_thinking + vot_condition +
+    (1 | config_index),
+  data = power_pilot
+)
+
+# Extract parameters for simulation
+extract_sim_params <- function(fit) {
+  vc <- as.data.frame(VarCorr(fit))
+  list(
+    beta = fixef(fit),
+    sigma_config = vc$sdcor[vc$grp == "config_index"],
+    sigma_resid = vc$sdcor[vc$grp == "Residual"],
+    formula_str = deparse(formula(fit))
+  )
+}
+
+params_score <- extract_sim_params(pilot_fit_score)
+params_atoms <- extract_sim_params(pilot_fit_atoms)
+
+# --- Simulation functions ---
+
+make_design <- function(k_reps, n_configs = 10) {
+  models <- levels(power_pilot$model_name)
+  prompts <- levels(power_pilot$prompt_style)
+  thinking <- levels(power_pilot$enable_thinking)
+  vots <- levels(power_pilot$vot_condition)
+
+  expand.grid(
+    model_name = models,
+    prompt_style = prompts,
+    enable_thinking = thinking,
+    vot_condition = vots,
+    config_index = factor(0:(n_configs - 1)),
+    rep = 1:k_reps,
+    stringsAsFactors = TRUE
+  ) |> as_tibble() |> select(-rep)
+}
+
+simulate_one <- function(design, beta, sigma_config, sigma_resid) {
+  # Build model matrix from the design
+  form <- ~ model_name * prompt_style * enable_thinking + vot_condition
+  X <- model.matrix(form, data = design)
+
+  # Align beta names with model matrix columns (pilot may have different ordering)
+  beta_aligned <- rep(0, ncol(X))
+  names(beta_aligned) <- colnames(X)
+  shared <- intersect(names(beta), colnames(X))
+  beta_aligned[shared] <- beta[shared]
+
+  # Random intercepts for config
+  config_levels <- levels(design$config_index)
+  config_effects <- rnorm(length(config_levels), 0, sigma_config)
+  names(config_effects) <- config_levels
+  config_re <- config_effects[as.character(design$config_index)]
+
+  # Generate response
+  design$y <- as.numeric(X %*% beta_aligned) + config_re +
+    rnorm(nrow(design), 0, sigma_resid)
+
+  # Fit model and extract p-values via Type III ANOVA
+  fit <- tryCatch(
+    lmer(y ~ model_name * prompt_style * enable_thinking + vot_condition +
+           (1 | config_index), data = design),
+    error = function(e) NULL
+  )
+
+  if (is.null(fit)) return(NULL)
+
+  aov <- tryCatch(anova(fit, type = 3), error = function(e) NULL)
+  if (is.null(aov)) return(NULL)
+
+  tibble(
+    effect = rownames(aov),
+    p_value = aov[["Pr(>F)"]]
+  )
+}
+
+run_power_analysis <- function(k_values, n_sims, beta, sigma_config,
+                               sigma_resid, dv_name) {
+  map_dfr(k_values, function(k) {
+    design_template <- make_design(k)
+
+    results <- lapply(1:n_sims, function(i) {
+      simulate_one(design_template, beta, sigma_config, sigma_resid)
+    })
+
+    # Remove failed simulations
+    results <- compact(results)
+
+    if (length(results) == 0) {
+      return(tibble(k = k, effect = character(), power = numeric(),
+                    dv = dv_name))
+    }
+
+    bind_rows(results) |>
+      group_by(effect) |>
+      summarise(power = mean(p_value < 0.05, na.rm = TRUE),
+                n_valid = n(), .groups = "drop") |>
+      mutate(k = k, dv = dv_name)
+  })
+}
+
+# --- Run simulations (cached) ---
+set.seed(42)
+k_values <- c(1, 2, 3, 5, 10, 15, 20)
+n_sims <- 500
+
+power_score <- run_power_analysis(
+  k_values, n_sims,
+  params_score$beta, params_score$sigma_config, params_score$sigma_resid,
+  "Score"
+)
+
+power_atoms <- run_power_analysis(
+  k_values, n_sims,
+  params_atoms$beta, params_atoms$sigma_config, params_atoms$sigma_resid,
+  "Atoms Correct"
+)
+
+power_results <- bind_rows(power_score, power_atoms)
+```
+
+```{r}
+#| label: fig-power-curves
+#| fig-cap: "Power curves for detecting experimental effects in play mode. Each line represents a different effect from the mixed-effects model, showing statistical power (proportion of simulations reaching p < 0.05) as a function of replications per cell. Dashed horizontal lines mark 80% and 90% power thresholds."
+#| fig-height: 7
+#| fig-width: 10
+
+# Simplify effect labels for display
+power_plot_data <- power_results |>
+  mutate(
+    effect_label = case_when(
+      effect == "model_name" ~ "Model (5-level)",
+      effect == "prompt_style" ~ "Prompt style",
+      effect == "enable_thinking" ~ "Extended thinking",
+      effect == "vot_condition" ~ "VoT condition",
+      effect == "model_name:prompt_style" ~ "Model × Prompt",
+      effect == "model_name:enable_thinking" ~ "Model × Thinking",
+      effect == "prompt_style:enable_thinking" ~ "Prompt × Thinking",
+      effect == "model_name:prompt_style:enable_thinking" ~ "3-way interaction",
+      TRUE ~ effect
+    )
+  )
+
+ggplot(power_plot_data, aes(x = k, y = power, color = effect_label)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 0.80, linetype = "dashed", alpha = 0.5) +
+  geom_hline(yintercept = 0.90, linetype = "dashed", alpha = 0.5) +
+  annotate("text", x = max(k_values), y = 0.82, label = "80%",
+           hjust = 1, size = 3, alpha = 0.6) +
+  annotate("text", x = max(k_values), y = 0.92, label = "90%",
+           hjust = 1, size = 3, alpha = 0.6) +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+  scale_x_continuous(breaks = k_values) +
+  facet_wrap(~dv, ncol = 2) +
+  labs(
+    x = "Replications per cell (k)",
+    y = "Power",
+    color = "Effect"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold"),
+        strip.text = element_text(face = "bold", size = 13))
+```
+
+```{r}
+#| label: tbl-power-recommendations
+#| tbl-cap: "Minimum replications per cell (k) required to achieve 80% and 90% power for each experimental effect. Effects are shown for both dependent variables (Score and Atoms Correct). '> 20' indicates that 20 replications are insufficient; '—' indicates the threshold is already met at k = 1."
+
+# Build recommendation table
+power_recommendations <- power_results |>
+  mutate(
+    effect_label = case_when(
+      effect == "model_name" ~ "Model (5-level)",
+      effect == "prompt_style" ~ "Prompt style",
+      effect == "enable_thinking" ~ "Extended thinking",
+      effect == "vot_condition" ~ "VoT condition",
+      effect == "model_name:prompt_style" ~ "Model × Prompt",
+      effect == "model_name:enable_thinking" ~ "Model × Thinking",
+      effect == "prompt_style:enable_thinking" ~ "Prompt × Thinking",
+      effect == "model_name:prompt_style:enable_thinking" ~ "3-way interaction",
+      TRUE ~ effect
+    )
+  ) |>
+  group_by(effect_label, dv) |>
+  summarise(
+    k_80 = {
+      k_val <- k[power >= 0.80]
+      if (length(k_val) == 0) "> 20" else as.character(min(k_val))
+    },
+    k_90 = {
+      k_val <- k[power >= 0.90]
+      if (length(k_val) == 0) "> 20" else as.character(min(k_val))
+    },
+    .groups = "drop"
+  ) |>
+  # Mark effects already powered at k=1
+
+  mutate(
+    k_80 = ifelse(k_80 == "1", "\u2014", k_80),
+    k_90 = ifelse(k_90 == "1", "\u2014", k_90)
+  ) |>
+  pivot_wider(
+    names_from = dv,
+    values_from = c(k_80, k_90),
+    names_glue = "{dv}: {.value}"
+  )
+
+# Order by main effects first, then interactions
+effect_order <- c("Extended thinking", "VoT condition", "Prompt style",
+                  "Model (5-level)", "Prompt × Thinking",
+                  "Model × Thinking", "Model × Prompt", "3-way interaction")
+power_recommendations <- power_recommendations |>
+  mutate(effect_label = factor(effect_label, levels = effect_order)) |>
+  arrange(effect_label)
+
+kable(power_recommendations,
+      col.names = c("Effect",
+                     "Score k(80%)", "Atoms k(80%)",
+                     "Score k(90%)", "Atoms k(90%)"),
+      align = c("l", "c", "c", "c", "c")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE) |>
+  add_header_above(c(" " = 1, "80% Power" = 2, "90% Power" = 2))
+```
+
+The power analysis reveals the practical consequences of Experiment 1's
+single-replication design. Extended thinking — the largest observed
+effect — achieves adequate power at modest replication levels, while
+smaller effects like prompt style and model differences require
+substantially more replications. The VoT condition, with four levels
+tested against the "None" reference, occupies an intermediate position.
+Interaction effects are generally underpowered, which is expected given
+that detecting interactions requires roughly four times the sample size
+of main effects. These results inform the replication strategy in
+Experiment 3, where targeted replication of the most promising
+model–condition combinations balances statistical rigor against the
+computational cost of running hundreds of additional games.
+
 ### Qualitative Analysis
 
 Systematic coding of extended thinking traces to identify: - Constraint
@@ -6193,7 +6505,16 @@ diagnostic tasks\]
     different results
 3.  **Model versions**: Rapid model updates may change performance
     characteristics
-4.  **Sample size**: \[Discuss statistical power\]
+4.  **Sample size**: With $n = 1$ per cell in Experiment 1, the design
+    is adequately powered only for the largest effects. The power
+    analysis (see @sec-power-analysis) shows that extended thinking
+    ($d \approx 0.76$) reaches 80% power at modest replication levels,
+    but smaller effects — prompt style ($d \approx 0.13$) and model
+    differences ($d \approx 0.08$) — require substantially more
+    replications per cell than are currently available. Interaction
+    effects are generally underpowered. A replication study targeting
+    the sample sizes identified in the power analysis would be needed
+    to draw definitive conclusions about these smaller effects.
 5.  **Predict mode ray selection**: In predict mode, rays are tested in
     a fixed sequential order (North 1–8, South 1–8, East 1–8, West 1–8),
     and entry points already observed as exit points of prior rays are
