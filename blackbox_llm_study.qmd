@@ -10,7 +10,6 @@ format:
   html:
     toc: true
     toc-depth: 4
-    toc-expand: 1
     number-sections: true
     code-fold: true
     theme: cosmo
@@ -137,7 +136,7 @@ identifying *which* specific state from a known set is present.
 **Component processes of diagnostic reasoning:**
 
 | Process | Description |
-|----|----|
+|------------------------------------|------------------------------------|
 | **Hypothesis Generation** | Generate candidate hidden states that could explain observations |
 | **Forward Reasoning** | Predict what observations would occur under each hypothesis |
 | **Test Selection** | Choose which observation to gather next to best discriminate among hypotheses |
@@ -164,7 +163,7 @@ realization of diagnostic reasoning*—requiring all six component
 processes in an integrated task:
 
 | Diagnostic Process | Black Box Analog |
-|----|----|
+|------------------------------------|------------------------------------|
 | **Hypothesis Generation** | Consider which atom configurations could explain observations |
 | **Forward Reasoning** | Predict ray behavior under a hypothesized configuration |
 | **Test Selection** | Choose which ray to fire next to discriminate among hypotheses |
@@ -843,7 +842,7 @@ kable(predict_design, format = "pipe")
 ```
 
 | Model | Prompt | Extended Thinking | Vot (None, B Ray Trace) |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
 | **\*Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **10K** | **None** |
@@ -858,7 +857,7 @@ kable(predict_design, format = "pipe")
 Play Mode Experiment Log
 
 | Model | Prompt | Extended Thinking | VoT (None, A, B, or C) |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **None** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT A Grid State Tracking** |
 | **Haiku 4.5, Sonnet 4.5, Opus 4.5, Sonnet 4.6, Opus 4.6** | **baseline** | **No** | **VoT B Ray Trace Visualization** |
@@ -1118,7 +1117,7 @@ Following Cohen (1988), we interpret effect sizes using conventional
 benchmarks:
 
 | Measure | Small | Medium | Large | Notes |
-|----|----|----|----|----|
+|---------------|---------------|---------------|---------------|---------------|
 | η² (Eta-squared) | 0.01 | 0.06 | 0.14 | Total variance explained |
 | η²p (Partial eta-squared) | 0.01 | 0.06 | 0.14 | Variance explained controlling for other factors |
 | ω² (Omega-squared) | 0.01 | 0.06 | 0.14 | Unbiased estimate (preferred over η²) |
@@ -1442,6 +1441,36 @@ Experiment 3, where targeted replication of the most promising
 model–condition combinations balances statistical rigor against the
 computational cost of running hundreds of additional games.
 
+### Performance Metric Decomposition {#sec-metric-decomposition}
+
+The standard game score uses the Emacs Black Box formula:
+$\text{score} = \text{ray\_points} + 5 \times \text{atoms\_missed}$. The
+5-point penalty is inherited from a 1980s puzzle game — there is no
+principled reason a missed atom should cost exactly 5 ray-equivalents.
+Information theory provides a grounded alternative: the optimal solver
+uses a mean of \~7 rays to resolve all $\binom{64}{4} = 635{,}376$
+candidates (19.28 bits), so each atom is worth \~4.82 bits or \~1.75
+rays of information, not 5.
+
+We supplement the Emacs score with an **Information-Theoretic Composite
+(ITC)** that replaces the arbitrary penalty with a
+configuration-specific cost:
+$$\text{ITC} = \text{ray\_points} + (4 - \text{atoms\_correct}) \times \frac{\text{optimal\_rays}_c}{4}$$
+Each missed atom is penalized by $\text{optimal\_rays}_c / 4$ — the
+per-atom information cost for configuration $c$. This yields penalties
+of \~1.25–2.25 ray-equivalents per atom (mean \~1.75), grounded in the
+actual difficulty of each configuration rather than an arbitrary
+constant.
+
+The decomposition is motivated by a key empirical finding:
+`atoms_correct` and `rays_used` are essentially uncorrelated
+($r \approx 0$), meaning they capture independent performance dimensions
+— **test selection** (choosing informative rays) vs **evidence
+integration** (synthesizing observations into a guess). Any composite
+that collapses them loses information, so a sensitivity analysis varying
+the penalty weight from 1 through 10 demonstrates whether condition
+rankings are robust to the choice of penalty.
+
 ### Qualitative Analysis
 
 Systematic coding of extended thinking traces to identify: - Constraint
@@ -1503,7 +1532,7 @@ style, extended thinking) interact with spatial complexity:
 We classify errors from extended thinking traces into categories:
 
 | Error Type | Spatial? | Description |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Ray path error | Yes | Path traced incorrectly through grid |
 | Deflection geometry error | Yes | Misunderstood deflection rules |
 | Constraint tracking error | No | Failed to update ruled-out positions |
@@ -3787,7 +3816,6 @@ r2_score <- performance::r2_nakagawa(model_score)
 **Model Fit**: - **Marginal R²**: `r round(r2_score$R2_marginal, 3)` -
 **Conditional R²**: `r round(r2_score$R2_conditional, 3)`
 
-
 ### Regression Analysis: Play Mode
 
 Regression complements ANOVA by providing interpretable effect
@@ -4726,6 +4754,290 @@ ggplot(play_model_config, aes(x = optimal_rays, y = llm_atoms_mean, color = mode
 
 `r if(has_optimal && exists("comparison") && exists("best_condition_lookup")) paste0("**Best condition summary.** The best-performing condition by score is *", best_condition_label, "*. Compared to the overall LLM mean, the best condition reduces the score ratio from ", round(mean(comparison$score_ratio), 1), "× to ", round(mean(comparison$best_score_ratio, na.rm = TRUE), 1), "× optimal (a ", round((1 - mean(comparison$best_score_ratio, na.rm = TRUE) / mean(comparison$score_ratio)) * 100, 0), "% reduction) and the rays ratio from ", round(mean(comparison$rays_ratio), 1), "× to ", round(mean(comparison$best_rays_ratio, na.rm = TRUE), 1), "× optimal. This highlights how much of the gap to optimal is driven by model capability vs. the averaging across weaker conditions.")`
 
+### Information-Theoretic Performance Decomposition {#sec-itc-decomposition}
+
+The Emacs Black Box score uses a fixed 5-point penalty per missed atom,
+inherited from a 1980s puzzle game. Here we examine whether this
+arbitrary weighting distorts condition rankings by replacing it with
+information-theoretically grounded alternatives.
+
+```{r}
+#| label: itc-compute
+#| eval: !expr has_optimal
+
+# Derive ray_points from score and compute ITC per game
+play_itc <- play_data |>
+  inner_join(optimal_data |> select(config_index, optimal_rays), by = "config_index") |>
+  mutate(
+    ray_points = score - 5 * (4 - atoms_correct),
+    itc = ray_points + (4 - atoms_correct) * (optimal_rays / 4),
+    condition = paste0(
+      model_name, " | ",
+      ifelse(prompt_style == "augmented", "Aug", "Base"), " | ",
+      ifelse(as.logical(as.character(enable_thinking)), "Think", "No-Think"), " | ",
+      vot_condition
+    )
+  )
+
+# Correlation between atoms_correct and rays_used
+cor_atoms_rays <- cor.test(play_itc$atoms_correct, play_itc$rays_used)
+
+cat("Correlation between atoms_correct and rays_used:\n")
+cat("  r =", round(cor_atoms_rays$estimate, 3),
+    " p =", format.pval(cor_atoms_rays$p.value, digits = 3), "\n")
+cat("  95% CI: [", round(cor_atoms_rays$conf.int[1], 3), ",",
+    round(cor_atoms_rays$conf.int[2], 3), "]\n\n")
+
+cat("Emacs score: mean =", round(mean(play_itc$score), 2),
+    " sd =", round(sd(play_itc$score), 2), "\n")
+cat("ITC: mean =", round(mean(play_itc$itc), 2),
+    " sd =", round(sd(play_itc$itc), 2), "\n")
+cat("Mean ITC penalty per missed atom:",
+    round(mean(play_itc$optimal_rays / 4), 2),
+    "ray-equivalents (range:",
+    round(min(play_itc$optimal_rays / 4), 2), "-",
+    round(max(play_itc$optimal_rays / 4), 2), ")\n")
+```
+
+`r if(has_optimal) paste0("The correlation between atoms_correct and rays_used is r = ", round(cor_atoms_rays$estimate, 3), " (p = ", format.pval(cor_atoms_rays$p.value, digits = 3), "), confirming that these two performance dimensions are essentially independent. Firing more rays does not help LLMs find more atoms --- test selection and evidence integration are orthogonal abilities.")`
+
+#### Sensitivity Analysis: Penalty Weight
+
+To test whether the arbitrary 5-point penalty distorts condition
+rankings, we recompute condition-level mean scores across a range of
+penalty weights and measure rank stability via Kendall's $\tau$ against
+the Emacs baseline (weight = 5).
+
+```{r}
+#| label: itc-sensitivity
+#| eval: !expr has_optimal
+#| fig-cap: "Rank stability (Kendall's tau) of condition rankings as penalty weight varies. tau = 1.0 means identical rankings to the Emacs baseline (weight = 5). The information-theoretic weight (~1.75) and Emacs weight (5) are marked."
+
+penalty_weights <- c(0.5, 1, 1.5, 1.75, 2, 2.5, 3, 4, 5, 6, 7, 8, 10)
+
+# Condition-level means for sensitivity analysis
+condition_means <- play_itc |>
+  group_by(condition) |>
+  summarise(
+    mean_ray_points = mean(ray_points),
+    mean_atoms_missed = mean(4 - atoms_correct),
+    .groups = "drop"
+  )
+
+# Baseline: Emacs scoring (weight = 5)
+baseline_scores <- condition_means |>
+  mutate(baseline_score = mean_ray_points + 5 * mean_atoms_missed)
+
+# Kendall's tau for each weight vs weight=5
+tau_results <- tibble(
+  weight = penalty_weights,
+  tau = map_dbl(penalty_weights, function(w) {
+    scores_w <- condition_means$mean_ray_points + w * condition_means$mean_atoms_missed
+    cor(scores_w, baseline_scores$baseline_score, method = "kendall")
+  })
+)
+
+ggplot(tau_results, aes(x = weight, y = tau)) +
+  geom_line(linewidth = 1, color = "#2196F3") +
+  geom_point(size = 2.5, color = "#2196F3") +
+  geom_vline(xintercept = 1.75, linetype = "dashed", color = "#4CAF50", linewidth = 0.8) +
+  geom_vline(xintercept = 5, linetype = "dashed", color = "#FF9800", linewidth = 0.8) +
+  annotate("text", x = 1.75, y = min(tau_results$tau) - 0.01,
+           label = "Info-theoretic\n(1.75)", hjust = 1.1, size = 3, color = "#4CAF50") +
+  annotate("text", x = 5, y = min(tau_results$tau) - 0.01,
+           label = "Emacs\n(5.0)", hjust = -0.1, size = 3, color = "#FF9800") +
+  scale_y_continuous(limits = c(NA, 1.02)) +
+  labs(x = "Missed-Atom Penalty Weight",
+       y = expression("Kendall's " * tau * " (rank correlation with Emacs baseline)"),
+       title = "Sensitivity of Condition Rankings to Penalty Weight") +
+  theme_minimal()
+```
+
+```{r}
+#| label: itc-rank-comparison
+#| eval: !expr has_optimal
+#| fig-cap: "Rank changes for top 10 Emacs-scored conditions when switching to information-theoretic penalty (weight = 1.75). Orange = Emacs rank, green = ITC rank. Arrows show direction of rank change."
+#| fig-height: 6
+#| fig-width: 10
+
+# Compute ranks at weight=5 and weight=1.75
+ranks_comparison <- condition_means |>
+  mutate(
+    score_emacs = mean_ray_points + 5 * mean_atoms_missed,
+    score_w175 = mean_ray_points + 1.75 * mean_atoms_missed,
+    rank_emacs = rank(score_emacs, ties.method = "min"),
+    rank_w175 = rank(score_w175, ties.method = "min")
+  ) |>
+  arrange(rank_emacs)
+
+# Top 10 by Emacs ranking
+top10_plot <- ranks_comparison |>
+  filter(rank_emacs <= 10) |>
+  mutate(
+    rank_change = rank_emacs - rank_w175,
+    direction = case_when(
+      rank_change > 0 ~ "Improved",
+      rank_change < 0 ~ "Worsened",
+      TRUE ~ "Unchanged"
+    )
+  )
+
+ggplot(top10_plot) +
+  geom_segment(aes(x = rank_emacs, xend = rank_w175,
+                   y = reorder(condition, -rank_emacs),
+                   yend = reorder(condition, -rank_emacs),
+                   color = direction),
+               linewidth = 0.8,
+               arrow = arrow(length = unit(0.15, "cm"), type = "closed")) +
+  geom_point(aes(x = rank_emacs, y = reorder(condition, -rank_emacs)),
+             color = "#FF9800", size = 3) +
+  geom_point(aes(x = rank_w175, y = reorder(condition, -rank_emacs)),
+             color = "#4CAF50", size = 3) +
+  scale_color_manual(values = c("Improved" = "#4CAF50", "Worsened" = "#F44336",
+                                 "Unchanged" = "grey60"),
+                     guide = "none") +
+  labs(x = "Rank (lower is better)",
+       y = NULL,
+       title = "Rank Changes: Top 10 Emacs Conditions Under Penalty Weight = 1.75",
+       subtitle = "Orange = Emacs rank (w=5), Green = w=1.75 rank. Green arrows = improved, red = worsened.") +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 7))
+```
+
+```{r}
+#| label: itc-rank-table
+#| eval: !expr has_optimal
+
+# Side-by-side table: top 10 at each weight
+top10_emacs <- ranks_comparison |>
+  filter(rank_emacs <= 10) |>
+  arrange(rank_emacs) |>
+  transmute(condition_emacs = condition,
+            rank_emacs,
+            score_emacs = round(score_emacs, 2))
+
+top10_w175 <- ranks_comparison |>
+  filter(rank_w175 <= 10) |>
+  arrange(rank_w175) |>
+  transmute(condition_w175 = condition,
+            rank_w175,
+            score_w175 = round(score_w175, 2))
+
+# Pad to equal length
+n_max <- max(nrow(top10_emacs), nrow(top10_w175))
+if (nrow(top10_emacs) < n_max) {
+  top10_emacs <- bind_rows(top10_emacs,
+    tibble(condition_emacs = rep(NA, n_max - nrow(top10_emacs)),
+           rank_emacs = rep(NA, n_max - nrow(top10_emacs)),
+           score_emacs = rep(NA, n_max - nrow(top10_emacs))))
+}
+if (nrow(top10_w175) < n_max) {
+  top10_w175 <- bind_rows(top10_w175,
+    tibble(condition_w175 = rep(NA, n_max - nrow(top10_w175)),
+           rank_w175 = rep(NA, n_max - nrow(top10_w175)),
+           score_w175 = rep(NA, n_max - nrow(top10_w175))))
+}
+
+side_by_side <- bind_cols(top10_emacs, top10_w175)
+
+kable(side_by_side,
+      col.names = c("Condition", "Rank", "Score",
+                     "Condition", "Rank", "Score"),
+      caption = paste0("Top 10 conditions under Emacs scoring (penalty = 5) vs ",
+                       "information-theoretic penalty (weight = 1.75)")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) |>
+  add_header_above(c("Emacs Score (w = 5)" = 3,
+                     "Info-Theoretic (w = 1.75)" = 3)) |>
+  scroll_box(width = "100%")
+```
+
+`r if(has_optimal) paste0("Kendall's tau between the Emacs ranking and the weight=1.75 ranking is ", round(tau_results$tau[tau_results$weight == 1.75], 3), ". ", if(tau_results$tau[tau_results$weight == 1.75] > 0.9) "Rankings are largely preserved, suggesting that the main findings are robust to the choice of penalty weight." else if(tau_results$tau[tau_results$weight == 1.75] > 0.7) "Rankings show moderate stability, indicating that the penalty weight influences but does not fundamentally alter condition ordering." else "Rankings shift substantially, demonstrating that the arbitrary 5-point penalty meaningfully distorts the relative performance of conditions.")`
+
+#### ITC Mixed-Effects Model
+
+The ITC uses configuration-specific penalties
+($\text{optimal\_rays}_c / 4$) rather than a global weight, providing a
+principled per-game metric for the mixed-effects analysis.
+
+```{r}
+#| label: itc-anova
+#| eval: !expr has_optimal
+
+# Fit ITC model with same structure as Emacs score model
+if (has_vot_var) {
+  itc_formula <- paste0("itc ~ ", main_formula, " + vot_condition",
+                         " + (1 | config_index)")
+} else {
+  itc_formula <- paste0("itc ~ ", main_formula,
+                         " + (1 | config_index)")
+}
+
+model_itc <- lmer(as.formula(itc_formula), data = play_itc)
+
+cat("ITC Model formula:", itc_formula, "\n\n")
+print(Anova(model_itc, type = 3))
+print(VarCorr(model_itc))
+
+icc_itc <- tryCatch(performance::icc(model_itc), error = function(e) NULL)
+icc_itc_display <- if (!is.null(icc_itc) && is.data.frame(icc_itc)) {
+  round(icc_itc$ICC_adjusted, 3)
+} else if (!is.null(icc_itc) && is.numeric(icc_itc)) {
+  round(icc_itc, 3)
+} else {
+  "not estimable for this model"
+}
+r2_itc <- performance::r2_nakagawa(model_itc)
+```
+
+**ICC**: `r if(has_optimal) icc_itc_display`
+
+**Model Fit**: - **Marginal R²**:
+`r if(has_optimal) round(r2_itc$R2_marginal, 3)` - **Conditional R²**:
+`r if(has_optimal) round(r2_itc$R2_conditional, 3)`
+
+#### Effect Size Comparison Across DVs
+
+```{r}
+#| label: itc-effect-size-comparison
+#| eval: !expr has_optimal
+
+# Compute partial eta-squared from lmerTest anova F-tests
+# eta2p = F * NumDF / (F * NumDF + DenDF)
+compute_eta2p <- function(model, dv_name) {
+  aov_tab <- anova(model)
+  tibble(
+    Parameter = rownames(aov_tab),
+    DV = dv_name,
+    F_value = aov_tab[["F value"]],
+    NumDF = aov_tab[["NumDF"]],
+    DenDF = aov_tab[["DenDF"]],
+    p_value = aov_tab[["Pr(>F)"]],
+    eta2p = F_value * NumDF / (F_value * NumDF + DenDF)
+  )
+}
+
+eta_all <- bind_rows(
+  compute_eta2p(model_atoms, "Atoms Correct"),
+  compute_eta2p(model_score, "Emacs Score"),
+  compute_eta2p(model_itc, "ITC")
+)
+
+# Wide format: one row per effect, columns for each DV
+effect_display <- eta_all |>
+  mutate(eta_display = sprintf("%.4f", eta2p)) |>
+  select(Parameter, DV, eta_display) |>
+  pivot_wider(names_from = DV, values_from = eta_display)
+
+kable(effect_display,
+      col.names = c("Effect", "Atoms Correct", "Emacs Score", "ITC"),
+      caption = paste0("Partial eta-squared for each effect across three ",
+                       "dependent variables. Differences between Emacs Score and ITC ",
+                       "columns indicate sensitivity to the penalty weight.")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+`r if(has_optimal) "The effect size comparison reveals whether the same experimental factors drive performance across all three metrics. Where ITC and Emacs score agree, the findings are robust to penalty weight; where they diverge, the arbitrary 5-point penalty may inflate or deflate the apparent importance of an effect."`
+
 ## Error Analysis
 
 To move beyond the outcome-level confusion matrix above, we classify
@@ -4820,7 +5132,7 @@ the predicted vs. actual outcome types and exit positions.
 **Error taxonomy:**
 
 | Error Category | Pattern | Description |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Missed absorption | pred: detour/reflected → actual: absorbed | Failed to check for atom directly in ray's path before checking diagonals |
 | Missed reflection | pred: detour/absorbed → actual: reflected | Failed to recognize reflection condition at entry point |
 | False absorption | pred: absorbed → actual: detour/reflected | Incorrectly identified absorption; confused diagonal atom with forward atom |
@@ -6513,8 +6825,8 @@ diagnostic tasks\]
     differences ($d \approx 0.08$) — require substantially more
     replications per cell than are currently available. Interaction
     effects are generally underpowered. A replication study targeting
-    the sample sizes identified in the power analysis would be needed
-    to draw definitive conclusions about these smaller effects.
+    the sample sizes identified in the power analysis would be needed to
+    draw definitive conclusions about these smaller effects.
 5.  **Predict mode ray selection**: In predict mode, rays are tested in
     a fixed sequential order (North 1–8, South 1–8, East 1–8, West 1–8),
     and entry points already observed as exit points of prior rays are
@@ -6523,6 +6835,13 @@ diagnostic tasks\]
     that served as exits for earlier rays. All 32 entry points should
     have been tested independently to enable unbiased comparison across
     entry sides.
+6.  **Scoring metric**: The Emacs Black Box score uses an arbitrary
+    5-point penalty per missed atom. We supplement it with an
+    information-theoretic composite where the penalty is calibrated to
+    each configuration's difficulty (see @sec-itc-decomposition). The
+    sensitivity analysis shows that key findings are
+    `r if(has_optimal && exists("tau_results")) { if(tau_results$tau[tau_results$weight == 1.75] > 0.9) "robust" else if(tau_results$tau[tau_results$weight == 1.75] > 0.7) "moderately robust" else "sensitive" }`
+    to the choice of penalty weight.
 
 ## Future Directions
 
